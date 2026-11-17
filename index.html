@@ -1,0 +1,244 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fifth Grade AI Game Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: #f0f6ff;
+    }
+    .fredoka { font-family: 'Fredoka', sans-serif; }
+    .hero {
+      background: linear-gradient(125deg, #102b55, #174b87, #49348c);
+    }
+    .team-card {
+      transition: transform .2s, box-shadow .2s;
+    }
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px #17255425;
+    }
+    .team-yellow { background: linear-gradient(135deg,#facc15,#eab308); }
+    .team-orange { background: linear-gradient(135deg,#fb923c,#ea580c); }
+    .team-red { background: linear-gradient(135deg,#fb7185,#dc2626); }
+    .team-green { background: linear-gradient(135deg,#4ade80,#16a34a); }
+    .team-blue { background: linear-gradient(135deg,#60a5fa,#2563eb); }
+    .class-card { border-top: 6px solid var(--class-color); }
+    a:focus-visible { outline: 4px solid #facc15; outline-offset: 3px; }
+  </style>
+</head>
+
+<body class="min-h-screen">
+
+  <!-- HEADER -->
+  <header class="hero text-white px-6 py-8 md:px-12">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center gap-2">
+          <span class="text-3xl">🚀</span>
+          <span class="font-bold tracking-widest text-sm">SMITHVILLE STEM PRESENTS</span>
+        </div>
+        <span class="bg-white/15 rounded-full px-4 py-2 text-sm font-semibold">
+          FIFTH GRADE EDITION
+        </span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 items-center">
+        <div>
+          <h1 class="fredoka text-5xl md:text-7xl font-bold leading-tight">
+            THE AI<br>
+            <span class="text-yellow-300">GAME LAB!</span>
+          </h1>
+          <p class="text-xl md:text-2xl font-semibold mt-4">
+            Dream it. Design it. Play it.
+          </p>
+          <p class="text-blue-100 mt-3 text-lg">
+            15 teams. Endless ideas. One incredible arcade.
+          </p>
+          <a href="#arcade" class="inline-block mt-6 bg-yellow-400 hover:bg-yellow-300 text-blue-950 font-bold rounded-full px-7 py-3 shadow-lg transition">
+            LET'S PLAY! 🎮
+          </a>
+        </div>
+
+        <div class="hidden md:flex justify-center items-center">
+          <div class="text-center">
+            <div class="text-8xl mb-3">🕹️</div>
+            <div class="flex gap-3 justify-center text-4xl">
+              <span>⭐</span><span>💡</span><span>🎨</span>
+            </div>
+            <p class="text-blue-100 font-semibold mt-3">
+              WHERE CREATIVITY MEETS TECHNOLOGY
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN ARCADE -->
+  <main id="arcade" class="max-w-7xl mx-auto px-5 md:px-10 py-9">
+
+    <div class="text-center mb-8">
+      <h2 class="fredoka text-4xl font-bold text-slate-800">
+        🎮 CHOOSE YOUR ARCADE!
+      </h2>
+      <p class="text-slate-500 mt-2 text-lg">
+        Explore the games created by our fifth-grade teams.
+      </p>
+    </div>
+
+    <div id="classes" class="grid lg:grid-cols-3 gap-6">
+
+      <!-- ADAMSON -->
+      <section class="class-card bg-white rounded-2xl shadow-lg p-5" style="--class-color:#2563eb">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="fredoka text-2xl font-bold text-blue-700">ADAMSON</h3>
+            <p class="text-xs text-slate-400 font-semibold">CLASS ARCADE</p>
+          </div>
+          <span class="text-3xl">🚀</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3" id="adamson-games"></div>
+      </section>
+
+      <!-- JHUGHES -->
+      <section class="class-card bg-white rounded-2xl shadow-lg p-5" style="--class-color:#059669">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="fredoka text-2xl font-bold text-emerald-700">JHUGHES</h3>
+            <p class="text-xs text-slate-400 font-semibold">CLASS ARCADE</p>
+          </div>
+          <span class="text-3xl">🌟</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3" id="jhughes-games"></div>
+      </section>
+
+      <!-- MCAVEY GLASCOCK -->
+      <section class="class-card bg-white rounded-2xl shadow-lg p-5" style="--class-color:#9333ea">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="fredoka text-xl font-bold text-purple-700">McAVEY GLASCOCK</h3>
+            <p class="text-xs text-slate-400 font-semibold">CLASS ARCADE</p>
+          </div>
+          <span class="text-3xl">🎨</span>
+        </div>
+        <div class="grid grid-cols-2 gap-3" id="mcavey-games"></div>
+      </section>
+
+    </div>
+
+    <!-- ORIGINAL GAME -->
+    <section class="mt-10">
+      <div class="rounded-3xl overflow-hidden shadow-xl bg-gradient-to-r from-slate-800 to-slate-600 text-white p-7 md:p-9">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-5">
+          <div>
+            <span class="bg-yellow-400 text-slate-900 text-xs font-extrabold rounded-full px-3 py-1">
+              THE BEGINNING
+            </span>
+            <h2 class="fredoka text-3xl md:text-4xl font-bold mt-3">
+              IT ALL STARTED HERE!
+            </h2>
+            <p class="text-slate-200 mt-2">
+              Before the upgrades, before the big ideas... there was Stickman!
+            </p>
+            <p class="text-slate-300 text-sm mt-2">
+              Play the original game and see how far our creativity can take us.
+            </p>
+            <a href="./Stickman_Baseline.html"
+              class="inline-block bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-bold rounded-full px-6 py-3 mt-5 transition">
+              PLAY ORIGINAL STICKMAN →
+            </a>
+          </div>
+          <div class="text-8xl md:text-9xl">🏃</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UPDATE BOARD -->
+    <section class="mt-10 bg-white rounded-2xl shadow-lg p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="text-3xl">💡</span>
+        <div>
+          <h2 class="fredoka text-2xl font-bold text-slate-800">
+            THE GAME UPDATE BOARD
+          </h2>
+          <p class="text-sm text-slate-500">Big ideas. New features. Awesome upgrades.</p>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mt-5">
+        <div class="bg-blue-50 rounded-xl p-4">
+          <span class="text-2xl">🗳️</span>
+          <h3 class="font-bold text-blue-800 mt-2">NEXT BIG IDEA</h3>
+          <p class="text-sm text-blue-700">Coming soon!</p>
+        </div>
+        <div class="bg-amber-50 rounded-xl p-4">
+          <span class="text-2xl">🏆</span>
+          <h3 class="font-bold text-amber-800 mt-2">LATEST UPDATE</h3>
+          <p class="text-sm text-amber-700">Our first upgrades are on the way!</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-4">
+          <span class="text-2xl">🎯</span>
+          <h3 class="font-bold text-green-800 mt-2">PLAYER FEEDBACK</h3>
+          <p class="text-sm text-green-700">Your ideas help make games better!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-10">
+      <p class="fredoka text-2xl font-bold text-slate-700">
+        THINK BIG. CREATE BIGGER. PLAY TOGETHER.
+      </p>
+      <p class="text-slate-400 text-sm mt-2">
+        Smithville Fifth Grade AI Game Lab · Powered by imagination.
+      </p>
+      <p class="text-slate-400 text-xs mt-2">
+        Student ideas + human creativity + AI-assisted creation
+      </p>
+    </footer>
+
+  </main>
+
+  <script>
+    const teams = [
+      { name: "YELLOW", color: "team-yellow", folder: "Yellow", emoji: "⭐" },
+      { name: "ORANGE", color: "team-orange", folder: "Orange", emoji: "🔥" },
+      { name: "RED", color: "team-red", folder: "Red", emoji: "🚀" },
+      { name: "GREEN", color: "team-green", folder: "Green", emoji: "🌿" },
+      { name: "BLUE", color: "team-blue", folder: "Blue", emoji: "💎" }
+    ];
+
+    const classes = [
+      { id: "adamson-games", folder: "Adamson" },
+      { id: "jhughes-games", folder: "JHughes" },
+      { id: "mcavey-games", folder: "McAveyGlascock" }
+    ];
+
+    classes.forEach(classInfo => {
+      const container = document.getElementById(classInfo.id);
+
+      teams.forEach(team => {
+        const link = document.createElement("a");
+        link.href = `./${classInfo.folder}/${team.folder}/index.html`;
+        link.className = `team-card ${team.color} rounded-xl p-4 text-center text-white shadow-md flex flex-col items-center justify-center min-h-28`;
+        link.innerHTML = `
+          <span class="text-3xl">${team.emoji}</span>
+          <span class="fredoka font-bold text-lg mt-1">${team.name}</span>
+          <span class="text-xs font-semibold opacity-90">PLAY GAME →</span>
+        `;
+        container.appendChild(link);
+      });
+    });
+  </script>
+
+</body>
+</html>
