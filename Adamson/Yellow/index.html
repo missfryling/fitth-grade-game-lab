@@ -2,6 +2,792 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucia's Miami Adventure | Yellow Team</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #fff5dc;
+  color: #19334a;
+  font-family: 'Outfit', sans-serif;
+}
+
+header {
+  background: linear-gradient(110deg,#ffb84d,#ff806b,#f46c9b);
+  color: white;
+  padding: 13px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 14px #8a4b3030;
+}
+
+.brand h1 {
+  font-family: 'Fredoka', sans-serif;
+  font-size: clamp(21px,3vw,30px);
+  margin: 0;
+  letter-spacing: .3px;
+}
+
+.brand p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: .95;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill {
+  background: #ffffff30;
+  border: 1px solid #ffffff65;
+  padding: 8px 13px;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+button {
+  font: inherit;
+  font-weight: 800;
+  border: 0;
+  border-radius: 12px;
+  padding: 9px 15px;
+  cursor: pointer;
+  background: #fff;
+  color: #d65c60;
+}
+
+button:hover { transform: translateY(-1px); }
+
+main {
+  max-width: 1250px;
+  margin: 14px auto;
+  padding: 0 14px;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.hud-card {
+  background: white;
+  border: 2px solid #f5d6a7;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 3px 8px #9a704020;
+}
+
+.hud-label {
+  color: #a06d48;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.hud-value {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 19px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+#missionText { font-size: 16px; }
+
+.game-frame {
+  position: relative;
+  overflow: hidden;
+  border: 5px solid white;
+  border-radius: 18px;
+  box-shadow: 0 7px 20px #79553a35;
+  background: #83d9c0;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: min(64vh, 590px);
+  min-height: 360px;
+  background: #83d9c0;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 12px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #526274;
+}
+
+.key {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: white;
+  border: 1px solid #d9c9ad;
+  box-shadow: 0 2px 0 #d9c9ad;
+  color: #24445b;
+  margin: 0 2px;
+}
+
+.message {
+  position: absolute;
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  max-width: 90%;
+  text-align: center;
+  background: #19334aee;
+  color: white;
+  border-radius: 14px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.message.show { opacity: 1; }
+
+footer {
+  text-align: center;
+  color: #987b61;
+  font-size: 11px;
+  padding: 2px 10px 14px;
+  font-weight: 600;
+}
+
+@media(max-width:650px) {
+  .hud { grid-template-columns: 1fr 1fr; }
+  .hud-card:first-child { grid-column: span 2; }
+  canvas { min-height: 340px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>🌴 Lucia's Miami Adventure</h1>
+    <p>ADAMSON • YELLOW TEAM • GAME VERSION 1.0</p>
+  </div>
+  <div class="header-right">
+    <div class="pill">🪙 <span id="coinHeader">0</span> / 10</div>
+    <button onclick="resetGame()">↻ Restart</button>
+  </div>
+</header>
+
+<main>
+  <section class="hud">
+    <div class="hud-card">
+      <div class="hud-label">Current Mission</div>
+      <div class="hud-value" id="missionText">Collect 10 coins around Miami!</div>
+    </div>
+    <div class="hud-card">
+      <div class="hud-label">Lucia's Money</div>
+      <div class="hud-value">🪙 <span id="coinCount">0</span> coins</div>
+    </div>
+    <div class="hud-card">
+      <div class="hud-label">Current Location</div>
+      <div class="hud-value" id="locationText">Miami Beach</div>
+    </div>
+  </section>
+
+  <div class="game-frame">
+    <canvas id="game"></canvas>
+    <div class="message" id="message"></div>
+  </div>
+
+  <div class="controls">
+    <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> Move / Drive</span>
+    <span>•</span>
+    <span><span class="key">E</span> Enter / Exit Car</span>
+    <span>•</span>
+    <span>Collect coins and visit the café!</span>
+  </div>
+</main>
+
+<footer>
+  A Yellow Team original game • Explore Miami, collect coins, and complete your mission!
+</footer>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const WORLD = { w: 2100, h: 1500 };
+const keys = new Set();
+
+let player, car, coins, collected, camera, messageTimer;
+let won = false;
+let inCar = false;
+let facing = 0;
+
+const buildings = [
+  {x:70,y:70,w:210,h:160,color:"#f6a66f",name:"Beach Hotel"},
+  {x:480,y:70,w:220,h:170,color:"#f8d47b",name:"Sunshine Apartments"},
+  {x:1110,y:70,w:240,h:170,color:"#e99ac0",name:"Palm Plaza"},
+  {x:1700,y:70,w:250,h:170,color:"#f2a66d",name:"Ocean Mall"},
+
+  {x:70,y:470,w:220,h:190,color:"#f3cf83",name:"Taco Shop"},
+  {x:480,y:470,w:220,h:190,color:"#a8c9f1",name:"Art Studio"},
+  {x:1110,y:470,w:240,h:190,color:"#f4b1a4",name:"Juice Bar"},
+  {x:1700,y:470,w:250,h:190,color:"#b6d99a",name:"Surf Shop"},
+
+  {x:70,y:930,w:220,h:190,color:"#f2a66d",name:"Music Hall"},
+  {x:480,y:930,w:220,h:190,color:"#d8b4ed",name:"Game Arcade"},
+  {x:1110,y:930,w:240,h:190,color:"#f8d47b",name:"Market"},
+  {x:1700,y:930,w:250,h:190,color:"#a8c9f1",name:"Hotel"},
+
+  {x:480,y:1280,w:220,h:140,color:"#f4b1a4",name:"Beach Café"},
+  {x:1110,y:1280,w:240,h:140,color:"#a8d9c0",name:"Garden Center"}
+];
+
+const roads = {
+  horizontal: [330, 790, 1250],
+  vertical: [370, 940, 1530]
+};
+
+const cafe = {x:1590,y:790};
+
+function resetGame() {
+  player = {x:370,y:330,r:15,speed:190};
+  car = {x:480,y:330,angle:0,speed:0};
+  inCar = false;
+  facing = 0;
+  collected = 0;
+  won = false;
+  camera = {x:0,y:0};
+  keys.clear();
+
+  coins = [
+    {x:370,y:510},{x:370,y:650},{x:570,y:790},
+    {x:800,y:790},{x:940,y:520},{x:940,y:680},
+    {x:1150,y:790},{x:1350,y:790},{x:1530,y:500},
+    {x:1530,y:650},{x:1530,y:1050},{x:940,y:1180}
+  ];
+
+  document.getElementById("coinCount").textContent = "0";
+  document.getElementById("coinHeader").textContent = "0";
+  document.getElementById("missionText").textContent =
+    "Collect 10 coins around Miami!";
+  document.getElementById("locationText").textContent = "Miami Beach";
+
+  showMessage("Welcome to Miami, Lucia! Find 10 coins!");
+}
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(rect.width*dpr);
+  canvas.height = Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+
+window.addEventListener("resize",resizeCanvas);
+
+function showMessage(text) {
+  const box = document.getElementById("message");
+  box.textContent = text;
+  box.classList.add("show");
+  clearTimeout(messageTimer);
+  messageTimer = setTimeout(()=>box.classList.remove("show"),2600);
+}
+
+function keyDown(e) {
+  const k = e.key.toLowerCase();
+
+  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k)) {
+    e.preventDefault();
+    return;
+  }
+
+  if (["w","a","s","d"].includes(k)) {
+    e.preventDefault();
+    keys.add(k);
+  }
+
+  if (k === "e" && !e.repeat) {
+    e.preventDefault();
+    toggleCar();
+  }
+}
+
+function keyUp(e) {
+  const k = e.key.toLowerCase();
+  keys.delete(k);
+}
+
+window.addEventListener("keydown",keyDown);
+window.addEventListener("keyup",keyUp);
+
+window.addEventListener("blur",()=>keys.clear());
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) keys.clear();
+});
+canvas.addEventListener("mouseleave",()=>keys.clear());
+
+function toggleCar() {
+  if(won) return;
+
+  if(!inCar) {
+    const d = Math.hypot(player.x-car.x,player.y-car.y);
+    if(d < 75) {
+      inCar = true;
+      car.speed = 0;
+      showMessage("🚗 You're driving! Explore Miami!");
+    } else {
+      showMessage("Walk closer to your car first!");
+    }
+  } else {
+    const exitX = car.x + Math.cos(car.angle+Math.PI/2)*48;
+    const exitY = car.y + Math.sin(car.angle+Math.PI/2)*48;
+
+    if(!blocked(exitX,exitY,player.r)) {
+      player.x = exitX;
+      player.y = exitY;
+      inCar = false;
+      car.speed = 0;
+      showMessage("Lucia is out of the car!");
+    } else {
+      showMessage("Find a little more space to park!");
+    }
+  }
+}
+
+function blocked(x,y,r) {
+  if(x < r || y < r || x > WORLD.w-r || y > WORLD.h-r)
+    return true;
+
+  return buildings.some(b =>
+    x+r > b.x && x-r < b.x+b.w &&
+    y+r > b.y && y-r < b.y+b.h
+  );
+}
+
+function moveEntity(entity,dx,dy,r) {
+  if(!blocked(entity.x+dx,entity.y,r)) entity.x += dx;
+  if(!blocked(entity.x,entity.y+dy,r)) entity.y += dy;
+}
+
+function update(dt) {
+  if(won) return;
+
+  let dx = 0, dy = 0;
+
+  if(keys.has("w")) dy -= 1;
+  if(keys.has("s")) dy += 1;
+  if(keys.has("a")) dx -= 1;
+  if(keys.has("d")) dx += 1;
+
+  const len = Math.hypot(dx,dy);
+  if(len > 0) {
+    dx /= len;
+    dy /= len;
+  }
+
+  if(inCar) {
+    if(len > 0) {
+      car.angle = Math.atan2(dy,dx);
+      car.speed = 270;
+    } else {
+      car.speed = 0;
+    }
+
+    const oldX = car.x, oldY = car.y;
+    moveEntity(car,dx*car.speed*dt,dy*car.speed*dt,20);
+
+    if(car.x === oldX && car.y === oldY) {
+      car.speed = 0;
+    }
+
+    collectCoins(car.x,car.y,27);
+  } else {
+    if(len > 0) {
+      facing = Math.atan2(dy,dx);
+      moveEntity(player,dx*player.speed*dt,dy*player.speed*dt,player.r);
+    }
+
+    collectCoins(player.x,player.y,24);
+
+    if(Math.hypot(player.x-car.x,player.y-car.y) < 40) {
+      // The E key lets Lucia enter her car.
+    }
+  }
+
+  const targetX = inCar ? car.x : player.x;
+  const targetY = inCar ? car.y : player.y;
+
+  camera.x = targetX - canvas.clientWidth/2;
+  camera.y = targetY - canvas.clientHeight/2;
+
+  camera.x = Math.max(0,Math.min(WORLD.w-canvas.clientWidth,camera.x));
+  camera.y = Math.max(0,Math.min(WORLD.h-canvas.clientHeight,camera.y));
+
+  const nearCafe = Math.hypot(targetX-cafe.x,targetY-cafe.y)<75;
+
+  if(collected >= 10) {
+    document.getElementById("missionText").textContent =
+      "Deliver your coins to the Beach Café!";
+  }
+
+  if(collected >= 10 && nearCafe) {
+    won = true;
+    document.getElementById("missionText").textContent =
+      "Mission Complete! 🎉";
+    showMessage("🎉 YOU DID IT! Welcome to the Miami Adventure!");
+  }
+
+  updateLocation(targetX,targetY);
+}
+
+function collectCoins(x,y,r) {
+  coins = coins.filter(coin=>{
+    if(Math.hypot(x-coin.x,y-coin.y)<r) {
+      collected++;
+      document.getElementById("coinCount").textContent=collected;
+      document.getElementById("coinHeader").textContent=collected;
+      showMessage("🪙 Coin collected! "+collected+" / 10");
+      return false;
+    }
+    return true;
+  });
+}
+
+function updateLocation(x,y) {
+  let location = "Miami Beach";
+  if(x > 1000 && y < 400) location = "Palm Plaza";
+  else if(x > 1000 && y > 400 && y < 1000) location = "Downtown Miami";
+  else if(y > 1000) location = "South Beach";
+  else if(x < 700 && y > 400) location = "Ocean Drive";
+  document.getElementById("locationText").textContent=location;
+}
+
+function drawRoads() {
+  ctx.fillStyle="#d7c7a9";
+  ctx.fillRect(0,0,WORLD.w,WORLD.h);
+
+  // Beach and ocean
+  ctx.fillStyle="#70cde3";
+  ctx.fillRect(0,0,45,WORLD.h);
+  ctx.fillStyle="#f6d99a";
+  ctx.fillRect(45,0,75,WORLD.h);
+
+  // Road surfaces
+  ctx.fillStyle="#687c86";
+  roads.horizontal.forEach(y=>ctx.fillRect(0,y-75,WORLD.w,150));
+  roads.vertical.forEach(x=>ctx.fillRect(x-75,0,150,WORLD.h));
+
+  // Road edges
+  ctx.strokeStyle="#f9e9a9";
+  ctx.lineWidth=3;
+  ctx.setLineDash([22,18]);
+
+  roads.horizontal.forEach(y=>{
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(WORLD.w,y);
+    ctx.stroke();
+  });
+
+  roads.vertical.forEach(x=>{
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,WORLD.h);
+    ctx.stroke();
+  });
+
+  ctx.setLineDash([]);
+
+  // Beach decoration
+  for(let y=70;y<WORLD.h;y+=150) {
+    drawPalm(75,y);
+  }
+}
+
+function drawPalm(x,y) {
+  ctx.fillStyle="#98633d";
+  ctx.beginPath();
+  ctx.ellipse(x,y,6,20,0,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="#268b64";
+  for(let i=0;i<6;i++) {
+    const a=i*Math.PI/3;
+    ctx.beginPath();
+    ctx.ellipse(
+      x+Math.cos(a)*15,
+      y-16+Math.sin(a)*15,
+      9,22,a,0,Math.PI*2
+    );
+    ctx.fill();
+  }
+}
+
+function drawBuildings() {
+  buildings.forEach((b,i)=>{
+    ctx.fillStyle="#00000018";
+    ctx.fillRect(b.x+7,b.y+8,b.w,b.h);
+
+    ctx.fillStyle=b.color;
+    roundRect(b.x,b.y,b.w,b.h,13);
+    ctx.fill();
+
+    ctx.fillStyle="#ffffff";
+    ctx.fillRect(b.x+15,b.y+15,b.w-30,8);
+
+    ctx.fillStyle="#ffffff99";
+    for(let x=b.x+25;x<b.x+b.w-15;x+=42) {
+      for(let y=b.y+45;y<b.y+b.h-30;y+=42) {
+        ctx.fillRect(x,y,19,20);
+      }
+    }
+
+    ctx.fillStyle="#344c5c";
+    ctx.font="bold 15px Outfit";
+    ctx.textAlign="center";
+    ctx.fillText(b.name,b.x+b.w/2,b.y+b.h-14);
+
+    ctx.fillStyle="#ffffff";
+    ctx.fillRect(b.x+b.w/2-13,b.y+b.h-48,26,30);
+  });
+}
+
+function roundRect(x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,r);
+}
+
+function drawCoins() {
+  coins.forEach(c=>{
+    ctx.save();
+    ctx.translate(c.x,c.y);
+    ctx.fillStyle="#e5a51e";
+    ctx.beginPath();
+    ctx.arc(0,0,13,0,Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle="#fff1a8";
+    ctx.lineWidth=3;
+    ctx.stroke();
+    ctx.fillStyle="#fff4bc";
+    ctx.font="bold 15px Fredoka";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText("$",0,1);
+    ctx.restore();
+  });
+}
+
+function drawCar(x,y,angle) {
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(angle);
+
+  ctx.fillStyle="#00000030";
+  ctx.fillRect(-23,-11,52,27);
+
+  ctx.fillStyle="#e95153";
+  ctx.beginPath();
+  ctx.roundRect(-25,-14,50,28,8);
+  ctx.fill();
+
+  ctx.fillStyle="#bde7f0";
+  ctx.fillRect(-9,-10,20,20);
+
+  ctx.fillStyle="#f8f2d5";
+  ctx.fillRect(18,-9,5,7);
+  ctx.fillRect(18,3,5,7);
+
+  ctx.fillStyle="#28394a";
+  ctx.fillRect(-17,-17,12,5);
+  ctx.fillRect(8,-17,12,5);
+  ctx.fillRect(-17,12,12,5);
+  ctx.fillRect(8,12,12,5);
+
+  ctx.restore();
+}
+
+function drawPlayer(x,y) {
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(facing);
+
+  // Shadow
+  ctx.fillStyle="#00000025";
+  ctx.beginPath();
+  ctx.ellipse(0,15,13,6,0,0,Math.PI*2);
+  ctx.fill();
+
+  // Legs
+  ctx.strokeStyle="#36445c";
+  ctx.lineWidth=5;
+  ctx.lineCap="round";
+  ctx.beginPath();
+  ctx.moveTo(-4,5); ctx.lineTo(-6,15);
+  ctx.moveTo(4,5); ctx.lineTo(6,15);
+  ctx.stroke();
+
+  // Body
+  ctx.fillStyle="#ef7099";
+  ctx.beginPath();
+  ctx.roundRect(-9,-8,18,18,6);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle="#eebc91";
+  ctx.beginPath();
+  ctx.arc(0,-14,10,0,Math.PI*2);
+  ctx.fill();
+
+  // Hair
+  ctx.fillStyle="#71462d";
+  ctx.beginPath();
+  ctx.arc(0,-17,10,Math.PI,Math.PI*2);
+  ctx.fill();
+
+  // Face
+  ctx.fillStyle="#34445a";
+  ctx.beginPath();
+  ctx.arc(3,-14,1.5,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawCafe() {
+  ctx.fillStyle="#00000020";
+  ctx.fillRect(cafe.x-44,cafe.y-35,100,80);
+
+  ctx.fillStyle="#fff4d6";
+  ctx.fillRect(cafe.x-48,cafe.y-42,96,72);
+
+  ctx.fillStyle="#ed866c";
+  ctx.beginPath();
+  ctx.moveTo(cafe.x-55,cafe.y-42);
+  ctx.lineTo(cafe.x,cafe.y-85);
+  ctx.lineTo(cafe.x+55,cafe.y-42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle="#8dd2bb";
+  ctx.fillRect(cafe.x-30,cafe.y-25,22,30);
+  ctx.fillRect(cafe.x+8,cafe.y-25,22,30);
+
+  ctx.fillStyle="#76503d";
+  ctx.font="bold 16px Fredoka";
+  ctx.textAlign="center";
+  ctx.fillText("BEACH CAFÉ",cafe.x,cafe.y+52);
+
+  ctx.fillStyle="#fff";
+  ctx.font="bold 13px Outfit";
+  ctx.fillText("DELIVERY",cafe.x,cafe.y+69);
+}
+
+function drawWorld() {
+  const w=canvas.clientWidth;
+  const h=canvas.clientHeight;
+
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.translate(-camera.x,-camera.y);
+
+  drawRoads();
+  drawBuildings();
+  drawCafe();
+  drawCoins();
+
+  // Decorative beach umbrellas
+  for(let i=0;i<7;i++) {
+    const x=145+i*27;
+    const y=150+i*185;
+    ctx.fillStyle=i%2?"#ff9d75":"#f5d15e";
+    ctx.beginPath();
+    ctx.arc(x,y,11,Math.PI,0);
+    ctx.fill();
+  }
+
+  drawCar(car.x,car.y,car.angle);
+
+  if(!inCar) {
+    drawPlayer(player.x,player.y);
+
+    if(Math.hypot(player.x-car.x,player.y-car.y)<75) {
+      ctx.fillStyle="#19334a";
+      ctx.font="bold 14px Outfit";
+      ctx.textAlign="center";
+      ctx.fillText("Press E to drive!",player.x,player.y-38);
+    }
+  }
+
+  // Café marker
+  const targetX = inCar ? car.x : player.x;
+  const targetY = inCar ? car.y : player.y;
+  if(collected>=10) {
+    ctx.strokeStyle="#ffb52e";
+    ctx.lineWidth=4;
+    ctx.beginPath();
+    ctx.arc(cafe.x,cafe.y-5,65+Math.sin(Date.now()/180)*5,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // Win overlay
+  if(won) {
+    ctx.fillStyle="#18354bdc";
+    ctx.fillRect(0,0,w,h);
+    ctx.textAlign="center";
+    ctx.fillStyle="#fff";
+    ctx.font="bold 38px Fredoka";
+    ctx.fillText("MISSION COMPLETE!",w/2,h/2-25);
+    ctx.font="bold 20px Outfit";
+    ctx.fillText("Lucia delivered the coins! Great job!",w/2,h/2+15);
+    ctx.font="16px Outfit";
+    ctx.fillText("Press Restart to explore Miami again.",w/2,h/2+52);
+  }
+}
+
+let lastTime=0;
+
+function gameLoop(timestamp) {
+  const dt=Math.min((timestamp-lastTime)/1000||0,0.04);
+  lastTime=timestamp;
+  update(dt);
+  drawWorld();
+  requestAnimationFrame(gameLoop);
+}
+
+resizeCanvas();
+resetGame();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Adamson - Yellow Team | AI Game Lab</title>
