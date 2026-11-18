@@ -1,4 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gecomon - Adamson Orange</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #2d4a22; color: #fff; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 15px; 
+            display: flex; justify-content: space-between; pointer-events: none; z-index: 10;
+            background: rgba(0,0,0,0.6); border-bottom: 2px solid #555;
+        }
+        .ui-box { display: flex; flex-direction: column; gap: 5px; }
+        .ui-text { font-size: 16px; font-weight: bold; text-transform: uppercase; text-shadow: 1px 1px 0 #000; }
+        .health-bar-container { width: 200px; height: 15px; background: #555; border: 2px solid #fff; border-radius: 8px; overflow: hidden; }
+        .health-bar { height: 100%; background: #ff3333; width: 100%; transition: width 0.2s; }
+        #canvas-container { flex-grow: 1; width: 100%; position: relative; }
+        canvas { display: block; width: 100%; height: 100%; }
+        #game-over {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9); border: 2px solid #fff; padding: 30px; text-align: center;
+            display: none; z-index: 20;
+        }
+        #game-over h1 { margin-bottom: 15px; color: #ff3333; }
+        #game-over button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #fff; border: none; font-weight: bold; }
+    </style>
+</head>
+<body>
 
+    <div id="ui-layer">
+        <div class="ui-box">
+            <div class="ui-text">Stickman HP</div>
+            <div class="health-bar-container"><div class="health-bar" id="hp-bar"></div></div>
+            <div class="ui-text" style="color:#ffd700; margin-top:5px;">Coins: <span id="coin-count">0</span></div>
+        </div>
+        <div class="ui-box" style="text-align: right;">
+            <div class="ui-text" style="color:#a8ff98;">Geckos Caught: <span id="gecko-count">0</span> / 10</div>
+            <div class="ui-text" style="color:#ffae42;">Gecko Level: <span id="gecko-level">1</span></div>
+            <div class="ui-text" style="font-size: 12px; color: #ccc;">[SPACE] Swing Net | [E] Upgrade Geckos (15 Coins)</div>
+        </div>
+    </div>
+
+    <div id="game-over">
+        <h1 id="end-title">Game Over</h1>
+        <div class="ui-text" id="end-desc" style="margin-bottom:20px;">The Geckos got you!</div>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Game Constants & State
+        const WORLD_SIZE = 2000;
+        const keys = {};
+        let gameState = 'PLAYING'; // PLAYING, GAMEOVER, VICTORY
+        let camera = { x: 0, y: 0 };
+
+        window.addEventListener('keydown', e => { keys[e.code] = true; });
+        window.addEventListener('keyup', e => { 
+            keys[e.code] = false; 
+            if (e.code === 'KeyE') upgradeGeckos();
+            if (e.code === 'Space') player.swingNet();
+        });
+
+        // Player Entity
+        const player = {
+            x: WORLD_SIZE / 2, y: WORLD_SIZE / 2,
+            speed: 5, hp: 100, maxHp: 100,
+            facing: 1, walkFrame: 0,
+            invulnerableTime: 0,
+            coins: 0, geckosCaught: 0, geckoLevel: 1,
+            netActive: 0, netAngle: 0
+        };
+
+        // Arrays for Game Objects
+        let geckos = [];
+        let coins = [];
+        let allyProjectiles = [];
+        let boss = null;
+
+        // --- SPAWNING LOGIC ---
+        function spawnGecko() {
+            if (geckos.length > 15 || boss) return; // Cap enemies, stop spawning if boss is here
+            const isRed = Math.random() < 0.3; // 30% chance for strong red gecko
+            geckos.push({
+                x: Math.random() * WORLD_SIZE, y: Math.random() * WORLD_SIZE,
+                type: isRed ? 'red' : 'lightgreen',
+                color: isRed ? '#ff3333' : '#90ee90',
+                speed: isRed ? 2.5 : 1.5,
+                damage: isRed ? 20 : 10,
+                radius: 12,
+                vx: 0, vy: 0
+            });
+        }
+        
+        function spawnCoin(x, y) {
+            coins.push({ x: x + (Math.random()*20-10), y: y + (Math.random()*20-10), radius: 6 });
+        }
+
+        // Initial Spawns
+        for(let i=0; i<10; i++) spawnGecko();
+        for(let i=0; i<20; i++) spawnCoin(Math.random() * WORLD_SIZE, Math.random() * WORLD_SIZE);
+        setInterval(spawnGecko, 2000);
+
+        // --- UPGRADE SYSTEM ---
+        function upgradeGeckos() {
+            if (player.coins >= 15 && gameState === 'PLAYING') {
+                player.coins -= 15;
+                player.geckoLevel++;
+                updateUI();
+            }
+        }
+
+        // --- PLAYER MECHANICS ---
+        player.swingNet = function() {
+            if (this.netActive <= 0) {
+                this.netActive = 15; // Net active for 15 frames
+                this.netAngle = this.facing === 1 ? 0 : Math.PI;
+                
+                // Check catch collision
+                for (let i = geckos.length - 1; i >= 0; i--) {
+                    let g = geckos[i];
+                    let dist = Math.hypot(g.x - this.x, g.y - this.y);
+                    let angleToG = Math.atan2(g.y - this.y, g.x - this.x);
+                    let angleDiff = Math.abs(angleToG - this.netAngle);
+                    if (angleDiff > Math.PI) angleDiff = (Math.PI * 2) - angleDiff;
+                    
+                    // If within net radius and semi-circle facing
+                    if (dist < 70 && angleDiff < Math.PI / 2) {
+                        geckos.splice(i, 1);
+                        player.geckosCaught++;
+                        spawnCoin(g.x, g.y);
+                        spawnCoin(g.x, g.y);
+                        updateUI();
+                        checkBossTrigger();
+                    }
+                }
+            }
+        };
+
+        function checkBossTrigger() {
+            if (player.geckosCaught >= 10 && !boss) {
+                boss = {
+                    x: WORLD_SIZE / 2, y: WORLD_SIZE / 2 - 300,
+                    hp: 500, maxHp: 500,
+                    radius: 40, color: '#8A2BE2' // Purple Boss
+                };
+            }
+        }
+
+        // --- UPDATE LOOP ---
+        function update() {
+            if (gameState !== 'PLAYING') return;
+
+            // Player Movement
+            let dx = 0, dy = 0;
+            if (keys['KeyW'] || keys['ArrowUp']) dy -= 1;
+            if (keys['KeyS'] || keys['ArrowDown']) dy += 1;
+            if (keys['KeyA'] || keys['ArrowLeft']) { dx -= 1; player.facing = -1; }
+            if (keys['KeyD'] || keys['ArrowRight']) { dx += 1; player.facing = 1; }
+
+            if (dx !== 0 || dy !== 0) {
+                let len = Math.hypot(dx, dy);
+                player.x += (dx / len) * player.speed;
+                player.y += (dy / len) * player.speed;
+                player.walkFrame += 0.2;
+            } else {
+                player.walkFrame = 0;
+            }
+
+            // Bounds constraints
+            player.x = Math.max(20, Math.min(WORLD_SIZE - 20, player.x));
+            player.y = Math.max(20, Math.min(WORLD_SIZE - 20, player.y));
+
+            if (player.invulnerableTime > 0) player.invulnerableTime--;
+            if (player.netActive > 0) player.netActive--;
+
+            // Camera follow
+            camera.x = player.x - canvas.width / 2;
+            camera.y = player.y - canvas.height / 2;
+
+            // Coins
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let dist = Math.hypot(coins[i].x - player.x, coins[i].y - player.y);
+                if (dist < 20) {
+                    player.coins++;
+                    coins.splice(i, 1);
+                    updateUI();
+                }
+            }
+
+            // Geckos Movement & Attack Stickman
+            for (let i = geckos.length - 1; i >= 0; i--) {
+                let g = geckos[i];
+                let distToPlayer = Math.hypot(player.x - g.x, player.y - g.y);
+                
+                // Chase if close, wander if far
+                if (distToPlayer < 300) {
+                    g.vx = ((player.x - g.x) / distToPlayer) * g.speed;
+                    g.vy = ((player.y - g.y) / distToPlayer) * g.speed;
+                } else {
+                    if (Math.random() < 0.05) { g.vx = (Math.random() - 0.5) * g.speed; g.vy = (Math.random() - 0.5) * g.speed; }
+                }
+                
+                g.x += g.vx; g.y += g.vy;
+
+                // Hit Player
+                if (distToPlayer < 20 && player.invulnerableTime === 0) {
+                    player.hp -= g.damage;
+                    player.invulnerableTime = 60; // 1 second i-frames
+                    updateUI();
+                    if (player.hp <= 0) triggerGameOver(false);
+                }
+            }
+
+            // Boss Logic
+            if (boss) {
+                let distToPlayer = Math.hypot(player.x - boss.x, player.y - boss.y);
+                boss.x += ((player.x - boss.x) / distToPlayer) * 1.8;
+                boss.y += ((player.y - boss.y) / distToPlayer) * 1.8;
+
+                if (distToPlayer < 50 && player.invulnerableTime === 0) {
+                    player.hp -= 30;
+                    player.invulnerableTime = 60;
+                    updateUI();
+                    if (player.hp <= 0) triggerGameOver(false);
+                }
+
+                // Caught Geckos auto-attack boss
+                if (Math.random() < 0.05) {
+                    allyProjectiles.push({
+                        x: player.x, y: player.y,
+                        target: boss,
+                        damage: 10 * player.geckoLevel // Scaled by shop upgrade
+                    });
+                }
+            }
+
+            // Ally Projectiles
+            for (let i = allyProjectiles.length - 1; i >= 0; i--) {
+                let p = allyProjectiles[i];
+                let dist = Math.hypot(p.target.x - p.x, p.target.y - p.y);
+                p.x += ((p.target.x - p.x) / dist) * 8;
+                p.y += ((p.target.y - p.y) / dist) * 8;
+
+                if (dist < p.target.radius) {
+                    if (boss) boss.hp -= p.damage;
+                    allyProjectiles.splice(i, 1);
+                    if (boss && boss.hp <= 0) triggerGameOver(true);
+                }
+            }
+        }
+
+        // --- DRAWING LOGIC ---
+        function drawStickman(x, y, facing, walkFrame, isHit) {
+            ctx.save();
+            ctx.strokeStyle = isHit ? '#ff0000' : '#ffffff';
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+            const neckY = y - 15, headY = neckY - 6, shoulderY = neckY + 4;
+            // Head
+            ctx.beginPath(); ctx.arc(x, headY, 6, 0, Math.PI * 2); ctx.stroke();
+            // Torso
+            ctx.beginPath(); ctx.moveTo(x, neckY); ctx.lineTo(x, y); ctx.stroke();
+            // Legs
+            const legSwing = Math.sin(walkFrame) * 8;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - legSwing, y + 12); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + legSwing, y + 12); ctx.stroke();
+            // Arms
+            const armSwing = Math.sin(walkFrame + Math.PI) * 6;
+            ctx.beginPath(); ctx.moveTo(x, shoulderY); ctx.lineTo(x - facing * 5 - armSwing, shoulderY + 8); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x, shoulderY); ctx.lineTo(x + facing * 5 + armSwing, shoulderY + 8); ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawGecko(x, y, color, size, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.fillStyle = color;
+            // Body
+            ctx.beginPath(); ctx.ellipse(0, 0, size, size/2, 0, 0, Math.PI*2); ctx.fill();
+            // Head
+            ctx.beginPath(); ctx.arc(size/1.5, 0, size/1.5, 0, Math.PI*2); ctx.fill();
+            // Tail
+            ctx.beginPath(); ctx.moveTo(-size, 0); ctx.lineTo(-size*2, size/3); ctx.lineTo(-size*1.5, -size/4); ctx.fill();
+            // Legs
+            ctx.fillStyle = '#111';
+            ctx.fillRect(size/3, size/2, 4, size/2); ctx.fillRect(-size/3, size/2, 4, size/2);
+            ctx.fillRect(size/3, -size, 4, size/2); ctx.fillRect(-size/3, -size, 4, size/2);
+            ctx.restore();
+        }
+
+        function draw() {
+            ctx.fillStyle = '#2d4a22'; // Grass background
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-camera.x, -camera.y);
+
+            // Draw World Bounds
+            ctx.strokeStyle = '#1e3317'; ctx.lineWidth = 10;
+            ctx.strokeRect(0, 0, WORLD_SIZE, WORLD_SIZE);
+
+            // Coins
+            coins.forEach(c => {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath(); ctx.arc(c.x, c.y, c.radius, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#b8860b'; ctx.stroke();
+            });
+
+            // Geckos
+            geckos.forEach(g => {
+                let angle = Math.atan2(g.vy, g.vx);
+                drawGecko(g.x, g.y, g.color, g.radius, angle);
+            });
+
+            // Boss
+            if (boss) {
+                drawGecko(boss.x, boss.y, boss.color, boss.radius, Math.atan2(player.y - boss.y, player.x - boss.x));
+                // Boss Health
+                ctx.fillStyle = 'red'; ctx.fillRect(boss.x - 40, boss.y - 60, 80, 8);
+                ctx.fillStyle = '#00ff00'; ctx.fillRect(boss.x - 40, boss.y - 60, 80 * (boss.hp/boss.maxHp), 8);
+            }
+
+            // Ally Projectiles
+            allyProjectiles.forEach(p => {
+                ctx.fillStyle = '#90ee90';
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+            });
+
+            // Player Net Swing
+            if (player.netActive > 0) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, 70, player.netAngle - 1, player.netAngle + 1);
+                ctx.lineTo(player.x, player.y);
+                ctx.fill();
+            }
+
+            // Player Stickman
+            let isFlashing = player.invulnerableTime > 0 && Math.floor(Date.now() / 100) % 2 === 0;
+            drawStickman(player.x, player.y, player.facing, player.walkFrame, isFlashing);
+
+            // Trailing caught geckos (Party)
+            for(let i=0; i<Math.min(player.geckosCaught, 10); i++) {
+                let offset = (i + 1) * 20;
+                let tx = player.x - (player.facing * offset);
+                let ty = player.y + Math.sin(Date.now()/200 + i)*5;
+                drawGecko(tx, ty, '#90ee90', 6, player.facing === 1 ? 0 : Math.PI);
+            }
+
+            ctx.restore();
+        }
+
+        // --- UI & STATE HANDLERS ---
+        function updateUI() {
+            document.getElementById('hp-bar').style.width = Math.max(0, (player.hp / player.maxHp) * 100) + '%';
+            document.getElementById('coin-count').innerText = player.coins;
+            document.getElementById('gecko-count').innerText = player.geckosCaught;
+            document.getElementById('gecko-level').innerText = player.geckoLevel;
+        }
+
+        function triggerGameOver(isWin) {
+            gameState = isWin ? 'VICTORY' : 'GAMEOVER';
+            const goMenu = document.getElementById('game-over');
+            goMenu.style.display = 'block';
+            document.getElementById('end-title').innerText = isWin ? 'VICTORY!' : 'GAME OVER';
+            document.getElementById('end-title').style.color = isWin ? '#ffd700' : '#ff3333';
+            document.getElementById('end-desc').innerText = isWin ? 'You defeated the Boss Gecko!' : 'The Geckos got you!';
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        
+        updateUI();
+        loop();
+    </script>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
