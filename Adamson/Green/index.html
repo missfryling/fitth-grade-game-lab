@@ -3,794 +3,365 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skyler's Keyboard Maze | Green Team</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skyler's 3D Maze Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
-
-* { box-sizing:border-box; }
-
-body {
-  margin:0;
-  background:#eaf4ff;
-  color:#24364b;
-  font-family:'Outfit',sans-serif;
-}
-
-header {
-  background:linear-gradient(110deg,#2878cf,#7356c9,#a45dc9);
-  color:white;
-  padding:14px 22px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  flex-wrap:wrap;
-  box-shadow:0 4px 14px #263b6540;
-}
-
-h1 {
-  font-family:'Fredoka',sans-serif;
-  font-size:clamp(22px,3vw,31px);
-  margin:0;
-}
-
-header p {
-  margin:2px 0 0;
-  font-size:12px;
-  font-weight:700;
-}
-
-.header-right {
-  display:flex;
-  align-items:center;
-  gap:9px;
-}
-
-.pill {
-  background:#ffffff28;
-  border:1px solid #ffffff66;
-  border-radius:30px;
-  padding:9px 13px;
-  font-size:13px;
-  font-weight:800;
-}
-
-button {
-  border:0;
-  border-radius:11px;
-  padding:10px 15px;
-  background:white;
-  color:#5546a7;
-  font:800 14px 'Outfit',sans-serif;
-  cursor:pointer;
-}
-
-button:hover { transform:translateY(-1px); }
-
-main {
-  max-width:1100px;
-  margin:15px auto;
-  padding:0 14px;
-}
-
-.stats {
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:9px;
-  margin-bottom:11px;
-}
-
-.stat {
-  background:white;
-  border:2px solid #d6e4f7;
-  border-radius:13px;
-  padding:9px 12px;
-  box-shadow:0 3px 8px #354f7020;
-}
-
-.stat-label {
-  color:#75869b;
-  font-size:10px;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:1px;
-}
-
-.stat-value {
-  font-family:'Fredoka',sans-serif;
-  font-size:20px;
-  font-weight:700;
-  margin-top:2px;
-}
-
-.game-box {
-  position:relative;
-  border:5px solid white;
-  border-radius:17px;
-  overflow:hidden;
-  background:#263b59;
-  box-shadow:0 7px 20px #263b5930;
-}
-
-canvas {
-  display:block;
-  width:100%;
-  height:auto;
-  background:#263b59;
-}
-
-.overlay {
-  display:none;
-  position:absolute;
-  inset:0;
-  background:#14243be8;
-  color:white;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:20px;
-}
-
-.overlay.show { display:flex; }
-
-.overlay h2 {
-  font:700 38px 'Fredoka',sans-serif;
-  margin:0 0 10px;
-}
-
-.overlay p {
-  font-size:16px;
-  line-height:1.6;
-}
-
-.overlay button {
-  background:#ffdb69;
-  color:#273a55;
-  margin-top:10px;
-}
-
-.controls {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:9px;
-  padding:12px 5px;
-  font-size:12px;
-  font-weight:700;
-  color:#62748b;
-}
-
-.key {
-  display:inline-block;
-  background:white;
-  border:1px solid #cbd9e9;
-  border-radius:6px;
-  padding:4px 8px;
-  margin:0 2px;
-  color:#334b6b;
-  box-shadow:0 2px 0 #cbd9e9;
-}
-
-.instructions {
-  background:white;
-  border:2px solid #d6e4f7;
-  border-radius:13px;
-  padding:12px 15px;
-  margin-top:5px;
-  font-size:13px;
-  line-height:1.6;
-}
-
-.instructions strong { color:#5146a6; }
-
-footer {
-  text-align:center;
-  color:#8291a4;
-  font-size:11px;
-  padding:12px;
-  font-weight:700;
-}
-
-@media(max-width:650px) {
-  .stats { grid-template-columns:repeat(2,1fr); }
-}
+*{box-sizing:border-box}
+body{margin:0;background:#14243a;color:white;font-family:Outfit,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#203653}
+.brand{font:700 23px Fredoka;color:#a7f28b}
+button{border:0;border-radius:13px;padding:10px 16px;background:#ffe36e;color:#26334b;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 0 #c69e39}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button.secondary{background:#a9e9ff;box-shadow:0 4px 0 #589dbb}
+button.pink{background:#ffb4d4;box-shadow:0 4px 0 #bd7295}
+#stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px}
+.stat{background:#294463;border:1px solid #496789;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
+#layout{width:min(1100px,100%);margin:auto;padding:0 12px}
+#gamebox{position:relative}
+canvas{display:block;width:100%;aspect-ratio:16/9;background:#152039;border:4px solid #6a8db3;border-radius:17px}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#0c1729dc;border-radius:17px;text-align:center}
+.panel{max-width:590px;width:100%;padding:24px;background:#254363;border:3px solid #a7f28b;border-radius:24px;box-shadow:0 12px 35px #0008}
+h1{font:700 clamp(28px,5vw,46px) Fredoka;color:#b6ff98;margin:0 0 8px}
+h2{font:700 25px Fredoka;color:#ffe36e;margin:5px 0}
+p{line-height:1.5}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}
+.small{font-size:13px;color:#d9eaff}
+#bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 5px;color:#d8e9ff}
+#message{text-align:center;color:#ffe36e;font-weight:700;min-height:25px;padding:5px}
+#profile{display:inline-flex;align-items:center;gap:8px;color:#c7f6b7;font-weight:700}
+.avatar{font-size:30px;background:#426184;border-radius:50%;padding:4px}
+@media(max-width:600px){header{justify-content:center}.brand{width:100%;text-align:center}.stat{font-size:12px;padding:6px 8px}.panel{padding:14px}}
 </style>
 </head>
-
 <body>
 <header>
-  <div>
-    <h1>⌨️ Skyler's Keyboard Maze</h1>
-    <p>ADAMSON • GREEN TEAM • VERSION 1.0</p>
-  </div>
-  <div class="header-right">
-    <div class="pill">⭐ Level <span id="levelTop">1</span>/3</div>
-    <button onclick="restartGame()">↻ Restart</button>
-  </div>
+ <div class="brand">🗝️ SKYLER'S 3D MAZE QUEST</div>
+ <div class="row" style="margin:0">
+  <button class="secondary" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
+  <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
+  <button class="pink" onclick="restartLevel()">↻ Restart Level</button>
+ </div>
 </header>
 
-<main>
-  <section class="stats">
-    <div class="stat">
-      <div class="stat-label">Current Level</div>
-      <div class="stat-value" id="level">1 / 3</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Lives</div>
-      <div class="stat-value" id="lives">❤️❤️❤️</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Power-ups</div>
-      <div class="stat-value" id="power">⚡ 0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Mission</div>
-      <div class="stat-value" id="mission">Find the exit!</div>
-    </div>
-  </section>
+<div id="stats">
+ <div class="stat">🌎 World: <span id="world">1</span> / 5</div>
+ <div class="stat">🗝️ Level: <span id="level">1</span> / 14</div>
+ <div class="stat">❤️ Hearts: <span id="hearts">❤️❤️❤️</span></div>
+ <div class="stat">👣 Steps: <span id="steps">0</span></div>
+ <div class="stat">⭐ Points: <span id="points">0</span></div>
+ <div class="stat">🪙 Coins: <span id="coins">0</span></div>
+ <div class="stat">✨ Shield: <span id="shield">No</span></div>
+</div>
 
-  <div class="game-box">
-    <canvas id="game" width="900" height="600"></canvas>
-
-    <div class="overlay" id="overlay">
-      <div>
-        <h2 id="overlayTitle">Great Job!</h2>
-        <p id="overlayText">You escaped the maze!</p>
-        <button id="overlayButton" onclick="overlayAction()">Continue</button>
-      </div>
-    </div>
+<div id="layout">
+ <div id="gamebox">
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="overlay">
+   <div class="panel" id="panel">
+    <div style="font-size:54px">🧍🏻‍♂️🗝️</div>
+    <h1>SKYLER'S 3D MAZE QUEST</h1>
+    <h2>70 MAZES. 5 WORLDS. ONE BIG ADVENTURE!</h2>
+    <p>Help Skyler escape colorful mazes, collect coins, find power-ups, and avoid monsters as the worlds get harder!</p>
+    <p><b>W</b> forward · <b>S</b> backward · <b>A</b> strafe left · <b>D</b> strafe right</p>
+    <p><b>SPACE</b> use your shield · <b>P</b> pause</p>
+    <p class="small">No timers! Take your time and find the exit. You have three hearts in each world.</p>
+    <div class="row"><button onclick="newAdventure()">🚀 START ADVENTURE</button></div>
+   </div>
   </div>
-
-  <div class="controls">
-    <span><span class="key">W</span> Up</span>
-    <span><span class="key">A</span> Left</span>
-    <span><span class="key">S</span> Down</span>
-    <span><span class="key">D</span> Right</span>
-    <span>•</span>
-    <span>Find the green exit!</span>
-  </div>
-
-  <div class="instructions">
-    <strong>🎯 Your mission:</strong> Guide Skyler through the keyboard maze and reach the green exit.
-    Collect lightning power-ups to protect yourself. Watch out for the monsters in later levels!
-    <br>
-    <strong>💡 Tip:</strong> Every level gets trickier. Plan your route and don't let the monsters catch you!
-  </div>
-</main>
-
-<footer>
-  An original Green Team game • Can you escape all three keyboard mazes?
-</footer>
+ </div>
+ <div id="bottom">
+  <div id="profile"><span class="avatar">🧍🏻‍♂️</span> Skyler the Maze Explorer</div>
+  <div>🟡 Coins = bonus points &nbsp; 💎 Shield = protection &nbsp; 🚪 Find the exit!</div>
+ </div>
+ <div id="message">Your adventure is waiting!</div>
+</div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-
-const COLS = 15;
-const ROWS = 11;
-const TILE = 54;
-
-const WIDTH = COLS * TILE;
-const HEIGHT = ROWS * TILE;
-
-let grid = [];
-let player = {x:1,y:1};
-let exit = {x:13,y:9};
-let monsters = [];
-let powerups = [];
-let lives = 3;
-let shields = 0;
-let level = 1;
-let gameState = "playing";
-let monsterClock = 0;
-let message = "";
-
-const keyNames = [
-  ["Q","W","E","R","T","Y","U","I","O","P","[","]","\\","⌫",""],
-  ["A","S","D","F","G","H","J","K","L",";","'","","","",""],
-  ["Z","X","C","V","B","N","M",",",".","/","","","","",""]
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const W=960,H=540;
+const $=id=>document.getElementById(id);
+let world=1,level=1,hearts=3,steps=0,points=0,coins=0;
+let shield=0,maze=[],mw=9,mh=9,player={x:1.5,y:1.5,a:0};
+let exit={x:7,y:7},items=[],monsters=[],gameOn=false,paused=false;
+let keys={},last=0,stepLock=0,monsterMove=0,levelCoins=0;
+let worldStartPoints=0,worldStartCoins=0,worldStartSteps=0;
+const colors=[
+ ['#58a96c','#a7f28b','#244d42'],
+ ['#4279bb','#a4d8ff','#203d71'],
+ ['#a16acb','#e5b5ff','#4c2b70'],
+ ['#d58b47','#ffce88','#744323'],
+ ['#cf6489','#ffb4d4','#6b2b54']
 ];
-
-function cellKey(x,y) {
-  return x + "," + y;
+function hud(){
+ $('world').textContent=world;$('level').textContent=level;
+ $('hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
+ $('steps').textContent=steps;$('points').textContent=points;
+ $('coins').textContent=coins;$('shield').textContent=shield>0?'Ready!':'No';
 }
-
-function makeMaze() {
-  // Start with a maze made entirely of walls.
-  grid = Array.from({length:ROWS},()=>Array(COLS).fill(1));
-
-  // Carve connected corridors using a maze-generation algorithm.
-  function carve(x,y) {
-    grid[y][x] = 0;
-
-    const directions = [
-      [0,-2],[0,2],[-2,0],[2,0]
-    ].sort(()=>Math.random()-.5);
-
-    for(const [dx,dy] of directions) {
-      const nx=x+dx, ny=y+dy;
-
-      if(nx>0 && nx<COLS-1 && ny>0 && ny<ROWS-1 && grid[ny][nx]===1) {
-        grid[y+dy/2][x+dx/2]=0;
-        carve(nx,ny);
-      }
-    }
+function monsterCount(){return [0,1,2,3,4][world-1];}
+function mazeSize(){
+ let n=9+(world-1)*2+Math.floor((level-1)/4)*2;
+ return Math.min(25,n%2===0?n+1:n);
+}
+function makeMaze(){
+ mw=mazeSize();mh=mw;
+ maze=Array.from({length:mh},()=>Array(mw).fill(1));
+ function carve(x,y){
+  maze[y][x]=0;
+  let dirs=[[0,-2],[2,0],[0,2],[-2,0]].sort(()=>Math.random()-.5);
+  for(let [dx,dy] of dirs){
+   let nx=x+dx,ny=y+dy;
+   if(nx>0&&ny>0&&nx<mw-1&&ny<mh-1&&maze[ny][nx]===1){
+    maze[y+dy/2][x+dx/2]=0;carve(nx,ny);
+   }
   }
-
-  carve(1,1);
-
-  // Create a few additional openings as shortcuts.
-  const extras = level===1 ? 2 : level===2 ? 1 : 0;
-  for(let i=0;i<extras;i++) {
-    const x=1+Math.floor(Math.random()*(COLS-2));
-    const y=1+Math.floor(Math.random()*(ROWS-2));
-    if(grid[y][x]===1) grid[y][x]=0;
+ }
+ carve(1,1);
+ // Add a few extra passages to make exploring interesting
+ for(let i=0;i<Math.floor(world*level/3);i++){
+  let x=1+Math.floor(Math.random()*(mw-2));
+  let y=1+Math.floor(Math.random()*(mh-2));
+  if(Math.random()<.35)maze[y][x]=0;
+ }
+ player={x:1.5,y:1.5,a:0};
+ exit={x:mw-2,y:mh-2};
+ items=[];monsters=[];levelCoins=0;shield=0;
+ let empty=[];
+ for(let y=1;y<mh-1;y++)for(let x=1;x<mw-1;x++){
+  if(maze[y][x]===0&&!(x===1&&y===1)&&!(x===exit.x&&y===exit.y))empty.push({x,y});
+ }
+ empty.sort(()=>Math.random()-.5);
+ let coinCount=7+world*2+level;
+ for(let i=0;i<Math.min(coinCount,empty.length);i++)
+  items.push({...empty[i],type:'coin',taken:false});
+ for(let i=coinCount;i<Math.min(coinCount+2+world,empty.length);i++)
+  items.push({...empty[i],type:'shield',taken:false});
+ for(let i=0;i<monsterCount()&&i+coinCount+2+world<empty.length;i++){
+  let spot=empty[coinCount+2+world+i];
+  monsters.push({x:spot.x+.5,y:spot.y+.5,alive:true,dir:Math.random()*6.28});
+ }
+}
+function beginLevel(){
+ makeMaze();steps=0;gameOn=true;paused=false;stepLock=0;monsterMove=0;
+ $('overlay').style.display='none';$('pauseBtn').textContent='⏸ Pause';
+ hud();$('message').textContent=`World ${world} · Level ${level}: Find the exit!`;
+ draw();last=performance.now();requestAnimationFrame(loop);
+}
+function newAdventure(){
+ world=1;level=1;hearts=3;steps=0;points=0;coins=0;shield=0;
+ worldStartPoints=0;worldStartCoins=0;worldStartSteps=0;
+ beginLevel();
+}
+function restartLevel(){
+ if(!gameOn&&world===1&&level===1){beginLevel();return;}
+ beginLevel();
+}
+function pauseGame(){
+ if(!gameOn)return;
+ paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
+ if(paused){$('message').textContent='Paused! Your maze progress is safe.';}
+ else{last=performance.now();requestAnimationFrame(loop);}
+}
+function wall(x,y){
+ let gx=Math.floor(x),gy=Math.floor(y);
+ return gx<0||gy<0||gx>=mw||gy>=mh||maze[gy][gx]===1;
+}
+function tryMove(dx,dy){
+ let nx=player.x+dx,ny=player.y+dy;
+ if(!wall(nx+Math.sign(dx)*.18,player.y))player.x=nx;
+ if(!wall(player.x,ny+Math.sign(dy)*.18))player.y=ny;
+}
+function movePlayer(){
+ if(stepLock>0)return;
+ let dx=0,dy=0;
+ let fx=Math.cos(player.a),fy=Math.sin(player.a);
+ let sx=-Math.sin(player.a),sy=Math.cos(player.a);
+ if(keys.w){dx+=fx*.22;dy+=fy*.22;}
+ if(keys.s){dx-=fx*.22;dy-=fy*.22;}
+ if(keys.a){dx+=sx*.22;dy+=sy*.22;}
+ if(keys.d){dx-=sx*.22;dy-=sy*.22;}
+ if(dx===0&&dy===0)return;
+ let oldX=player.x,oldY=player.y;
+ tryMove(dx,dy);
+ if(Math.hypot(player.x-oldX,player.y-oldY)>.01){
+  steps++;stepLock=9;
+  collectItems();checkMonster();
+  if(Math.floor(player.x)===exit.x&&Math.floor(player.y)===exit.y)completeLevel();
+ }
+}
+function collectItems(){
+ for(let item of items){
+  if(item.taken)continue;
+  if(Math.hypot(player.x-(item.x+.5),player.y-(item.y+.5))<.55){
+   item.taken=true;
+   if(item.type==='coin'){coins+=10;levelCoins++;points+=15;$('message').textContent='+10 coins! +15 points!';}
+   else{shield=1;$('message').textContent='✨ Shield power-up collected! Press SPACE to use it.';}
   }
-
-  // Keep the exit reachable.
-  grid[9][13]=0;
-  grid[9][12]=0;
-  grid[8][13]=0;
+ }
 }
-
-function isOpen(x,y) {
-  return x>=0 && x<COLS && y>=0 && y<ROWS && grid[y][x]===0;
-}
-
-function findOpenCells() {
-  const cells=[];
-  for(let y=1;y<ROWS-1;y++) {
-    for(let x=1;x<COLS-1;x++) {
-      if(isOpen(x,y) && !(x===1&&y===1) && !(x===13&&y===9)) {
-        cells.push({x,y});
-      }
-    }
+function checkMonster(){
+ for(let m of monsters){
+  if(!m.alive)continue;
+  if(Math.hypot(player.x-m.x,player.y-m.y)<.48){
+   if(shield){shield=0;m.alive=false;points+=50;$('message').textContent='✨ Shield saved you! Monster escaped! +50 points!';}
+   else{loseHeart();return;}
   }
-  return cells;
+ }
 }
-
-function farthestCells(count) {
-  const visited = new Set([cellKey(1,1)]);
-  const queue = [{x:1,y:1,d:0}];
-  const found = [];
-
-  while(queue.length) {
-    const p=queue.shift();
-    found.push(p);
-
-    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-      const nx=p.x+dx, ny=p.y+dy;
-      const k=cellKey(nx,ny);
-      if(isOpen(nx,ny)&&!visited.has(k)) {
-        visited.add(k);
-        queue.push({x:nx,y:ny,d:p.d+1});
-      }
-    }
+function loseHeart(){
+ hearts--;hud();
+ if(hearts<=0){
+  gameOn=false;paused=false;
+  $('overlay').style.display='flex';
+  $('panel').innerHTML=`<div style="font-size:50px">💚</div><h1>WORLD RESET!</h1>
+   <h2>Skyler needs a fresh start!</h2>
+   <p>You used all three hearts. You must restart World ${world} from Level 1.</p>
+   <p>Your coins and points are kept, but your progress in this world starts over.</p>
+   <div class="row"><button onclick="restartWorld()">🔄 RESTART WORLD</button></div>`;
+  $('message').textContent='Take a breath and try the world again!';
+ }else{
+  player={x:1.5,y:1.5,a:0};shield=0;
+  $('message').textContent='Ouch! You lost a heart. Find your way again!';
+  hud();
+ }
+}
+function restartWorld(){
+ level=1;hearts=3;beginLevel();
+}
+function completeLevel(){
+ if(!gameOn)return;
+ gameOn=false;points+=world*100+level*25+levelCoins*5;
+ if(level<14)level++;
+ else if(world<5){world++;level=1;hearts=3;}
+ else{
+  $('overlay').style.display='flex';
+  $('panel').innerHTML=`<div style="font-size:55px">🏆</div><h1>MAZE MASTER!</h1>
+  <h2>You conquered all 70 levels!</h2>
+  <p>Skyler escaped every world! Final points: ${points}. Coins collected: ${coins}.</p>
+  <div class="row"><button onclick="newAdventure()">🌟 PLAY AGAIN</button></div>`;
+  hud();return;
+ }
+ let newWorld=level===1;
+ $('overlay').style.display='flex';
+ $('panel').innerHTML=`<div style="font-size:48px">${newWorld?'🌎':'🎉'}</div>
+ <h1>${newWorld?'NEW WORLD UNLOCKED!':'LEVEL COMPLETE!'}</h1>
+ <h2>${newWorld?'Welcome to World '+world:'Great exploring, Skyler!'}</h2>
+ <p>You found the exit! You earned <b>${world*100+(level===1?14:level-1)*25+levelCoins*5}</b> points for this maze.</p>
+ <p>${newWorld?'A new world brings a harder maze and more monsters!':'Keep going! The next maze will be a little trickier.'}</p>
+ <div class="row"><button onclick="beginLevel()">➡️ NEXT MAZE</button></div>`;
+ hud();
+}
+function raycast(angle){
+ let dist=.02,hit=0;
+ while(dist<22){
+  let x=player.x+Math.cos(angle)*dist;
+  let y=player.y+Math.sin(angle)*dist;
+  if(wall(x,y)){hit=1;break;}
+  dist+=.025;
+ }
+ return {dist,hit};
+}
+function draw(){
+ let c=colors[world-1];
+ let sky=ctx.createLinearGradient(0,0,0,H/2);
+ sky.addColorStop(0,'#9cddff');sky.addColorStop(1,'#e8f6ff');
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H/2);
+ let floor=ctx.createLinearGradient(0,H/2,0,H);
+ floor.addColorStop(0,c[0]);floor.addColorStop(1,c[2]);
+ ctx.fillStyle=floor;ctx.fillRect(0,H/2,W,H/2);
+ const fov=Math.PI/3,columns=240,strip=W/columns;
+ let zbuffer=[];
+ for(let i=0;i<columns;i++){
+  let a=player.a-fov/2+(i/columns)*fov;
+  let hit=raycast(a),d=hit.dist*Math.cos(a-player.a);
+  zbuffer[i]=d;
+  let h=Math.min(H,380/(d+.08));
+  let shade=Math.max(.24,1-d/13);
+  let r=parseInt(c[1].slice(1,3),16),g=parseInt(c[1].slice(3,5),16),b=parseInt(c[1].slice(5,7),16);
+  let tint=`rgb(${Math.floor(r*shade)},${Math.floor(g*shade)},${Math.floor(b*shade)})`;
+  ctx.fillStyle=tint;ctx.fillRect(i*strip,(H-h)/2,strip+1,h);
+  if(i%8===0){ctx.fillStyle='#ffffff12';ctx.fillRect(i*strip,(H-h)/2,1,h);}
+ }
+ // Exit beacon
+ drawSprite(exit.x+.5,exit.y+.5,'🚪',zbuffer,columns,strip,fov,player.a,1);
+ // Coins and power-ups
+ for(let item of items)if(!item.taken)
+  drawSprite(item.x+.5,item.y+.5,item.type==='coin'?'🪙':'✨',zbuffer,columns,strip,fov,player.a,.8);
+ // Monsters
+ for(let m of monsters)if(m.alive)
+  drawSprite(m.x,m.y,'👾',zbuffer,columns,strip,fov,player.a,1.2);
+ // first person hands and Skyler's sleeves
+ ctx.fillStyle='#315c9b';ctx.beginPath();ctx.moveTo(0,540);ctx.lineTo(0,475);ctx.lineTo(90,500);ctx.lineTo(140,540);ctx.fill();
+ ctx.beginPath();ctx.moveTo(960,540);ctx.lineTo(960,475);ctx.lineTo(870,500);ctx.lineTo(820,540);ctx.fill();
+ ctx.fillStyle='#f1c49c';ctx.beginPath();ctx.arc(110,500,17,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(850,500,17,0,Math.PI*2);ctx.fill();
+ // World and direction hint
+ ctx.fillStyle='#10233acc';ctx.fillRect(15,15,260,45);
+ ctx.fillStyle='white';ctx.font='bold 18px Outfit';
+ ctx.fillText('WORLD '+world+'  •  LEVEL '+level,28,44);
+ ctx.fillStyle='#ffffffcc';ctx.font='14px Outfit';
+ ctx.fillText('Find the glowing exit!',W-210,30);
+}
+function drawSprite(x,y,emoji,zbuffer,columns,strip,fov,angle,size){
+ let dx=x-player.x,dy=y-player.y;
+ let dist=Math.hypot(dx,dy);
+ let rel=Math.atan2(dy,dx)-angle;
+ while(rel>Math.PI)rel-=Math.PI*2;
+ while(rel<-Math.PI)rel+=Math.PI*2;
+ if(Math.abs(rel)>fov*.7||dist<.2)return;
+ let screenX=(.5+rel/fov)*W;
+ let col=Math.max(0,Math.min(columns-1,Math.floor(screenX/strip)));
+ if(dist>zbuffer[col]+.15)return;
+ let spriteSize=Math.min(150,230/(dist+.2))*size;
+ ctx.font=`${spriteSize}px Arial`;ctx.textAlign='center';
+ ctx.fillText(emoji,screenX,H/2+spriteSize*.35);
+ ctx.textAlign='left';
+}
+function moveMonsters(){
+ for(let m of monsters){
+  if(!m.alive)continue;
+  let dx=player.x-m.x,dy=player.y-m.y;
+  let d=Math.hypot(dx,dy);
+  if(d<5){
+   let nx=m.x+Math.sign(dx)*.16,ny=m.y+Math.sign(dy)*.16;
+   if(!wall(nx,m.y))m.x=nx;
+   if(!wall(m.x,ny))m.y=ny;
+  }else{
+   let nx=m.x+Math.cos(m.dir)*.15,ny=m.y+Math.sin(m.dir)*.15;
+   if(wall(nx,ny)){m.dir=Math.random()*Math.PI*2;}
+   else{m.x=nx;m.y=ny;}
   }
-
-  return found
-    .filter(p=>!(p.x===1&&p.y===1)&&!(p.x===13&&p.y===9))
-    .sort((a,b)=>b.d-a.d)
-    .slice(0,count);
+ }
+ checkMonster();
 }
-
-function setupLevel() {
-  makeMaze();
-
-  player={x:1,y:1};
-  monsters=[];
-  powerups=[];
-
-  const spots=farthestCells(12);
-
-  const powerCount=level===1?2:level===2?3:4;
-  powerups=spots.slice(0,powerCount).map(p=>({...p}));
-
-  if(level>=2) {
-    const monsterSpots=spots.slice(powerCount+1,powerCount+1+(level===2?1:2));
-    monsters=monsterSpots.map((p,i)=>({
-      x:p.x,y:p.y,
-      startX:p.x,startY:p.y,
-      moveClock:0,
-      speed:level===2?0.8:0.55,
-      id:i
-    }));
-  }
-
-  gameState="playing";
-  monsterClock=0;
-  updateHUD();
-  showOverlay(false);
+function loop(now){
+ if(!gameOn||paused)return;
+ let dt=Math.min(.05,(now-last)/1000||0);last=now;
+ if(stepLock>0)stepLock--;
+ if(keys.w||keys.s||keys.a||keys.d){
+  movePlayer();
+  monsterMove+=dt;
+  if(monsterMove>1.2){monsterMove=0;moveMonsters();}
+ }
+ draw();hud();requestAnimationFrame(loop);
 }
-
-function updateHUD() {
-  document.getElementById("level").textContent=level+" / 3";
-  document.getElementById("levelTop").textContent=level;
-  document.getElementById("lives").textContent="❤️".repeat(Math.max(0,lives))+"🖤".repeat(Math.max(0,3-lives));
-  document.getElementById("power").textContent="⚡ "+shields;
-  document.getElementById("mission").textContent=level===1?"Find the exit!":level===2?"Avoid the monster!":"Escape the monsters!";
-}
-
-function showOverlay(show,title="",text="",button="Continue") {
-  const el=document.getElementById("overlay");
-  el.classList.toggle("show",show);
-  if(show) {
-    document.getElementById("overlayTitle").textContent=title;
-    document.getElementById("overlayText").textContent=text;
-    document.getElementById("overlayButton").textContent=button;
-  }
-}
-
-function overlayAction() {
-  if(gameState==="levelcomplete") {
-    if(level<3) {
-      level++;
-      setupLevel();
-      showOverlay(true,"Level "+level+"!","The maze is getting harder. Good luck, Skyler!","Let's Go!");
-    } else {
-      gameState="won";
-      showOverlay(true,"🏆 YOU ESCAPED!","Skyler beat all three keyboard mazes! Amazing work!","Play Again");
-    }
-  } else if(gameState==="won" || gameState==="lost") {
-    restartGame();
-  } else if(gameState==="playing") {
-    showOverlay(false);
-  }
-}
-
-function restartGame() {
-  level=1;
-  lives=3;
-  shields=0;
-  setupLevel();
-  showOverlay(false);
-}
-
-function movePlayer(dx,dy) {
-  if(gameState!=="playing") {
-    if(gameState==="levelcomplete") overlayAction();
-    return;
-  }
-
-  const nx=player.x+dx;
-  const ny=player.y+dy;
-
-  if(!isOpen(nx,ny)) return;
-
-  player.x=nx;
-  player.y=ny;
-
-  // Collect a power-up.
-  const powerIndex=powerups.findIndex(p=>p.x===nx&&p.y===ny);
-  if(powerIndex!==-1) {
-    powerups.splice(powerIndex,1);
-    shields++;
-    updateHUD();
-    message="⚡ Power-up collected! You have a shield!";
-  } else {
-    message="";
-  }
-
-  // Check for the exit.
-  if(nx===exit.x&&ny===exit.y) {
-    gameState="levelcomplete";
-    showOverlay(true,
-      level===3?"🏆 YOU DID IT!":"🎉 Level Complete!",
-      level===3?"Skyler escaped every keyboard maze!":"You found the exit! Get ready for the next maze.",
-      level===3?"Finish Game":"Next Level"
-    );
-    return;
-  }
-
-  checkMonsterCollision();
-  draw();
-}
-
-function checkMonsterCollision() {
-  const monster=monsters.find(m=>m.x===player.x&&m.y===player.y);
-  if(!monster) return;
-
-  if(shields>0) {
-    shields--;
-    monster.x=monster.startX;
-    monster.y=monster.startY;
-    message="⚡ Your power-up protected you!";
-  } else {
-    lives--;
-    updateHUD();
-
-    if(lives<=0) {
-      gameState="lost";
-      showOverlay(true,"Oh no, Skyler!","You ran out of lives. Give the maze another try!","Try Again");
-      return;
-    }
-
-    player={x:1,y:1};
-    message="👾 The monster caught you! Back to the start!";
-  }
-
-  updateHUD();
-}
-
-function moveMonsters() {
-  if(gameState!=="playing") return;
-
-  monsters.forEach(m=>{
-    const options=[
-      {x:m.x+1,y:m.y},
-      {x:m.x-1,y:m.y},
-      {x:m.x,y:m.y+1},
-      {x:m.x,y:m.y-1}
-    ].filter(p=>isOpen(p.x,p.y));
-
-    if(!options.length) return;
-
-    // Monsters move toward Skyler more often in the final level.
-    let next;
-    if(level===3 && Math.random()<0.65) {
-      options.sort((a,b)=>
-        Math.abs(a.x-player.x)+Math.abs(a.y-player.y)-
-        (Math.abs(b.x-player.x)+Math.abs(b.y-player.y))
-      );
-      next=options[0];
-    } else {
-      next=options[Math.floor(Math.random()*options.length)];
-    }
-
-    m.x=next.x;
-    m.y=next.y;
-  });
-
-  checkMonsterCollision();
-}
-
-function drawKeyboardBackground() {
-  ctx.fillStyle="#263b59";
-  ctx.fillRect(0,0,WIDTH,HEIGHT);
-
-  // Keyboard-style keycaps around the maze.
-  for(let y=0;y<ROWS;y++) {
-    for(let x=0;x<COLS;x++) {
-      const px=x*TILE, py=y*TILE;
-
-      if(grid[y][x]===1) {
-        ctx.fillStyle="#526b8d";
-        roundRect(px+3,py+3,TILE-6,TILE-6,7);
-        ctx.fill();
-
-        ctx.fillStyle="#7189a9";
-        roundRect(px+6,py+5,TILE-12,TILE-12,5);
-        ctx.fill();
-
-        ctx.fillStyle="#dceaff";
-        ctx.font="bold 14px Outfit";
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
-
-        const label=keyNames[y%3][x] || "⌨";
-        ctx.fillText(label,px+TILE/2,py+TILE/2);
-      } else {
-        ctx.fillStyle="#f0f4fb";
-        ctx.fillRect(px,py,TILE,TILE);
-        ctx.strokeStyle="#d9e3ef";
-        ctx.lineWidth=1;
-        ctx.strokeRect(px,py,TILE,TILE);
-      }
-    }
-  }
-}
-
-function roundRect(x,y,w,h,r) {
-  ctx.beginPath();
-  ctx.roundRect(x,y,w,h,r);
-}
-
-function drawExit() {
-  const x=exit.x*TILE, y=exit.y*TILE;
-
-  ctx.fillStyle="#b4efaa";
-  ctx.fillRect(x+3,y+3,TILE-6,TILE-6);
-
-  ctx.fillStyle="#277c49";
-  ctx.font="bold 25px Fredoka";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.fillText("🚪",x+TILE/2,y+TILE/2);
-}
-
-function drawPowerups() {
-  powerups.forEach(p=>{
-    const x=p.x*TILE+TILE/2;
-    const y=p.y*TILE+TILE/2;
-
-    ctx.fillStyle="#ffe36c";
-    ctx.beginPath();
-    ctx.arc(x,y,17,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.font="23px Arial";
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
-    ctx.fillText("⚡",x,y);
-  });
-}
-
-function drawMonsters() {
-  monsters.forEach(m=>{
-    const x=m.x*TILE+TILE/2;
-    const y=m.y*TILE+TILE/2;
-
-    ctx.fillStyle="#9a63d6";
-    ctx.beginPath();
-    ctx.arc(x,y,19,Math.PI,0);
-    ctx.lineTo(x+19,y+17);
-    ctx.lineTo(x+10,y+11);
-    ctx.lineTo(x,y+19);
-    ctx.lineTo(x-10,y+11);
-    ctx.lineTo(x-19,y+17);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle="white";
-    ctx.beginPath();
-    ctx.arc(x-7,y-2,5,0,Math.PI*2);
-    ctx.arc(x+7,y-2,5,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle="#263b59";
-    ctx.beginPath();
-    ctx.arc(x-6,y-2,2,0,Math.PI*2);
-    ctx.arc(x+8,y-2,2,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.fillStyle="#fff";
-    ctx.font="bold 10px Outfit";
-    ctx.textAlign="center";
-    ctx.fillText("👾",x,y+29);
-  });
-}
-
-function drawPlayer() {
-  const x=player.x*TILE+TILE/2;
-  const y=player.y*TILE+TILE/2;
-
-  ctx.fillStyle="#00000022";
-  ctx.beginPath();
-  ctx.ellipse(x,y+16,14,5,0,0,Math.PI*2);
-  ctx.fill();
-
-  // Stick figure legs
-  ctx.strokeStyle="#24364b";
-  ctx.lineWidth=4;
-  ctx.lineCap="round";
-  ctx.beginPath();
-  ctx.moveTo(x,y+8);
-  ctx.lineTo(x-9,y+18);
-  ctx.moveTo(x,y+8);
-  ctx.lineTo(x+9,y+18);
-  ctx.moveTo(x,y-4);
-  ctx.lineTo(x,y+9);
-  ctx.moveTo(x,y-1);
-  ctx.lineTo(x-10,y+5);
-  ctx.moveTo(x,y-1);
-  ctx.lineTo(x+10,y+5);
-  ctx.stroke();
-
-  // Head
-  ctx.fillStyle="#ffcd9e";
-  ctx.beginPath();
-  ctx.arc(x,y-13,9,0,Math.PI*2);
-  ctx.fill();
-  ctx.strokeStyle="#24364b";
-  ctx.lineWidth=2;
-  ctx.stroke();
-
-  // Hair
-  ctx.fillStyle="#3d354d";
-  ctx.beginPath();
-  ctx.arc(x,y-17,8,Math.PI,Math.PI*2);
-  ctx.fill();
-
-  // Eyes
-  ctx.fillStyle="#24364b";
-  ctx.beginPath();
-  ctx.arc(x-3,y-13,1.3,0,Math.PI*2);
-  ctx.arc(x+3,y-13,1.3,0,Math.PI*2);
-  ctx.fill();
-
-  if(shields>0) {
-    ctx.strokeStyle="#ffc93d";
-    ctx.lineWidth=3;
-    ctx.beginPath();
-    ctx.arc(x,y,25,0,Math.PI*2);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle="#24364b";
-  ctx.font="bold 11px Outfit";
-  ctx.textAlign="center";
-  ctx.fillText("SKYLER",x,y-30);
-}
-
-function draw() {
-  drawKeyboardBackground();
-  drawExit();
-  drawPowerups();
-  drawMonsters();
-  drawPlayer();
-}
-
-window.addEventListener("keydown",e=>{
-  const k=e.key.toLowerCase();
-
-  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k)) {
-    e.preventDefault();
-    return;
-  }
-
-  if(["w","a","s","d"].includes(k)) {
-    e.preventDefault();
-    if(e.repeat) return;
-
-    const moves={
-      w:[0,-1],
-      s:[0,1],
-      a:[-1,0],
-      d:[1,0]
-    };
-
-    movePlayer(...moves[k]);
-  }
-
-  if(k==="r" && !e.repeat) restartGame();
+document.addEventListener('keydown',e=>{
+ let k=e.key.toLowerCase();
+ if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+ if(['w','a','s','d'].includes(k))keys[k]=true;
+ if(k==='p')pauseGame();
+ if(k===' '&&gameOn&&!paused&&shield){
+  shield=0;monsters.forEach(m=>{if(m.alive&&Math.hypot(player.x-m.x,player.y-m.y)<2.2){m.alive=false;points+=50;}});
+  $('message').textContent='✨ SHIELD BLAST! Nearby monsters have disappeared!';
+  hud();
+ }
 });
-
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden) return;
-});
-
-restartGame();
-draw();
-
-// Move monsters on a timer.
-setInterval(()=>{
-  if(gameState!=="playing" || level===1) return;
-  moveMonsters();
-  draw();
-},750);
-
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+window.addEventListener('blur',()=>keys={});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={};});
+canvas.addEventListener('click',()=>{if(gameOn&&!paused){$('message').textContent='Use W, A, S, D to explore the maze!';}});
+hud();draw();
 </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adamson - Green Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #f0fdf4; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-green-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-green-600">Adamson Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Green Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-green-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
 </body>
 </html>
