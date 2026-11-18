@@ -3,820 +3,553 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lucia's Miami Adventure | Yellow Team</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucia: Miami City Stories | Dolphin Game Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: #fff5dc;
-  color: #19334a;
-  font-family: 'Outfit', sans-serif;
-}
-
-header {
-  background: linear-gradient(110deg,#ffb84d,#ff806b,#f46c9b);
-  color: white;
-  padding: 13px 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  box-shadow: 0 4px 14px #8a4b3030;
-}
-
-.brand h1 {
-  font-family: 'Fredoka', sans-serif;
-  font-size: clamp(21px,3vw,30px);
-  margin: 0;
-  letter-spacing: .3px;
-}
-
-.brand p {
-  margin: 2px 0 0;
-  font-size: 12px;
-  font-weight: 600;
-  opacity: .95;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pill {
-  background: #ffffff30;
-  border: 1px solid #ffffff65;
-  padding: 8px 13px;
-  border-radius: 30px;
-  font-weight: 800;
-  font-size: 13px;
-}
-
-button {
-  font: inherit;
-  font-weight: 800;
-  border: 0;
-  border-radius: 12px;
-  padding: 9px 15px;
-  cursor: pointer;
-  background: #fff;
-  color: #d65c60;
-}
-
-button:hover { transform: translateY(-1px); }
-
-main {
-  max-width: 1250px;
-  margin: 14px auto;
-  padding: 0 14px;
-}
-
-.hud {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.hud-card {
-  background: white;
-  border: 2px solid #f5d6a7;
-  border-radius: 14px;
-  padding: 10px 14px;
-  box-shadow: 0 3px 8px #9a704020;
-}
-
-.hud-label {
-  color: #a06d48;
-  text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.hud-value {
-  font-family: 'Fredoka', sans-serif;
-  font-size: 19px;
-  font-weight: 700;
-  margin-top: 2px;
-}
-
-#missionText { font-size: 16px; }
-
-.game-frame {
-  position: relative;
-  overflow: hidden;
-  border: 5px solid white;
-  border-radius: 18px;
-  box-shadow: 0 7px 20px #79553a35;
-  background: #83d9c0;
-}
-
-canvas {
-  display: block;
-  width: 100%;
-  height: min(64vh, 590px);
-  min-height: 360px;
-  background: #83d9c0;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 9px;
-  flex-wrap: wrap;
-  padding: 12px 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #526274;
-}
-
-.key {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 6px;
-  background: white;
-  border: 1px solid #d9c9ad;
-  box-shadow: 0 2px 0 #d9c9ad;
-  color: #24445b;
-  margin: 0 2px;
-}
-
-.message {
-  position: absolute;
-  left: 50%;
-  top: 16px;
-  transform: translateX(-50%);
-  max-width: 90%;
-  text-align: center;
-  background: #19334aee;
-  color: white;
-  border-radius: 14px;
-  padding: 10px 18px;
-  font-weight: 800;
-  font-size: 14px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .2s;
-}
-
-.message.show { opacity: 1; }
-
-footer {
-  text-align: center;
-  color: #987b61;
-  font-size: 11px;
-  padding: 2px 10px 14px;
-  font-weight: 600;
-}
-
-@media(max-width:650px) {
-  .hud { grid-template-columns: 1fr 1fr; }
-  .hud-card:first-child { grid-column: span 2; }
-  canvas { min-height: 340px; }
-}
+:root{--purple:#62458e;--pink:#ff91b9;--yellow:#ffe17b;--mint:#9be5c8;--blue:#9edfff;--ink:#49385e}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#ffe4d4,#fff4dc,#dff4ff);font-family:Fredoka,sans-serif;color:var(--ink)}
+button{font:inherit;cursor:pointer;border:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px}
+.brand{font-weight:700;color:#69488f;font-size:20px}
+.tag{background:#fff0b8;border-radius:30px;padding:8px 14px;font-size:13px}
+.nav{background:white;color:#65477f;border-radius:22px;padding:10px 15px;box-shadow:0 4px 0 #d9cbe9}
+main{max-width:1150px;margin:auto;padding:4px 16px 25px}
+.heading{text-align:center;margin:4px 0 14px}
+.heading h1{font-size:clamp(27px,4vw,40px);color:#7650a1;margin:3px}
+.heading p{margin:3px;color:#886e9b}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:15px;align-items:start}
+.gamecard{background:white;border:4px solid white;border-radius:22px;padding:10px;box-shadow:0 8px 0 #d9c8e8,0 12px 25px #8b70aa25}
+canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;border-radius:14px;background:#86d8e8}
+.side{display:flex;flex-direction:column;gap:10px}
+.panel{background:#ffffffdf;border:2px solid white;border-radius:17px;padding:12px;box-shadow:0 4px 0 #ddcfea}
+.panel h3{margin:0 0 9px;color:#7653a5;font-size:17px}
+.stat{display:flex;justify-content:space-between;gap:5px;margin:6px 0;font-size:14px}
+.stat strong{color:#684a92}
+.action{width:100%;border-radius:13px;padding:10px;margin-top:7px;font-weight:700;color:#55416e;background:#ffe58a;box-shadow:0 4px 0 #e8c85e}
+.action.pink{background:#ffb6d0;box-shadow:0 4px 0 #ed8eb3}
+.action.mint{background:#a8ecd3;box-shadow:0 4px 0 #72caaa}
+.action.blue{background:#a9e6fa;box-shadow:0 4px 0 #75c6e5}
+.action:disabled{opacity:.45;cursor:not-allowed}
+.instructions{font-size:13px;line-height:1.7;color:#725e87}
+.message{background:#fff1bd;padding:10px;border-radius:12px;font-size:13px;min-height:55px;line-height:1.4}
+.footer{text-align:center;padding:18px;color:#886e9e;font-size:13px}
+.overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:16px;background:#38244dcc;backdrop-filter:blur(5px)}
+.dialog{background:linear-gradient(145deg,#fff4fa,#f1eaff);border:5px solid white;border-radius:27px;width:min(490px,100%);text-align:center;padding:25px;box-shadow:0 12px 0 #b99bd2;max-height:90vh;overflow:auto}
+.mascot{font-size:65px;margin:0}
+.dialog h2{font-size:29px;color:#7953a7;margin:7px 0}
+.dialog p{color:#806c96;line-height:1.5}
+.big{background:#ff91b9;color:#633c68;padding:13px 27px;border-radius:30px;font-size:19px;font-weight:700;box-shadow:0 5px 0 #dc719b;margin:6px}
+.big.green{background:#a8e9d3;box-shadow:0 5px 0 #72c6a8}
+.big.yellow{background:#ffe58a;box-shadow:0 5px 0 #e8c85e}
+.hidden{display:none!important}
+.setting{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0;color:#69547f}
+.setting input{width:145px}
+#toast{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);background:#fff4c7;border:2px solid white;border-radius:20px;padding:10px 18px;box-shadow:0 4px 0 #dfc982;z-index:5;font-size:14px;display:none}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:first-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="brand">
-    <h1>🌴 Lucia's Miami Adventure</h1>
-    <p>ADAMSON • YELLOW TEAM • GAME VERSION 1.0</p>
-  </div>
-  <div class="header-right">
-    <div class="pill">🪙 <span id="coinHeader">0</span> / 10</div>
-    <button onclick="resetGame()">↻ Restart</button>
-  </div>
+<header class="topbar">
+ <div class="brand">🐬 DOLPHIN GAME LAB</div>
+ <div class="tag">ADAMSON CLASS · YELLOW TEAM</div>
+ <button class="nav" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
 </header>
 
 <main>
-  <section class="hud">
-    <div class="hud-card">
-      <div class="hud-label">Current Mission</div>
-      <div class="hud-value" id="missionText">Collect 10 coins around Miami!</div>
-    </div>
-    <div class="hud-card">
-      <div class="hud-label">Lucia's Money</div>
-      <div class="hud-value">🪙 <span id="coinCount">0</span> coins</div>
-    </div>
-    <div class="hud-card">
-      <div class="hud-label">Current Location</div>
-      <div class="hud-value" id="locationText">Miami Beach</div>
-    </div>
+ <div class="heading">
+  <h1>🌴 LUCIA: MIAMI CITY STORIES 🚗</h1>
+  <p>Explore the city, drive amazing cars, complete missions, and make your own story!</p>
+ </div>
+ <div class="layout">
+  <section class="gamecard">
+   <canvas id="game" width="900" height="675"></canvas>
   </section>
-
-  <div class="game-frame">
-    <canvas id="game"></canvas>
-    <div class="message" id="message"></div>
-  </div>
-
-  <div class="controls">
-    <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> Move / Drive</span>
-    <span>•</span>
-    <span><span class="key">E</span> Enter / Exit Car</span>
-    <span>•</span>
-    <span>Collect coins and visit the café!</span>
-  </div>
+  <aside class="side">
+   <div class="panel">
+    <h3>🌴 City Dashboard</h3>
+    <div class="stat"><span>📍 Location</span><strong id="location">Ocean Drive</strong></div>
+    <div class="stat"><span>🚗 Vehicle</span><strong id="vehicle">On foot</strong></div>
+    <div class="stat"><span>⭐ Chase level</span><strong id="stars">☆☆☆☆☆</strong></div>
+    <div class="stat"><span>⏱️ Chase time</span><strong id="chaseTime">00:00</strong></div>
+    <div class="stat"><span>💰 Coins</span><strong id="coins">0</strong></div>
+    <div class="stat"><span>📋 Missions</span><strong id="missions">0 / 4</strong></div>
+   </div>
+   <div class="panel">
+    <h3>🎮 Controls</h3>
+    <div class="instructions">
+     <b>W A S D</b> – Move / Drive<br>
+     <b>E</b> – Enter / exit car or building<br>
+     <b>SPACE</b> – Car horn<br>
+     <b>P</b> – Pause / Resume<br>
+     <b>R</b> – Restart adventure
+    </div>
+   </div>
+   <div class="panel">
+    <h3>📻 Radio & Settings</h3>
+    <button class="action blue" id="radioButton">📻 Turn Radio On</button>
+    <button class="action pink" id="settingsButton">⚙️ Settings</button>
+   </div>
+   <div class="panel">
+    <h3>🗺️ Current Mission</h3>
+    <div class="message" id="missionText">Welcome to Miami! Find your car and explore the city.</div>
+   </div>
+   <div class="panel">
+    <button class="action mint" id="pauseButton">⏸ Pause Game</button>
+    <button class="action" id="restartButton">🔄 Play Again</button>
+    <button class="action pink" onclick="location.href='../../index.html'">🏠 Game Lab Home</button>
+   </div>
+  </aside>
+ </div>
 </main>
+<div class="footer">🌊 MAKE SOME WAVES! · Adamson Yellow Team · Dolphin Game Lab 🐬</div>
+<div id="toast"></div>
 
-<footer>
-  A Yellow Team original game • Explore Miami, collect coins, and complete your mission!
-</footer>
+<div class="overlay" id="startScreen">
+ <div class="dialog">
+  <div class="mascot">🌴🚗🌊</div>
+  <h2>LUCIA: MIAMI CITY STORIES</h2>
+  <p>Welcome to a sunny, colorful city inspired by Miami! Explore neighborhoods, drive different cars, visit buildings, and complete exciting missions.</p>
+  <p><b>Watch the road and keep an eye on your five-star city challenge!</b></p>
+  <button class="big" id="playButton">▶ ENTER MIAMI</button>
+  <p style="font-size:12px">WASD to move · E to enter or exit · P to pause</p>
+ </div>
+</div>
+
+<div class="overlay hidden" id="pauseScreen">
+ <div class="dialog">
+  <div class="mascot">🌅</div><h2>Adventure Paused!</h2>
+  <p>Your city adventure is waiting right where you left it.</p>
+  <button class="big green" id="resumeButton">▶ RESUME</button>
+  <button class="big" onclick="location.href='../../index.html'">🏠 GAME LAB HOME</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="settingsScreen">
+ <div class="dialog">
+  <div class="mascot">⚙️🎵</div><h2>GAME SETTINGS</h2>
+  <div class="setting"><label for="musicVolume">📻 Radio volume</label><input id="musicVolume" type="range" min="0" max="100" value="35"></div>
+  <div class="setting"><label for="soundVolume">🔊 Sound effects</label><input id="soundVolume" type="range" min="0" max="100" value="65"></div>
+  <p style="font-size:12px">Adjust the sound to your liking. Radio music is a simple original game melody.</p>
+  <button class="big green" id="closeSettings">DONE</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="endScreen">
+ <div class="dialog">
+  <div class="mascot">🏆🌴</div><h2>MIAMI MISSION MASTER!</h2>
+  <p>You completed all four city missions! Keep exploring Miami and enjoy the ride.</p>
+  <button class="big" id="againButton">🔄 PLAY AGAIN</button>
+  <button class="big green" onclick="location.href='../../index.html'">🏠 GAME LAB HOME</button>
+ </div>
+</div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const W=900,H=675,MAP_W=2600,MAP_H=2100;
+const $=id=>document.getElementById(id);
+let player,car,traffic,police,buildings,missions,coins,keys={};
+let running=false,paused=false,ended=false,settingsOpen=false;
+let chaseStars=0,chaseSeconds=0,chaseActive=false,chaseClock=0;
+let completed=0,money=0,radioOn=false,lastTime=0;
+let audio=null,radioTimer=null,radioStep=0;
+let musicVolume=.35,soundVolume=.65,toastTimer=0;
+let currentBuilding=null,missionIndex=0,gameTime=0;
 
-const WORLD = { w: 2100, h: 1500 };
-const keys = new Set();
-
-let player, car, coins, collected, camera, messageTimer;
-let won = false;
-let inCar = false;
-let facing = 0;
-
-const buildings = [
-  {x:70,y:70,w:210,h:160,color:"#f6a66f",name:"Beach Hotel"},
-  {x:480,y:70,w:220,h:170,color:"#f8d47b",name:"Sunshine Apartments"},
-  {x:1110,y:70,w:240,h:170,color:"#e99ac0",name:"Palm Plaza"},
-  {x:1700,y:70,w:250,h:170,color:"#f2a66d",name:"Ocean Mall"},
-
-  {x:70,y:470,w:220,h:190,color:"#f3cf83",name:"Taco Shop"},
-  {x:480,y:470,w:220,h:190,color:"#a8c9f1",name:"Art Studio"},
-  {x:1110,y:470,w:240,h:190,color:"#f4b1a4",name:"Juice Bar"},
-  {x:1700,y:470,w:250,h:190,color:"#b6d99a",name:"Surf Shop"},
-
-  {x:70,y:930,w:220,h:190,color:"#f2a66d",name:"Music Hall"},
-  {x:480,y:930,w:220,h:190,color:"#d8b4ed",name:"Game Arcade"},
-  {x:1110,y:930,w:240,h:190,color:"#f8d47b",name:"Market"},
-  {x:1700,y:930,w:250,h:190,color:"#a8c9f1",name:"Hotel"},
-
-  {x:480,y:1280,w:220,h:140,color:"#f4b1a4",name:"Beach Café"},
-  {x:1110,y:1280,w:240,h:140,color:"#a8d9c0",name:"Garden Center"}
+const places=[
+ {name:"Ocean Drive",x:370,y:300},
+ {name:"Palm Avenue",x:1050,y:450},
+ {name:"Little Havana",x:1670,y:700},
+ {name:"Bayfront",x:850,y:1250},
+ {name:"South Beach",x:360,y:1650},
+ {name:"Downtown",x:1950,y:1400}
+];
+const missionList=[
+ {name:"Beachside Delivery",x:420,y:1640,desc:"Drive to the beachside café and deliver the picnic supplies."},
+ {name:"Palm Avenue Visit",x:1050,y:450,desc:"Visit the colorful shops on Palm Avenue."},
+ {name:"Bayfront Photo Stop",x:850,y:1250,desc:"Take a scenic trip to the Bayfront lookout."},
+ {name:"Downtown Arrival",x:1950,y:1400,desc:"Make your way to the Downtown plaza."}
 ];
 
-const roads = {
-  horizontal: [330, 790, 1250],
-  vertical: [370, 940, 1530]
-};
-
-const cafe = {x:1590,y:790};
-
-function resetGame() {
-  player = {x:370,y:330,r:15,speed:190};
-  car = {x:480,y:330,angle:0,speed:0};
-  inCar = false;
-  facing = 0;
-  collected = 0;
-  won = false;
-  camera = {x:0,y:0};
-  keys.clear();
-
-  coins = [
-    {x:370,y:510},{x:370,y:650},{x:570,y:790},
-    {x:800,y:790},{x:940,y:520},{x:940,y:680},
-    {x:1150,y:790},{x:1350,y:790},{x:1530,y:500},
-    {x:1530,y:650},{x:1530,y:1050},{x:940,y:1180}
-  ];
-
-  document.getElementById("coinCount").textContent = "0";
-  document.getElementById("coinHeader").textContent = "0";
-  document.getElementById("missionText").textContent =
-    "Collect 10 coins around Miami!";
-  document.getElementById("locationText").textContent = "Miami Beach";
-
-  showMessage("Welcome to Miami, Lucia! Find 10 coins!");
+function toast(s){
+ $("toast").textContent=s;$("toast").style.display="block";
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>$("toast").style.display="none",2300);
 }
-
-function resizeCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.round(rect.width*dpr);
-  canvas.height = Math.round(rect.height*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+function sound(freq=440,duration=.12,type="sine"){
+ if(soundVolume<=0)return;
+ try{
+  audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+  const osc=audio.createOscillator(),gain=audio.createGain();
+  osc.type=type;osc.frequency.value=freq;
+  gain.gain.setValueAtTime(soundVolume*.07,audio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+  osc.connect(gain);gain.connect(audio.destination);
+  osc.start();osc.stop(audio.currentTime+duration);
+ }catch(e){}
 }
-
-window.addEventListener("resize",resizeCanvas);
-
-function showMessage(text) {
-  const box = document.getElementById("message");
-  box.textContent = text;
-  box.classList.add("show");
-  clearTimeout(messageTimer);
-  messageTimer = setTimeout(()=>box.classList.remove("show"),2600);
+function startRadio(){
+ if(radioTimer)return;
+ radioOn=true;
+ const notes=[392,440,523,440,349,392,494,392];
+ radioTimer=setInterval(()=>{
+  if(!radioOn||musicVolume<=0||!running||paused)return;
+  try{
+   audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+   if(audio.state==="suspended")audio.resume();
+   const o=audio.createOscillator(),g=audio.createGain();
+   o.type="triangle";o.frequency.value=notes[radioStep++%notes.length];
+   g.gain.setValueAtTime(musicVolume*.035,audio.currentTime);
+   g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.22);
+   o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.23);
+  }catch(e){}
+ },300);
+ $("radioButton").textContent="📻 Turn Radio Off";
 }
-
-function keyDown(e) {
-  const k = e.key.toLowerCase();
-
-  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k)) {
-    e.preventDefault();
-    return;
+function stopRadio(){
+ radioOn=false;if(radioTimer){clearInterval(radioTimer);radioTimer=null;}
+ $("radioButton").textContent="📻 Turn Radio On";
+}
+function updateStats(){
+ $("location").textContent=nearestPlace().name;
+ $("vehicle").textContent=player.inCar?"Lucia's car":"On foot";
+ $("stars").textContent="★".repeat(chaseStars)+"☆".repeat(5-chaseStars);
+ $("chaseTime").textContent=String(Math.floor(chaseSeconds/60)).padStart(2,"0")+":"+String(Math.floor(chaseSeconds%60)).padStart(2,"0");
+ $("coins").textContent=money;
+ $("missions").textContent=completed+" / "+missionList.length;
+ $("missionText").textContent=completed>=4?"All city missions complete! Explore the city!":missionList[missionIndex].desc;
+}
+function nearestPlace(){
+ return places.reduce((best,p)=>Math.hypot(player.x-p.x,player.y-p.y)<Math.hypot(player.x-best.x,player.y-best.y)?p:best,places[0]);
+}
+function reset(){
+ keys={};running=false;paused=false;ended=false;settingsOpen=false;
+ chaseStars=0;chaseSeconds=0;chaseActive=false;chaseClock=0;
+ completed=0;money=0;missionIndex=0;gameTime=0;
+ currentBuilding=null;
+ player={x:370,y:300,angle:0,inCar:false,speed:0};
+ car={x:440,y:300,angle:0,speed:0,color:"#ff6d86"};
+ traffic=[];police=[];coins=[];
+ createCity();
+ $("startScreen").classList.remove("hidden");
+ $("pauseScreen").classList.add("hidden");
+ $("settingsScreen").classList.add("hidden");
+ $("endScreen").classList.add("hidden");
+ $("pauseButton").textContent="⏸ Pause Game";
+ stopRadio();updateStats();draw();
+}
+function createCity(){
+ buildings=[];
+ // City blocks with walkable roads between them.
+for(let y=165;y<MAP_H-200;y+=260){
+  for(let x=170;x<MAP_W-250;x+=300){
+   let beachSide=x<520;
+   buildings.push({x:x+Math.random()*30,y:y+Math.random()*30,w:125+Math.random()*55,h:105+Math.random()*65,color:["#f7a8b9","#f6d17e","#a9c8ed","#b6dfb8","#d3b6ed"][Math.floor(Math.random()*5)],name:["HOTEL","CAFE","SHOP","APARTMENTS","MARKET"][Math.floor(Math.random()*5)],enterable:true});
   }
-
-  if (["w","a","s","d"].includes(k)) {
-    e.preventDefault();
-    keys.add(k);
-  }
-
-  if (k === "e" && !e.repeat) {
-    e.preventDefault();
-    toggleCar();
-  }
+ }
+ // Fixed destinations and buildings near key areas
+ buildings.push({x:335,y:1510,w:130,h:95,color:"#ffb7c9",name:"BEACH CAFE",enterable:true});
+ buildings.push({x:960,y:350,w:140,h:110,color:"#b6d9ff",name:"PALM SHOP",enterable:true});
+ buildings.push({x:780,y:1160,w:145,h:110,color:"#ffe09b",name:"BAY HOTEL",enterable:true});
+ buildings.push({x:1870,y:1320,w:150,h:115,color:"#c4b1ed",name:"CITY MALL",enterable:true});
+ traffic=[];
+ for(let i=0;i<18;i++){
+  traffic.push({x:180+Math.random()*(MAP_W-360),y:150+Math.random()*(MAP_H-300),angle:Math.random()<.5?0:Math.PI/2,speed:1+Math.random()*.7,color:["#ffbd62","#7cc6e8","#b9a2df","#f48e9e","#80c9a7"][i%5]});
+ }
+ coins=[];
+ for(let i=0;i<25;i++)coins.push({x:100+Math.random()*(MAP_W-200),y:100+Math.random()*(MAP_H-200),taken:false});
+ missions=missionList.map(m=>({...m,done:false}));
+ police=[];
 }
-
-function keyUp(e) {
-  const k = e.key.toLowerCase();
-  keys.delete(k);
+function start(){
+ running=true;paused=false;
+ $("startScreen").classList.add("hidden");
+ lastTime=performance.now();requestAnimationFrame(loop);
+ toast("Welcome to Miami! Find your car and start exploring.");
 }
-
+function pause(){
+ if(!running||ended||settingsOpen)return;
+ paused=!paused;keys={};
+ $("pauseScreen").classList.toggle("hidden",paused);
+ $("pauseButton").textContent=paused?"▶ Resume Game":"⏸ Pause Game";
+ if(!paused){lastTime=performance.now();requestAnimationFrame(loop);}
+}
+function settings(){
+ if(!running||paused||ended)return;
+ settingsOpen=true;keys={};
+ $("settingsScreen").classList.remove("hidden");
+}
+function closeSettings(){
+ settingsOpen=false;$("settingsScreen").classList.add("hidden");
+ lastTime=performance.now();if(running&&!paused)requestAnimationFrame(loop);
+}
+function finish(){
+ ended=true;running=false;keys={};stopRadio();
+ $("endScreen").classList.remove("hidden");
+}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+function onRoad(x,y){
+ // Roads run horizontally and vertically between city blocks.
+ let vertical=((x-50)%300+300)%300<105;
+ let horizontal=((y-50)%260+260)%260<105;
+ return vertical||horizontal||x<500;
+}
+function collidesBuilding(x,y){
+ return buildings.some(b=>x>b.x-14&&x<b.x+b.w+14&&y>b.y-14&&y<b.y+b.h+14);
+}
+function nearestCar(){
+ return distance(player,car)<65;
+}
+function interact(){
+ if(!running||paused||ended||settingsOpen)return;
+ if(currentBuilding){
+  currentBuilding=null;toast("You stepped back outside into the Miami sunshine!");return;
+ }
+ if(player.inCar){
+  player.inCar=false;player.x=car.x+35;player.y=car.y+15;
+  toast("Lucia hopped out of the car!");sound(330);return;
+ }
+ if(nearestCar()){
+  player.inCar=true;player.x=car.x;player.y=car.y;
+  toast("You're in the driver's seat! Let's go!");sound(520);return;
+ }
+ let b=buildings.find(b=>b.enterable&&distance(player,{x:b.x+b.w/2,y:b.y+b.h/2})<75);
+ if(b){
+  currentBuilding=b;toast("Welcome inside the "+b.name+"! Press E to leave.");
+  return;
+ }
+ toast("Get closer to your car or a building to interact.");
+}
+function completeMission(){
+ if(completed>=4)return;
+ const m=missions[missionIndex];
+ if(distance(player,m)<85){
+  m.done=true;completed++;money+=50;
+  sound(660,.25);toast("Mission complete! +50 coins!");
+  missionIndex++;
+  if(completed>=4)finish();
+  updateStats();
+ }
+}
+function startChase(){
+ if(chaseActive)return;
+ chaseActive=true;chaseStars=1;chaseSeconds=0;chaseClock=0;
+ police.push({x:player.x-170,y:player.y-80,speed:1.3,angle:0});
+ toast("Police spotted you! Your city chase has begun.");
+}
+function updateChase(dt){
+ if(!chaseActive)return;
+ chaseSeconds+=dt/60;
+ chaseClock+=dt/60;
+ // A new star every five minutes of an active chase.
+ let newStars=Math.min(5,1+Math.floor(chaseSeconds/300));
+ if(newStars>chaseStars){
+  chaseStars=newStars;
+  toast(["","Police cars are joining the chase!","More police cars are on the way!","A helicopter spotlight is overhead!","Armored parade vehicles are joining the road challenge!","The full five-star city challenge is on!"][chaseStars]);
+  for(let i=0;i<chaseStars;i++)police.push({x:player.x-160-i*35,y:player.y-90-i*28,speed:1+chaseStars*.25,angle:0});
+ }
+ police.forEach(p=>{
+  let target=player.inCar?car:player;
+  let a=Math.atan2(target.y-p.y,target.x-p.x);
+  p.angle=a;
+  p.x+=Math.cos(a)*p.speed*dt;
+  p.y+=Math.sin(a)*p.speed*dt;
+  if(distance(p,target)<38){
+   p.x-=Math.cos(a)*22;p.y-=Math.sin(a)*22;
+   if(Math.random()<.012)toast("Keep moving! The police cars are close behind!");
+  }
+ });
+}
+function update(dt){
+ gameTime+=dt/60;
+ let target=player.inCar?car:player;
+ let dx=0,dy=0;
+ if(keys.w)dy=-1;if(keys.s)dy=1;if(keys.a)dx=-1;if(keys.d)dx=1;
+ if(player.inCar){
+  if(dx||dy){
+   let desired=Math.atan2(dy,dx);
+   car.angle=desired;
+   car.speed=clamp(car.speed+(keys.w?.13:-.10)*dt,-1.8,4.3);
+  }else car.speed*=.96;
+  let nx=car.x+Math.cos(car.angle)*car.speed*dt;
+  let ny=car.y+Math.sin(car.angle)*car.speed*dt;
+  if(!collidesBuilding(nx,ny)){car.x=clamp(nx,30,MAP_W-30);car.y=clamp(ny,30,MAP_H-30);}
+  else car.speed=0;
+  player.x=car.x;player.y=car.y;
+ }else if(!currentBuilding){
+  if(dx||dy){
+   let mag=Math.hypot(dx,dy);dx/=mag;dy/=mag;
+   let nx=player.x+dx*2.8*dt,ny=player.y+dy*2.8*dt;
+   if(!collidesBuilding(nx,player.y))player.x=clamp(nx,20,MAP_W-20);
+   if(!collidesBuilding(player.x,ny))player.y=clamp(ny,20,MAP_H-20);
+   player.angle=Math.atan2(dy,dx);
+  }
+ }
+ traffic.forEach(t=>{
+  t.x+=Math.cos(t.angle)*t.speed*dt;t.y+=Math.sin(t.angle)*t.speed*dt;
+  if(t.x>MAP_W-40)t.x=40;if(t.x<40)t.x=MAP_W-40;
+  if(t.y>MAP_H-40)t.y=40;if(t.y<40)t.y=MAP_H-40;
+ });
+ if(player.inCar&&Math.abs(car.speed)>1.2&&!chaseActive&&Math.random()<.0007*dt)startChase();
+ updateChase(dt);
+ coins.forEach(c=>{
+  if(!c.taken&&distance(target,c)<28){c.taken=true;money+=5;sound(760,.08);updateStats();}
+ });
+ completeMission();
+ if(currentBuilding){
+  // Interior scene is a simple safe indoor visit.
+ }
+ updateStats();
+}
+function drawRoads(){
+ ctx.fillStyle="#70c7a0";ctx.fillRect(0,0,MAP_W,MAP_H);
+ // Beach and ocean
+ ctx.fillStyle="#36b9d2";ctx.fillRect(0,0,470,MAP_H);
+ ctx.fillStyle="#f8dda0";ctx.fillRect(470,0,105,MAP_H);
+ for(let y=20;y<MAP_H;y+=60){
+  ctx.strokeStyle="#a8edf1";ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(30,y);ctx.quadraticCurveTo(190,y+20,430,y);ctx.stroke();
+ }
+ // Main road grid
+ ctx.fillStyle="#777d88";
+ for(let x=50;x<MAP_W;x+=300)ctx.fillRect(x,0,105,MAP_H);
+ for(let y=50;y<MAP_H;y+=260)ctx.fillRect(0,y,MAP_W,105);
+ // Road markings
+ ctx.strokeStyle="#f6e5a1";ctx.lineWidth=4;ctx.setLineDash([25,25]);
+ for(let x=102;x<MAP_W;x+=300){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,MAP_H);ctx.stroke();}
+ for(let y=102;y<MAP_H;y+=260){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(MAP_W,y);ctx.stroke();}
+ ctx.setLineDash([]);
+ // Palm trees along the beach
+ for(let y=60;y<MAP_H;y+=100){
+  ctx.fillStyle="#986744";ctx.fillRect(500,y,8,25);
+  ctx.fillStyle="#2c9a67";ctx.beginPath();ctx.arc(504,y-2,22,0,Math.PI*2);ctx.fill();
+ }
+}
+function drawBuildings(){
+ buildings.forEach(b=>{
+  ctx.fillStyle="#00000022";ctx.fillRect(b.x+8,b.y+9,b.w,b.h);
+  ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);
+  ctx.fillStyle="#ffffff88";
+  for(let x=b.x+12;x<b.x+b.w-10;x+=28)
+   for(let y=b.y+15;y<b.y+b.h-10;y+=27)ctx.fillRect(x,y,14,13);
+  ctx.fillStyle="#a66f69";ctx.fillRect(b.x+b.w/2-12,b.y+b.h-27,24,27);
+  ctx.fillStyle="#49385e";ctx.font="bold 12px Fredoka";ctx.fillText(b.name,b.x+5,b.y-7);
+ });
+}
+function drawCar(x,y,angle,color,policeCar=false){
+ ctx.save();ctx.translate(x,y);ctx.rotate(angle);
+ ctx.fillStyle="#00000033";ctx.fillRect(-23,-12,50,29);
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(-25,-14,50,28,7);ctx.fill();
+ ctx.fillStyle="#d8f5ff";ctx.fillRect(-10,-10,19,20);
+ ctx.fillStyle="#333";ctx.fillRect(-19,-17,10,5);ctx.fillRect(10,-17,10,5);
+ ctx.fillRect(-19,12,10,5);ctx.fillRect(10,12,10,5);
+ if(policeCar){
+  ctx.fillStyle="#ff4b62";ctx.fillRect(-6,-18,8,5);
+  ctx.fillStyle="#54c9ff";ctx.fillRect(3,-18,8,5);
+ }
+ ctx.restore();
+}
+function drawPerson(x,y){
+ ctx.fillStyle="#ffcb9e";ctx.beginPath();ctx.arc(x,y-7,5,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#7653a5";ctx.fillRect(x-5,y-2,10,13);
+}
+function drawPlayer(){
+ if(player.inCar)drawCar(car.x,car.y,car.angle,car.color);
+ else drawPerson(player.x,player.y);
+}
+function drawMission(){
+ if(completed>=4)return;
+ const m=missions[missionIndex];
+ ctx.strokeStyle="#fff";ctx.lineWidth=5;ctx.beginPath();ctx.arc(m.x,m.y,35+Math.sin(gameTime*4)*5,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#ffe36e";ctx.beginPath();ctx.arc(m.x,m.y,22,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#55436b";ctx.font="bold 18px Fredoka";ctx.fillText("!",m.x-5,m.y+7);
+}
+function drawCoins(){
+ coins.forEach(c=>{
+  if(c.taken)return;
+  ctx.fillStyle="#ffe36e";ctx.beginPath();ctx.arc(c.x,c.y,9,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#b68a34";ctx.lineWidth=2;ctx.stroke();
+ });
+}
+function drawPolice(){
+ police.forEach(p=>drawCar(p.x,p.y,p.angle,"#f4f6fb",true));
+ // Helicopter spotlight at star 3 and above
+ if(chaseStars>=3){
+  const target=player.inCar?car:player;
+  const hx=target.x+Math.sin(gameTime)*120,hy=target.y-150;
+  ctx.strokeStyle="#fff4a4aa";ctx.lineWidth=25;
+  ctx.beginPath();ctx.moveTo(hx,hy+15);ctx.lineTo(target.x,target.y);ctx.stroke();
+  ctx.fillStyle="#4d566e";ctx.beginPath();ctx.ellipse(hx,hy,23,9,0,0,Math.PI*2);ctx.fill();
+  ctx.fillRect(hx-3,hy-18,6,13);
+ }
+}
+function drawInterior(){
+ ctx.fillStyle="#f8e6d2";ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#d7b5a2";ctx.fillRect(0,0,W,110);
+ ctx.fillStyle="#fff";ctx.font="bold 32px Fredoka";ctx.fillText(currentBuilding.name,300,70);
+ ctx.fillStyle="#b98a76";ctx.fillRect(150,200,600,300);
+ ctx.fillStyle="#f9d98c";ctx.fillRect(190,230,520,230);
+ ctx.fillStyle="#65477f";ctx.font="bold 22px Fredoka";ctx.fillText("Welcome inside!",345,330);
+ ctx.font="16px Fredoka";ctx.fillText("Press E to head back outside.",320,370);
+}
+function draw(){
+ if(currentBuilding){drawInterior();return;}
+ const camX=clamp((player.inCar?car.x:player.x)-W/2,0,MAP_W-W);
+ const camY=clamp((player.inCar?car.y:player.y)-H/2,0,MAP_H-H);
+ ctx.save();ctx.translate(-camX,-camY);
+ drawRoads();drawBuildings();drawCoins();
+ traffic.forEach(t=>drawCar(t.x,t.y,t.angle,t.color));
+ drawMission();drawPolice();drawPlayer();
+ ctx.restore();
+ // Mini map
+ ctx.fillStyle="#ffffffdd";ctx.fillRect(W-155,85,140,105);
+ ctx.fillStyle="#70c7a0";ctx.fillRect(W-150,90,130,95);
+ ctx.fillStyle="#777d88";
+ for(let x=0;x<130;x+=30)ctx.fillRect(W-150+x,90,8,95);
+ for(let y=0;y<95;y+=26)ctx.fillRect(W-150,90+y,130,8);
+ ctx.fillStyle="#ff668b";
+ ctx.beginPath();ctx.arc(W-150+(player.x/MAP_W)*130,90+(player.y/MAP_H)*95,5,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#fff";ctx.font="bold 11px Fredoka";ctx.fillText("MIAMI MAP",W-150,80);
+ if(chaseStars>0){
+  ctx.fillStyle="#fff";ctx.font="bold 20px Fredoka";ctx.fillText("CHASE: "+"★".repeat(chaseStars),20,640);
+ }
+}
+function loop(now){
+ if(!running||paused||ended||settingsOpen)return;
+ const dt=Math.min((now-lastTime)/16.67,2);lastTime=now;
+ update(dt);draw();requestAnimationFrame(loop);
+}
+function keyDown(e){
+ const k=e.key.toLowerCase();
+ if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ if(k==="p"&&!e.repeat){pause();return}
+ if(k==="r"&&!e.repeat){reset();return}
+ if(["w","a","s","d"].includes(k))keys[k]=true;
+ if(k==="e"&&!e.repeat)interact();
+ if(k===" "&&!e.repeat&&player.inCar){sound(180,.2,"square");toast("HOOOONK! 🚗");}
+}
+function keyUp(e){const k=e.key.toLowerCase();if(["w","a","s","d"].includes(k))keys[k]=false}
+function clearKeys(){keys={}}
 window.addEventListener("keydown",keyDown);
 window.addEventListener("keyup",keyUp);
-
-window.addEventListener("blur",()=>keys.clear());
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden) keys.clear();
-});
-canvas.addEventListener("mouseleave",()=>keys.clear());
-
-function toggleCar() {
-  if(won) return;
-
-  if(!inCar) {
-    const d = Math.hypot(player.x-car.x,player.y-car.y);
-    if(d < 75) {
-      inCar = true;
-      car.speed = 0;
-      showMessage("🚗 You're driving! Explore Miami!");
-    } else {
-      showMessage("Walk closer to your car first!");
-    }
-  } else {
-    const exitX = car.x + Math.cos(car.angle+Math.PI/2)*48;
-    const exitY = car.y + Math.sin(car.angle+Math.PI/2)*48;
-
-    if(!blocked(exitX,exitY,player.r)) {
-      player.x = exitX;
-      player.y = exitY;
-      inCar = false;
-      car.speed = 0;
-      showMessage("Lucia is out of the car!");
-    } else {
-      showMessage("Find a little more space to park!");
-    }
-  }
-}
-
-function blocked(x,y,r) {
-  if(x < r || y < r || x > WORLD.w-r || y > WORLD.h-r)
-    return true;
-
-  return buildings.some(b =>
-    x+r > b.x && x-r < b.x+b.w &&
-    y+r > b.y && y-r < b.y+b.h
-  );
-}
-
-function moveEntity(entity,dx,dy,r) {
-  if(!blocked(entity.x+dx,entity.y,r)) entity.x += dx;
-  if(!blocked(entity.x,entity.y+dy,r)) entity.y += dy;
-}
-
-function update(dt) {
-  if(won) return;
-
-  let dx = 0, dy = 0;
-
-  if(keys.has("w")) dy -= 1;
-  if(keys.has("s")) dy += 1;
-  if(keys.has("a")) dx -= 1;
-  if(keys.has("d")) dx += 1;
-
-  const len = Math.hypot(dx,dy);
-  if(len > 0) {
-    dx /= len;
-    dy /= len;
-  }
-
-  if(inCar) {
-    if(len > 0) {
-      car.angle = Math.atan2(dy,dx);
-      car.speed = 270;
-    } else {
-      car.speed = 0;
-    }
-
-    const oldX = car.x, oldY = car.y;
-    moveEntity(car,dx*car.speed*dt,dy*car.speed*dt,20);
-
-    if(car.x === oldX && car.y === oldY) {
-      car.speed = 0;
-    }
-
-    collectCoins(car.x,car.y,27);
-  } else {
-    if(len > 0) {
-      facing = Math.atan2(dy,dx);
-      moveEntity(player,dx*player.speed*dt,dy*player.speed*dt,player.r);
-    }
-
-    collectCoins(player.x,player.y,24);
-
-    if(Math.hypot(player.x-car.x,player.y-car.y) < 40) {
-      // The E key lets Lucia enter her car.
-    }
-  }
-
-  const targetX = inCar ? car.x : player.x;
-  const targetY = inCar ? car.y : player.y;
-
-  camera.x = targetX - canvas.clientWidth/2;
-  camera.y = targetY - canvas.clientHeight/2;
-
-  camera.x = Math.max(0,Math.min(WORLD.w-canvas.clientWidth,camera.x));
-  camera.y = Math.max(0,Math.min(WORLD.h-canvas.clientHeight,camera.y));
-
-  const nearCafe = Math.hypot(targetX-cafe.x,targetY-cafe.y)<75;
-
-  if(collected >= 10) {
-    document.getElementById("missionText").textContent =
-      "Deliver your coins to the Beach Café!";
-  }
-
-  if(collected >= 10 && nearCafe) {
-    won = true;
-    document.getElementById("missionText").textContent =
-      "Mission Complete! 🎉";
-    showMessage("🎉 YOU DID IT! Welcome to the Miami Adventure!");
-  }
-
-  updateLocation(targetX,targetY);
-}
-
-function collectCoins(x,y,r) {
-  coins = coins.filter(coin=>{
-    if(Math.hypot(x-coin.x,y-coin.y)<r) {
-      collected++;
-      document.getElementById("coinCount").textContent=collected;
-      document.getElementById("coinHeader").textContent=collected;
-      showMessage("🪙 Coin collected! "+collected+" / 10");
-      return false;
-    }
-    return true;
-  });
-}
-
-function updateLocation(x,y) {
-  let location = "Miami Beach";
-  if(x > 1000 && y < 400) location = "Palm Plaza";
-  else if(x > 1000 && y > 400 && y < 1000) location = "Downtown Miami";
-  else if(y > 1000) location = "South Beach";
-  else if(x < 700 && y > 400) location = "Ocean Drive";
-  document.getElementById("locationText").textContent=location;
-}
-
-function drawRoads() {
-  ctx.fillStyle="#d7c7a9";
-  ctx.fillRect(0,0,WORLD.w,WORLD.h);
-
-  // Beach and ocean
-  ctx.fillStyle="#70cde3";
-  ctx.fillRect(0,0,45,WORLD.h);
-  ctx.fillStyle="#f6d99a";
-  ctx.fillRect(45,0,75,WORLD.h);
-
-  // Road surfaces
-  ctx.fillStyle="#687c86";
-  roads.horizontal.forEach(y=>ctx.fillRect(0,y-75,WORLD.w,150));
-  roads.vertical.forEach(x=>ctx.fillRect(x-75,0,150,WORLD.h));
-
-  // Road edges
-  ctx.strokeStyle="#f9e9a9";
-  ctx.lineWidth=3;
-  ctx.setLineDash([22,18]);
-
-  roads.horizontal.forEach(y=>{
-    ctx.beginPath();
-    ctx.moveTo(0,y);
-    ctx.lineTo(WORLD.w,y);
-    ctx.stroke();
-  });
-
-  roads.vertical.forEach(x=>{
-    ctx.beginPath();
-    ctx.moveTo(x,0);
-    ctx.lineTo(x,WORLD.h);
-    ctx.stroke();
-  });
-
-  ctx.setLineDash([]);
-
-  // Beach decoration
-  for(let y=70;y<WORLD.h;y+=150) {
-    drawPalm(75,y);
-  }
-}
-
-function drawPalm(x,y) {
-  ctx.fillStyle="#98633d";
-  ctx.beginPath();
-  ctx.ellipse(x,y,6,20,0,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.fillStyle="#268b64";
-  for(let i=0;i<6;i++) {
-    const a=i*Math.PI/3;
-    ctx.beginPath();
-    ctx.ellipse(
-      x+Math.cos(a)*15,
-      y-16+Math.sin(a)*15,
-      9,22,a,0,Math.PI*2
-    );
-    ctx.fill();
-  }
-}
-
-function drawBuildings() {
-  buildings.forEach((b,i)=>{
-    ctx.fillStyle="#00000018";
-    ctx.fillRect(b.x+7,b.y+8,b.w,b.h);
-
-    ctx.fillStyle=b.color;
-    roundRect(b.x,b.y,b.w,b.h,13);
-    ctx.fill();
-
-    ctx.fillStyle="#ffffff";
-    ctx.fillRect(b.x+15,b.y+15,b.w-30,8);
-
-    ctx.fillStyle="#ffffff99";
-    for(let x=b.x+25;x<b.x+b.w-15;x+=42) {
-      for(let y=b.y+45;y<b.y+b.h-30;y+=42) {
-        ctx.fillRect(x,y,19,20);
-      }
-    }
-
-    ctx.fillStyle="#344c5c";
-    ctx.font="bold 15px Outfit";
-    ctx.textAlign="center";
-    ctx.fillText(b.name,b.x+b.w/2,b.y+b.h-14);
-
-    ctx.fillStyle="#ffffff";
-    ctx.fillRect(b.x+b.w/2-13,b.y+b.h-48,26,30);
-  });
-}
-
-function roundRect(x,y,w,h,r) {
-  ctx.beginPath();
-  ctx.roundRect(x,y,w,h,r);
-}
-
-function drawCoins() {
-  coins.forEach(c=>{
-    ctx.save();
-    ctx.translate(c.x,c.y);
-    ctx.fillStyle="#e5a51e";
-    ctx.beginPath();
-    ctx.arc(0,0,13,0,Math.PI*2);
-    ctx.fill();
-    ctx.strokeStyle="#fff1a8";
-    ctx.lineWidth=3;
-    ctx.stroke();
-    ctx.fillStyle="#fff4bc";
-    ctx.font="bold 15px Fredoka";
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
-    ctx.fillText("$",0,1);
-    ctx.restore();
-  });
-}
-
-function drawCar(x,y,angle) {
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.rotate(angle);
-
-  ctx.fillStyle="#00000030";
-  ctx.fillRect(-23,-11,52,27);
-
-  ctx.fillStyle="#e95153";
-  ctx.beginPath();
-  ctx.roundRect(-25,-14,50,28,8);
-  ctx.fill();
-
-  ctx.fillStyle="#bde7f0";
-  ctx.fillRect(-9,-10,20,20);
-
-  ctx.fillStyle="#f8f2d5";
-  ctx.fillRect(18,-9,5,7);
-  ctx.fillRect(18,3,5,7);
-
-  ctx.fillStyle="#28394a";
-  ctx.fillRect(-17,-17,12,5);
-  ctx.fillRect(8,-17,12,5);
-  ctx.fillRect(-17,12,12,5);
-  ctx.fillRect(8,12,12,5);
-
-  ctx.restore();
-}
-
-function drawPlayer(x,y) {
-  ctx.save();
-  ctx.translate(x,y);
-  ctx.rotate(facing);
-
-  // Shadow
-  ctx.fillStyle="#00000025";
-  ctx.beginPath();
-  ctx.ellipse(0,15,13,6,0,0,Math.PI*2);
-  ctx.fill();
-
-  // Legs
-  ctx.strokeStyle="#36445c";
-  ctx.lineWidth=5;
-  ctx.lineCap="round";
-  ctx.beginPath();
-  ctx.moveTo(-4,5); ctx.lineTo(-6,15);
-  ctx.moveTo(4,5); ctx.lineTo(6,15);
-  ctx.stroke();
-
-  // Body
-  ctx.fillStyle="#ef7099";
-  ctx.beginPath();
-  ctx.roundRect(-9,-8,18,18,6);
-  ctx.fill();
-
-  // Head
-  ctx.fillStyle="#eebc91";
-  ctx.beginPath();
-  ctx.arc(0,-14,10,0,Math.PI*2);
-  ctx.fill();
-
-  // Hair
-  ctx.fillStyle="#71462d";
-  ctx.beginPath();
-  ctx.arc(0,-17,10,Math.PI,Math.PI*2);
-  ctx.fill();
-
-  // Face
-  ctx.fillStyle="#34445a";
-  ctx.beginPath();
-  ctx.arc(3,-14,1.5,0,Math.PI*2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
-function drawCafe() {
-  ctx.fillStyle="#00000020";
-  ctx.fillRect(cafe.x-44,cafe.y-35,100,80);
-
-  ctx.fillStyle="#fff4d6";
-  ctx.fillRect(cafe.x-48,cafe.y-42,96,72);
-
-  ctx.fillStyle="#ed866c";
-  ctx.beginPath();
-  ctx.moveTo(cafe.x-55,cafe.y-42);
-  ctx.lineTo(cafe.x,cafe.y-85);
-  ctx.lineTo(cafe.x+55,cafe.y-42);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle="#8dd2bb";
-  ctx.fillRect(cafe.x-30,cafe.y-25,22,30);
-  ctx.fillRect(cafe.x+8,cafe.y-25,22,30);
-
-  ctx.fillStyle="#76503d";
-  ctx.font="bold 16px Fredoka";
-  ctx.textAlign="center";
-  ctx.fillText("BEACH CAFÉ",cafe.x,cafe.y+52);
-
-  ctx.fillStyle="#fff";
-  ctx.font="bold 13px Outfit";
-  ctx.fillText("DELIVERY",cafe.x,cafe.y+69);
-}
-
-function drawWorld() {
-  const w=canvas.clientWidth;
-  const h=canvas.clientHeight;
-
-  ctx.clearRect(0,0,w,h);
-  ctx.save();
-  ctx.translate(-camera.x,-camera.y);
-
-  drawRoads();
-  drawBuildings();
-  drawCafe();
-  drawCoins();
-
-  // Decorative beach umbrellas
-  for(let i=0;i<7;i++) {
-    const x=145+i*27;
-    const y=150+i*185;
-    ctx.fillStyle=i%2?"#ff9d75":"#f5d15e";
-    ctx.beginPath();
-    ctx.arc(x,y,11,Math.PI,0);
-    ctx.fill();
-  }
-
-  drawCar(car.x,car.y,car.angle);
-
-  if(!inCar) {
-    drawPlayer(player.x,player.y);
-
-    if(Math.hypot(player.x-car.x,player.y-car.y)<75) {
-      ctx.fillStyle="#19334a";
-      ctx.font="bold 14px Outfit";
-      ctx.textAlign="center";
-      ctx.fillText("Press E to drive!",player.x,player.y-38);
-    }
-  }
-
-  // Café marker
-  const targetX = inCar ? car.x : player.x;
-  const targetY = inCar ? car.y : player.y;
-  if(collected>=10) {
-    ctx.strokeStyle="#ffb52e";
-    ctx.lineWidth=4;
-    ctx.beginPath();
-    ctx.arc(cafe.x,cafe.y-5,65+Math.sin(Date.now()/180)*5,0,Math.PI*2);
-    ctx.stroke();
-  }
-
-  ctx.restore();
-
-  // Win overlay
-  if(won) {
-    ctx.fillStyle="#18354bdc";
-    ctx.fillRect(0,0,w,h);
-    ctx.textAlign="center";
-    ctx.fillStyle="#fff";
-    ctx.font="bold 38px Fredoka";
-    ctx.fillText("MISSION COMPLETE!",w/2,h/2-25);
-    ctx.font="bold 20px Outfit";
-    ctx.fillText("Lucia delivered the coins! Great job!",w/2,h/2+15);
-    ctx.font="16px Outfit";
-    ctx.fillText("Press Restart to explore Miami again.",w/2,h/2+52);
-  }
-}
-
-let lastTime=0;
-
-function gameLoop(timestamp) {
-  const dt=Math.min((timestamp-lastTime)/1000||0,0.04);
-  lastTime=timestamp;
-  update(dt);
-  drawWorld();
-  requestAnimationFrame(gameLoop);
-}
-
-resizeCanvas();
-resetGame();
-requestAnimationFrame(gameLoop);
+window.addEventListener("blur",clearKeys);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)clearKeys()});
+canvas.addEventListener("mouseleave",clearKeys);
+$("playButton").onclick=start;
+$("pauseButton").onclick=pause;
+$("resumeButton").onclick=pause;
+$("restartButton").onclick=reset;
+$("againButton").onclick=reset;
+$("settingsButton").onclick=settings;
+$("closeSettings").onclick=closeSettings;
+$("radioButton").onclick=()=>radioOn?stopRadio():startRadio();
+$("musicVolume").oninput=e=>{musicVolume=Number(e.target.value)/100;if(musicVolume===0)stopRadio();else if(radioOn)startRadio()};
+$("soundVolume").oninput=e=>soundVolume=Number(e.target.value)/100;
+
+reset();
 </script>
 </body>
 </html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adamson - Yellow Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: #fffbea;
-    }
-    h1, h2 {
-      font-family: 'Fredoka', sans-serif;
-    }
-  </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-yellow-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-yellow-600">Adamson Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Yellow Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-yellow-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
-</body>
-</html>
-
