@@ -185,7 +185,7 @@ function spray(){
  if(boss.tags>=3)return;
  boss.tags++;score+=250;
  $('message').textContent='🎨 TAG! Robot panel '+boss.tags+' of 3!';
- for(let i=0;i<16;i++)particles.push({x:boss.x+Math.random()*100,y:boss.y+Math.random()*100,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:1,color=['#ff62cb','#63f8e8','#ffe36e'][i%3]});
+ for(let i=0;i<16;i++)particles.push({x:boss.x+Math.random()*100,y:boss.y+Math.random()*100,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:1,color:['#ff62cb','#63f8e8','#ffe36e'][i%3]});
  if(boss.tags===3){
   $('message').textContent='🎉 ROBOT SHUT DOWN! The city is yours!';
   score+=2000;
