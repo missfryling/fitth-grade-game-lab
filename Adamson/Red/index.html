@@ -1,4 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Ex-Stream Simulater - Adamson Red</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Courier New', Courier, monospace; }
+        body { background-color: #1a1a1a; color: #fff; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; padding: 15px; 
+            display: flex; justify-content: space-between; pointer-events: none; z-index: 10;
+        }
+        .ui-box { background: rgba(0, 0, 0, 0.7); padding: 15px; border: 2px solid #ff3333; border-radius: 8px; pointer-events: auto;}
+        .ui-text { font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; color: #fff;}
+        .highlight { color: #ffcc00; }
+        .upgrade-btn {
+            background: #333; color: #fff; border: 1px solid #777; padding: 5px 10px; 
+            margin-top: 5px; cursor: pointer; display: block; width: 100%; text-align: left;
+        }
+        .upgrade-btn:hover { background: #ff3333; color: #000; font-weight: bold; }
+        #canvas-container { flex-grow: 1; width: 100%; position: relative; }
+        canvas { display: block; width: 100%; height: 100%; }
+        
+        #respawn-msg {
+            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 32px; color: #ff3333; font-weight: bold; display: none; text-shadow: 2px 2px 0 #000;
+        }
+    </style>
+</head>
+<body>
 
+    <div id="ui-layer">
+        <div class="ui-box">
+            <div class="ui-text">Los Angeles Stadium</div>
+            <div class="ui-text highlight">Coins: <span id="coin-count">0</span></div>
+            <div class="ui-text" style="font-size: 12px; margin-top: 10px; color: #aaa;">
+                [WASD/Arrows] Drive / Walk<br>
+                [F] Enter / Exit Car<br>
+                [SPACE] Handbrake / 360 Spin
+            </div>
+        </div>
+        <div class="ui-box" style="width: 250px;">
+            <div class="ui-text">Pit Shop Upgrades</div>
+            <button class="upgrade-btn" onclick="buyUpgrade('speed')">[1] Engine Speed (10 Coins) - Lvl <span id="lvl-speed">1</span></button>
+            <button class="upgrade-btn" onclick="buyUpgrade('tires')">[2] Grip Tires (10 Coins) - Lvl <span id="lvl-tires">1</span></button>
+            <button class="upgrade-btn" onclick="buyUpgrade('skin')">[3] Epic Car Skin (25 Coins)</button>
+        </div>
+    </div>
+    
+    <div id="respawn-msg">FELL OFF TRACK! RESPAWNING...</div>
+
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Game State & Input
+        const keys = {};
+        const WORLD_WIDTH = 3000;
+        const WORLD_HEIGHT = 2000;
+        let camera = { x: 0, y: 0 };
+        let coinsTotal = 0;
+        
+        let upgrades = { speed: 1, tires: 1, skinIndex: 0 };
+        const skins
 <!DOCTYPE html>
 <html lang="en">
 <head>
