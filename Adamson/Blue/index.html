@@ -1,793 +1,524 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adamson & Blue: Cute Animal Adventures</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-        }
-
-        @font-face {
-            font-family: 'Retro';
-            src: local('Courier New'), monospace; /* Fallback retro font */
-        }
-
-        body {
-            background-color: #111;
-            color: #fff;
-            font-family: 'Courier New', Courier, monospace, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #game-container {
-            position: relative;
-            width: 100%;
-            max-width: 900px;
-            aspect-ratio: 16/9;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 0 4px #444;
-            background-color: #000;
-        }
-
-        /* 
-         * The canvas uses a fixed internal resolution but scales up 
-         * to fit the container, with pixelated rendering for that 8-bit look.
-         */
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            image-rendering: pixelated; /* Crisp edges */
-        }
-
-        /* UI Overlays */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* HUD */
-        #hud {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 15px;
-            background: rgba(0, 0, 0, 0.5);
-            border-bottom: 2px solid #fff;
-            font-weight: bold;
-            font-size: 14px;
-            text-shadow: 2px 2px 0px #000;
-        }
-
-        .hud-stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Fullscreen Menus (Start, Game Over) */
-        .screen-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto; /* Allow clicks */
-            text-align: center;
-        }
-
-        .screen-overlay h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: #FFB6C1; /* Light Pink */
-            text-shadow: 4px 4px 0px #333;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-
-        .screen-overlay p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #ddd;
-            line-height: 1.5;
-            max-width: 80%;
-        }
-
-        .btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            font-family: inherit;
-            color: #fff;
-            background: #e91e63;
-            border: 4px solid #fff;
-            cursor: pointer;
-            box-shadow: 4px 4px 0px #000;
-            text-transform: uppercase;
-            transition: transform 0.1s;
-        }
-
-        .btn:active {
-            transform: translate(4px, 4px);
-            box-shadow: 0px 0px 0px #000;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Health Bar */
-        #health-bar-bg {
-            width: 100px;
-            height: 15px;
-            background: #555;
-            border: 2px solid #fff;
-            position: relative;
-        }
-        #health-bar-fill {
-            height: 100%;
-            background: #ff3333;
-            width: 100%;
-            transition: width 0.2s;
-        }
-
-        /* Dragon Cooldown Bar */
-        #dragon-bar-bg {
-            width: 80px;
-            height: 15px;
-            background: #555;
-            border: 2px solid #fff;
-            position: relative;
-        }
-        #dragon-bar-fill {
-            height: 100%;
-            background: #ff9800; /* Orange */
-            width: 100%;
-        }
-
-        .ready-text {
-            color: #ffeb3b !important;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yumi's Secret World | Dolphin Game Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple:#7553a8;
+  --pink:#ff91b9;
+  --blue:#86d8f4;
+  --mint:#9de8ce;
+  --yellow:#ffe58a;
+  --ink:#44345e;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:'Fredoka',sans-serif;
+  color:var(--ink);
+  background:linear-gradient(135deg,#ffe5f0,#dff6ff,#eee4ff);
+  min-height:100vh;
+}
+button { font:inherit; cursor:pointer; border:0; }
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; padding:12px 20px; flex-wrap:wrap;
+}
+.brand { font-size:20px; font-weight:700; color:#65448f; }
+.team-tag {
+  background:#e8d9ff; color:#65448f; border-radius:30px;
+  padding:7px 13px; font-size:13px; font-weight:600;
+}
+.nav-btn {
+  background:white; color:#61477f; border-radius:20px;
+  padding:9px 15px; box-shadow:0 3px 0 #d9c9ed;
+}
+.nav-btn:hover { transform:translateY(-2px); }
+main { max-width:1100px; margin:auto; padding:4px 18px 24px; }
+.heading { text-align:center; margin:4px 0 15px; }
+.heading h1 { font-size:clamp(25px,4vw,39px); margin:4px; color:#694a98; }
+.heading p { margin:4px; color:#856c9e; }
+.game-layout {
+ display:grid; grid-template-columns:minmax(0,1fr) 245px;
+ gap:15px; align-items:start;
+}
+.game-card {
+ background:#fff; border:4px solid white; border-radius:22px;
+ padding:10px; box-shadow:0 8px 0 #d9c8e8,0 12px 25px #8b70aa25;
+}
+canvas {
+ display:block; width:100%; height:auto; aspect-ratio:4/3;
+ border-radius:14px; background:#b9efd9;
+}
+.side {
+ display:flex; flex-direction:column; gap:11px;
+}
+.panel {
+ background:#ffffffd9; border:2px solid white;
+ border-radius:17px; padding:13px;
+ box-shadow:0 4px 0 #ddcfea;
+}
+.panel h3 { margin:0 0 9px; color:#7653a5; font-size:17px; }
+.stat { display:flex; justify-content:space-between; gap:6px; margin:6px 0; font-size:14px; }
+.stat strong { color:#684a92; }
+.action {
+ display:block; width:100%; border-radius:14px;
+ padding:11px; margin-top:7px; font-weight:700;
+ color:#55416e; background:#ffe58a;
+ box-shadow:0 4px 0 #e8c85e;
+}
+.action.pink { background:#ffb6d0; box-shadow:0 4px 0 #ed8eb3; }
+.action.mint { background:#a8ecd3; box-shadow:0 4px 0 #72caaa; }
+.action.blue { background:#a9e6fa; box-shadow:0 4px 0 #75c6e5; }
+.action:active { transform:translateY(3px); box-shadow:none; }
+.instructions { font-size:13px; line-height:1.7; color:#725e87; }
+.message {
+ background:#fff1bd; padding:10px; border-radius:12px;
+ font-size:13px; min-height:52px; line-height:1.4;
+}
+.footer { text-align:center; padding:18px; color:#886e9e; font-size:13px; }
+.overlay {
+ position:fixed; inset:0; z-index:10; display:flex;
+ align-items:center; justify-content:center; padding:18px;
+ background:#38244dc9; backdrop-filter:blur(5px);
+}
+.dialog {
+ background:linear-gradient(145deg,#fff4fa,#f1eaff);
+ border:5px solid white; border-radius:28px;
+ width:min(480px,100%); text-align:center; padding:28px;
+ box-shadow:0 12px 0 #b99bd2;
+}
+.dialog .mascot { font-size:68px; margin:0; }
+.dialog h2 { font-size:30px; color:#7953a7; margin:8px 0; }
+.dialog p { color:#806c96; line-height:1.5; }
+.big-button {
+ background:#ff91b9; color:#633c68; padding:14px 30px;
+ border-radius:30px; font-size:20px; font-weight:700;
+ box-shadow:0 5px 0 #dc719b; margin:7px;
+}
+.big-button.secondary { background:#a8e9d3; box-shadow:0 5px 0 #72c6a8; }
+.hidden { display:none !important; }
+@media(max-width:760px) {
+ .game-layout { grid-template-columns:1fr; }
+ .side { display:grid; grid-template-columns:1fr 1fr; }
+ .side .panel:first-child { grid-column:1/-1; }
+}
+</style>
 </head>
 <body>
 
-    <div id="game-container">
-        <!-- Logical resolution 800x450 (16:9 ratio) -->
-        <canvas id="gameCanvas" width="800" height="450"></canvas>
-        
-        <div id="ui-layer">
-            <div id="hud" class="hidden">
-                <div class="hud-stat">
-                    HP: 
-                    <div id="health-bar-bg"><div id="health-bar-fill"></div></div>
-                </div>
-                <div class="hud-stat" id="score-display">Score: 0</div>
-                <div class="hud-stat" id="berry-display">🍓: 0</div>
-                <div class="hud-stat" id="cheese-display">🧀: 0</div>
-                <div class="hud-stat">
-                    Dragon: 
-                    <div id="dragon-bar-bg"><div id="dragon-bar-fill"></div></div>
-                    <span id="dragon-ready" class="hidden ready-text">READY!</span>
-                </div>
-            </div>
+<header class="topbar">
+ <div class="brand">🐬 DOLPHIN GAME LAB</div>
+ <div class="team-tag">ADAMSON CLASS · BLUE TEAM</div>
+ <button class="nav-btn" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
+</header>
 
-            <div id="start-screen" class="screen-overlay">
-                <h1>Adamson & Blue:<br>Cute Animal Adventures</h1>
-                <p>Play as Yumi. Collect Strawberries 🍓, Cheese 🧀, and Coins.</p>
-                <p>Explore <b>Cute Town</b> on the left, but beware the <b>Dark Side</b> on the right.</p>
-                <p><b>[WASD] / [ARROWS]</b> to Move.</p>
-                <p><b>[SPACEBAR]</b> to transform into a Dragon and eat enemies!</p>
-                <button class="btn" id="start-btn">Start Adventure</button>
-            </div>
+<main>
+ <div class="heading">
+  <h1>🌸 Cute Animal Adventures 🌸</h1>
+  <p>Yumi's Secret World · A magical adventure!</p>
+ </div>
 
-            <div id="game-over-screen" class="screen-overlay hidden">
-                <h1 id="go-title">Game Over!</h1>
-                <p id="go-score">Final Score: 0</p>
-                <p id="go-reason">You were defeated by the cute monsters.</p>
-                <button class="btn" id="restart-btn">Play Again</button>
-            </div>
-        </div>
+ <div class="game-layout">
+  <section class="game-card">
+   <canvas id="game" width="800" height="600"></canvas>
+  </section>
+
+  <aside class="side">
+   <div class="panel">
+    <h3>✨ Yumi's Adventure</h3>
+    <div class="stat"><span>🍬 Cheese</span><strong id="cheese">0 / 5</strong></div>
+    <div class="stat"><span>🍓 Strawberries</span><strong id="berries">0 / 3</strong></div>
+    <div class="stat"><span>🐰 Animals fed</span><strong id="fed">0 / 2</strong></div>
+    <div class="stat"><span>👾 Monsters</span><strong id="monsters">0 / 5</strong></div>
+    <div class="stat"><span>🌎 World</span><strong id="worldLabel">Cute Town</strong></div>
+    <div class="stat"><span>🐉 Form</span><strong id="formLabel">Yumi</strong></div>
+   </div>
+
+   <div class="panel">
+    <h3>🎮 Game Controls</h3>
+    <div class="instructions">
+     <b>W A S D</b> – Move around<br>
+     <b>E</b> – Feed animals / open doors<br>
+     <b>SPACE</b> – Dragon magic<br>
+     <b>P</b> – Pause / resume<br>
+     <b>R</b> – Restart adventure
     </div>
-
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // UI Elements
-        const hud = document.getElementById('hud');
-        const startScreen = document.getElementById('start-screen');
-        const gameOverScreen = document.getElementById('game-over-screen');
-        const healthBarFill = document.getElementById('health-bar-fill');
-        const dragonBarFill = document.getElementById('dragon-bar-fill');
-        const dragonReady = document.getElementById('dragon-ready');
-        const scoreDisplay = document.getElementById('score-display');
-        const berryDisplay = document.getElementById('berry-display');
-        const cheeseDisplay = document.getElementById('cheese-display');
-
-        // Game Constants
-        const WORLD_WIDTH = 3000;
-        const WORLD_HEIGHT = 1500;
-        const VIEW_WIDTH = canvas.width;
-        const VIEW_HEIGHT = canvas.height;
-        const CUTE_TOWN_LIMIT = 1500;
-
-        // Input State
-        const keys = {};
-
-        // Game State Variables
-        let gameState = 'START'; // START, PLAYING, GAMEOVER
-        let camera = { x: 0, y: 0 };
-        let entities = [];
-        let particles = [];
-        let score = 0;
-        let strawberries = 0;
-        let cheese = 0;
-
-        // --- CLASSES ---
-
-        class Player {
-            constructor() {
-                this.width = 24;
-                this.height = 24;
-                this.x = 200; // Start in Cute Town
-                this.y = WORLD_HEIGHT / 2;
-                this.speed = 4;
-                this.maxHp = 100;
-                this.hp = this.maxHp;
-                
-                // Dragon Mechanics
-                this.isDragon = false;
-                this.dragonTimer = 0;
-                this.dragonDuration = 180; // 3 seconds at 60fps
-                this.dragonCooldown = 0;
-                this.maxDragonCooldown = 300; // 5 seconds
-                
-                // Combat state
-                this.invulnTimer = 0;
-                this.facing = 1; // 1 = right, -1 = left
-            }
-
-            update() {
-                // Movement
-                let dx = 0; let dy = 0;
-                if (keys['KeyW'] || keys['ArrowUp']) dy -= 1;
-                if (keys['KeyS'] || keys['ArrowDown']) dy += 1;
-                if (keys['KeyA'] || keys['ArrowLeft']) { dx -= 1; this.facing = -1; }
-                if (keys['KeyD'] || keys['ArrowRight']) { dx += 1; this.facing = 1; }
-
-                // Normalize diagonal movement
-                if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
-
-                // Apply speed (dragon is faster)
-                let currentSpeed = this.isDragon ? this.speed * 1.5 : this.speed;
-                this.x += dx * currentSpeed;
-                this.y += dy * currentSpeed;
-
-                // Clamp to world bounds
-                this.x = Math.max(this.width/2, Math.min(WORLD_WIDTH - this.width/2, this.x));
-                this.y = Math.max(this.height/2, Math.min(WORLD_HEIGHT - this.height/2, this.y));
-
-                // Dragon Form Logic
-                if (this.isDragon) {
-                    this.dragonTimer--;
-                    if (this.dragonTimer <= 0) {
-                        this.isDragon = false;
-                        this.dragonCooldown = this.maxDragonCooldown;
-                    }
-                    // Emitting fire particles
-                    if (Math.random() < 0.3) {
-                        particles.push(new Particle(this.x + (Math.random()*20-10), this.y + 10, '#ff4500'));
-                    }
-                } else if (this.dragonCooldown > 0) {
-                    this.dragonCooldown--;
-                }
-
-                // Invulnerability frames
-                if (this.invulnTimer > 0) this.invulnTimer--;
-
-                // Update Camera
-                camera.x = this.x - VIEW_WIDTH / 2;
-                camera.y = this.y - VIEW_HEIGHT / 2;
-                
-                // Clamp camera
-                camera.x = Math.max(0, Math.min(WORLD_WIDTH - VIEW_WIDTH, camera.x));
-                camera.y = Math.max(0, Math.min(WORLD_HEIGHT - VIEW_HEIGHT, camera.y));
-            }
-
-            takeDamage(amount) {
-                if (this.isDragon || this.invulnTimer > 0) return;
-                this.hp -= amount;
-                this.invulnTimer = 60; // 1 second i-frames
-                
-                // Flash particles
-                for(let i=0; i<5; i++) {
-                    particles.push(new Particle(this.x, this.y, '#ff0000', 3));
-                }
-
-                if (this.hp <= 0) {
-                    gameOver();
-                }
-            }
-
-            draw(ctx) {
-                // Flash if invulnerable
-                if (this.invulnTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0) return;
-
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(this.facing, 1); // Flip sprite based on facing
-
-                if (this.isDragon) {
-                    // Dragon Yumi
-                    ctx.fillStyle = '#E53935'; // Dragon Red
-                    ctx.fillRect(-16, -16, 32, 32); // Main body
-                    
-                    ctx.fillStyle = '#FBC02D'; // Yellow spikes
-                    ctx.fillRect(-10, -22, 6, 6);
-                    ctx.fillRect(4, -22, 6, 6);
-                    
-                    ctx.fillStyle = '#FFF'; // Eye
-                    ctx.fillRect(4, -8, 8, 8);
-                    ctx.fillStyle = '#000'; // Pupil
-                    ctx.fillRect(8, -4, 4, 4);
-
-                    // Snout
-                    ctx.fillStyle = '#D32F2F';
-                    ctx.fillRect(16, -4, 10, 16);
-
-                } else {
-                    // Regular Yumi (Cute blocky girl)
-                    ctx.fillStyle = '#F8BBD0'; // Pink dress
-                    ctx.fillRect(-12, -8, 24, 20);
-                    
-                    ctx.fillStyle = '#FFE0B2'; // Skin
-                    ctx.fillRect(-10, -20, 20, 12);
-                    
-                    ctx.fillStyle = '#3949AB'; // Blue hair
-                    ctx.fillRect(-12, -24, 24, 8); // Top hair
-                    ctx.fillRect(-12, -20, 6, 12); // Back hair
-                    
-                    ctx.fillStyle = '#000'; // Eye
-                    ctx.fillRect(2, -16, 4, 4);
-                }
-
-                ctx.restore();
-            }
-        }
-
-        class Collectible {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type; // 'strawberry', 'cheese', 'coin'
-                this.width = 16;
-                this.height = 16;
-                this.collected = false;
-                this.hoverOffset = Math.random() * Math.PI * 2;
-            }
-
-            update() {
-                this.hoverOffset += 0.05;
-            }
-
-            draw(ctx) {
-                let drawY = this.y + Math.sin(this.hoverOffset) * 4;
-                ctx.save();
-                ctx.translate(this.x, drawY);
-
-                if (this.type === 'strawberry') {
-                    ctx.fillStyle = '#E53935'; // Red
-                    ctx.fillRect(-8, -6, 16, 14);
-                    ctx.fillStyle = '#43A047'; // Green leaf
-                    ctx.fillRect(-4, -10, 8, 4);
-                } else if (this.type === 'cheese') {
-                    ctx.fillStyle = '#FFEB3B'; // Yellow
-                    ctx.beginPath();
-                    ctx.moveTo(-8, 8);
-                    ctx.lineTo(8, 8);
-                    ctx.lineTo(0, -8);
-                    ctx.fill();
-                    // Holes
-                    ctx.fillStyle = '#FBC02D';
-                    ctx.fillRect(-2, 0, 4, 4);
-                    ctx.fillRect(2, 4, 3, 3);
-                } else if (this.type === 'coin') {
-                    ctx.fillStyle = '#FFC107'; // Gold
-                    ctx.fillRect(-6, -8, 12, 16);
-                    ctx.fillStyle = '#FFD54F';
-                    ctx.fillRect(-4, -6, 8, 12);
-                }
-
-                ctx.restore();
-            }
-        }
-
-        class Enemy {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type; // 'slime', 'fairy'
-                this.width = type === 'slime' ? 24 : 16;
-                this.height = type === 'slime' ? 20 : 16;
-                this.dead = false;
-                
-                // Movement
-                this.timer = Math.random() * 100;
-                this.dirX = (Math.random() - 0.5) * 2;
-                this.dirY = (Math.random() - 0.5) * 2;
-                this.speed = type === 'slime' ? 1.5 : 2.5;
-            }
-
-            update() {
-                this.timer++;
-
-                if (this.type === 'slime') {
-                    // Slimes bounce slowly towards player if close
-                    if (this.timer % 60 < 30) {
-                        let dist = Math.hypot(player.x - this.x, player.y - this.y);
-                        if (dist < 300) {
-                            this.dirX = (player.x - this.x) / dist;
-                            this.dirY = (player.y - this.y) / dist;
-                        }
-                        this.x += this.dirX * this.speed;
-                        this.y += this.dirY * this.speed;
-                    }
-                } else if (this.type === 'fairy') {
-                    // Fairies flutter erratically
-                    if (this.timer % 30 === 0) {
-                        this.dirX = (Math.random() - 0.5) * 2;
-                        this.dirY = (Math.random() - 0.5) * 2;
-                    }
-                    this.x += this.dirX * this.speed;
-                    this.y += this.dirY * this.speed + Math.sin(this.timer * 0.2) * 2;
-                }
-                
-                // Keep within bounds
-                this.x = Math.max(0, Math.min(WORLD_WIDTH, this.x));
-                this.y = Math.max(0, Math.min(WORLD_HEIGHT, this.y));
-            }
-
-            draw(ctx) {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-
-                if (this.type === 'slime') {
-                    // Bouncing effect
-                    let scaleY = 1;
-                    if (this.timer % 60 < 30) scaleY = 0.8;
-                    ctx.scale(1, scaleY);
-                    
-                    ctx.fillStyle = '#64DD17'; // Slime Green
-                    ctx.fillRect(-12, -10, 24, 20);
-                    ctx.fillStyle = '#B2FF59'; // Highlight
-                    ctx.fillRect(-8, -6, 16, 6);
-                    // Eyes
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(-6, -2, 4, 4);
-                    ctx.fillRect(2, -2, 4, 4);
-                } else if (this.type === 'fairy') {
-                    ctx.fillStyle = '#AB47BC'; // Dark purple
-                    ctx.fillRect(-8, -8, 16, 16);
-                    // Wings
-                    ctx.fillStyle = '#E1BEE7';
-                    let flap = Math.sin(this.timer * 0.5) > 0 ? 8 : 2;
-                    ctx.fillRect(-12, -8, 4, flap);
-                    ctx.fillRect(8, -8, 4, flap);
-                    
-                    // RAWR Text
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '10px Courier New';
-                    ctx.fillText('rawr', -12, -15);
-                }
-
-                ctx.restore();
-            }
-        }
-
-        class Particle {
-            constructor(x, y, color, speedScale=1) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.life = 1.0;
-                this.decay = Math.random() * 0.05 + 0.02;
-                this.vx = (Math.random() - 0.5) * 4 * speedScale;
-                this.vy = (Math.random() - 0.5) * 4 * speedScale;
-                this.size = Math.random() * 4 + 2;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life -= this.decay;
-            }
-            draw(ctx) {
-                ctx.fillStyle = this.color;
-                ctx.globalAlpha = this.life;
-                ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
-                ctx.globalAlpha = 1.0;
-            }
-        }
-
-        // --- GLOBAL VARIABLES ---
-        let player = new Player();
-
-        // --- INITIALIZATION ---
-        function initGame() {
-            player = new Player();
-            entities = [];
-            particles = [];
-            score = 0;
-            strawberries = 0;
-            cheese = 0;
-
-            // Generate Collectibles
-            for (let i = 0; i < 60; i++) {
-                let x = Math.random() * WORLD_WIDTH;
-                let y = Math.random() * WORLD_HEIGHT;
-                
-                let r = Math.random();
-                let type = 'coin';
-                if (r < 0.3) type = 'strawberry';
-                else if (r < 0.5) type = 'cheese';
-
-                entities.push(new Collectible(x, y, type));
-            }
-
-            // Generate Enemies
-            for (let i = 0; i < 40; i++) {
-                // Bias spawn towards Dark Side (right half)
-                let x = Math.random() * WORLD_WIDTH;
-                if (Math.random() < 0.7) {
-                    x = CUTE_TOWN_LIMIT + Math.random() * (WORLD_WIDTH - CUTE_TOWN_LIMIT);
-                }
-                let y = Math.random() * WORLD_HEIGHT;
-                
-                let type = Math.random() > 0.5 ? 'slime' : 'fairy';
-                entities.push(new Enemy(x, y, type));
-            }
-
-            updateHUD();
-            gameState = 'PLAYING';
-            hud.classList.remove('hidden');
-            startScreen.classList.add('hidden');
-            gameOverScreen.classList.add('hidden');
-        }
-
-        // --- INPUT LOGIC ---
-        window.addEventListener('keydown', (e) => {
-            keys[e.code] = true;
-
-            // Trigger Dragon Transformation
-            if (e.code === 'Space' && gameState === 'PLAYING') {
-                if (!player.isDragon && player.dragonCooldown <= 0) {
-                    player.isDragon = true;
-                    player.dragonTimer = player.dragonDuration;
-                    
-                    // Explosion particles on transform
-                    for(let i=0; i<20; i++) {
-                        particles.push(new Particle(player.x, player.y, '#ff9800', 2));
-                    }
-                }
-            }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            keys[e.code] = false;
-        });
-
-        // UI Buttons
-        document.getElementById('start-btn').addEventListener('click', initGame);
-        document.getElementById('restart-btn').addEventListener('click', initGame);
-
-        // --- UPDATE LOGIC ---
-        function update() {
-            if (gameState !== 'PLAYING') return;
-
-            player.update();
-
-            // Update Entities & Collisions
-            for (let i = entities.length - 1; i >= 0; i--) {
-                let ent = entities[i];
-                ent.update();
-
-                // Simple AABB / Distance collision
-                let dist = Math.hypot(player.x - ent.x, player.y - ent.y);
-                
-                if (ent instanceof Collectible) {
-                    if (dist < player.width/2 + ent.width) {
-                        // Collect
-                        if (ent.type === 'strawberry') {
-                            strawberries++;
-                            score += 20;
-                            player.hp = Math.min(player.maxHp, player.hp + 5); // Heals a bit
-                        } else if (ent.type === 'cheese') {
-                            cheese++;
-                            score += 15;
-                        } else if (ent.type === 'coin') {
-                            score += 10;
-                        }
-                        
-                        // Particles
-                        for(let p=0; p<5; p++) particles.push(new Particle(ent.x, ent.y, '#fff'));
-                        
-                        entities.splice(i, 1);
-                    }
-                } else if (ent instanceof Enemy) {
-                    if (dist < player.width/2 + ent.width/2) {
-                        if (player.isDragon) {
-                            // Eat/Defeat Enemy!
-                            score += (ent.type === 'fairy' ? 50 : 30);
-                            for(let p=0; p<10; p++) particles.push(new Particle(ent.x, ent.y, ent.type==='slime'?'#64DD17':'#AB47BC', 2));
-                            entities.splice(i, 1);
-                        } else {
-                            // Take Damage
-                            player.takeDamage(15);
-                        }
-                    }
-                }
-            }
-
-            // Update Particles
-            for (let i = particles.length - 1; i >= 0; i--) {
-                particles[i].update();
-                if (particles[i].life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-
-            updateHUD();
-        }
-
-        function updateHUD() {
-            // Health Bar
-            let hpPercent = (player.hp / player.maxHp) * 100;
-            healthBarFill.style.width = hpPercent + '%';
-
-            // Dragon Cooldown Bar
-            if (player.isDragon) {
-                let drPercent = (player.dragonTimer / player.dragonDuration) * 100;
-                dragonBarFill.style.width = drPercent + '%';
-                dragonBarFill.style.background = '#E53935'; // Red while active
-                dragonReady.classList.add('hidden');
-            } else {
-                let cdPercent = 100 - ((player.dragonCooldown / player.maxDragonCooldown) * 100);
-                dragonBarFill.style.width = cdPercent + '%';
-                dragonBarFill.style.background = '#ff9800'; // Orange while cooling down
-                
-                if (player.dragonCooldown <= 0) {
-                    dragonReady.classList.remove('hidden');
-                } else {
-                    dragonReady.classList.add('hidden');
-                }
-            }
-
-            scoreDisplay.innerText = `Score: ${score}`;
-            berryDisplay.innerText = `🍓: ${strawberries}`;
-            cheeseDisplay.innerText = `🧀: ${cheese}`;
-        }
-
-        function gameOver() {
-            gameState = 'GAMEOVER';
-            hud.classList.add('hidden');
-            document.getElementById('go-score').innerText = `Final Score: ${score}\nStrawberries: ${strawberries} | Cheese: ${cheese}`;
-            gameOverScreen.classList.remove('hidden');
-        }
-
-        // --- DRAWING LOGIC ---
-        function drawBackground(ctx) {
-            // Cute Town (Left Side)
-            let drawXStart = Math.max(0, camera.x);
-            let drawXEnd = Math.min(CUTE_TOWN_LIMIT, camera.x + VIEW_WIDTH);
-            
-            if (drawXStart < CUTE_TOWN_LIMIT) {
-                ctx.fillStyle = '#81C784'; // Bright Kawaii Green
-                ctx.fillRect(drawXStart - camera.x, 0, drawXEnd - drawXStart, VIEW_HEIGHT);
-                
-                // Draw some decorative patches
-                ctx.fillStyle = '#A5D6A7';
-                for(let i=0; i<10; i++) {
-                    let px = (i * 200) % CUTE_TOWN_LIMIT;
-                    let py = (i * 150) % WORLD_HEIGHT;
-                    if (px > camera.x - 100 && px < camera.x + VIEW_WIDTH) {
-                        ctx.fillRect(px - camera.x, py - camera.y, 60, 40);
-                    }
-                }
-            }
-
-            // Dark Side (Right Side)
-            drawXStart = Math.max(CUTE_TOWN_LIMIT, camera.x);
-            drawXEnd = Math.min(WORLD_WIDTH, camera.x + VIEW_WIDTH);
-
-            if (drawXEnd > CUTE_TOWN_LIMIT) {
-                ctx.fillStyle = '#312A3B'; // Dark Purple / Grey
-                ctx.fillRect(drawXStart - camera.x, 0, drawXEnd - drawXStart, VIEW_HEIGHT);
-                
-                // Draw spooky patches
-                ctx.fillStyle = '#4A4157';
-                for(let i=0; i<10; i++) {
-                    let px = CUTE_TOWN_LIMIT + ((i * 180) % (WORLD_WIDTH - CUTE_TOWN_LIMIT));
-                    let py = (i * 130) % WORLD_HEIGHT;
-                    if (px > camera.x - 100 && px < camera.x + VIEW_WIDTH) {
-                        ctx.fillRect(px - camera.x, py - camera.y, 50, 50);
-                    }
-                }
-            }
-            
-            // Border Line
-            if (camera.x < CUTE_TOWN_LIMIT && camera.x + VIEW_WIDTH > CUTE_TOWN_LIMIT) {
-                ctx.fillStyle = '#000';
-                ctx.fillRect(CUTE_TOWN_LIMIT - camera.x, 0, 8, VIEW_HEIGHT);
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
-            
-            if (gameState === 'START') {
-                return; // Controlled by UI HTML layer
-            }
-
-            drawBackground(ctx);
-
-            ctx.save();
-            ctx.translate(-camera.x, -camera.y);
-
-            // Draw Entities
-            // Sort by Y for simple depth (pseudo 3D top-down)
-            let drawables = [...entities, player];
-            drawables.sort((a, b) => a.y - b.y);
-
-            for (let obj of drawables) {
-                // Viewport culling (don't draw if outside camera)
-                if (obj.x > camera.x - 50 && obj.x < camera.x + VIEW_WIDTH + 50 &&
-                    obj.y > camera.y - 50 && obj.y < camera.y + VIEW_HEIGHT + 50) {
-                    obj.draw(ctx);
-                }
-            }
-
-            // Draw Particles
-            for (let p of particles) {
-                p.draw(ctx);
-            }
-
-            ctx.restore();
-        }
-
-        // --- GAME LOOP ---
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // Start Loop
-        requestAnimationFrame(loop);
-
-    </script>
+   </div>
+
+   <div class="panel">
+    <h3>💌 Adventure Message</h3>
+    <div class="message" id="message">Welcome to Cute Town! Collect cheese and strawberries, then help the animals.</div>
+   </div>
+
+   <div class="panel">
+    <button class="action mint" id="pauseButton">⏸ Pause Game</button>
+    <button class="action pink" id="restartButton">🔄 Play Again</button>
+    <button class="action blue" onclick="location.href='../../index.html'">🏠 Game Lab Home</button>
+   </div>
+  </aside>
+ </div>
+</main>
+
+<div class="footer">🌊 MAKE SOME WAVES! · Created by our fifth-grade game designers 🐬</div>
+
+<div class="overlay" id="startScreen">
+ <div class="dialog">
+  <div class="mascot">🐉🌸</div>
+  <h2>Yumi's Secret World</h2>
+  <p>Welcome to Cute Town! Collect cheese and strawberries, feed adorable animals, and discover a secret world hiding beyond town.</p>
+  <p>But watch out! When the sun sets, Yumi discovers her dragon powers!</p>
+  <button class="big-button" id="playButton">▶ LET'S PLAY!</button>
+  <p style="font-size:12px">WASD to move · E to interact · SPACE for magic</p>
+ </div>
+</div>
+
+<div class="overlay hidden" id="pauseScreen">
+ <div class="dialog">
+  <div class="mascot">🌙🐉</div>
+  <h2>Time for a Break!</h2>
+  <p>Your adventure is safe. Come back when you're ready!</p>
+  <button class="big-button secondary" id="resumeButton">▶ RESUME</button>
+  <button class="big-button" id="pauseHomeButton">🏠 GAME LAB HOME</button>
+ </div>
+</div>
+
+<div class="overlay hidden" id="endScreen">
+ <div class="dialog">
+  <div class="mascot" id="endMascot">🏆</div>
+  <h2 id="endTitle">Adventure Complete!</h2>
+  <p id="endText">You did it!</p>
+  <button class="big-button" id="againButton">🔄 PLAY AGAIN</button>
+  <button class="big-button secondary" onclick="location.href='../../index.html'">🏠 GAME LAB HOME</button>
+ </div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const W=800,H=600;
+
+let world="town", running=false, paused=false, ended=false;
+let keys={};
+let player={x:95,y:100,size:22,speed:3.2,dragon:false,magic:0};
+let cheese=[], berries=[], animals=[], monsters=[], sparkles=[];
+let collectedCheese=0, collectedBerries=0, animalsFed=0, defeated=0;
+let secretOpen=false, townDoorOpen=false, messageTimer=0;
+let lastTime=0;
+
+const $=id=>document.getElementById(id);
+function say(text){ $("message").textContent=text; messageTimer=180; }
+function updateStats(){
+ $("cheese").textContent=collectedCheese+" / 5";
+ $("berries").textContent=collectedBerries+" / 3";
+ $("fed").textContent=animalsFed+" / 2";
+ $("monsters").textContent=defeated+" / 5";
+ $("worldLabel").textContent=world==="town"?"Cute Town":"Dark Side";
+ $("formLabel").textContent=player.dragon?"Dragon Yumi":"Yumi";
+}
+function item(x,y,type){return {x,y,type,taken:false};}
+
+function makeWorld(){
+ cheese=[];berries=[];animals=[];monsters=[];sparkles=[];
+ if(world==="town"){
+  cheese=[item(180,170,"cheese"),item(390,115,"cheese"),item(610,250,"cheese"),item(310,440,"cheese"),item(680,460,"cheese")];
+  berries=[item(260,300,"berry"),item(510,390,"berry"),item(710,120,"berry")];
+  animals=[
+   {x:210,y:385,type:"bunny",fed:false},
+   {x:580,y:500,type:"cat",fed:false}
+  ];
+  player.x=90;player.y=95;player.dragon=false;
+ }else{
+  monsters=[
+   {x:240,y:190,alive:true,baseX:240,dir:1},
+   {x:470,y:145,alive:true,baseX:470,dir:-1},
+   {x:650,y:300,alive:true,baseX:650,dir:1},
+   {x:360,y:440,alive:true,baseX:360,dir:-1},
+   {x:690,y:480,alive:true,baseX:690,dir:1}
+  ];
+  player.x=90;player.y=100;player.dragon=true;
+ }
+ updateStats();
+}
+
+function reset(){
+ world="town";running=false;paused=false;ended=false;
+ collectedCheese=0;collectedBerries=0;animalsFed=0;defeated=0;
+ secretOpen=false;townDoorOpen=false;
+ player={x:95,y:100,size:22,speed:3.2,dragon:false,magic:0};
+ keys={};
+ makeWorld();
+ $("startScreen").classList.remove("hidden");
+ $("pauseScreen").classList.add("hidden");
+ $("endScreen").classList.add("hidden");
+ $("pauseButton").textContent="⏸ Pause Game";
+ say("Welcome to Cute Town! Collect cheese and strawberries, then help the animals.");
+ draw();
+}
+function start(){running=true;paused=false;ended=false;$("startScreen").classList.add("hidden");say("Let's explore Cute Town!");lastTime=performance.now();requestAnimationFrame(loop);}
+function pause(){
+ if(!running||ended)return;
+ paused=!paused;keys={};
+ $("pauseScreen").classList.toggle("hidden",!paused);
+ $("pauseButton").textContent=paused?"▶ Resume Game":"⏸ Pause Game";
+ if(!paused){lastTime=performance.now();requestAnimationFrame(loop);}
+}
+function finish(title,text,mascot){
+ ended=true;running=false;keys={};
+ $("endTitle").textContent=title;$("endText").textContent=text;
+ $("endMascot").textContent=mascot;
+ $("endScreen").classList.remove("hidden");
+}
+
+function rect(x,y,w,h,color){
+ ctx.fillStyle=color;ctx.fillRect(x,y,w,h);
+}
+function circle(x,y,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+}
+function text(str,x,y,size,color="#55436b"){
+ ctx.font=`bold ${size}px Fredoka`;ctx.fillStyle=color;ctx.fillText(str,x,y);
+}
+function rounded(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+}
+function drawTown(){
+ rect(0,0,W,H,"#b9efd9");
+ // paths
+ rounded(0,255,W,105,20,"#f9dfb6");
+ rounded(340,0,105,H,20,"#f9dfb6");
+ // garden patches
+ for(let i=0;i<22;i++){
+  let x=(i*137+30)%W,y=(i*83+45)%H;
+  circle(x,y,4,"#80cf9c");circle(x+7,y-4,3,"#ff9fc2");
+ }
+ // houses
+ const houses=[
+  [40,35,"#ffb5cf"],[520,35,"#a9d8ff"],[40,420,"#ffe08d"],[540,410,"#c8afff"]
+ ];
+ for(const [x,y,c] of houses){
+  rect(x,y,150,110,c);
+  ctx.fillStyle="#c47d9a";ctx.beginPath();ctx.moveTo(x-10,y+5);ctx.lineTo(x+75,y-45);ctx.lineTo(x+160,y+5);ctx.fill();
+  rect(x+58,y+48,34,62,"#9a79a9");
+  rect(x+17,y+30,30,30,"#e5fbff");rect(x+105,y+30,30,30,"#e5fbff");
+ }
+ // town sign
+ rounded(285,25,220,42,12,"#fff3bd");
+ text("WELCOME TO CUTE TOWN!",302,53,18,"#795b83");
+ // flowers
+ for(let i=0;i<20;i++){
+  let x=(i*97+20)%W,y=(i*71+190)%H;
+  circle(x,y,5,"#ff91bd");circle(x+5,y,4,"#ffe58a");
+ }
+ // door to dark side
+ rounded(690,20,90,65,12,"#8e6aa9");
+ text("DARK",708,47,17,"white");text("SIDE ➜",699,68,14,"white");
+}
+function drawDark(){
+ let grad=ctx.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,"#45315f");grad.addColorStop(1,"#241d3e");
+ rect(0,0,W,H,grad);
+ // glowing paths
+ rounded(0,270,W,80,20,"#665078");
+ rounded(360,0,80,H,20,"#665078");
+ for(let i=0;i<35;i++){
+  let x=(i*103+30)%W,y=(i*67+20)%H;
+  circle(x,y,3,i%2?"#f7a9df":"#a8edfa");
+ }
+ // mushrooms and crystals
+ for(let i=0;i<12;i++){
+  let x=(i*149+50)%W,y=(i*91+70)%H;
+  rect(x-4,y,8,22,"#d6b3f5");circle(x,y,13,"#ff92c8");
+  circle(x-5,y-3,3,"#fff3b0");
+ }
+ rounded(300,20,200,45,12,"#594171");
+ text("THE DARK SIDE",325,50,22,"#ffe3ff");
+ rounded(680,20,100,65,12,"#f1b9e0");
+ text("TOWN",704,48,18,"#593e71");text("← EXIT",695,69,14,"#593e71");
+}
+
+function drawItem(it){
+ if(it.taken)return;
+ if(it.type==="cheese"){
+  ctx.fillStyle="#ffdc59";ctx.beginPath();ctx.moveTo(it.x-13,it.y+11);ctx.lineTo(it.x+13,it.y+11);ctx.lineTo(it.x+7,it.y-12);ctx.closePath();ctx.fill();
+  circle(it.x-3,it.y,3,"#f3bd35");circle(it.x+5,it.y+5,2,"#f3bd35");
+ }else{
+  circle(it.x,it.y,12,"#ff5e91");circle(it.x-5,it.y-4,4,"#ffb0c8");
+  ctx.strokeStyle="#369d6b";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(it.x,it.y-10);ctx.lineTo(it.x+5,it.y-17);ctx.stroke();
+  circle(it.x+6,it.y-16,5,"#69c78b");
+ }
+}
+function drawAnimal(a){
+ text(a.type==="bunny"?"🐰":"🐱",a.x-19,a.y+12,34);
+ if(a.fed)text("💖",a.x-9,a.y-23,18);
+}
+function drawMonster(m){
+ if(!m.alive)return;
+ // cute slime
+ circle(m.x,m.y,22,"#ff8bd0");
+ circle(m.x-8,m.y-5,4,"white");circle(m.x+8,m.y-5,4,"white");
+ circle(m.x-8,m.y-4,2,"#48355c");circle(m.x+8,m.y-4,2,"#48355c");
+ ctx.strokeStyle="#74436c";ctx.lineWidth=2;ctx.beginPath();ctx.arc(m.x,m.y+3,6,0,Math.PI);ctx.stroke();
+ text("rawr!",m.x-19,m.y-29,12,"#fff0ff");
+}
+function drawPlayer(){
+ let x=player.x,y=player.y;
+ if(player.dragon){
+  text("🐉",x-23,y+13,43);
+ }else{
+  // Yumi
+  circle(x,y-17,12,"#f8c6a8");
+  circle(x-8,y-27,6,"#e8a0aa");circle(x+8,y-27,6,"#e8a0aa");
+  rect(x-11,y-6,22,24,"#ff8fb9");
+  rect(x-13,y+16,9,12,"#8e71c5");rect(x+4,y+16,9,12,"#8e71c5");
+  circle(x-4,y-18,2,"#493652");circle(x+4,y-18,2,"#493652");
+ }
+ if(player.magic>0){
+  circle(x,y,32,"#d9baff55");
+  player.magic--;
+ }
+}
+function draw(){
+ if(world==="town")drawTown();else drawDark();
+ if(world==="town"){
+  cheese.forEach(drawItem);berries.forEach(drawItem);animals.forEach(drawAnimal);
+  rounded(20,550,300,32,10,"#fff4d9");
+  text("Find the cheese, berries and friendly animals!",32,572,15);
+ }else{
+  monsters.forEach(drawMonster);
+  rounded(20,550,340,32,10,"#57406f");
+  text("Use SPACE to send magic sparkles at the monsters!",32,572,15,"#fff0ff");
+ }
+ drawPlayer();
+ // small location marker
+ text(world==="town"?"🌸":"🌙",755,575,22);
+}
+
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function near(a,b){return distance(a,b)<42;}
+function magic(){
+ if(!running||paused||ended||world!=="dark")return;
+ if(player.magic>0)return;
+ player.magic=18;
+ let target=monsters.filter(m=>m.alive).sort((a,b)=>distance(player,a)-distance(player,b))[0];
+ if(target&&distance(player,target)<135){
+  target.alive=false;defeated++;
+  for(let i=0;i<9;i++)sparkles.push({x:target.x,y:target.y,life:30});
+  say("✨ POOF! A slime monster disappeared in sparkles!");
+  updateStats();
+  if(defeated>=5){
+   say("You defeated every monster! The Dark Side is safe!");
+   finish("Dragon Hero! 🐉","Yumi saved the Dark Side! The cute monsters have vanished in sparkles. Amazing work!","🌟🐉");
+  }
+ }else say("✨ Magic sparkles! Get closer to a monster.");
+}
+function interact(){
+ if(!running||paused||ended)return;
+ if(world==="town"){
+  let animal=animals.find(a=>!a.fed&&near(player,a));
+  if(animal){
+   if(collectedBerries>0){
+    animal.fed=true;collectedBerries--;animalsFed++;
+    say("Awww! You fed the "+animal.type+"! 💖");
+    updateStats();
+   }else say("Find a strawberry first to feed this animal!");
+   return;
+  }
+  if(player.x>665&&player.y<100){
+   if(collectedCheese>=5&&collectedBerries>=3&&animalsFed>=2){
+    world="dark";makeWorld();say("The sun sets... Yumi transforms into a dragon! Explore the Dark Side!");
+   }else say("The magic gate needs 5 cheese, 3 strawberries, and 2 happy animals!");
+   return;
+  }
+  // Secret door
+  if(player.x>350&&player.x<450&&player.y>270&&player.y<370){
+   if(collectedCheese>=3){
+    secretOpen=true;say("You found a secret door! A hidden sparkle garden is yours!");
+    sparkles.push({x:400,y:320,life:60});
+   }else say("A secret door! It needs at least 3 cheese coins to unlock.");
+   return;
+  }
+  say("Keep exploring! Look for cheese, strawberries and animals.");
+ }else{
+  if(player.x>665&&player.y<100){
+   world="town";makeWorld();say("Welcome back to Cute Town, Dragon Yumi!");
+  }else say("Use SPACE near the cute blobs and fairies to cast dragon magic!");
+ }
+}
+function collect(){
+ if(world!=="town")return;
+ for(const it of cheese){
+  if(!it.taken&&near(player,it)){it.taken=true;collectedCheese++;say("🧀 Cheese collected!");}
+ }
+ for(const it of berries){
+  if(!it.taken&&near(player,it)){it.taken=true;collectedBerries++;say("🍓 Strawberry collected!");}
+ }
+ updateStats();
+}
+
+function loop(now){
+ if(!running||paused||ended)return;
+ let dt=Math.min((now-lastTime)/16.67,2);lastTime=now;
+ update(dt);
+ draw();
+ requestAnimationFrame(loop);
+}
+function update(dt){
+ let dx=0,dy=0;
+ if(keys.w)dy-=1;if(keys.s)dy+=1;
+ if(keys.a)dx-=1;if(keys.d)dx+=1;
+ if(dx&&dy){dx*=.707;dy*=.707;}
+ player.x=Math.max(22,Math.min(W-22,player.x+dx*player.speed*dt));
+ player.y=Math.max(30,Math.min(H-28,player.y+dy*player.speed*dt));
+ collect();
+ if(world==="dark"){
+  monsters.forEach(m=>{
+   if(!m.alive)return;
+   m.x+=m.dir*.8*dt;
+   if(Math.abs(m.x-m.baseX)>45)m.dir*=-1;
+   if(distance(player,m)<29){
+    player.x=90;player.y=100;
+    say("Oops! A blob bumped you! Try using dragon magic from a safe distance.");
+   }
+  });
+ }
+ if(messageTimer>0)messageTimer--;
+}
+function keyDown(e){
+ let k=e.key.toLowerCase();
+ if(["w","a","s","d"," ","arrowup","arrowdown","arrowleft","arrowright"].includes(k))e.preventDefault();
+ if(k==="p"){if(!e.repeat)pause();return;}
+ if(k==="r"){if(!e.repeat)reset();return;}
+ if(["w","a","s","d"].includes(k))keys[k]=true;
+ if(k==="e"&&!e.repeat)interact();
+ if(k===" "&&!e.repeat)magic();
+}
+function keyUp(e){
+ let k=e.key.toLowerCase();
+ if(["w","a","s","d"].includes(k))keys[k]=false;
+}
+function clearKeys(){keys={};}
+
+window.addEventListener("keydown",keyDown);
+window.addEventListener("keyup",keyUp);
+window.addEventListener("blur",clearKeys);
+document.addEventListener("visibilitychange",()=>{if(document.hidden)clearKeys();});
+canvas.addEventListener("mouseleave",clearKeys);
+
+$("playButton").onclick=start;
+$("pauseButton").onclick=()=>{if(paused){pause();}else pause();};
+$("resumeButton").onclick=pause;
+$("pauseHomeButton").onclick=()=>location.href="../../index.html";
+$("restartButton").onclick=reset;
+$("againButton").onclick=reset;
+
+makeWorld();
+draw();
+updateStats();
+</script>
 </body>
 </html>
