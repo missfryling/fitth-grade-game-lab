@@ -1,105 +1,400 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Ex-Stream Simulater - Adamson Red</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Courier New', Courier, monospace; }
-        body { background-color: #1a1a1a; color: #fff; overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
-        #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; padding: 15px; 
-            display: flex; justify-content: space-between; pointer-events: none; z-index: 10;
-        }
-        .ui-box { background: rgba(0, 0, 0, 0.7); padding: 15px; border: 2px solid #ff3333; border-radius: 8px; pointer-events: auto;}
-        .ui-text { font-size: 16px; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; color: #fff;}
-        .highlight { color: #ffcc00; }
-        .upgrade-btn {
-            background: #333; color: #fff; border: 1px solid #777; padding: 5px 10px; 
-            margin-top: 5px; cursor: pointer; display: block; width: 100%; text-align: left;
-        }
-        .upgrade-btn:hover { background: #ff3333; color: #000; font-weight: bold; }
-        #canvas-container { flex-grow: 1; width: 100%; position: relative; }
-        canvas { display: block; width: 100%; height: 100%; }
-        
-        #respawn-msg {
-            position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 32px; color: #ff3333; font-weight: bold; display: none; text-shadow: 2px 2px 0 #000;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle X-Stream Racing</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#10172b;color:white;font-family:'Outfit',sans-serif;overflow:hidden}
+#game{width:100vw;height:100vh;display:flex;flex-direction:column}
+header{height:66px;background:#182440;display:flex;align-items:center;justify-content:space-between;padding:8px 22px;border-bottom:3px solid #34476d;gap:10px}
+.logo{font-family:'Fredoka';font-size:clamp(17px,3vw,27px);font-weight:700;color:#ffcc45}
+.stats{display:flex;gap:18px;font-weight:700;font-size:14px;flex-wrap:wrap}
+.stat span{color:#5ee5ff}
+main{flex:1;min-height:0;display:flex;gap:12px;padding:12px}
+#stage{position:relative;flex:1;min-width:0;background:#263b57;border-radius:18px;overflow:hidden;border:3px solid #40577b}
+canvas{width:100%;height:100%;display:block}
+#side{width:210px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.panel{background:#202e4b;border:2px solid #354969;border-radius:14px;padding:12px}
+.panel h3{margin:0 0 8px;color:#ffcc45;font-family:'Fredoka';font-size:18px}
+.panel p{font-size:12px;line-height:1.4;color:#d4deef;margin:5px 0}
+button{font-family:'Fredoka';font-size:14px;border:0;border-radius:10px;padding:9px 10px;cursor:pointer;background:#ffca43;color:#25243a;font-weight:700;width:100%;margin-top:6px}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+#message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#081225bb;padding:20px}
+#message.hidden{display:none}
+.dialog{background:#202e4b;border:3px solid #ffca43;border-radius:22px;padding:24px;max-width:440px;width:95%;text-align:center;box-shadow:0 12px 40px #0008}
+.dialog h1{font-family:'Fredoka';font-size:clamp(27px,5vw,40px);color:#ffca43;margin:0 0 8px}
+.dialog p{line-height:1.5;color:#e1e9f7}
+.dialog button{font-size:17px;padding:12px}
+#controls{padding:0 18px 12px;text-align:center;color:#b9c9e2;font-size:13px}
+kbd{background:#34476d;border-radius:5px;padding:3px 7px;color:white;font-weight:700}
+@media(max-width:700px){
+ main{padding:6px;gap:6px}
+ #side{width:145px}
+ .panel{padding:8px}
+ .panel h3{font-size:15px}
+ .panel p{font-size:11px}
+ .stats{gap:7px;font-size:11px}
+ header{padding:6px 10px}
+}
+</style>
 </head>
 <body>
+<div id="game">
+<header>
+ <div class="logo">🏁 VEHICLE X-STREAM</div>
+ <div class="stats">
+  <div>🏆 Level <span id="level">1</span></div>
+  <div>🪙 Coins <span id="coins">0</span></div>
+  <div>⚡ Speed <span id="speed">0</span></div>
+  <div>🏁 <span id="position">1st</span></div>
+ </div>
+</header>
+<main>
+ <div id="stage">
+  <canvas id="canvas" width="960" height="620"></canvas>
+  <div id="message">
+   <div class="dialog">
+    <h1 id="dialogTitle">🏎️ STADIUM SHOWDOWN!</h1>
+    <p id="dialogText">Get ready to race! Beat the bots, collect coins, hit the ramps, and unlock awesome cars.</p>
+    <p><b>W</b> accelerate · <b>S</b> brake · <b>A / D</b> steer · <b>SPACE</b> boost</p>
+    <button id="startButton">START RACING!</button>
+   </div>
+  </div>
+ </div>
+ <aside id="side">
+  <div class="panel">
+   <h3>🚗 Your Garage</h3>
+   <p id="carName">Starter Racer</p>
+   <p id="carInfo">A dependable first ride.</p>
+   <button id="nextCar">Unlock Next Car</button>
+  </div>
+  <div class="panel">
+   <h3>🔧 Upgrades</h3>
+   <p id="upgradeInfo">Speed: 1 · Stamina: 1 · Tires: 1</p>
+   <button id="speedUpgrade">⚡ Speed – 10 coins</button>
+   <button id="staminaUpgrade">💪 Stamina – 10 coins</button>
+   <button id="tireUpgrade">🛞 Tires – 10 coins</button>
+  </div>
+  <div class="panel">
+   <h3>🎮 Race Tips</h3>
+   <p>Collect coins on the track. Drive over blue boosts for extra speed. Hit the orange ramps to fly!</p>
+   <p>Watch out for the other racers. A crash can slow you down!</p>
+  </div>
+ </aside>
+</main>
+<div id="controls">
+ <kbd>W</kbd> Accelerate &nbsp; <kbd>S</kbd> Brake &nbsp; <kbd>A</kbd> Left &nbsp; <kbd>D</kbd> Right &nbsp; <kbd>SPACE</kbd> Boost
+</div>
+</div>
 
-    <div id="ui-layer">
-        <div class="ui-box">
-            <div class="ui-text">Los Angeles Stadium</div>
-            <div class="ui-text highlight">Coins: <span id="coin-count">0</span></div>
-            <div class="ui-text" style="font-size: 12px; margin-top: 10px; color: #aaa;">
-                [WASD/Arrows] Drive / Walk<br>
-                [F] Enter / Exit Car<br>
-                [SPACE] Handbrake / 360 Spin
-            </div>
-        </div>
-        <div class="ui-box" style="width: 250px;">
-            <div class="ui-text">Pit Shop Upgrades</div>
-            <button class="upgrade-btn" onclick="buyUpgrade('speed')">[1] Engine Speed (10 Coins) - Lvl <span id="lvl-speed">1</span></button>
-            <button class="upgrade-btn" onclick="buyUpgrade('tires')">[2] Grip Tires (10 Coins) - Lvl <span id="lvl-tires">1</span></button>
-            <button class="upgrade-btn" onclick="buyUpgrade('skin')">[3] Epic Car Skin (25 Coins)</button>
-        </div>
-    </div>
-    
-    <div id="respawn-msg">FELL OFF TRACK! RESPAWNING...</div>
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
 
-    <div id="canvas-container">
-        <canvas id="gameCanvas"></canvas>
-    </div>
+let keys={},running=false,level=1,coins=0,bank=0;
+let distance=0,speed=0,playerLane=0,boost=0,stamina=1;
+let carIndex=0,carUnlocked=0;
+let speedLevel=1,tireLevel=1,staminaLevel=1;
+let objects=[],bots=[],particles=[];
+let lastTime=0,spawnTimer=0,airTime=0,spinTime=0;
+let raceCoins=0,finished=false;
 
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+const cars=[
+ {name:"Starter Racer",color:"#ff4d5d",price:0,desc:"Your first racing machine."},
+ {name:"Lightning Bolt",color:"#36d8ff",price:25,desc:"A speedy blue rocket."},
+ {name:"Golden Beast",color:"#ffc83d",price:50,desc:"A powerful golden ride."},
+ {name:"Neon Racer",color:"#b77aff",price:80,desc:"The ultimate stadium car."}
+];
 
-        function resize() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+function updateUI(){
+ $("level").textContent=level;
+ $("coins").textContent=coins;
+ $("speed").textContent=Math.round(speed*20);
+ $("position").textContent=running?(bots.filter(b=>b.progress>distance).length+1)+"st":"Ready";
+ $("carName").textContent=cars[carIndex].name;
+ $("carInfo").textContent=cars[carIndex].desc;
+ $("upgradeInfo").textContent=`Speed: ${speedLevel} · Stamina: ${staminaLevel} · Tires: ${tireLevel}`;
+ $("nextCar").textContent=carIndex<cars.length-1?
+  `Unlock ${cars[carIndex+1].name} – ${cars[carIndex+1].price} coins`:"All cars unlocked!";
+ $("nextCar").disabled=carIndex>=cars.length-1||carUnlocked<carIndex+1;
+}
+function spend(amount){
+ if(coins<amount)return false;
+ coins-=amount;return true;
+}
+$("nextCar").onclick=()=>{
+ const next=cars[carIndex+1];
+ if(!next)return;
+ if(coins>=next.price){coins-=next.price;carUnlocked++;carIndex++;updateUI();}
+ else showMessage("NOT ENOUGH COINS!","Keep racing and collecting coins to unlock your next car.","BACK TO GARAGE");
+};
+function upgrade(type){
+ const cost=10;
+ if(!spend(cost)){showMessage("KEEP COLLECTING!","You need 10 coins for this upgrade. Race to earn more!","GOT IT");return;}
+ if(type==="speed")speedLevel++;
+ if(type==="stamina")staminaLevel++;
+ if(type==="tires")tireLevel++;
+ updateUI();
+}
+$("speedUpgrade").onclick=()=>upgrade("speed");
+$("staminaUpgrade").onclick=()=>upgrade("stamina");
+$("tireUpgrade").onclick=()=>upgrade("tires");
 
-        // Game State & Input
-        const keys = {};
-        const WORLD_WIDTH = 3000;
-        const WORLD_HEIGHT = 2000;
-        let camera = { x: 0, y: 0 };
-        let coinsTotal = 0;
-        
-        let upgrades = { speed: 1, tires: 1, skinIndex: 0 };
-        const skins
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Adamson - Red Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fff1f2; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-red-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-red-600">Adamson Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Red Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-red-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+function showMessage(title,body,button){
+ $("dialogTitle").textContent=title;
+ $("dialogText").textContent=body;
+ $("startButton").textContent=button;
+ $("message").classList.remove("hidden");
+}
+function hideMessage(){$("message").classList.add("hidden");}
+
+function startRace(){
+ hideMessage();
+ running=true;finished=false;
+ distance=0;speed=0;playerLane=0;boost=0;airTime=0;spinTime=0;
+ raceCoins=0;objects=[];particles=[];spawnTimer=0;
+ bots=[
+  {lane:-1,progress:100,speed:2.1,color:"#36d8ff"},
+  {lane:1,progress:180,speed:2.3,color:"#a878ff"},
+  {lane:0,progress:260,speed:1.9,color:"#f8a83d"}
+ ];
+ lastTime=performance.now();
+ requestAnimationFrame(loop);
+}
+$("startButton").onclick=()=>{
+ if(finished){level=1;coins=bank;finished=false;}
+ startRace();updateUI();
+};
+
+function roadEdges(y){
+ const horizon=115;
+ const t=Math.max(0,Math.min(1,(y-horizon)/(620-horizon)));
+ const half=90+t*340;
+ return {left:480-half,right:480+half,half};
+}
+function project(lane,z){
+ const y=115+(1-z)*505;
+ const edge=roadEdges(y);
+ const x=480+lane*edge.half*.65;
+ const scale=.25+(1-z)*1.05;
+ return {x,y,scale};
+}
+function drawStadium(){
+ const g=ctx.createLinearGradient(0,0,0,620);
+ g.addColorStop(0,"#5bc8e8");g.addColorStop(.35,"#d3e8e5");g.addColorStop(.36,"#687e70");g.addColorStop(1,"#283b36");
+ ctx.fillStyle=g;ctx.fillRect(0,0,960,620);
+
+ // stadium stands
+ ctx.fillStyle="#344969";ctx.fillRect(0,80,960,125);
+ for(let row=0;row<5;row++){
+  ctx.fillStyle=row%2?"#506b91":"#40577b";
+  ctx.fillRect(0,90+row*20,960,13);
+ }
+ for(let i=0;i<28;i++){
+  ctx.fillStyle=["#ffcf4b","#f65d76","#5de0d0","#e9f1ff"][i%4];
+  ctx.beginPath();ctx.arc(18+i*35,104+(i%4)*20,4,0,Math.PI*2);ctx.fill();
+ }
+ // road
+ const top=roadEdges(115),bottom=roadEdges(620);
+ ctx.fillStyle="#313744";
+ ctx.beginPath();ctx.moveTo(top.left,115);ctx.lineTo(top.right,115);ctx.lineTo(bottom.right,620);ctx.lineTo(bottom.left,620);ctx.closePath();ctx.fill();
+ // outer barriers
+ ctx.strokeStyle="#f4f4f4";ctx.lineWidth=10;
+ ctx.beginPath();ctx.moveTo(top.left,115);ctx.lineTo(bottom.left,620);ctx.moveTo(top.right,115);ctx.lineTo(bottom.right,620);ctx.stroke();
+ ctx.strokeStyle="#e84f62";ctx.lineWidth=5;
+ for(let i=0;i<18;i++){
+  let y=120+i*29-(distance*4%29),e=roadEdges(y);
+  ctx.beginPath();ctx.moveTo(e.left,y);ctx.lineTo(e.left+8,y);ctx.moveTo(e.right-8,y);ctx.lineTo(e.right,y);ctx.stroke();
+ }
+ // lane markings
+ ctx.strokeStyle="#e7e6ce";ctx.lineWidth=4;
+ for(let lane of [-.5,.5]){
+  for(let i=0;i<12;i++){
+   let y=120+i*55-(distance*5%55),e=roadEdges(y);
+   let x=480+lane*e.half;
+   ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+24*(.3+(y/620)));ctx.stroke();
+  }
+ }
+ // trackside palms and banners
+ for(let i=0;i<9;i++){
+  let y=140+i*65-(distance*3%65),e=roadEdges(y);
+  drawPalm(e.left-35,y,Math.max(.3,y/300));
+  drawPalm(e.right+35,y,Math.max(.3,y/300));
+ }
+ ctx.fillStyle="#ffce4a";ctx.font="bold 25px Fredoka";
+ ctx.fillText("LOS ANGELES STUNT ARENA",330,75);
+}
+function drawPalm(x,y,s){
+ ctx.save();ctx.translate(x,y);ctx.scale(s,s);
+ ctx.strokeStyle="#805333";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-30);ctx.stroke();
+ ctx.strokeStyle="#1c9c72";ctx.lineWidth=5;
+ for(let a=-2.8;a<-.2;a+=.55){
+  ctx.beginPath();ctx.moveTo(0,-30);ctx.lineTo(Math.cos(a)*22,Math.sin(a)*18-35);ctx.stroke();
+ }
+ ctx.restore();
+}
+function drawCar(x,y,scale,color,driver=true){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);
+ // shadow
+ ctx.fillStyle="#0007";ctx.beginPath();ctx.ellipse(0,9,34,12,0,0,Math.PI*2);ctx.fill();
+ // wheels
+ ctx.fillStyle="#111";ctx.fillRect(-31,-2,9,24);ctx.fillRect(22,-2,9,24);
+ // car body
+ ctx.fillStyle=color;ctx.beginPath();
+ ctx.moveTo(-34,8);ctx.lineTo(-29,-15);ctx.lineTo(-18,-29);ctx.lineTo(18,-29);ctx.lineTo(29,-15);ctx.lineTo(34,8);ctx.lineTo(27,15);ctx.lineTo(-27,15);ctx.closePath();ctx.fill();
+ ctx.fillStyle="#a9e7f4";ctx.beginPath();ctx.moveTo(-18,-24);ctx.lineTo(18,-24);ctx.lineTo(24,-8);ctx.lineTo(-24,-8);ctx.closePath();ctx.fill();
+ ctx.fillStyle="#fdf1c2";ctx.fillRect(-26,5,9,4);ctx.fillRect(17,5,9,4);
+ if(driver){
+  // little stickman driver
+  ctx.strokeStyle="#f4d1a4";ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-17,5,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle="#222";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(0,-5);ctx.moveTo(0,-9);ctx.lineTo(-7,-4);ctx.moveTo(0,-9);ctx.lineTo(7,-4);ctx.stroke();
+ }
+ ctx.restore();
+}
+function drawObjects(){
+ for(const o of objects){
+  const p=project(o.lane,o.z);
+  if(p.y<110||p.y>630)continue;
+  ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.scale,p.scale);
+  if(o.type==="coin"){
+   ctx.fillStyle="#ffcf35";ctx.strokeStyle="#fff1a0";ctx.lineWidth=3;
+   ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();ctx.stroke();
+   ctx.fillStyle="#9d6b00";ctx.font="bold 14px Fredoka";ctx.textAlign="center";ctx.fillText("$",0,5);
+  }else if(o.type==="boost"){
+   ctx.fillStyle="#24d8ff";ctx.fillRect(-24,-10,48,20);
+   ctx.fillStyle="white";ctx.font="bold 16px Fredoka";ctx.textAlign="center";ctx.fillText("BOOST",0,5);
+  }else if(o.type==="ramp"){
+   ctx.fillStyle="#ff8d35";ctx.beginPath();ctx.moveTo(-30,15);ctx.lineTo(25,15);ctx.lineTo(30,-14);ctx.lineTo(-20,-14);ctx.closePath();ctx.fill();
+   ctx.fillStyle="#fff";ctx.font="bold 13px Fredoka";ctx.textAlign="center";ctx.fillText("JUMP!",0,2);
+  }else if(o.type==="bot"){
+   drawCar(0,0,1,o.color,false);
+  }
+  ctx.restore();
+ }
+}
+function addObject(type,lane,z,color){
+ objects.push({type,lane,z,color});
+}
+function spawnObjects(){
+ const lane=Math.floor(Math.random()*3)-1;
+ const r=Math.random();
+ if(r<.48)addObject("coin",lane,1);
+ else if(r<.63)addObject("boost",lane,1);
+ else if(r<.76)addObject("ramp",lane,1);
+ else addObject("bot",lane,1,["#36d8ff","#ffb33d","#a878ff"][Math.floor(Math.random()*3)]);
+}
+function drawPlayer(){
+ const p=project(playerLane,0);
+ if(airTime>0){
+  ctx.save();ctx.translate(p.x,p.y-65);ctx.rotate(Math.sin(airTime*12)*.12);
+  drawCar(0,0,1.35,cars[carIndex].color,true);ctx.restore();
+  ctx.fillStyle="#fff";ctx.font="bold 18px Fredoka";ctx.textAlign="center";ctx.fillText("AIR TIME!",p.x,p.y-120);
+ }else{
+  drawCar(p.x,p.y,1.25,cars[carIndex].color,true);
+ }
+ if(boost>0){
+  ctx.fillStyle="#47eaff";
+  ctx.beginPath();ctx.moveTo(p.x-15,p.y+17);ctx.lineTo(p.x,p.y+55+Math.random()*10);ctx.lineTo(p.x+15,p.y+17);ctx.fill();
+ }
+}
+function drawProgress(){
+ ctx.fillStyle="#14213b";ctx.fillRect(20,20,210,17);
+ ctx.fillStyle="#ffca43";ctx.fillRect(20,20,210*Math.min(1,distance/(650+level*180)),17);
+ ctx.strokeStyle="white";ctx.strokeRect(20,20,210,17);
+ ctx.fillStyle="white";ctx.font="bold 14px Outfit";ctx.fillText("RACE PROGRESS",20,53);
+ ctx.fillText("Coins this race: "+raceCoins,20,76);
+}
+function draw(){
+ drawStadium();drawObjects();
+ for(const b of bots){
+  const z=1-(b.progress-distance)/350;
+  if(z>0&&z<1){
+   const p=project(b.lane,z);
+   drawCar(p.x,p.y,p.scale,b.color,false);
+  }
+ }
+ drawPlayer();drawProgress();
+}
+function loop(now){
+ if(!running)return;
+ const dt=Math.min((now-lastTime)/16.67,2);lastTime=now;
+ const acceleration=keys["w"]?0.12:0;
+ const braking=keys["s"]?0.16:0;
+ let maxSpeed=3.1+speedLevel*.25;
+ if(keys[" "])boost=Math.max(boost,45);
+ if(boost>0){speed=Math.min(maxSpeed+1.6,speed+.14*dt);boost-=dt;}
+ else speed=Math.max(.8,Math.min(maxSpeed,speed+(acceleration-braking-.025)*dt));
+ if(!keys["w"]&&!keys["s"])speed=Math.max(1.1,speed-.015*dt);
+ if(keys["a"])playerLane=Math.max(-1,playerLane-.045*dt);
+ if(keys["d"])playerLane=Math.min(1,playerLane+.045*dt);
+ distance+=speed*dt*.55;
+ airTime=Math.max(0,airTime-dt);
+ spinTime=Math.max(0,spinTime-dt);
+
+ spawnTimer-=dt;
+ if(spawnTimer<=0){spawnObjects();spawnTimer=25+Math.random()*25;}
+ for(const o of objects)o.z-=speed*dt*.0045;
+ objects=objects.filter(o=>o.z>-.08);
+
+ for(const b of bots)b.progress+=b.speed*dt*.55;
+ for(const o of objects){
+  if(o.z<.12&&o.z>-.01&&Math.abs(o.lane-playerLane)<.45&&!o.hit){
+   o.hit=true;
+   if(o.type==="coin"){coins++;raceCoins++;bank++;o.z=-1;}
+   if(o.type==="boost"){boost=65;o.z=-1;}
+   if(o.type==="ramp"){airTime=55;o.z=-1;}
+   if(o.type==="bot"){
+    speed=Math.max(.7,speed-.9/(tireLevel*.6));
+    playerLane=Math.max(-1,Math.min(1,playerLane+(Math.random()-.5)*.5));
+    o.z=-1;
+   }
+  }
+ }
+ updateUI();draw();
+ if(distance>=650+level*180){endRace();return;}
+ requestAnimationFrame(loop);
+}
+function endRace(){
+ running=false;finished=true;
+ const place=bots.filter(b=>b.progress>distance).length+1;
+ const bonus=place===1?20:place===2?12:6;
+ coins+=bonus;bank=coins;
+ const won=place===1;
+ showMessage(won?"🏆 FIRST PLACE!":"🏁 RACE COMPLETE!",
+  `You finished in ${place}${place===1?"st":place===2?"nd":"rd"} place! You collected ${raceCoins} coins and earned a ${bonus}-coin race bonus.`,
+  level<3?"NEXT LEVEL!":"RACE AGAIN!");
+ $("startButton").onclick=()=>{
+  if(level<3){level++;}else level=1;
+  updateUI();startRace();
+ };
+ updateUI();
+}
+function drawIdle(){
+ drawStadium();
+ drawCar(480,510,1.5,cars[carIndex].color,true);
+ drawProgress();
+}
+function preventArrowScroll(e){
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
+}
+window.addEventListener("keydown",e=>{
+ preventArrowScroll(e);
+ const k=e.key.toLowerCase();
+ if(["w","a","s","d"," "].includes(k)){keys[k]=true;}
+});
+window.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
+window.addEventListener("blur",()=>keys={});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={};});
+canvas.addEventListener("mouseleave",()=>keys={});
+
+updateUI();drawIdle();
+</script>
 </body>
 </html>
+
