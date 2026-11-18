@@ -2,29 +2,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>McAveyGlascock - Yellow Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fffbea; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BACKLEVELS: Timmy's Escape</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#24221b;color:#fff;font-family:Outfit,sans-serif;display:flex;align-items:center;justify-content:center;padding:12px}
+#app{width:min(1050px,100%);background:#383329;border:3px solid #9d8950;border-radius:20px;padding:14px;box-shadow:0 15px 50px #0009}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+h1{font:700 clamp(23px,4vw,36px) Fredoka,sans-serif;color:#f5d66f;margin:0}
+header a{color:#f5e8b1;text-decoration:none;font-size:13px;font-weight:700}
+#hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.stat{background:#514a37;border:1px solid #9c8951;border-radius:10px;padding:7px 11px;font-size:13px;font-weight:700}
+#stage{position:relative;overflow:hidden;border:3px solid #b9a45e;border-radius:13px;background:#d8c779}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
+#overlay{position:absolute;inset:0;background:#17160fe8;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}
+.panel{max-width:560px}
+.panel h2{font:700 clamp(30px,6vw,52px) Fredoka,sans-serif;color:#f5d66f;margin:0 0 10px}
+.panel p{line-height:1.55;color:#f4edcf}
+.big{background:#e7c653;color:#302b1c;border:0;border-radius:12px;padding:13px 24px;font:700 18px Fredoka,sans-serif;cursor:pointer;margin:8px}
+.big:hover{background:#ffe78b}
+.small{background:#5b5036;color:#fff;border:1px solid #c7b16c;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}
+#controls{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+#help{font-size:12px;color:#e8dfbd;line-height:1.6}
+#message{text-align:center;min-height:22px;color:#f5dc80;font-weight:700;font-size:13px;margin-top:7px}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-yellow-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-yellow-600">McAveyGlascock Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Yellow Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-yellow-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<div id="app">
+<header>
+<h1>🟨 BACKLEVELS</h1>
+<a href="../../index.html">← BACK TO GAME LAB</a>
+</header>
+<div id="hud">
+<div class="stat" id="level">LEVEL 1 / 10</div>
+<div class="stat" id="coins">🪙 COINS: 0</div>
+<div class="stat" id="found">🪙 FOUND: 0</div>
+<div class="stat" id="steps">👟 STEPS: 0</div>
+<div class="stat">👤 TIMMY</div>
+</div>
+<div id="stage">
+<canvas id="game" width="960" height="540"></canvas>
+<div id="overlay">
+<div class="panel">
+<h2>BACKLEVELS</h2>
+<p>Timmy is trapped in the Backrooms! Find your way through strange yellow hallways, collect coins, and locate the exit.</p>
+<p>Every level has a new maze. The deeper you go, the harder it gets!</p>
+<p><b>Move:</b> W / S or ↑ / ↓<br><b>Turn:</b> A / D or ← / →<br><b>Mini-map:</b> Press M</p>
+<button class="big" id="start">ENTER THE BACKROOMS</button>
+</div>
+</div>
+</div>
+<div id="controls">
+<div id="help">W / S = Move &nbsp; • &nbsp; A / D = Turn &nbsp; • &nbsp; M = Map &nbsp; • &nbsp; P = Pause</div>
+<div>
+<button class="small" id="pause">Ⅱ Pause</button>
+<button class="small" id="restart">↻ Restart Level</button>
+</div>
+</div>
+<div id="message">Find the exit. Don't get lost!</div>
+</div>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const W=960,H=540;
+let level=1,totalCoins=0,levelCoins=0,steps=0,playing=false,paused=false,showMap=true;
+let map=[],mw=9,mh=9,player={x:1.5,y:1.5,a:0},coins=[],exit={x:7,y:7};
+let keys={},messageTimer=0,frame=0;
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function say(s){$("message").textContent=s;messageTimer=160}
+function updateHUD(){
+$("level").textContent="LEVEL "+level+" / 10";
+$("coins").textContent="🪙 COINS: "+totalCoins;
+$("found").textContent="🪙 FOUND: "+levelCoins;
+$("steps").textContent="👟 STEPS: "+steps;
+}
+function generateMaze(){
+mw=9+Math.floor((level-1)/2)*2;
+mh=9+Math.floor((level-1)/2)*2;
+map=Array.from({length:mh},()=>Array(mw).fill(0));
+let stack=[[1,1]];
+map[1][1]=1;
+while(stack.length){
+let [x,y]=stack[stack.length-1];
+let dirs=[[0,-2],[2,0],[0,2],[-2,0]].sort(()=>Math.random()-.5);
+let next=null;
+for(let [dx,dy] of dirs){
+let nx=x+dx,ny=y+dy;
+if(nx>0&&ny>0&&nx<mw-1&&ny<mh-1&&map[ny][nx]===0){next=[nx,ny,dx,dy];break}
+}
+if(next){
+let [nx,ny,dx,dy]=next;
+map[y+dy/2][x+dx/2]=1;
+map[ny][nx]=1;
+stack.push([nx,ny]);
+}else stack.pop();
+}
+player={x:1.5,y:1.5,a:0};
+let cells=[];
+for(let y=1;y<mh-1;y++)for(let x=1;x<mw-1;x++)if(map[y][x]===1&&(x!==1||y!==1))cells.push({x,y});
+cells.sort((a,b)=>(b.x+b.y)-(a.x+a.y));
+let far=cells[0]||{x:mw-2,y:mh-2};
+exit={x:far.x,y:far.y};
+coins=[];
+let amount=5+level*2;
+let available=cells.filter(c=>c.x!==exit.x||c.y!==exit.y);
+for(let i=0;i<Math.min(amount,available.length);i++){
+let index=Math.floor(Math.random()*available.length);
+let c=available.splice(index,1)[0];
+coins.push({x:c.x+.5,y:c.y+.5,got:false});
+}
+levelCoins=0;steps=0;frame=0;updateHUD();
+}
+function wallAt(x,y){
+let mx=Math.floor(x),my=Math.floor(y);
+return !map[my]||map[my][mx]!==1;
+}
+function castRay(angle){
+let sin=Math.sin(angle),cos=Math.cos(angle);
+let dist=0,hit=false;
+while(dist<24&&!hit){
+dist+=.035;
+let x=player.x+cos*dist,y=player.y+sin*dist;
+if(wallAt(x,y))hit=true;
+}
+return dist;
+}
+function drawWorld(){
+let gradient=ctx.createLinearGradient(0,0,0,H);
+gradient.addColorStop(0,"#b8a45b");
+gradient.addColorStop(.48,"#d5c477");
+gradient.addColorStop(.5,"#857b4e");
+gradient.addColorStop(1,"#4a432e");
+ctx.fillStyle=gradient;ctx.fillRect(0,0,W,H);
+let rays=240,fov=Math.PI/2.8;
+for(let i=0;i<rays;i++){
+let angle=player.a-fov/2+(i/rays)*fov;
+let dist=castRay(angle);
+let corrected=dist*Math.cos(angle-player.a);
+let height=Math.min(H,500/(corrected+.1));
+let x=i*W/rays;
+let shade=clamp(220-corrected*22,35,220);
+let stripe=Math.floor(i/10)%2?0.94:1;
+ctx.fillStyle="rgb("+Math.floor(shade*stripe)+","+Math.floor(shade*.87*stripe)+","+Math.floor(shade*.48*stripe)+")";
+ctx.fillRect(x,(H-height)/2,W/rays+1,height);
+ctx.fillStyle="#fff2b0";
+ctx.fillRect(x,(H-height)/2,W/rays+1,2);
+}
+drawCoins();
+drawExitHint();
+if(showMap)drawMap();
+drawReticle();
+}
+function projectObject(x,y,emoji,color){
+let dx=x-player.x,dy=y-player.y;
+let dist=Math.hypot(dx,dy);
+let angle=Math.atan2(dy,dx)-player.a;
+while(angle>Math.PI)angle-=Math.PI*2;
+while(angle<-Math.PI)angle+=Math.PI*2;
+if(Math.abs(angle)>Math.PI/3||dist<.15)return;
+let sx=W/2+Math.tan(angle)*W*.55;
+let size=clamp(210/dist,8,100);
+ctx.font=size+"px Arial";ctx.textAlign="center";
+ctx.fillText(emoji,sx,H/2+size*.35);
+}
+function drawCoins(){
+coins.forEach(c=>{if(!c.got)projectObject(c.x,c.y,"🪙")});
+}
+function drawExitHint(){
+projectObject(exit.x+.5,exit.y+.5,"🚪");
+}
+function drawReticle(){
+ctx.strokeStyle="#fff9";ctx.lineWidth=2;
+ctx.beginPath();ctx.moveTo(W/2-9,H/2);ctx.lineTo(W/2+9,H/2);
+ctx.moveTo(W/2,H/2-9);ctx.lineTo(W/2,H/2+9);ctx.stroke();
+}
+function drawMap(){
+let cell=8,ox=W-mw*cell-18,oy=18;
+ctx.fillStyle="#17160dcc";ctx.fillRect(ox-8,oy-8,mw*cell+16,mh*cell+16);
+for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
+ctx.fillStyle=map[y][x]?"#cdbd78":"#554c34";
+ctx.fillRect(ox+x*cell,oy+y*cell,cell-1,cell-1);
+}
+coins.forEach(c=>{if(!c.got){ctx.fillStyle="#ffdf54";ctx.fillRect(ox+c.x*cell-2,oy+c.y*cell-2,4,4)}});
+ctx.fillStyle="#70f4c0";ctx.fillRect(ox+(exit.x+.5)*cell-2,oy+(exit.y+.5)*cell-2,5,5);
+ctx.fillStyle="#ff6262";ctx.beginPath();ctx.arc(ox+player.x*cell,oy+player.y*cell,3,0,Math.PI*2);ctx.fill();
+}
+function move(){
+if(!playing||paused)return;
+frame++;
+let turn=0,moveDir=0;
+if(keys.a||keys.ArrowLeft)turn=-1;
+if(keys.d||keys.ArrowRight)turn=1;
+player.a+=turn*.045;
+if(keys.w||keys.ArrowUp)moveDir=1;
+if(keys.s||keys.ArrowDown)moveDir=-1;
+if(moveDir){
+let speed=.055;
+let nx=player.x+Math.cos(player.a)*speed*moveDir;
+let ny=player.y+Math.sin(player.a)*speed*moveDir;
+let moved=false;
+if(!wallAt(nx,player.y)){player.x=nx;moved=true}
+if(!wallAt(player.x,ny)){player.y=ny;moved=true}
+if(moved&&frame%8===0){steps++;updateHUD()}
+}
+coins.forEach(c=>{
+if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<.42){
+c.got=true;levelCoins++;totalCoins+=1;updateHUD();say("You found a coin! +1");
+}
+});
+if(Math.hypot(player.x-(exit.x+.5),player.y-(exit.y+.5))<.55)nextLevel();
+if(messageTimer>0)messageTimer--;
+}
+function nextLevel(){
+playing=false;
+totalCoins+=levelCoins;
+updateHUD();
+if(level===10){
+showOverlay("YOU ESCAPED! 🎉","Timmy made it through all 10 Backrooms levels! You collected "+totalCoins+" coins and escaped the maze!","PLAY AGAIN",()=>{
+level=1;totalCoins=0;generateMaze();playing=true;hideOverlay();say("A new adventure begins!");
+});
+}else{
+showOverlay("LEVEL "+level+" COMPLETE!","You found the exit! You collected "+levelCoins+" coins. The next maze will be harder!","NEXT LEVEL",()=>{
+level++;generateMaze();playing=true;hideOverlay();say("Welcome to level "+level+"!");
+});
+}
+}
+function showOverlay(title,desc,button,action){
+$("overlay").style.display="flex";
+$("overlay").innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button class="big" id="action">'+button+'</button></div>';
+$("action").onclick=action;
+}
+function hideOverlay(){$("overlay").style.display="none"}
+function pauseGame(){
+if(!playing)return;
+paused=!paused;
+if(paused)showOverlay("PAUSED","Timmy is taking a break. Your progress is safe.","RESUME",()=>{paused=false;hideOverlay()});
+else hideOverlay();
+$("pause").textContent=paused?"▶ Resume":"Ⅱ Pause";
+}
+$("start").onclick=()=>{playing=true;hideOverlay();say("Find the exit! Collect coins along the way.")};
+$("pause").onclick=pauseGame;
+$("restart").onclick=()=>{if(playing){generateMaze();say("Level restarted. Find a new path!")}};
+window.addEventListener("keydown",e=>{
+let k=e.key.length===1?e.key.toLowerCase():e.key;
+if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(k))e.preventDefault();
+keys[k]=true;
+if(k==="m"&&!e.repeat){showMap=!showMap}
+if(k==="p"&&!e.repeat)pauseGame();
+});
+window.addEventListener("keyup",e=>{let k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
+window.addEventListener("blur",()=>keys={});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
+function loop(){
+if(playing&&!paused)move();
+drawWorld();
+requestAnimationFrame(loop);
+}
+generateMaze();loop();
+</script>
 </body>
 </html>
+
