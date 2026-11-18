@@ -2,29 +2,310 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>McAveyGlascock - Blue Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #eff6ff; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I'm Not Human: Lilly's Last Night</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#11121e;color:#f5edff;font-family:Outfit,Arial,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#211c32;border-bottom:2px solid #6e557f}
+.brand{font:700 22px Fredoka;color:#d6b3ff}
+button{border:0;border-radius:12px;padding:10px 15px;font-family:inherit;font-weight:800;background:#e5c4ff;color:#241b34;cursor:pointer;box-shadow:0 4px 0 #9673ad}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.secondary{background:#b9e8ff;box-shadow:0 4px 0 #729db4}
+.pink{background:#ffbad7;box-shadow:0 4px 0 #ad718b}
+.dark{background:#55516b;color:white;box-shadow:0 4px 0 #343044}
+#stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px}
+.stat{background:#29243c;border:1px solid #514366;border-radius:12px;padding:8px 12px;font-size:14px;font-weight:700}
+#wrap{width:min(1050px,100%);margin:auto;padding:0 12px}
+#scene{position:relative}
+canvas{width:100%;display:block;aspect-ratio:16/9;border:3px solid #665477;border-radius:16px;background:#171725}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#0b0a15e8;border-radius:16px;text-align:center}
+.panel{max-width:580px;width:100%;padding:23px;background:#29223b;border:3px solid #d6b3ff;border-radius:22px;box-shadow:0 12px 35px #0009}
+h1{font:700 clamp(28px,5vw,45px) Fredoka;color:#d6b3ff;margin:0 0 8px}
+h2{font:700 24px Fredoka;color:#ffcee3;margin:5px 0}
+p{line-height:1.5}
+.row{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:13px}
+.small{font-size:13px;color:#d9cfe9}
+#clueBox{background:#252137;border:1px solid #55496c;border-radius:14px;padding:13px;margin-top:12px;min-height:64px;line-height:1.45}
+#actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:12px 0}
+#message{text-align:center;color:#e7c8ff;font-weight:700;min-height:27px;padding:6px}
+#bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 4px;color:#cfc1df;font-size:13px}
+@media(max-width:600px){.brand{width:100%;text-align:center}.stat{font-size:12px;padding:6px 8px}.panel{padding:13px}}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-blue-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-blue-600">McAveyGlascock Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Blue Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-blue-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<header>
+ <div class="brand">🚪 I'M NOT HUMAN: LILLY'S LAST NIGHT</div>
+ <div class="row" style="margin:0">
+  <button class="secondary" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
+  <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
+  <button class="pink" onclick="restartGame()">↻ Restart</button>
+ </div>
+</header>
+
+<div id="stats">
+ <div class="stat">🌙 Night: <span id="night">1</span> / 3</div>
+ <div class="stat">🚶 Visitor: <span id="visitorNum">1</span> / 5</div>
+ <div class="stat">❤️ Safety: <span id="hearts">❤️❤️❤️</span></div>
+ <div class="stat">🔎 Clues: <span id="clues">0</span></div>
+ <div class="stat">⭐ Score: <span id="score">0</span></div>
+ <div class="stat">🔋 Scanner: <span id="scanner">2</span></div>
+</div>
+
+<div id="wrap">
+ <div id="scene">
+  <canvas id="game" width="960" height="540"></canvas>
+  <div id="overlay">
+   <div class="panel" id="panel">
+    <div style="font-size:52px">🏚️🚪👁️</div>
+    <h1>I'M NOT HUMAN</h1>
+    <h2>LILLY'S LAST NIGHT</h2>
+    <p>You are Lilly. You're home alone, and visitors keep knocking at your door. But something is wrong. Some visitors are mimics pretending to be human.</p>
+    <p>Inspect each visitor. Look for clues. Decide who belongs inside and who must stay outside!</p>
+    <p class="small">Use your flashlight, scanner, and secret room. Protect the house for three nights!</p>
+    <div class="row"><button onclick="startGame()">🔦 BEGIN THE NIGHT</button></div>
+   </div>
+  </div>
+ </div>
+
+ <div id="clueBox"><b>🔎 Investigation notes:</b> <span id="clueText">Listen carefully. Every detail matters.</span></div>
+ <div id="actions">
+  <button class="secondary" onclick="useFlashlight()">🔦 Flashlight</button>
+  <button class="secondary" onclick="useScanner()">📡 Mimic Scanner</button>
+  <button class="secondary" onclick="useSecretDoor()">🗝️ Secret Room</button>
+ </div>
+ <div id="actions">
+  <button class="pink" onclick="decide(false)">🚫 KEEP OUT</button>
+  <button onclick="decide(true)">🏠 LET THEM IN</button>
+ </div>
+ <div id="message">Can you tell who's human?</div>
+ <div id="bottom">
+  <span>🕯️ Stay alert. Don't trust every visitor.</span>
+  <span>🔐 Three nights. Fifteen visitors. Can you protect Lilly's home?</span>
+ </div>
+</div>
+
+<script>
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const W=960,H=540,$=id=>document.getElementById(id);
+
+const visitors=[
+ {name:'Mia',look:'A smiling visitor with a yellow raincoat.',intro:'Hi! I live down the street. Can I come inside?',human:true,flash:'Her shadow moves normally when she shifts.',scan:'The scanner detects a normal human heartbeat.',secret:'Her name is written in Lilly’s neighborhood guest book.',detail:'She remembers the name of the neighborhood street.'},
+ {name:'The Quiet Visitor',look:'A very tall visitor wearing a dark coat.',intro:'Let me in. I have been waiting a long time.',human:false,flash:'Its shadow has an extra-long hand that moves by itself.',scan:'WARNING: No human heartbeat detected!',secret:'A hidden note says: NEVER trust a visitor with no reflection.',detail:'It never blinks, even when the porch light flashes.'},
+ {name:'Mr. Green',look:'A friendly older visitor with a green hat.',intro:'Hello there! I think I dropped my keys nearby.',human:true,flash:'His shoes are muddy from the rainy sidewalk.',scan:'The scanner detects a normal heartbeat.',secret:'His keys are hanging on the fence outside.',detail:'He knows the name of the family dog.'},
+ {name:'The Smiling Guest',look:'A visitor with a very wide smile.',intro:'I am your best friend. You know me!',human:false,flash:'Its smile does not change when it talks.',scan:'WARNING: The scanner detects an unusual signal!',secret:'A strange drawing shows a face with two different shadows.',detail:'It calls Lilly by a name she has never used.'},
+ {name:'Ava',look:'A visitor holding a little blue umbrella.',intro:'Sorry to bother you. May I wait inside until the rain stops?',human:true,flash:'Her umbrella drips water onto the porch.',scan:'The scanner detects a normal human heartbeat.',secret:'Her umbrella has a library tag with her name.',detail:'She politely asks if she can leave her wet shoes by the door.'},
+ {name:'The Backwards Visitor',look:'A visitor standing completely still.',intro:'The door. Open the door. Open the door.',human:false,flash:'Its feet point backward!',scan:'WARNING: The scanner cannot find a heartbeat!',secret:'A secret diary warns about visitors whose feet face the wrong way.',detail:'It repeats the same words in exactly the same voice.'},
+ {name:'Sam',look:'A visitor wearing a blue jacket and sneakers.',intro:'Hey Lilly! I brought back your book.',human:true,flash:'His jacket is wet from the rain.',scan:'The scanner detects a normal human heartbeat.',secret:'The book he carries has Lilly’s name written inside.',detail:'He remembers which book he borrowed.'},
+ {name:'The Window Watcher',look:'A visitor with pale eyes and a striped shirt.',intro:'I saw you through the window. Let me in.',human:false,flash:'Its eyes shine strangely, even in the dark.',scan:'WARNING: The scanner detects two signals!',secret:'A hidden note says mimics sometimes watch from outside.',detail:'It knows exactly which room Lilly is standing in.'},
+ {name:'Nora',look:'A visitor with a red scarf and a backpack.',intro:'I am looking for the bus stop. Could you help me?',human:true,flash:'Her scarf is caught in the backpack zipper.',scan:'The scanner detects a normal heartbeat.',secret:'A map in the secret room shows the bus stop nearby.',detail:'She asks for directions instead of trying to enter.'},
+ {name:'The Hollow Guest',look:'A visitor wearing a perfectly clean white suit.',intro:'I have been here before. You remember me.',human:false,flash:'The porch light shines straight through its hand.',scan:'WARNING: No heartbeat. Unusual body temperature.',secret:'A hidden newspaper clipping warns about a visitor with a see-through hand.',detail:'It claims to know Lilly but gets every memory wrong.'},
+ {name:'Oliver',look:'A visitor carrying a small package.',intro:'This package was delivered to the wrong house.',human:true,flash:'His hands cast ordinary shadows.',scan:'The scanner detects a normal heartbeat.',secret:'The package has the correct house number written on it.',detail:'He asks Lilly to check the address before taking it.'},
+ {name:'The Copycat',look:'A visitor who looks almost exactly like Lilly.',intro:'I am Lilly. You are the visitor. Let me in.',human:false,flash:'Its reflection smiles when its face does not.',scan:'WARNING: Mimic signal detected!',secret:'The secret room has a drawing of a mimic copying a person.',detail:'It copies Lilly’s voice but gets her favorite color wrong.'},
+ {name:'Grace',look:'A visitor wearing a purple sweater.',intro:'I heard the storm is getting worse. Are you okay?',human:true,flash:'Her shadow matches her movements.',scan:'The scanner detects a normal heartbeat.',secret:'Her name appears on the neighborhood emergency contact list.',detail:'She asks if Lilly needs help securing the windows.'},
+ {name:'The No-Face Visitor',look:'A visitor wearing a hood pulled low.',intro:'You do not need to see my face. Just open the door.',human:false,flash:'There is no face beneath the hood.',scan:'WARNING: No heartbeat detected!',secret:'A secret sketch shows a faceless mimic at the front door.',detail:'It refuses to answer any question about its name.'},
+ {name:'The Last Guest',look:'A visitor in a dark purple coat.',intro:'I know what you have been doing all night.',human:false,flash:'Its shadow moves in the opposite direction.',scan:'WARNING: Strong mimic signal!',secret:'A final note says: The last visitor is not what it seems.',detail:'It knows about every visitor Lilly has inspected.'}
+];
+
+let night=1,visitorIndex=0,hearts=3,score=0,clues=0,scanner=2;
+let current=null,running=false,paused=false,flashUsed=false,scanUsed=false,secretUsed=false;
+let history=[],visitorList=[],ending=false;
+
+function hud(){
+ $('night').textContent=night;
+ $('visitorNum').textContent=visitorIndex+1;
+ $('hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
+ $('clues').textContent=clues;$('score').textContent=score;
+ $('scanner').textContent=scanner;
+}
+function startGame(){
+ night=1;visitorIndex=0;hearts=3;score=0;clues=0;scanner=2;
+ history=[];ending=false;
+ visitorList=visitors.slice();
+ current=null;running=true;paused=false;
+ $('overlay').style.display='none';
+ $('pauseBtn').textContent='⏸ Pause';
+ nextVisitor();
+ draw();
+}
+function restartGame(){
+ startGame();
+}
+function nextVisitor(){
+ if(visitorIndex>=5){
+  if(night>=3){finishGame();return;}
+  night++;visitorIndex=0;
+  hearts=3;
+  scanner=Math.min(4,scanner+1);
+  $('message').textContent='🌙 A new night begins. You have three fresh hearts!';
+ }
+ current=visitorList[(night-1)*5+visitorIndex];
+ flashUsed=false;scanUsed=false;secretUsed=false;
+ $('clueText').textContent='A visitor is waiting. Investigate before deciding!';
+ $('message').textContent='🔔 KNOCK KNOCK! Someone is at the door...';
+ hud();draw();
+}
+function useFlashlight(){
+ if(!running||paused||!current||flashUsed)return;
+ flashUsed=true;clues++;score+=10;
+ $('clueText').textContent='🔦 FLASHLIGHT: '+current.flash;
+ $('message').textContent='You noticed something in the porch light.';
+ hud();draw();
+}
+function useScanner(){
+ if(!running||paused||!current||scanUsed)return;
+ if(scanner<=0){$('message').textContent='Your scanner battery is empty!';return;}
+ scanner--;scanUsed=true;clues++;score+=15;
+ $('clueText').textContent='📡 SCANNER: '+current.scan;
+ $('message').textContent='The scanner has finished checking the visitor.';
+ hud();draw();
+}
+function useSecretDoor(){
+ if(!running||paused||!current||secretUsed)return;
+ secretUsed=true;clues++;score+=20;
+ $('clueText').textContent='🗝️ SECRET ROOM: '+current.secret;
+ $('message').textContent='You found another clue hidden in the house!';
+ hud();draw();
+}
+function decide(letIn){
+ if(!running||paused||!current)return;
+ let correct=(letIn===current.human);
+ if(correct){
+  score+=100;
+  $('message').textContent=current.human?'✅ Correct! This visitor is human.':'🌟 Great catch! You spotted a mimic!';
+ }else{
+  hearts--;
+  score=Math.max(0,score-50);
+  $('message').textContent=current.human?'Oh no! You kept a real visitor outside.':'Uh-oh! You let a mimic into the house!';
+ }
+ history.push({name:current.name,human:current.human,decision:letIn,correct});
+ visitorIndex++;
+ hud();draw();
+ if(hearts<=0){
+  running=false;
+  $('overlay').style.display='flex';
+  $('panel').innerHTML=`<div style="font-size:50px">🔒</div><h1>THE HOUSE IS NOT SAFE!</h1>
+  <h2>Lilly needs another chance.</h2>
+  <p>You ran out of safety hearts during Night ${night}. The house needs a better detective!</p>
+  <p>Score: ${score}</p>
+  <div class="row"><button onclick="restartGame()">🔦 TRY AGAIN</button></div>`;
+  return;
+ }
+ setTimeout(()=>{
+  if(running&&!paused)nextVisitor();
+ },1100);
+}
+function finishGame(){
+ running=false;ending=true;
+ let right=history.filter(h=>h.correct).length;
+ $('overlay').style.display='flex';
+ $('panel').innerHTML=`<div style="font-size:55px">🏡✨</div><h1>YOU SURVIVED!</h1>
+ <h2>Lilly protected the house!</h2>
+ <p>You inspected all 15 visitors across three nights.</p>
+ <p><b>${right} out of 15</b> decisions were correct.</p>
+ <p>Final score: <b>${score}</b></p>
+ <p>${right>=13?'Amazing detective work! You know how to spot a mimic!':'The mimics were tricky! Try again and look for more clues.'}</p>
+ <div class="row"><button onclick="restartGame()">🔁 PLAY AGAIN</button></div>`;
+ hud();
+}
+function pauseGame(){
+ if(!running)return;
+ paused=!paused;
+ $('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
+ if(paused)$('message').textContent='⏸ Game paused. Lilly is safe for now.';
+ else{$('message').textContent='The night continues...';draw();}
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ // Night sky
+ let sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,'#111426');sky.addColorStop(1,'#38304b');
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ // Moon
+ ctx.fillStyle='#eee3c7';ctx.beginPath();ctx.arc(800,95,42,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#b9ad9a';ctx.beginPath();ctx.arc(815,85,7,0,Math.PI*2);ctx.fill();
+ // Distant houses
+ for(let i=0;i<7;i++){
+  let x=i*155-25;
+  ctx.fillStyle='#27273b';ctx.fillRect(x,265,125,150);
+  ctx.fillStyle='#302e49';ctx.beginPath();ctx.moveTo(x-12,265);ctx.lineTo(x+62,205);ctx.lineTo(x+137,265);ctx.fill();
+  ctx.fillStyle='#ffdc8b';ctx.fillRect(x+20,300,24,33);ctx.fillRect(x+77,300,24,33);
+ }
+ // Front yard
+ ctx.fillStyle='#1b2630';ctx.fillRect(0,415,W,125);
+ ctx.fillStyle='#293b36';ctx.fillRect(0,450,W,90);
+ // House interior wall
+ ctx.fillStyle='#473e4e';ctx.fillRect(90,170,780,280);
+ ctx.fillStyle='#6a5669';ctx.fillRect(90,170,780,14);
+ // floor
+ ctx.fillStyle='#6c5260';ctx.fillRect(90,420,780,30);
+ for(let x=90;x<870;x+=65){ctx.strokeStyle='#4b394d';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,420);ctx.lineTo(x,450);ctx.stroke();}
+ // wallpaper
+ for(let x=110;x<850;x+=55){
+  ctx.fillStyle='#897080';ctx.beginPath();ctx.arc(x,205,4,0,Math.PI*2);ctx.fill();
+ }
+ // Window
+ ctx.fillStyle='#171c35';ctx.fillRect(145,235,135,130);
+ ctx.fillStyle='#313c60';ctx.fillRect(152,242,121,116);
+ ctx.fillStyle='#d6d5c4';ctx.fillRect(209,242,6,116);ctx.fillRect(152,297,121,5);
+ ctx.fillStyle='#ffe5a1';ctx.beginPath();ctx.arc(245,270,16,0,Math.PI*2);ctx.fill();
+ // Secret door
+ ctx.fillStyle='#30263e';ctx.fillRect(715,240,85,180);
+ ctx.strokeStyle='#b998d5';ctx.lineWidth=3;ctx.strokeRect(715,240,85,180);
+ ctx.fillStyle='#f1d98d';ctx.beginPath();ctx.arc(785,330,5,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#e3c7ff';ctx.font='bold 13px Outfit';ctx.fillText('SECRET',728,230);
+ // Front door
+ ctx.fillStyle='#4c3343';ctx.fillRect(405,225,150,225);
+ ctx.strokeStyle='#b58ca5';ctx.lineWidth=5;ctx.strokeRect(405,225,150,225);
+ ctx.fillStyle='#f4d59a';ctx.beginPath();ctx.arc(530,340,7,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#b58ca5';ctx.fillRect(425,245,110,75);
+ // Lilly silhouette inside
+ ctx.fillStyle='#242a43';ctx.beginPath();ctx.arc(350,365,24,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#6d9ac2';ctx.fillRect(329,390,42,62);
+ ctx.fillStyle='#e6c09f';ctx.fillRect(338,345,24,9);
+ // Visitor outside door
+ if(current){
+  let mimic=!current.human;
+  let x=480,y=420;
+  ctx.fillStyle=mimic?'#6d536f':'#8c8492';
+  ctx.beginPath();ctx.arc(x,y-105,34,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=mimic?'#252035':'#e3bd9d';
+  ctx.fillRect(x-31,y-76,62,80);
+  // Clothing
+  ctx.fillStyle=mimic?'#33233f':'#54718a';
+  ctx.fillRect(x-38,y-72,76,85);
+  // Eyes
+  ctx.fillStyle=mimic?'#f3d7ff':'#26253b';
+  ctx.beginPath();ctx.arc(x-12,y-108,5,0,Math.PI*2);ctx.arc(x+12,y-108,5,0,Math.PI*2);ctx.fill();
+  // Mimic telltale: shadow shape
+  if(mimic){
+   ctx.fillStyle='#11101d99';ctx.beginPath();
+   ctx.ellipse(x+43,y-5,27,10,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.fillStyle='white';ctx.font='bold 19px Fredoka';ctx.textAlign='center';
+  ctx.fillText('VISITOR AT THE DOOR',480,90);
+  ctx.font='16px Outfit';ctx.fillStyle='#f0d9f7';
+  ctx.fillText(current.name,480,118);
+  ctx.textAlign='left';
+ }else{
+  ctx.fillStyle='#f3d8ff';ctx.font='bold 23px Fredoka';ctx.textAlign='center';
+  ctx.fillText('THE HOUSE IS QUIET...',480,120);ctx.textAlign='left';
+ }
+ // Light beam
+ if(flashUsed){
+  ctx.fillStyle='#fff3a522';ctx.beginPath();ctx.moveTo(350,385);ctx.lineTo(460,250);ctx.lineTo(580,430);ctx.fill();
+ }
+ // Door sign
+ ctx.fillStyle='#f2dca8';ctx.fillRect(440,265,80,35);
+ ctx.fillStyle='#3b2d3c';ctx.font='bold 13px Outfit';ctx.fillText('NO ENTRY?',450,287);
+ // Caption
+ ctx.fillStyle='#eee0f7';ctx.font='bold 15px Outfit';
+ ctx.fillText('LILLY’S HOUSE • 11:47 PM',22,35);
+}
+hud();draw();
+</script>
 </body>
 </html>
+
