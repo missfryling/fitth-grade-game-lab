@@ -2,29 +2,284 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>McAveyGlascock - Red Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fff1f2; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environmental Escape</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#102b32;color:#fff;font-family:Outfit,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:12px}
+#app{width:min(1100px,100%);background:#183d42;border:3px solid #4d8b75;border-radius:22px;padding:14px;box-shadow:0 15px 50px #061b20}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-family:Fredoka,sans-serif;font-size:clamp(22px,4vw,34px);margin:0;color:#c7f27b;letter-spacing:1px}
+header a{color:#d9f7c0;text-decoration:none;font-weight:700;font-size:13px}
+header a:hover{text-decoration:underline}
+#hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.stat{background:#24565a;border:1px solid #4c8c7a;border-radius:12px;padding:7px 12px;font-size:13px;font-weight:700}
+#gameWrap{position:relative;overflow:hidden;border-radius:15px;border:3px solid #80b99a;background:#8bd5ae}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
+#overlay{position:absolute;inset:0;background:#102d32dc;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}
+.panel{max-width:560px}
+.panel h2{font:700 clamp(30px,6vw,52px) Fredoka,sans-serif;color:#d2f78b;margin:0 0 8px}
+.panel p{line-height:1.5;color:#e4f4e4;margin:8px 0}
+.big{font:700 19px Fredoka,sans-serif;background:#b7e96b;color:#18372e;border:0;border-radius:14px;padding:12px 25px;cursor:pointer;margin:8px}
+.big:hover{background:#d6ff91;transform:translateY(-1px)}
+.small{background:#2b6661;color:white;border:1px solid #7bb69a;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+.small:hover{background:#397f70}
+#controls{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+#help{font-size:12px;color:#c8e5d3;line-height:1.5}
+#message{min-height:22px;text-align:center;color:#e1f7a9;font-weight:700;font-size:14px;margin-top:7px}
+@media(max-width:600px){body{padding:4px}#app{padding:8px}.stat{padding:6px 8px;font-size:11px}}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-red-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-red-600">McAveyGlascock Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Red Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-red-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<div id="app">
+<header>
+<h1>🌎 ENVIRONMENTAL ESCAPE</h1>
+<a href="../../index.html">← BACK TO GAME LAB</a>
+</header>
+<div id="hud">
+<div class="stat" id="worldStat">🌲 Forest</div>
+<div class="stat" id="levelStat">Level 1 / 50</div>
+<div class="stat" id="animalStat">🐰 Rabbit</div>
+<div class="stat" id="healthStat">❤️❤️❤️</div>
+<div class="stat" id="coinStat">🪙 0</div>
+<div class="stat" id="abilityStat">✨ Ability: Ready</div>
+</div>
+<div id="gameWrap">
+<canvas id="game" width="960" height="540"></canvas>
+<div id="overlay">
+<div class="panel">
+<h2>🌎 ENVIRONMENTAL ESCAPE</h2>
+<p>The habitats are in danger! Help five animal heroes escape before the landscapers destroy their homes.</p>
+<p>Explore 5 environments, complete 50 levels, collect coins, discover power-ups, and use each animal's special ability!</p>
+<p><b>Move:</b> A/D or arrow keys &nbsp; <b>Jump:</b> Space or W<br><b>Special ability:</b> E &nbsp; <b>Pause:</b> P</p>
+<button class="big" id="startBtn">START ADVENTURE!</button>
+</div>
+</div>
+</div>
+<div id="controls">
+<div id="help">A / D or ← / → Move &nbsp; • &nbsp; SPACE / W Jump &nbsp; • &nbsp; E Special Ability &nbsp; • &nbsp; P Pause</div>
+<div>
+<button class="small" id="pauseBtn">Ⅱ Pause</button>
+<button class="small" id="restartBtn">↻ Restart Level</button>
+</div>
+</div>
+<div id="message">Save the habitats, one level at a time!</div>
+</div>
+<script>
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const W=960,H=540,ground=465;
+const worlds=[
+{name:"Forest",animal:"Rabbit",emoji:"🐰",sky:"#a7dfb0",far:"#70ae78",land:"#43865b",ground:"#356c48",ability:"Super Hop",description:"Leap over obstacles with an extra-high jump!",color:"#d7f29a"},
+{name:"Wetlands",animal:"Frog",emoji:"🐸",sky:"#9edbd0",far:"#5da99a",land:"#398477",ground:"#286b61",ability:"Mega Bounce",description:"Bounce high and travel farther!",color:"#b7f3b0"},
+{name:"Ocean",animal:"Sea Turtle",emoji:"🐢",sky:"#8bd8e8",far:"#4ca9bf",land:"#26869e",ground:"#17677f",ability:"Water Dash",description:"Dash quickly past dangerous obstacles!",color:"#a8f0f2"},
+{name:"Arctic",animal:"Arctic Fox",emoji:"🦊",sky:"#c9e8f6",far:"#8dbbd2",land:"#e2f4f8",ground:"#a8d2e4",ability:"Ice Glide",description:"Glide safely over tricky gaps!",color:"#ffffff"},
+{name:"Rainforest",animal:"Toucan",emoji:"🐦",sky:"#9bdc9c",far:"#398c5c",land:"#26734d",ground:"#19583d",ability:"Leaf Flight",description:"Fly over obstacles for a short time!",color:"#f2d17c"}
+];
+let level=1,coins=0,lives=3,score=0,paused=false,playing=false,frame=0,abilityTimer=0,invincible=0;
+let platforms=[],hazards=[],pickups=[],exit={x:900,y:390},player={x:65,y:350,vx:0,vy:0,w:34,h:42,onGround:false};
+let keys={},messageTimer=0,worldIndex=0,levelCoins=0,worldStartCoins=0;
+const $=id=>document.getElementById(id);
+function world(){return worlds[Math.floor((level-1)/10)]}
+function localLevel(){return ((level-1)%10)+1}
+function say(s){$("message").textContent=s;messageTimer=140}
+function updateHUD(){
+let w=world();
+$("worldStat").textContent="🌎 "+w.name;
+$("levelStat").textContent="Level "+level+" / 50";
+$("animalStat").textContent=w.emoji+" "+w.animal;
+$("healthStat").textContent="❤️".repeat(Math.max(0,lives))+"🖤".repeat(3-Math.max(0,lives));
+$("coinStat").textContent="🪙 "+coins;
+$("abilityStat").textContent="✨ "+(abilityTimer>0?"Active":"Ready: E");
+}
+function makeLevel(){
+let n=localLevel(),wi=Math.floor((level-1)/10),w=world();
+player={x:65,y:350,vx:0,vy:0,w:34,h:42,onGround:false};
+platforms=[{x:0,y:ground,w:960,h:90}];
+hazards=[];pickups=[];levelCoins=0;abilityTimer=0;invincible=0;frame=0;
+let count=2+Math.floor(n/2);
+for(let i=0;i<count;i++){
+let x=180+i* (650/count);
+let y=350-(i%3)*45-Math.floor(n/4)*3;
+platforms.push({x,y,w:90+(i%2)*25,h:18});
+}
+for(let i=0;i<3+Math.floor(n/2);i++){
+let x=150+i*(690/(3+Math.floor(n/2)));
+pickups.push({x,y:ground-35-(i%2)*65,r:11,got:false,type:"coin"});
+}
+if(n%3===0)pickups.push({x:500,y:310,r:14,got:false,type:"heart"});
+if(n%4===0)pickups.push({x:700,y:280,r:14,got:false,type:"power"});
+for(let i=0;i<Math.min(1+Math.floor(n/3),5);i++){
+hazards.push({x:260+i*130,y:ground-28,w:48,h:28,vx:(i%2?1:-1)*(1+n*.12),min:190+i*115,max:300+i*115,type:i%2?"mower":"sprinkler"});
+}
+exit={x:900,y:ground-75};
+updateHUD();
+}
+function drawBackground(){
+let w=world();
+ctx.fillStyle=w.sky;ctx.fillRect(0,0,W,H);
+ctx.fillStyle=w.far;
+for(let i=0;i<7;i++){
+let x=i*165-(frame*.15%165);
+ctx.beginPath();ctx.arc(x+80,ground-100,100,Math.PI,0);ctx.fill();
+}
+if(w.name==="Ocean"){
+ctx.fillStyle="#d5f5f0";for(let i=0;i<9;i++){ctx.beginPath();ctx.arc((i*130+frame*.3)%1000,120+(i%3)*65,22,0,Math.PI*2);ctx.fill()}
+}else if(w.name==="Arctic"){
+ctx.fillStyle="#fff";for(let i=0;i<40;i++){let x=(i*83+frame*.25)%960,y=(i*47)%390;ctx.beginPath();ctx.arc(x,y,2+(i%3),0,Math.PI*2);ctx.fill()}
+}else{
+for(let i=0;i<8;i++){
+let x=i*140-(frame*.25%140);
+ctx.fillStyle=w.land;ctx.fillRect(x+45,ground-165,18,100);
+ctx.beginPath();ctx.arc(x+54,ground-170,48,0,Math.PI*2);ctx.fill();
+}
+}
+ctx.fillStyle=w.ground;ctx.fillRect(0,ground,W,H-ground);
+ctx.fillStyle="#ffffff33";
+for(let i=0;i<30;i++)ctx.fillRect((i*47-frame*.5)%960,ground+15+(i%4)*15,18,3);
+}
+function draw(){
+drawBackground();
+let w=world();
+platforms.forEach(p=>{
+ctx.fillStyle=w.land;ctx.fillRect(p.x,p.y,p.w,p.h);
+ctx.fillStyle="#ffffff55";ctx.fillRect(p.x,p.y,p.w,4);
+});
+pickups.forEach(o=>{
+if(o.got)return;
+ctx.beginPath();ctx.fillStyle=o.type==="coin"?"#ffd34e":o.type==="heart"?"#ff718b":"#a8edff";
+ctx.arc(o.x,o.y,o.r,0,Math.PI*2);ctx.fill();
+ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.stroke();
+ctx.fillStyle="#694b25";ctx.font="bold 13px Fredoka";ctx.textAlign="center";
+ctx.fillText(o.type==="coin"?"$":o.type==="heart"?"♥":"✦",o.x,o.y+5);
+});
+hazards.forEach(h=>{
+ctx.fillStyle=h.type==="mower"?"#52645a":"#428bba";
+ctx.fillRect(h.x,h.y,h.w,h.h);
+ctx.fillStyle="#263e37";ctx.fillRect(h.x+5,h.y+h.h-3,10,7);ctx.fillRect(h.x+h.w-15,h.y+h.h-3,10,7);
+ctx.fillStyle="#f4f4dc";ctx.fillRect(h.x+8,h.y+5,h.w-16,6);
+ctx.font="17px Arial";ctx.fillText(h.type==="mower"?"🚜":"💦",h.x+8,h.y+20);
+});
+ctx.fillStyle="#fff";ctx.fillRect(exit.x,exit.y,12,75);
+ctx.fillStyle="#f3d35a";ctx.beginPath();ctx.moveTo(exit.x+12,exit.y);ctx.lineTo(exit.x+65,exit.y+15);ctx.lineTo(exit.x+12,exit.y+30);ctx.fill();
+ctx.fillStyle="#204b39";ctx.font="bold 13px Fredoka";ctx.fillText("SAFE EXIT",exit.x-14,exit.y-10);
+if(invincible>0&&Math.floor(frame/5)%2===0)ctx.globalAlpha=.45;
+ctx.font="36px Arial";ctx.textAlign="center";
+ctx.fillText(w.emoji,player.x+player.w/2,player.y+player.h-2);
+ctx.globalAlpha=1;
+if(abilityTimer>0){
+ctx.strokeStyle="#fff5a3";ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.x+17,player.y+20,31,0,Math.PI*2);ctx.stroke();
+}
+ctx.textAlign="left";
+ctx.fillStyle="#183b37";ctx.font="bold 15px Fredoka";
+ctx.fillText("LEVEL "+level+"  •  "+w.name.toUpperCase(),20,28);
+ctx.fillStyle="#fff";ctx.fillText("Coins this level: "+levelCoins,20,51);
+}
+function rectHit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function jump(){if(player.onGround){player.vy=-12.5;player.onGround=false}}
+function special(){
+if(abilityTimer>0){say("Your special ability is already active!");return}
+let wi=Math.floor((level-1)/10);
+abilityTimer=wi===2?100:wi===3?150:110;
+if(wi===0||wi===1)player.vy=-17;
+if(wi===2)player.vx=10;
+if(wi===3)player.vy=-5;
+if(wi===4)player.vy=-10;
+say(world().ability+" activated!");
+}
+function hurt(){
+if(invincible>0)return;
+lives--;invincible=100;player.vx=-4;player.vy=-6;
+updateHUD();say("Watch out! You lost a heart!");
+if(lives<=0){
+playing=false;
+showOverlay("OH NO! TRY AGAIN!","The habitat was too dangerous this time. Restart the level and try a new path!","TRY LEVEL AGAIN",()=>{lives=3;makeLevel();playing=true;hideOverlay()});
+}
+}
+function completeLevel(){
+coins+=levelCoins;
+score+=100+levelCoins*10;
+if(level%10===0&&level<50){
+let next=worlds[Math.floor(level/10)];
+showOverlay("NEW HABITAT UNLOCKED! 🌎","Amazing work! You helped save the "+world().name+" habitat. Now meet your next animal hero: "+next.emoji+" "+next.animal+"! Special ability: "+next.ability+".","ENTER "+next.name.toUpperCase(),()=>{level++;lives=3;makeLevel();playing=true;hideOverlay();say("New animal, new habitat, new adventure!");});
+}else if(level>=50){
+playing=false;
+showOverlay("YOU SAVED THE PLANET! 🌎","You escaped all 50 levels and helped protect five habitats! You are an environmental hero! Final score: "+score+" points. Coins collected: "+coins+".","PLAY AGAIN",()=>{level=1;coins=0;score=0;lives=3;makeLevel();playing=true;hideOverlay()});
+}else{
+level++;lives=Math.min(3,lives+1);makeLevel();say("Level complete! +100 points and a heart restored!");
+}
+}
+function update(){
+if(!playing||paused)return;
+frame++;
+let speed=4.2;
+if(keys.ArrowLeft||keys.a)player.vx=-speed;
+else if(keys.ArrowRight||keys.d)player.vx=speed;
+else player.vx*=.78;
+if(abilityTimer>0){
+abilityTimer--;
+if(Math.floor((level-1)/10)===2)player.vx=10;
+}
+player.x+=player.vx;
+player.vy+=.55;
+player.y+=player.vy;
+player.onGround=false;
+for(let p of platforms){
+if(player.x+player.w>p.x&&player.x<p.x+p.w&&player.y+player.h>=p.y&&player.y+player.h<=p.y+Math.max(18,player.vy+5)&&player.vy>=0){
+player.y=p.y-player.h;player.vy=0;player.onGround=true;
+}
+}
+if(player.x<0)player.x=0;
+if(player.x+player.w>W)player.x=W-player.w;
+if(player.y>H+50){hurt();player.x=65;player.y=300;player.vy=0}
+hazards.forEach(h=>{
+h.x+=h.vx;
+if(h.x<h.min||h.x+h.w>h.max)h.vx*=-1;
+if(rectHit(player,h))hurt();
+});
+pickups.forEach(o=>{
+if(!o.got&&Math.abs((player.x+17)-o.x)<28&&Math.abs((player.y+20)-o.y)<30){
+o.got=true;
+if(o.type==="coin"){levelCoins+=5;say("+5 coins!")}
+if(o.type==="heart"){lives=Math.min(3,lives+1);say("Extra heart collected!")}
+if(o.type==="power"){abilityTimer=160;say("Power-up! Special ability boosted!")}
+updateHUD();
+}
+});
+if(rectHit(player,{x:exit.x-8,y:exit.y,w:65,h:80}))completeLevel();
+if(invincible>0)invincible--;
+if(messageTimer>0)messageTimer--;
+}
+function loop(){update();draw();requestAnimationFrame(loop)}
+function showOverlay(title,desc,button,action){
+$("overlay").style.display="flex";
+$("overlay").innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button class="big" id="overlayAction">'+button+'</button></div>';
+$("overlayAction").onclick=action;
+}
+function hideOverlay(){$("overlay").style.display="none"}
+function togglePause(){
+if(!playing)return;
+paused=!paused;
+if(paused)showOverlay("GAME PAUSED","Take a break! Your level progress is safe.","RESUME",()=>{paused=false;hideOverlay()});
+else hideOverlay();
+$("pauseBtn").textContent=paused?"▶ Resume":"Ⅱ Pause";
+}
+$("startBtn").onclick=()=>{playing=true;hideOverlay();makeLevel();say("Find the exit and save your habitat!")};
+$("pauseBtn").onclick=togglePause;
+$("restartBtn").onclick=()=>{if(playing){makeLevel();say("Level restarted!");}};
+window.addEventListener("keydown",e=>{
+let k=e.key.toLowerCase();
+if(["arrowleft","arrowright","arrowup"," ","arrowdown"].includes(k))e.preventDefault();
+keys[k]=true;
+if((k===" "||k==="w"||k==="arrowup")&&!e.repeat&&playing&&!paused)jump();
+if(k==="e"&&!e.repeat&&playing&&!paused)special();
+if(k==="p"&&!e.repeat)togglePause();
+});
+window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+window.addEventListener("blur",()=>keys={});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
+makeLevel();loop();
+</script>
 </body>
 </html>
