@@ -4,581 +4,328 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Speed City - Pixel Skate Rush</title>
+<title>Speed City - Skateboard Escape</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900;1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#090d20;color:#effaff;font-family:Nunito,Arial,sans-serif;display:grid;place-items:center;min-height:100vh}
-#wrap{width:min(1100px,100vw);padding:12px}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-h1{font:clamp(16px,3vw,25px) 'Press Start 2P';color:#65f4ff;margin:5px 0}
-.hud{display:flex;gap:7px;flex-wrap:wrap}
-.pill{background:#182545;border:1px solid #3a6388;border-radius:8px;padding:7px 10px;font-weight:900}
-#stage{position:relative;border:3px solid #3c91a8;border-radius:12px;overflow:hidden;box-shadow:0 15px 50px #0009}
-canvas{width:100%;height:auto;display:block;image-rendering:pixelated}
-#panel{position:absolute;inset:0;background:#080d20ee;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center}
-.card{max-width:650px;background:#142341;border:2px solid #54d9e8;border-radius:12px;padding:22px;box-shadow:0 10px 40px #000b}
-.card h2{font:clamp(18px,3vw,28px) 'Press Start 2P';line-height:1.5;color:#73f4ff;margin:0 0 12px}
-.card p{line-height:1.5}
-.btn{background:#f15bb5;color:#fff;border:0;border-radius:7px;padding:11px 16px;font-weight:1000;font-size:15px;margin:5px;cursor:pointer}
-.btn.alt{background:#267d9b}
-.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:8px;margin:12px 0}
-.shopitem{background:#20375a;border:1px solid #54839a;padding:10px;border-radius:8px}
-.small{font-size:13px;color:#c8e6f1}
-#message{text-align:center;min-height:28px;padding:7px;color:#b8efff;font-weight:900}
+body{margin:0;background:#10152b;color:white;font-family:Fredoka,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
+#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;pointer-events:none}
+.pill{background:#171d38eF;border:2px solid #55e6ed;border-radius:12px;padding:8px 12px;font-weight:700;font-size:15px;box-shadow:0 3px 0 #080c1b}
+#buttons{position:fixed;right:12px;top:65px;display:flex;gap:7px}
+button{font-family:Fredoka,sans-serif;font-size:16px;font-weight:700;padding:10px 16px;border:0;border-radius:12px;background:#ffcf4a;color:#28203c;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:#080d20d9}
+.card{max-width:510px;width:100%;padding:26px;background:#1c2850;border:3px solid #55e6ed;border-radius:22px;text-align:center;box-shadow:0 12px 45px #0009}
+h1{font-family:'Press Start 2P',monospace;color:#ffdf65;font-size:clamp(22px,4vw,36px);line-height:1.5;margin:0 0 12px}
+.card p{font-size:18px;line-height:1.5;color:#e1f5ff}
+.card .small{font-size:14px;color:#b7d8e8}
+.card button{font-size:20px;padding:13px 28px;margin-top:8px}
 </style>
 </head>
 <body>
-<main id="wrap">
-<header>
-<h1>SPEED CITY</h1>
-<div class="hud">
-<div class="pill" id="score">PAINT: 0</div>
-<div class="pill" id="coins">COINS: 0</div>
-<div class="pill" id="level">CITY RUN</div>
-<div class="pill" id="board">BOARD: BASIC</div>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="pill">🌆 <span id="level">Level 1</span></div>
+ <div class="pill">🪙 <span id="coins">0</span></div>
+ <div class="pill">❤️ <span id="hearts">3</span></div>
+ <div class="pill">⭐ <span id="score">0</span></div>
 </div>
-</header>
-
-<div id="stage">
-<canvas id="game" width="960" height="540"></canvas>
+<div id="buttons"><button id="pause">Ⅱ Pause</button></div>
 <div id="panel">
-<div class="card">
-<h2>SPEED CITY</h2>
-<p>Race through a neon future city, paint the streets, dodge flying robots, and discover secret routes. Collect coins to unlock new skaters and skateboards!</p>
-<p><b>Controls:</b> A/D or ←/→ move · SPACE / W / ↑ jump · X paint blast · P pause · SHOP between runs</p>
-<button class="btn" id="start">START SKATING</button>
-<button class="btn alt" id="shop">SKATER & BOARD SHOP</button>
+ <div class="card">
+  <h1 id="heading">SPEED CITY</h1>
+  <p id="message">Grab your skateboard and race through the city! Collect coins, perform tricks, find secret doors, and escape the robots chasing you!</p>
+  <p class="small">MOVE: A/D or ←/→<br>JUMP: SPACE or W or ↑<br>TRICK: X while in the air<br>BOOST: SHIFT<br>SECRET DOOR: E when nearby</p>
+  <button id="mainButton">START SKATING!</button>
+ </div>
 </div>
-</div>
-</div>
-<div id="message">Collect paint cans and coins. Avoid the flying robots!</div>
-</main>
-
 <script>
 (()=>{
-const c=document.getElementById('game');
-const g=c.getContext('2d');
-const panel=document.getElementById('panel');
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
 
-let running=false,paused=false,raf=0,last=0;
-let player,obstacles=[],coins=[],paint=[],robots=[],platforms=[];
-let camera=0,score=0,money=0,hearts=3,speed=5,frame=0,world=0;
+const keys={};
+addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();keys[k]=true;
+ if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+ if(k==='p')togglePause();
+ if(k==='e')tryDoor();
+});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
 
-let ownedSkaters=['NEON'];
-let ownedBoards=['BASIC'];
-let skater='NEON',board='BASIC';
-
-const skaters=[
-['NEON',0,'Starter skater'],
-['PIXEL',80,'Retro pixel pro'],
-['NOVA',140,'Space city rider'],
-['BOLT',220,'Lightning-fast skater']
+const LEVELS=[
+ {name:'NEON DOWNTOWN',sky:'#20265a',ground:'#303a62',accent:'#46e6e6'},
+ {name:'ROBOT ROW',sky:'#342052',ground:'#49315d',accent:'#ff70c5'},
+ {name:'SKYLINE EXPRESS',sky:'#173b61',ground:'#315b79',accent:'#ffe36b'},
+ {name:'CYBERPARK',sky:'#164d4b',ground:'#28705e',accent:'#8bff91'},
+ {name:'THE FINAL RUN',sky:'#49234d',ground:'#65365c',accent:'#ff9c4a'}
 ];
+const WORLD=2600,GROUND=500;
+let level=0,player,robot,platforms,coins,powerups,doors,ramps,obstacles;
+let camera=0,score=0,totalCoins=0,lives=3,gameRunning=false,paused=false;
+let frame=0,toast='',toastTime=0,levelCoins=0,doorMessage='',doorTimer=0;
 
-const boards=[
-['BASIC',0,'Balanced starter board'],
-['FLAME',70,'Extra speed'],
-['HOLO',130,'Higher jumps'],
-['SHADOW',190,'Longer paint blasts']
-];
-
-const keys={
-left:false,
-right:false,
-jump:false,
-blast:false
+function makeLevel(){
+ platforms=[];coins=[];powerups=[];doors=[];ramps=[];obstacles=[];
+ platforms.push({x:0,y:GROUND,w:WORLD,h:100});
+ // Floating rooftops and platforms
+ for(let i=0;i<13;i++){
+  let x=260+i*175;
+  let y=GROUND-(i%3===0?100:i%3===1?65:125);
+  platforms.push({x,y,w:105+(i%2)*35,h:18});
+ }
+ // Ramps, rails and hazards
+ for(let i=0;i<10;i++){
+  let x=360+i*220;
+  ramps.push({x,y:GROUND-8,w:90,h:48});
+  if(i%2===0)obstacles.push({x:x+125,y:GROUND-30,w:32,h:30,type:'cone'});
+  else obstacles.push({x:x+130,y:GROUND-48,w:36,h:48,type:'barrier'});
+ }
+ // Coin trails and platform coins
+ for(let i=0;i<50;i++){
+  let x=180+i*46;
+  let y=GROUND-65-(i%5===0?95:i%3===0?45:0);
+  coins.push({x,y,got:false,phase:i*.5});
+ }
+ // Power-ups
+ for(let i=0;i<5;i++)powerups.push({x:500+i*390,y:GROUND-100-(i%2)*65,got:false,type:['boost','shield','heart','magnet','mega'][i]});
+ // Secret doors, hidden in city scenery
+ doors.push({x:830,y:GROUND-55,open:false});
+ doors.push({x:1660,y:GROUND-55,open:false});
+ // Finish gate
+}
+function startLevel(){
+ makeLevel();
+ player={x:95,y:GROUND-60,vx:0,vy:0,w:36,h:48,onGround:false,angle:0,trick:0,boost:0,shield:0,magnet:0,inv:100};
+ robot={x:-145,y:GROUND-58};
+ camera=0;levelCoins=0;frame=0;
+ updateHUD();
+}
+function updateHUD(){
+ $('level').textContent='Level '+(level+1);
+ $('coins').textContent=totalCoins;
+ $('hearts').textContent=lives;
+ $('score').textContent=score;
+}
+function showPanel(title,msg,button){
+ gameRunning=false;paused=false;
+ $('heading').textContent=title;$('message').textContent=msg;
+ $('mainButton').textContent=button;$('panel').style.display='flex';
+ $('pause').textContent='Ⅱ Pause';
+}
+function startGame(){
+ level=0;score=0;totalCoins=0;lives=3;
+ startLevel();gameRunning=true;paused=false;
+ $('panel').style.display='none';$('pause').textContent='Ⅱ Pause';
+ cancelAnimationFrame(raf);last=performance.now();loop();
+}
+$('mainButton').onclick=()=>{
+ if(paused){paused=false;$('panel').style.display='none';$('pause').textContent='Ⅱ Pause';last=performance.now();loop()}
+ else startGame();
 };
-
-function updateHud(){
-$('score').textContent='PAINT: '+score;
-$('coins').textContent='COINS: '+money;
-$('level').textContent='CITY RUN '+(world+1);
-$('board').textContent='BOARD: '+board;
+$('pause').onclick=()=>togglePause();
+let raf=0,last=0;
+function togglePause(){
+ if(!gameRunning&&!paused)return;
+ if(!paused){paused=true;showPanel('GAME PAUSED','Your board is ready when you are! Take a break, then jump back into the chase.','RESUME')}
+ else{paused=false;$('panel').style.display='none';$('pause').textContent='Ⅱ Pause';last=performance.now();loop()}
 }
-
-function reset(){
-player={
-x:120,y:350,w:34,h:48,
-vx:0,vy:0,on:false,inv:0,blast:0
-};
-obstacles=[];
-coins=[];
-paint=[];
-robots=[];
-platforms=[];
-camera=0;
-score=0;
-hearts=3;
-speed=5;
-world=0;
-frame=0;
-spawnAhead();
-updateHud();
+function say(s){toast=s;toastTime=100}
+function tryDoor(){
+ if(!gameRunning||paused)return;
+ const d=doors.find(d=>Math.abs(d.x-player.x)<65&&!d.open);
+ if(d){d.open=true;player.x=d.x+90;score+=100;say('SECRET TUNNEL! +100');updateHUD()}
 }
-
-function spawnAhead(){
-let x=Math.max(900,camera+1800);
-while(x<camera+2400){
-let r=Math.random();
-
-if(r<.42){
-obstacles.push({
-x,y:414,w:30+Math.random()*25,
-h:35+Math.random()*30
-});
-}else if(r<.7){
-robots.push({
-x,y:245+Math.random()*90,
-w:38,h:28,phase:Math.random()*6
-});
-}else{
-platforms.push({
-x,y:310-Math.random()*70,w:130,h:15
-});
+function hit(){
+ if(player.inv>0)return;
+ if(player.shield>0){player.shield=0;say('SHIELD SAVED YOU!');return}
+ lives--;player.inv=100;player.vx=-4;player.vy=-7;
+ if(lives<=0){updateHUD();showPanel('ROBOT CAUGHT YOU!','The robots caught up! Give it another try and see if you can make it to the end of Speed City.','TRY AGAIN');return}
+ say('WATCH OUT!');updateHUD();
 }
-
-for(let j=0;j<3;j++){
-if(Math.random()<.65){
-coins.push({
-x:x+j*28,y:300-Math.random()*100,
-r:9,got:false
-});
+function nextLevel(){
+ if(level>=LEVELS.length-1){
+  showPanel('CITY CHAMPION!','You escaped every robot and conquered all five city levels! You are the ultimate Speed City skater!','PLAY AGAIN');return;
+ }
+ level++;say('LEVEL '+(level+1)+'!');startLevel();
 }
+function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function update(dt){
+ frame++;
+ const p=player;
+ let left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
+ let jump=keys[' ']||keys.w||keys.arrowup;
+ let target=right?4.5:left?-3.2:0;
+ if(p.boost>0)target*=1.35;
+ p.vx+=(target-p.vx)*.16;
+ p.x+=p.vx;
+ p.x=Math.max(0,Math.min(WORLD-p.w,p.x));
+ if(jump&&p.onGround){p.vy=-12.2;p.onGround=false;p.trick=0}
+ p.vy+=.58;p.vy=Math.min(p.vy,14);
+ let oldBottom=p.y+p.h;
+ p.y+=p.vy;p.onGround=false;
+ // Platform collision: land only when falling onto a platform.
+ if(p.vy>=0){
+  for(const plat of platforms){
+   if(p.x+p.w>plat.x&&p.x<plat.x+plat.w&&oldBottom<=plat.y+5&&p.y+p.h>=plat.y){
+    p.y=plat.y-p.h;p.vy=0;p.onGround=true;
+   }
+  }
+ }
+ if(p.y>H+300){hit();p.y=GROUND-p.h;p.vy=0}
+ // Trick points while airborne
+ if(!p.onGround&&keys.x&&p.trick===0){p.trick=1;p.angle+=Math.PI*2;score+=50;say('AWESOME TRICK! +50');updateHUD()}
+ if(p.onGround){p.angle=0;p.trick=0}
+ // Ramp boost
+ for(const r of ramps){
+  if(p.x+p.w>r.x&&p.x<r.x+r.w&&p.y+p.h>r.y-10&&p.y+p.h<r.y+20&&p.vx>0){
+   p.vy=-10.5;p.vx=Math.max(p.vx,5.2);p.onGround=false;say('RAMP LAUNCH!');
+  }
+ }
+ // Hazards
+ for(const o of obstacles)if(overlap(p,o))hit();
+ // Collect coins
+ for(const c of coins){
+  if(c.got)continue;
+  let dist=Math.hypot(p.x+p.w/2-c.x,p.y+p.h/2-c.y);
+  if(p.magnet>0&&dist<150||dist<28){
+   c.got=true;totalCoins++;levelCoins++;score+=10;updateHUD();
+  }
+ }
+ // Powerups
+ for(const q of powerups)if(!q.got&&Math.hypot(p.x+18-q.x,p.y+20-q.y)<35){
+  q.got=true;
+  if(q.type==='boost')p.boost=360;
+  if(q.type==='shield')p.shield=600;
+  if(q.type==='heart')lives=Math.min(5,lives+1);
+  if(q.type==='magnet')p.magnet=500;
+  if(q.type==='mega'){score+=200;totalCoins+=5}
+  say(q.type.toUpperCase()+' POWER-UP!');updateHUD();
+ }
+ if(p.boost>0)p.boost--;if(p.shield>0)p.shield--;if(p.magnet>0)p.magnet--;if(p.inv>0)p.inv--;
+ // Robot relentlessly follows behind the skater.
+ let chaseSpeed=2.0+level*.22;
+ robot.x+=Math.max(.7,(p.x-robot.x-105)*.008)+chaseSpeed*.45;
+ robot.y=GROUND-57+Math.sin(frame*.07)*5;
+ if(robot.x>p.x-35)hit();
+ // Camera follows the player
+ camera=Math.max(0,Math.min(WORLD-W,p.x-W*.35));
+ if(p.x>WORLD-120)nextLevel();
+ if(toastTime>0)toastTime--;
 }
-
-if(Math.random()<.7){
-paint.push({
-x:x+90,y:365-Math.random()*85,got:false
-});
+function pixelRect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
+function drawBackground(){
+ const theme=LEVELS[level];
+ ctx.fillStyle=theme.sky;ctx.fillRect(0,0,W,H);
+ // stars and skyline
+ for(let i=0;i<70;i++){
+  let x=((i*137-camera*.12)%(W+30)+W+30)%(W+30),y=(i*67)%Math.max(150,H*.55);
+  pixelRect(x,y,3,3,'#d7f4ff');
+ }
+ for(let i=0;i<16;i++){
+  let x=((i*190-camera*.25)%(W+210)+W+210)%(W+210)-80;
+  let h=90+(i*47%180),y=GROUND-h;
+  pixelRect(x,y,100,h,'#182444');
+  for(let wx=x+13;wx<x+90;wx+=22)for(let wy=y+15;wy<GROUND-12;wy+=25){
+   if((wx+wy+i)%3!==0)pixelRect(wx,wy,8,10,LEVELS[level].accent);
+  }
+ }
+ // faraway road
+ pixelRect(0,GROUND,W,H-GROUND,theme.ground);
+ pixelRect(0,GROUND,W,8,theme.accent);
+ ctx.fillStyle='#c5d7e5';ctx.globalAlpha=.55;
+ for(let x=-(camera%120);x<W;x+=120)ctx.fillRect(x,GROUND+62,55,5);
+ ctx.globalAlpha=1;
 }
-
-x+=180+Math.random()*130;
+function drawRamp(r){
+ ctx.fillStyle='#f4a64e';ctx.beginPath();ctx.moveTo(r.x-camera,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND-r.h);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#ffe18a';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(r.x-camera,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND-r.h);ctx.stroke();
 }
+function drawSkater(){
+ const p=player,x=p.x-camera,y=p.y;
+ ctx.save();ctx.translate(x+18,y+24);ctx.rotate(p.angle);
+ if(p.inv>0&&Math.floor(p.inv/7)%2===0)ctx.globalAlpha=.45;
+ // skateboard
+ pixelRect(-24,19,48,6,'#ffca48');pixelRect(-18,25,7,4,'#1b233e');pixelRect(12,25,7,4,'#1b233e');
+ // legs
+ pixelRect(-9,9,7,12,'#253b70');pixelRect(5,8,7,13,'#253b70');
+ // hoodie body
+ pixelRect(-12,-9,25,20,'#ff5d83');pixelRect(-8,-14,17,7,'#ff91a8');
+ // head and hair
+ pixelRect(-8,-27,17,15,'#efbd8e');pixelRect(-10,-31,20,7,'#39274a');
+ pixelRect(-8,-16,16,4,'#fff');
+ pixelRect(3,-22,3,3,'#20203a');
+ // helmet
+ pixelRect(-11,-33,23,5,'#46e6e6');pixelRect(-7,-37,15,5,'#46e6e6');
+ if(p.shield>0){ctx.strokeStyle='#79f7ff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,37,0,Math.PI*2);ctx.stroke()}
+ ctx.restore();
 }
-
-function start(){
-if(running)return;
-reset();
-running=true;
-paused=false;
-panel.style.display='none';
-$('message').textContent='GO! Paint the city and stay ahead of the robots.';
-last=performance.now();
-cancelAnimationFrame(raf);
-raf=requestAnimationFrame(loop);
+function drawRobot(){
+ const x=robot.x-camera,y=robot.y;
+ ctx.save();ctx.translate(x,y);
+ pixelRect(-22,-37,44,37,'#8993a8');pixelRect(-16,-48,32,14,'#aeb8ca');
+ pixelRect(-13,-42,7,6,'#ff3e6c');pixelRect(6,-42,7,6,'#ff3e6c');
+ pixelRect(-27,-29,7,17,'#68748c');pixelRect(20,-29,7,17,'#68748c');
+ pixelRect(-14,0,8,12,'#56627b');pixelRect(7,0,8,12,'#56627b');
+ pixelRect(-7,-25,14,7,'#ff5e74');
+ ctx.restore();
 }
-
-function drawCity(){
-g.fillStyle='#101a3b';
-g.fillRect(0,0,960,540);
-
-for(let i=0;i<18;i++){
-let x=((i*95-camera*.22)%1100+1100)%1100-70;
-let h=130+(i*47%170);
-g.fillStyle=i%2?'#1a315a':'#20264e';
-g.fillRect(x,410-h,65,h);
-
-for(let yy=430-h;yy<400;yy+=25){
-for(let xx=x+10;xx<x+60;xx+=20){
-g.fillStyle=(i+xx+yy)%3?'#42c9dc':'#f15bb5';
-g.fillRect(xx,yy,7,10);
-}
-}
-}
-
-g.fillStyle='#293754';
-g.fillRect(0,440,960,100);
-g.fillStyle='#3e6e85';
-for(let x=0;x<960;x+=60){
-g.fillRect(x,442,35,4);
-}
-}
-
 function draw(){
-drawCity();
-g.save();
-g.translate(-camera,0);
-
-platforms.forEach(p=>{
-g.fillStyle='#56dce7';
-g.fillRect(p.x,p.y,p.w,p.h);
-g.fillStyle='#d6ffff';
-g.fillRect(p.x,p.y,p.w,4);
-});
-
-obstacles.forEach(o=>{
-g.fillStyle='#e44e91';
-g.fillRect(o.x,o.y,o.w,o.h);
-g.fillStyle='#ffc0e1';
-g.fillRect(o.x+5,o.y+5,o.w-10,5);
-});
-
-coins.forEach(o=>{
-if(!o.got){
-g.fillStyle='#ffd34f';
-g.fillRect(o.x-7,o.y-9,14,18);
-g.fillStyle='#fff0a0';
-g.fillRect(o.x-2,o.y-6,4,12);
+ drawBackground();
+ ctx.save();ctx.translate(-camera,0);
+ // platforms
+ for(const p of platforms){
+  if(p.y>=GROUND)continue;
+  pixelRect(p.x,p.y,p.w,p.h,'#596e9b');
+  pixelRect(p.x,p.y,p.w,5,'#b4d8f2');
+  pixelRect(p.x+8,p.y+7,p.w-16,4,'#34456d');
+ }
+ for(const r of ramps)drawRamp(r);
+ for(const o of obstacles){
+  pixelRect(o.x,o.y,o.w,o.h,o.type==='cone'?'#ff9c47':'#ec5b78');
+  pixelRect(o.x+5,o.y+7,o.w-10,5,'#ffe08a');
+ }
+ for(const d of doors){
+  pixelRect(d.x,d.y,44,55,d.open?'#38d8b4':'#242e58');
+  pixelRect(d.x+6,d.y+7,32,42,d.open?'#79ffdb':'#a45ce0');
+  pixelRect(d.x+31,d.y+26,4,4,'#ffdc6c');
+  if(!d.open){ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.fillText('?',d.x+17,d.y-7)}
+ }
+ for(const c of coins)if(!c.got){
+  ctx.fillStyle='#ffda50';ctx.beginPath();ctx.arc(c.x,c.y+Math.sin(frame*.08+c.phase)*3,9,0,Math.PI*2);ctx.fill();
+  pixelRect(c.x-2,c.y-5,4,10,'#fff2a8');
+ }
+ for(const q of powerups)if(!q.got){
+  const colors={boost:'#ff9c47',shield:'#55e6ed',heart:'#ff6585',magnet:'#d28bff',mega:'#ffe36b'};
+  pixelRect(q.x-12,q.y-12,24,24,colors[q.type]);
+  ctx.fillStyle='#17203d';ctx.font='bold 15px Fredoka';ctx.textAlign='center';
+  ctx.fillText(({boost:'B',shield:'S',heart:'+',magnet:'M',mega:'★'})[q.type],q.x,q.y+5);
+ }
+ ctx.restore();
+ drawRobot();drawSkater();
+ // Level name
+ ctx.fillStyle='#fff';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
+ ctx.fillText(LEVELS[level].name,W/2, H-18);
+ if(toastTime>0){
+  ctx.fillStyle='#10172cdd';ctx.fillRect(W/2-155,95,310,43);
+  ctx.fillStyle='#ffe36b';ctx.font='bold 19px Fredoka';ctx.textAlign='center';ctx.fillText(toast,W/2,123);
+ }
 }
-});
-
-paint.forEach(o=>{
-if(!o.got){
-g.fillStyle='#65ffbd';
-g.fillRect(o.x-8,o.y-10,16,20);
-g.fillStyle='#163c43';
-g.fillRect(o.x-3,o.y-5,6,10);
+function loop(now){
+ if(!gameRunning||paused)return;
+ let dt=Math.min(2,(now-last)/16.67||1);last=now;
+ // update uses frame-based physics; clamp large frame gaps
+ update(dt);
+ if(!gameRunning)return;
+ draw();
+ raf=requestAnimationFrame(loop);
 }
-});
-
-robots.forEach(o=>{
-g.fillStyle='#a4a9c7';
-g.fillRect(o.x,o.y,o.w,o.h);
-g.fillStyle='#ff496f';
-g.fillRect(o.x+8,o.y+9,7,6);
-g.fillRect(o.x+24,o.y+9,7,6);
-g.fillStyle='#576b94';
-g.fillRect(o.x-8,o.y+5,8,5);
-g.fillRect(o.x+o.w,o.y+5,8,5);
-});
-
-if(player.blast>0){
-g.strokeStyle='#71f9ff';
-g.lineWidth=5;
-g.beginPath();
-g.arc(player.x+17,player.y+25,60-player.blast*2,0,Math.PI*2);
-g.stroke();
-}
-
-// Skateboard
-g.fillStyle='#101326';
-g.fillRect(player.x,player.y+player.h-4,player.w,9);
-
-// Skater colors change with character
-g.fillStyle=skater==='PIXEL'?'#ffcb4b':
-skater==='NOVA'?'#9d8cff':
-skater==='BOLT'?'#ff704e':'#5cf3ff';
-
-g.fillRect(player.x+5,player.y+5,24,29);
-
-// Head
-g.fillStyle='#ffe1bd';
-g.fillRect(player.x+9,player.y-8,17,16);
-
-// Face
-g.fillStyle='#15213c';
-g.fillRect(player.x+12,player.y-3,3,3);
-g.fillRect(player.x+21,player.y-3,3,3);
-
-// Board detail
-g.fillStyle='#f15bb5';
-g.fillRect(player.x+2,player.y+34,30,5);
-
-g.restore();
-
-g.fillStyle='#fff';
-g.font='bold 18px Nunito';
-g.fillText('♥ '.repeat(hearts),20,30);
-g.fillText('SPEED '+Math.round(speed*10),820,30);
-}
-
-function hit(a,b){
-return a.x<b.x+b.w&&
-a.x+a.w>b.x&&
-a.y<b.y+b.h&&
-a.y+a.h>b.y;
-}
-
-function damage(){
-if(player.inv>0)return;
-hearts--;
-player.inv=100;
-player.vx=-2;
-
-if(hearts<=0){
-running=false;
-show(
-'RUN OVER',
-`You painted ${score} street tiles and collected ${money} coins.`,
-`<button class="btn" data-act="again">PLAY AGAIN</button>
-<button class="btn alt" data-act="shop">SHOP</button>`
-);
-}
-}
-
-function update(){
-frame++;
-
-// Smooth movement
-let accel=board==='FLAME'?.75:.58;
-
-player.vx+=(keys.right?accel:keys.left?-accel:0);
-player.vx*=.94;
-player.vx=Math.max(-4,Math.min(8,player.vx));
-
-if(keys.jump&&player.on){
-player.vy=board==='HOLO'?-14:-12;
-player.on=false;
-}
-
-player.vy+=.62;
-player.x+=player.vx;
-player.y+=player.vy;
-player.on=false;
-
-// Ground
-if(player.y+player.h>=440){
-player.y=440-player.h;
-player.vy=0;
-player.on=true;
-}
-
-// Platforms
-platforms.forEach(p=>{
-if(player.vy>=0&&
-player.x+player.w>p.x&&
-player.x<p.x+p.w&&
-player.y+player.h>=p.y&&
-player.y+player.h<p.y+22){
-player.y=p.y-player.h;
-player.vy=0;
-player.on=true;
-}
-});
-
-// Falling
-if(player.y>560){
-damage();
-player.y=300;
-player.vy=0;
-}
-
-camera=Math.max(0,player.x-240);
-spawnAhead();
-
-// Obstacles
-obstacles.forEach(o=>{
-if(hit(player,o))damage();
-});
-
-// Coins
-coins.forEach(o=>{
-if(!o.got&&hit(player,{
-x:o.x-8,y:o.y-9,w:16,h:18
-})){
-o.got=true;
-money+=5;
-}
-});
-
-// Paint
-paint.forEach(o=>{
-if(!o.got&&hit(player,{
-x:o.x-9,y:o.y-10,w:18,h:20
-})){
-o.got=true;
-score++;
-}
-});
-
-// Flying robots
-robots.forEach(o=>{
-o.y+=Math.sin(frame*.06+o.phase)*.8;
-if(hit(player,o))damage();
-});
-
-// Paint blast
-if(player.blast>0){
-player.blast--;
-robots=robots.filter(r=>
-Math.hypot(r.x-player.x,r.y-player.y)>120
-);
-}
-
-if(player.inv>0)player.inv--;
-
-if(keys.blast){
-player.blast=board==='SHADOW'?45:28;
-keys.blast=false;
-robots=robots.filter(r=>
-Math.hypot(r.x-player.x,r.y-player.y)>150
-);
-}
-
-// Gradually increase challenge
-if(player.x>world*2200+2100){
-world++;
-speed=Math.min(9,speed+.35);
-player.x+=120;
-obstacles=obstacles.filter(o=>o.x>camera-100);
-updateHud();
-}
-
-player.x+=speed*.45;
-updateHud();
-}
-
-function loop(t){
-if(!running||paused)return;
-last=t;
-update();
-draw();
-raf=requestAnimationFrame(loop);
-}
-
-function show(title,body,buttons){
-panel.style.display='flex';
-panel.innerHTML=`
-<div class="card">
-<h2>${title}</h2>
-<p>${body}</p>
-${buttons}
-</div>`;
-}
-
-function shop(){
-running=false;
-paused=false;
-
-let html='<div class="shopgrid">';
-
-skaters.forEach(s=>{
-let own=ownedSkaters.includes(s[0]);
-html+=`
-<div class="shopitem">
-<b>${s[0]}</b>
-<p class="small">${s[2]}</p>
-<button class="btn ${own?'alt':''}" data-buy="s:${s[0]}">
-${own?(skater===s[0]?'EQUIPPED':'SELECT'):'BUY '+s[1]}
-</button>
-</div>`;
-});
-
-boards.forEach(b=>{
-let own=ownedBoards.includes(b[0]);
-html+=`
-<div class="shopitem">
-<b>${b[0]} BOARD</b>
-<p class="small">${b[2]}</p>
-<button class="btn ${own?'alt':''}" data-buy="b:${b[0]}">
-${own?(board===b[0]?'EQUIPPED':'SELECT'):'BUY '+b[1]}
-</button>
-</div>`;
-});
-
-html+='</div>';
-
-show(
-'SKATER SHOP',
-`Coins: ${money}<p class="small">Unlock new riders and boards. Purchases stay unlocked during this game session.</p>`,
-html+`
-<button class="btn" data-act="back">BACK</button>
-<button class="btn alt" data-act="again">START SKATING</button>`
-);
-}
-
-panel.addEventListener('click',e=>{
-let b=e.target.dataset.buy;
-let a=e.target.dataset.act;
-
-if(b){
-let [type,name]=b.split(':');
-let arr=type==='s'?skaters:boards;
-let owned=type==='s'?ownedSkaters:ownedBoards;
-let item=arr.find(x=>x[0]===name);
-
-if(owned.includes(name)){
-if(type==='s')skater=name;
-else board=name;
-}else if(money>=item[1]){
-money-=item[1];
-owned.push(name);
-if(type==='s')skater=name;
-else board=name;
-}else{
-$('message').textContent='Not enough coins yet. Keep skating!';
-}
-
-updateHud();
-shop();
-return;
-}
-
-if(a==='again')start();
-if(a==='shop')shop();
-
-if(a==='back'){
-panel.style.display='none';
-if(running){
-paused=false;
-last=performance.now();
-raf=requestAnimationFrame(loop);
-}else{
-show(
-'SPEED CITY',
-'Ready to skate?',
-`<button class="btn" data-act="again">START SKATING</button>
-<button class="btn alt" data-act="shop">SHOP</button>`
-);
-}
-}
-});
-
-$('start').addEventListener('click',start);
-$('shop').addEventListener('click',shop);
-
-// Keyboard controls
-window.addEventListener('keydown',e=>{
-let k=e.key.toLowerCase();
-
-if(['arrowleft','arrowright','arrowup',' '].includes(k)){
-e.preventDefault();
-}
-
-if(k==='arrowleft'||k==='a')keys.left=true;
-if(k==='arrowright'||k==='d')keys.right=true;
-if(k===' '||k==='arrowup'||k==='w')keys.jump=true;
-
-if(k==='x'&&!e.repeat){
-keys.blast=true;
-}
-
-if(k==='p'&&running){
-paused=!paused;
-
-if(paused){
-show(
-'PAUSED',
-'Take a breather, skater.',
-`<button class="btn" data-act="back">RESUME</button>
-<button class="btn alt" data-act="shop">SHOP</button>`
-);
-}else{
-panel.style.display='none';
-last=performance.now();
-raf=requestAnimationFrame(loop);
-}
-}
-});
-
-window.addEventListener('keyup',e=>{
-let k=e.key.toLowerCase();
-if(k==='arrowleft'||k==='a')keys.left=false;
-if(k==='arrowright'||k==='d')keys.right=false;
-if(k===' '||k==='arrowup'||k==='w')keys.jump=false;
-});
-
-window.addEventListener('blur',()=>{
-keys.left=false;
-keys.right=false;
-keys.jump=false;
-keys.blast=false;
-});
-
-reset();
-draw();
+makeLevel();startLevel();
 })();
 </script>
 </body>
