@@ -3,265 +3,473 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BACKLEVELS: Timmy's Escape</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BACKR00MS: Blue Dumpling Escape</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#24221b;color:#fff;font-family:Outfit,sans-serif;display:flex;align-items:center;justify-content:center;padding:12px}
-#app{width:min(1050px,100%);background:#383329;border:3px solid #9d8950;border-radius:20px;padding:14px;box-shadow:0 15px 50px #0009}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-h1{font:700 clamp(23px,4vw,36px) Fredoka,sans-serif;color:#f5d66f;margin:0}
-header a{color:#f5e8b1;text-decoration:none;font-size:13px;font-weight:700}
-#hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
-.stat{background:#514a37;border:1px solid #9c8951;border-radius:10px;padding:7px 11px;font-size:13px;font-weight:700}
-#stage{position:relative;overflow:hidden;border:3px solid #b9a45e;border-radius:13px;background:#d8c779}
-canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
-#overlay{position:absolute;inset:0;background:#17160fe8;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}
-.panel{max-width:560px}
-.panel h2{font:700 clamp(30px,6vw,52px) Fredoka,sans-serif;color:#f5d66f;margin:0 0 10px}
-.panel p{line-height:1.55;color:#f4edcf}
-.big{background:#e7c653;color:#302b1c;border:0;border-radius:12px;padding:13px 24px;font:700 18px Fredoka,sans-serif;cursor:pointer;margin:8px}
-.big:hover{background:#ffe78b}
-.small{background:#5b5036;color:#fff;border:1px solid #c7b16c;border-radius:9px;padding:9px 13px;font-weight:700;cursor:pointer}
-#controls{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-#help{font-size:12px;color:#e8dfbd;line-height:1.6}
-#message{text-align:center;min-height:22px;color:#f5dc80;font-weight:700;font-size:13px;margin-top:7px}
+body{margin:0;background:#10121b;color:#fff;font-family:'Outfit',sans-serif;overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:0;border-radius:12px;padding:11px 17px;font-weight:800;background:#55d6ff;color:#101827}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}
+#app{width:100%;height:100vh;display:flex;flex-direction:column}
+header{height:65px;background:#202333;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:2px solid #45495d;gap:10px}
+.logo{font-family:Fredoka;font-size:22px;color:#77e1ff}
+#stats{display:flex;gap:15px;align-items:center;font-weight:800;font-size:14px;flex-wrap:wrap}
+.stat{background:#303449;padding:8px 12px;border-radius:10px}
+#gameArea{position:relative;flex:1;min-height:0;background:#171923;display:flex;justify-content:center;align-items:center}
+canvas{display:block;width:min(100%,1100px);height:100%;object-fit:contain;background:#25251e}
+#overlay{position:absolute;inset:0;background:rgba(9,12,22,.91);display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
+.panel{width:min(560px,96%);max-height:95%;overflow:auto;background:#252b40;border:2px solid #58617c;border-radius:24px;padding:27px;text-align:center;box-shadow:0 15px 50px #0009}
+h1{font-family:Fredoka;font-size:clamp(30px,6vw,54px);line-height:1.05;margin:5px 0 12px;color:#72ddff}
+h2{font-family:Fredoka;color:#ffe38b}
+.dumpling{font-size:76px;display:block;filter:drop-shadow(0 7px 4px #0006)}
+.panel p{color:#d5d9e8;line-height:1.55}
+.panel button{margin:6px}
+.big{font-size:18px;padding:14px 25px;background:#70e0ff}
+.secondary{background:#59647f;color:white}
+#bottom{height:48px;background:#202333;display:flex;align-items:center;justify-content:center;color:#b8bfd4;font-size:12px;padding:5px;text-align:center}
+#message{position:absolute;top:15px;left:50%;transform:translateX(-50%);background:#161a2ddd;padding:10px 18px;border-radius:12px;font-weight:800;pointer-events:none;opacity:0;transition:opacity .2s;z-index:2;text-align:center}
+#help{position:absolute;bottom:12px;left:12px;background:#161a2dcc;padding:9px 12px;border-radius:10px;font-size:12px;color:#e5e9f5;pointer-events:none}
+#shop{position:absolute;right:15px;top:15px;z-index:3}
+#shopPanel{position:absolute;right:15px;top:65px;z-index:4;background:#252b40;border:2px solid #58617c;border-radius:16px;padding:15px;width:245px;display:none;box-shadow:0 10px 30px #0009}
+#shopPanel button{width:100%;margin:5px 0;text-align:left}
+.small{font-size:12px;color:#bfc6dc}
+@media(max-width:650px){header{height:auto;min-height:60px;padding:8px;flex-wrap:wrap}.logo{font-size:17px}#stats{gap:5px;font-size:11px}.stat{padding:6px}#help{font-size:10px}#bottom{font-size:10px}}
 </style>
 </head>
 <body>
 <div id="app">
 <header>
-<h1>🟨 BACKLEVELS</h1>
-<a href="../../index.html">← BACK TO GAME LAB</a>
+  <div class="logo">🥟 BACKR00MS ESCAPE</div>
+  <div id="stats">
+    <div class="stat">🌎 Level <span id="level">1</span>/10</div>
+    <div class="stat">❤️ <span id="health">3</span></div>
+    <div class="stat">🪙 <span id="coins">0</span></div>
+    <div class="stat">👣 <span id="steps">0</span></div>
+  </div>
 </header>
-<div id="hud">
-<div class="stat" id="level">LEVEL 1 / 10</div>
-<div class="stat" id="coins">🪙 COINS: 0</div>
-<div class="stat" id="found">🪙 FOUND: 0</div>
-<div class="stat" id="steps">👟 STEPS: 0</div>
-<div class="stat">👤 TIMMY</div>
+<div id="gameArea">
+  <canvas id="game" width="960" height="600"></canvas>
+  <div id="message"></div>
+  <button id="shop" onclick="toggleShop()">🛒 Shop</button>
+  <div id="shopPanel">
+    <h2>🥟 Dumpling Shop</h2>
+    <p class="small">Spend coins on helpful items!</p>
+    <button onclick="buyItem('heart')">❤️ Extra Life — 15 coins</button>
+    <button onclick="buyItem('freeze')">❄️ Freeze Monsters — 20 coins</button>
+    <button onclick="buyItem('map')">🗺️ Reveal Map — 25 coins</button>
+    <button onclick="buyItem('speed')">⚡ Speed Boost — 20 coins</button>
+    <button class="secondary" onclick="toggleShop()">Close Shop</button>
+  </div>
+  <div id="help">WASD: Move · Arrow Keys: Turn · E: Open Secret Door · SPACE: Dumpling Power!</div>
+  <div id="overlay">
+    <div class="panel" id="panel">
+      <span class="dumpling">🥟</span>
+      <h1>BLUE DUMPLING ESCAPE</h1>
+      <p>Oh no! Blue Dumpling is trapped in the Backrooms! Explore creepy mazes, collect coins, discover secret doors, and escape all 10 levels.</p>
+      <p><b>Watch out for the monsters!</b> They get faster and more numerous as you go.</p>
+      <p>Find the glowing exit to move to the next level. Can you escape?</p>
+      <button class="big" onclick="startGame()">START ADVENTURE</button>
+      <p class="small">WASD to move · Arrow keys to turn · E to open secret doors · SPACE for a special power</p>
+    </div>
+  </div>
 </div>
-<div id="stage">
-<canvas id="game" width="960" height="540"></canvas>
-<div id="overlay">
-<div class="panel">
-<h2>BACKLEVELS</h2>
-<p>Timmy is trapped in the Backrooms! Find your way through strange yellow hallways, collect coins, and locate the exit.</p>
-<p>Every level has a new maze. The deeper you go, the harder it gets!</p>
-<p><b>Move:</b> W / S or ↑ / ↓<br><b>Turn:</b> A / D or ← / →<br><b>Mini-map:</b> Press M</p>
-<button class="big" id="start">ENTER THE BACKROOMS</button>
+<div id="bottom">A mysterious maze adventure • Find the exit • Don't let the monsters catch you!</div>
 </div>
-</div>
-</div>
-<div id="controls">
-<div id="help">W / S = Move &nbsp; • &nbsp; A / D = Turn &nbsp; • &nbsp; M = Map &nbsp; • &nbsp; P = Pause</div>
-<div>
-<button class="small" id="pause">Ⅱ Pause</button>
-<button class="small" id="restart">↻ Restart Level</button>
-</div>
-</div>
-<div id="message">Find the exit. Don't get lost!</div>
-</div>
+
 <script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-const W=960,H=540;
-let level=1,totalCoins=0,levelCoins=0,steps=0,playing=false,paused=false,showMap=true;
-let map=[],mw=9,mh=9,player={x:1.5,y:1.5,a:0},coins=[],exit={x:7,y:7};
-let keys={},messageTimer=0,frame=0;
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const W=canvas.width,H=canvas.height;
 const $=id=>document.getElementById(id);
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function say(s){$("message").textContent=s;messageTimer=160}
+
+let map=[],mapW=15,mapH=15;
+let player={x:1.5,y:1.5,angle:0};
+let monsters=[],items=[],secretDoors=[];
+let level=1,health=3,coins=0,steps=0;
+let running=false,paused=false;
+let keys={},depth=[];
+let freezeUntil=0,speedUntil=0,shieldUntil=0;
+let lastMove=0,lastFrame=0,gameTime=0;
+let mapRevealed=false;
+let levelCoins=0;
+const FOV=Math.PI/3;
+const MAXDIST=18;
+
+function rand(n){return Math.floor(Math.random()*n)}
+function choose(a){return a[rand(a.length)]}
+function cell(x,y){return map[y]&&map[y][x]!==undefined?map[y][x]:1}
+function setCell(x,y,v){if(map[y]&&map[y][x]!==undefined)map[y][x]=v}
+
+function makeMaze(){
+  mapW=13+Math.floor(level/2)*2;
+  mapH=13+Math.floor(level/2)*2;
+  map=Array.from({length:mapH},()=>Array(mapW).fill(1));
+  let stack=[[1,1]];
+  setCell(1,1,0);
+  while(stack.length){
+    let [x,y]=stack[stack.length-1];
+    let options=[];
+    for(let [dx,dy] of [[2,0],[-2,0],[0,2],[0,-2]]){
+      let nx=x+dx,ny=y+dy;
+      if(nx>0&&ny>0&&nx<mapW-1&&ny<mapH-1&&cell(nx,ny)===1)options.push([nx,ny,dx,dy]);
+    }
+    if(options.length){
+      let [nx,ny,dx,dy]=choose(options);
+      setCell(x+dx/2,y+dy/2,0);
+      setCell(nx,ny,0);
+      stack.push([nx,ny]);
+    }else stack.pop();
+  }
+  // Create the exit at the far end of the maze.
+  setCell(mapW-2,mapH-2,3);
+  // Add a few extra passages to make exploration interesting.
+  for(let i=0;i<Math.floor(level*1.5);i++){
+    let x=2+rand(mapW-3),y=2+rand(mapH-3);
+    if(cell(x,y)===1&&rand(3)===0)setCell(x,y,0);
+  }
+  // Secret doors are hidden in walls between two open spaces.
+  secretDoors=[];
+  for(let y=2;y<mapH-2;y++){
+    for(let x=2;x<mapW-2;x++){
+      if(cell(x,y)!==1)continue;
+      let horizontal=cell(x-1,y)===0&&cell(x+1,y)===0;
+      let vertical=cell(x,y-1)===0&&cell(x,y+1)===0;
+      if((horizontal||vertical)&&Math.random()<0.12){
+        setCell(x,y,2);
+        secretDoors.push({x,y,opened:false});
+      }
+    }
+  }
+  // Ensure a few secret doors even in small mazes.
+  if(secretDoors.length===0){
+    for(let y=2;y<mapH-2;y++)for(let x=2;x<mapW-2;x++){
+      if(cell(x,y)===1&&cell(x-1,y)===0&&cell(x+1,y)===0){
+        setCell(x,y,2);secretDoors.push({x,y,opened:false});break;
+      }
+    }
+  }
+}
+
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function freeSpot(){
+  for(let i=0;i<500;i++){
+    let x=1+Math.random()*(mapW-2),y=1+Math.random()*(mapH-2);
+    if(cell(Math.floor(x),Math.floor(y))===0&&Math.hypot(x-player.x,y-player.y)>3)return{x,y};
+  }
+  return{x:mapW-2.5,y:mapH-2.5};
+}
+
+function buildLevel(){
+  makeMaze();
+  player={x:1.5,y:1.5,angle:0};
+  items=[];monsters=[];
+  steps=0;levelCoins=0;
+  mapRevealed=false;
+  let itemCount=8+level*2;
+  for(let i=0;i<itemCount;i++){
+    let p=freeSpot();
+    items.push({...p,type:'coin',taken:false});
+  }
+  for(let i=0;i<Math.max(1,Math.ceil(level/2));i++){
+    let p=freeSpot();
+    items.push({...p,type:choose(['heart','freeze','shield']),taken:false});
+  }
+  // Add a few rare special items.
+  if(level>=3){
+    let p=freeSpot();items.push({...p,type:'bigcoin',taken:false});
+  }
+  for(let i=0;i<Math.min(1+Math.floor(level*0.8),9);i++){
+    let p=freeSpot();
+    monsters.push({...p,speed:0.48+level*0.045,stun:0,wiggle:Math.random()*6.28});
+  }
+  updateHUD();
+  say('Level '+level+'! Find the glowing exit! Watch out for monsters!');
+}
+
+function startGame(){
+  level=1;health=3;coins=0;steps=0;
+  freezeUntil=0;speedUntil=0;shieldUntil=0;
+  running=true;paused=false;
+  $('overlay').style.display='none';
+  buildLevel();
+  lastFrame=performance.now();
+  requestAnimationFrame(loop);
+}
+
 function updateHUD(){
-$("level").textContent="LEVEL "+level+" / 10";
-$("coins").textContent="🪙 COINS: "+totalCoins;
-$("found").textContent="🪙 FOUND: "+levelCoins;
-$("steps").textContent="👟 STEPS: "+steps;
+  $('level').textContent=level;
+  $('health').textContent=health;
+  $('coins').textContent=coins;
+  $('steps').textContent=steps;
 }
-function generateMaze(){
-mw=9+Math.floor((level-1)/2)*2;
-mh=9+Math.floor((level-1)/2)*2;
-map=Array.from({length:mh},()=>Array(mw).fill(0));
-let stack=[[1,1]];
-map[1][1]=1;
-while(stack.length){
-let [x,y]=stack[stack.length-1];
-let dirs=[[0,-2],[2,0],[0,2],[-2,0]].sort(()=>Math.random()-.5);
-let next=null;
-for(let [dx,dy] of dirs){
-let nx=x+dx,ny=y+dy;
-if(nx>0&&ny>0&&nx<mw-1&&ny<mh-1&&map[ny][nx]===0){next=[nx,ny,dx,dy];break}
+function say(msg){
+  $('message').textContent=msg;
+  $('message').style.opacity=1;
+  clearTimeout(say.timer);
+  say.timer=setTimeout(()=>$('message').style.opacity=0,1900);
 }
-if(next){
-let [nx,ny,dx,dy]=next;
-map[y+dy/2][x+dx/2]=1;
-map[ny][nx]=1;
-stack.push([nx,ny]);
-}else stack.pop();
+function toggleShop(){
+  let p=$('shopPanel');
+  p.style.display=p.style.display==='block'?'none':'block';
 }
-player={x:1.5,y:1.5,a:0};
-let cells=[];
-for(let y=1;y<mh-1;y++)for(let x=1;x<mw-1;x++)if(map[y][x]===1&&(x!==1||y!==1))cells.push({x,y});
-cells.sort((a,b)=>(b.x+b.y)-(a.x+a.y));
-let far=cells[0]||{x:mw-2,y:mh-2};
-exit={x:far.x,y:far.y};
-coins=[];
-let amount=5+level*2;
-let available=cells.filter(c=>c.x!==exit.x||c.y!==exit.y);
-for(let i=0;i<Math.min(amount,available.length);i++){
-let index=Math.floor(Math.random()*available.length);
-let c=available.splice(index,1)[0];
-coins.push({x:c.x+.5,y:c.y+.5,got:false});
+function buyItem(type){
+  const prices={heart:15,freeze:20,map:25,speed:20};
+  if(coins<prices[type]){say('Not enough coins! Keep exploring!');return}
+  coins-=prices[type];
+  if(type==='heart'){health=Math.min(5,health+1);say('Extra life added! ❤️')}
+  if(type==='freeze'){freezeUntil=performance.now()+9000;say('Monsters frozen for 9 seconds! ❄️')}
+  if(type==='map'){mapRevealed=true;say('Map revealed! 🗺️')}
+  if(type==='speed'){speedUntil=performance.now()+10000;say('Speed boost for 10 seconds! ⚡')}
+  updateHUD();
 }
-levelCoins=0;steps=0;frame=0;updateHUD();
+function specialPower(){
+  let now=performance.now();
+  shieldUntil=now+4500;
+  freezeUntil=Math.max(freezeUntil,now+2500);
+  say('🥟 DUMPLING POWER! Shield activated!');
 }
-function wallAt(x,y){
-let mx=Math.floor(x),my=Math.floor(y);
-return !map[my]||map[my][mx]!==1;
+function openDoor(){
+  let x=Math.floor(player.x+Math.cos(player.angle)*1.25);
+  let y=Math.floor(player.y+Math.sin(player.angle)*1.25);
+  if(cell(x,y)===2){
+    setCell(x,y,0);
+    let door=secretDoors.find(d=>d.x===x&&d.y===y);
+    if(door)door.opened=true;
+    coins+=5;
+    items.push({x:x+.5,y:y+.5,type:'bigcoin',taken:false});
+    updateHUD();
+    say('Secret door opened! +5 coins and a hidden reward!');
+  }else say('No secret door nearby. Keep looking!');
 }
+function restartLevel(){
+  health=3;
+  buildLevel();
+  say('Level restarted!');
+  updateHUD();
+}
+function loseLife(){
+  if(performance.now()<shieldUntil)return;
+  health--;
+  updateHUD();
+  if(health<=0){
+    running=false;
+    showPanel('OH NO! 🥟','The monsters caught Blue Dumpling! You lost this level. Try again and keep your coins!','TRY LEVEL AGAIN',restartGame);
+  }else{
+    say('A monster got you! You lost a heart. ❤️');
+    player.x=1.5;player.y=1.5;player.angle=0;
+  }
+}
+function restartGame(){
+  health=3;level=1;coins=0;
+  running=true;paused=false;
+  $('overlay').style.display='none';
+  buildLevel();
+  lastFrame=performance.now();
+  requestAnimationFrame(loop);
+}
+function showPanel(title,desc,button,action){
+  $('overlay').style.display='flex';
+  $('panel').innerHTML='<span class="dumpling">🥟</span><h1>'+title+'</h1><p>'+desc+'</p><button class="big" id="panelAction">'+button+'</button><button class="secondary" onclick="location.href=\\'../../index.html\\'">BACK TO GAME LAB</button>';
+  $('panelAction').onclick=action;
+}
+
 function castRay(angle){
-let sin=Math.sin(angle),cos=Math.cos(angle);
-let dist=0,hit=false;
-while(dist<24&&!hit){
-dist+=.035;
-let x=player.x+cos*dist,y=player.y+sin*dist;
-if(wallAt(x,y))hit=true;
+  let sin=Math.sin(angle),cos=Math.cos(angle);
+  let dist=0,hit=0,hitX=0,hitY=0;
+  while(dist<MAXDIST){
+    dist+=0.025;
+    let x=Math.floor(player.x+cos*dist);
+    let y=Math.floor(player.y+sin*dist);
+    let v=cell(x,y);
+    if(v===1||v===2){
+      hit=v;hitX=x;hitY=y;break;
+    }
+  }
+  return{dist,hit,hitX,hitY};
 }
-return dist;
+function renderWorld(){
+  ctx.fillStyle='#77705a';ctx.fillRect(0,0,W,H/2);
+  ctx.fillStyle='#39352b';ctx.fillRect(0,H/2,W,H/2);
+  // Ceiling and floor atmosphere.
+  let ceiling=ctx.createLinearGradient(0,0,0,H/2);
+  ceiling.addColorStop(0,'#77735b');ceiling.addColorStop(1,'#b2a879');
+  ctx.fillStyle=ceiling;ctx.fillRect(0,0,W,H/2);
+  let floor=ctx.createLinearGradient(0,H/2,0,H);
+  floor.addColorStop(0,'#514b3b');floor.addColorStop(1,'#24231f');
+  ctx.fillStyle=floor;ctx.fillRect(0,H/2,W,H/2);
+
+  let rays=W;
+  depth=new Array(rays);
+  for(let x=0;x<rays;x++){
+    let angle=player.angle-FOV/2+(x/rays)*FOV;
+    let r=castRay(angle);
+    let corrected=r.dist*Math.cos(angle-player.angle);
+    depth[x]=corrected;
+    let wallH=Math.min(H*2,H/(corrected+.08));
+    let top=(H-wallH)/2;
+    let shade=Math.max(35,190-corrected*13);
+    let side=(Math.abs(Math.sin(angle))>.7)?0.78:1;
+    if(r.hit===2)ctx.fillStyle=`rgb(${shade*.8},${shade*.55},${shade*.22})`;
+    else ctx.fillStyle=`rgb(${shade*side},${shade*.88*side},${shade*.55*side})`;
+    ctx.fillRect(x,top,1,wallH);
+    if(r.hit===2){
+      ctx.fillStyle='#f5dc78';
+      if(x%25===0)ctx.fillRect(x,top+wallH*.45,2,wallH*.1);
+    }
+  }
+  drawSprites();
+  if(mapRevealed)drawMiniMap();
 }
-function drawWorld(){
-let gradient=ctx.createLinearGradient(0,0,0,H);
-gradient.addColorStop(0,"#b8a45b");
-gradient.addColorStop(.48,"#d5c477");
-gradient.addColorStop(.5,"#857b4e");
-gradient.addColorStop(1,"#4a432e");
-ctx.fillStyle=gradient;ctx.fillRect(0,0,W,H);
-let rays=240,fov=Math.PI/2.8;
-for(let i=0;i<rays;i++){
-let angle=player.a-fov/2+(i/rays)*fov;
-let dist=castRay(angle);
-let corrected=dist*Math.cos(angle-player.a);
-let height=Math.min(H,500/(corrected+.1));
-let x=i*W/rays;
-let shade=clamp(220-corrected*22,35,220);
-let stripe=Math.floor(i/10)%2?0.94:1;
-ctx.fillStyle="rgb("+Math.floor(shade*stripe)+","+Math.floor(shade*.87*stripe)+","+Math.floor(shade*.48*stripe)+")";
-ctx.fillRect(x,(H-height)/2,W/rays+1,height);
-ctx.fillStyle="#fff2b0";
-ctx.fillRect(x,(H-height)/2,W/rays+1,2);
+function drawSprites(){
+  let sprites=[];
+  for(let item of items)if(!item.taken)sprites.push({...item,kind:'item'});
+  for(let m of monsters)sprites.push({...m,kind:'monster'});
+  sprites.sort((a,b)=>distance(b,player)-distance(a,player));
+  for(let s of sprites){
+    let dx=s.x-player.x,dy=s.y-player.y;
+    let d=Math.hypot(dx,dy);
+    let a=Math.atan2(dy,dx)-player.angle;
+    while(a>Math.PI)a-=Math.PI*2;
+    while(a<-Math.PI)a+=Math.PI*2;
+    if(Math.abs(a)>FOV*.7||d<.1)continue;
+    let sx=(.5+a/FOV)*W;
+    let size=Math.min(H*1.3,H/(d*.85));
+    let sy=H/2;
+    let col=Math.floor(sx);
+    if(col>=0&&col<W&&d>depth[col]+.15)continue;
+    if(s.kind==='monster'){
+      ctx.font=`${size*.65}px serif`;
+      ctx.textAlign='center';
+      ctx.fillText('👾',sx,sy+size*.28);
+      if(d<4){
+        ctx.fillStyle='#ff6262';ctx.fillRect(sx-size*.3,sy-size*.48,size*.6,5);
+      }
+    }else{
+      let emoji={coin:'🪙',bigcoin:'💎',heart:'❤️',freeze:'❄️',shield:'🛡️'}[s.type];
+      ctx.font=`${size*.55}px serif`;
+      ctx.textAlign='center';
+      ctx.fillText(emoji,sx,sy+size*.2+Math.sin(gameTime*4+s.x)*4);
+    }
+  }
 }
-drawCoins();
-drawExitHint();
-if(showMap)drawMap();
-drawReticle();
+function drawMiniMap(){
+  let scale=5,ox=15,oy=15;
+  ctx.fillStyle='#101522dd';ctx.fillRect(ox-7,oy-7,mapW*scale+14,mapH*scale+14);
+  for(let y=0;y<mapH;y++)for(let x=0;x<mapW;x++){
+    let v=cell(x,y);
+    ctx.fillStyle=v===1?'#85806b':v===2?'#d0a94c':v===3?'#55edb0':'#252a31';
+    ctx.fillRect(ox+x*scale,oy+y*scale,scale-1,scale-1);
+  }
+  ctx.fillStyle='#63dfff';
+  ctx.beginPath();ctx.arc(ox+player.x*scale,oy+player.y*scale,3,0,Math.PI*2);ctx.fill();
 }
-function projectObject(x,y,emoji,color){
-let dx=x-player.x,dy=y-player.y;
-let dist=Math.hypot(dx,dy);
-let angle=Math.atan2(dy,dx)-player.a;
-while(angle>Math.PI)angle-=Math.PI*2;
-while(angle<-Math.PI)angle+=Math.PI*2;
-if(Math.abs(angle)>Math.PI/3||dist<.15)return;
-let sx=W/2+Math.tan(angle)*W*.55;
-let size=clamp(210/dist,8,100);
-ctx.font=size+"px Arial";ctx.textAlign="center";
-ctx.fillText(emoji,sx,H/2+size*.35);
+
+function movePlayer(dt){
+  let turn=0,forward=0,side=0;
+  if(keys.ArrowLeft)turn-=1;
+  if(keys.ArrowRight)turn+=1;
+  player.angle+=turn*2.1*dt;
+  if(keys.KeyW||keys.ArrowUp)forward+=1;
+  if(keys.KeyS||keys.ArrowDown)forward-=1;
+  if(keys.KeyA)side-=1;
+  if(keys.KeyD)side+=1;
+  if(!forward&&!side)return;
+  let speed=performance.now()<speedUntil?3.7:2.3;
+  let dx=(Math.cos(player.angle)*forward-Math.sin(player.angle)*side)*speed*dt;
+  let dy=(Math.sin(player.angle)*forward+Math.cos(player.angle)*side)*speed*dt;
+  let nx=player.x+dx,ny=player.y+dy;
+  if(cell(Math.floor(nx+.16),Math.floor(player.y))===0||cell(Math.floor(nx+.16),Math.floor(player.y))===3)player.x=nx;
+  if(cell(Math.floor(player.x),Math.floor(ny+.16))===0||cell(Math.floor(player.x),Math.floor(ny+.16))===3)player.y=ny;
+  if(gameTime-lastMove>.18){steps++;lastMove=gameTime;updateHUD()}
 }
-function drawCoins(){
-coins.forEach(c=>{if(!c.got)projectObject(c.x,c.y,"🪙")});
+function updateItems(){
+  for(let item of items){
+    if(item.taken)continue;
+    if(distance(item,player)<.48){
+      item.taken=true;
+      if(item.type==='coin'){coins++;levelCoins++}
+      if(item.type==='bigcoin'){coins+=5;levelCoins+=5;say('💎 Big treasure! +5 coins!')}
+      if(item.type==='heart'){health=Math.min(5,health+1);say('❤️ Extra heart!')}
+      if(item.type==='freeze'){freezeUntil=performance.now()+6500;say('❄️ Monsters frozen!')}
+      if(item.type==='shield'){shieldUntil=performance.now()+6000;say('🛡️ Shield activated!')}
+      updateHUD();
+    }
+  }
 }
-function drawExitHint(){
-projectObject(exit.x+.5,exit.y+.5,"🚪");
+function updateMonsters(dt){
+  if(performance.now()<freezeUntil)return;
+  for(let m of monsters){
+    let d=distance(m,player);
+    if(d<.42){loseLife();m.x=mapW-2.5;m.y=mapH-2.5;continue}
+    if(d<8){
+      let dx=(player.x-m.x)/Math.max(d,.01);
+      let dy=(player.y-m.y)/Math.max(d,.01);
+      let step=m.speed*dt;
+      let nx=m.x+dx*step,ny=m.y+dy*step;
+      if(cell(Math.floor(nx),Math.floor(m.y))===0)m.x=nx;
+      if(cell(Math.floor(m.x),Math.floor(ny))===0)m.y=ny;
+    }else{
+      m.wiggle+=dt;
+      if(Math.random()<dt*.6){
+        let nx=m.x+(Math.random()-.5)*.5;
+        let ny=m.y+(Math.random()-.5)*.5;
+        if(cell(Math.floor(nx),Math.floor(ny))===0){m.x=nx;m.y=ny}
+      }
+    }
+  }
 }
-function drawReticle(){
-ctx.strokeStyle="#fff9";ctx.lineWidth=2;
-ctx.beginPath();ctx.moveTo(W/2-9,H/2);ctx.lineTo(W/2+9,H/2);
-ctx.moveTo(W/2,H/2-9);ctx.lineTo(W/2,H/2+9);ctx.stroke();
+function checkExit(){
+  if(cell(Math.floor(player.x),Math.floor(player.y))===3){
+    if(level<10){
+      level++;
+      buildLevel();
+      say('LEVEL COMPLETE! Welcome to level '+level+'!');
+    }else{
+      running=false;
+      showPanel('YOU ESCAPED! 🏆','Blue Dumpling escaped all 10 Backrooms levels! You are the ultimate maze explorer!','PLAY AGAIN',restartGame);
+    }
+  }
 }
-function drawMap(){
-let cell=8,ox=W-mw*cell-18,oy=18;
-ctx.fillStyle="#17160dcc";ctx.fillRect(ox-8,oy-8,mw*cell+16,mh*cell+16);
-for(let y=0;y<mh;y++)for(let x=0;x<mw;x++){
-ctx.fillStyle=map[y][x]?"#cdbd78":"#554c34";
-ctx.fillRect(ox+x*cell,oy+y*cell,cell-1,cell-1);
+function loop(now){
+  if(!running)return;
+  if(paused){requestAnimationFrame(loop);return}
+  let dt=Math.min((now-lastFrame)/1000,.05);
+  lastFrame=now;gameTime+=dt;
+  movePlayer(dt);
+  updateItems();
+  updateMonsters(dt);
+  checkExit();
+  renderWorld();
+  requestAnimationFrame(loop);
 }
-coins.forEach(c=>{if(!c.got){ctx.fillStyle="#ffdf54";ctx.fillRect(ox+c.x*cell-2,oy+c.y*cell-2,4,4)}});
-ctx.fillStyle="#70f4c0";ctx.fillRect(ox+(exit.x+.5)*cell-2,oy+(exit.y+.5)*cell-2,5,5);
-ctx.fillStyle="#ff6262";ctx.beginPath();ctx.arc(ox+player.x*cell,oy+player.y*cell,3,0,Math.PI*2);ctx.fill();
-}
-function move(){
-if(!playing||paused)return;
-frame++;
-let turn=0,moveDir=0;
-if(keys.a||keys.ArrowLeft)turn=-1;
-if(keys.d||keys.ArrowRight)turn=1;
-player.a+=turn*.045;
-if(keys.w||keys.ArrowUp)moveDir=1;
-if(keys.s||keys.ArrowDown)moveDir=-1;
-if(moveDir){
-let speed=.055;
-let nx=player.x+Math.cos(player.a)*speed*moveDir;
-let ny=player.y+Math.sin(player.a)*speed*moveDir;
-let moved=false;
-if(!wallAt(nx,player.y)){player.x=nx;moved=true}
-if(!wallAt(player.x,ny)){player.y=ny;moved=true}
-if(moved&&frame%8===0){steps++;updateHUD()}
-}
-coins.forEach(c=>{
-if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<.42){
-c.got=true;levelCoins++;totalCoins+=1;updateHUD();say("You found a coin! +1");
-}
-});
-if(Math.hypot(player.x-(exit.x+.5),player.y-(exit.y+.5))<.55)nextLevel();
-if(messageTimer>0)messageTimer--;
-}
-function nextLevel(){
-playing=false;
-totalCoins+=levelCoins;
-updateHUD();
-if(level===10){
-showOverlay("YOU ESCAPED! 🎉","Timmy made it through all 10 Backrooms levels! You collected "+totalCoins+" coins and escaped the maze!","PLAY AGAIN",()=>{
-level=1;totalCoins=0;generateMaze();playing=true;hideOverlay();say("A new adventure begins!");
-});
-}else{
-showOverlay("LEVEL "+level+" COMPLETE!","You found the exit! You collected "+levelCoins+" coins. The next maze will be harder!","NEXT LEVEL",()=>{
-level++;generateMaze();playing=true;hideOverlay();say("Welcome to level "+level+"!");
-});
-}
-}
-function showOverlay(title,desc,button,action){
-$("overlay").style.display="flex";
-$("overlay").innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button class="big" id="action">'+button+'</button></div>';
-$("action").onclick=action;
-}
-function hideOverlay(){$("overlay").style.display="none"}
+
 function pauseGame(){
-if(!playing)return;
-paused=!paused;
-if(paused)showOverlay("PAUSED","Timmy is taking a break. Your progress is safe.","RESUME",()=>{paused=false;hideOverlay()});
-else hideOverlay();
-$("pause").textContent=paused?"▶ Resume":"Ⅱ Pause";
+  if(!running)return;
+  paused=!paused;
+  if(paused){
+    showPanel('GAME PAUSED ⏸️','Take a break, explorer. Your progress is safe!','RESUME GAME',()=>{
+      $('overlay').style.display='none';
+      paused=false;lastFrame=performance.now();requestAnimationFrame(loop);
+    });
+  }else{
+    $('overlay').style.display='none';
+    lastFrame=performance.now();
+  }
 }
-$("start").onclick=()=>{playing=true;hideOverlay();say("Find the exit! Collect coins along the way.")};
-$("pause").onclick=pauseGame;
-$("restart").onclick=()=>{if(playing){generateMaze();say("Level restarted. Find a new path!")}};
-window.addEventListener("keydown",e=>{
-let k=e.key.length===1?e.key.toLowerCase():e.key;
-if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(k))e.preventDefault();
-keys[k]=true;
-if(k==="m"&&!e.repeat){showMap=!showMap}
-if(k==="p"&&!e.repeat)pauseGame();
+document.addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+  if(e.code==='Escape'||e.code==='KeyP'){if(running)pauseGame();return}
+  if(e.code==='KeyE'&&!e.repeat){openDoor();return}
+  if(e.code==='Space'&&!e.repeat){specialPower();return}
+  keys[e.code]=true;
 });
-window.addEventListener("keyup",e=>{let k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
-window.addEventListener("blur",()=>keys={});
-document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
-function loop(){
-if(playing&&!paused)move();
-drawWorld();
-requestAnimationFrame(loop);
-}
-generateMaze();loop();
+document.addEventListener('keyup',e=>keys[e.code]=false);
+window.addEventListener('blur',()=>keys={});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
+
+// Draw a welcoming screen before the adventure begins.
+renderWorld();
 </script>
 </body>
 </html>
-
