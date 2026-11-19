@@ -4,393 +4,545 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPEED CITY: Neon Skate Escape</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>SPEED CITY: Endless Spray Run</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101329;color:white;font-family:Outfit,Arial,sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#202447}
-.brand{font:700 23px Fredoka;color:#75f4ee}
-button{border:0;border-radius:13px;padding:10px 16px;background:#ffe36e;color:#202447;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 0 #c49b38}
-button:hover{filter:brightness(1.1);transform:translateY(-2px)}
-.secondary{background:#a8e9ff;box-shadow:0 4px 0 #589ab6}
-.pink{background:#ffadd5;box-shadow:0 4px 0 #bd7094}
-#stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px}
-.stat{background:#292f55;border:1px solid #505b87;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
-#wrap{width:min(1100px,100%);margin:auto;padding:0 12px}
-#stage{position:relative}
-canvas{display:block;width:100%;aspect-ratio:16/9;border:4px solid #535d91;border-radius:17px;background:#172344}
-#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#101329dd;border-radius:17px;text-align:center}
-.panel{max-width:590px;width:100%;padding:24px;background:#252d53;border:3px solid #75f4ee;border-radius:24px;box-shadow:0 12px 35px #0009}
-h1{font:700 clamp(29px,5vw,47px) Fredoka;color:#75f4ee;margin:0 0 8px}
-h2{font:700 25px Fredoka;color:#ffe36e;margin:5px 0}
+body{margin:0;background:#10152c;color:white;font-family:Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
+#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
+.stat{background:#11182de8;border:2px solid #62f4ef;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:bold;text-shadow:1px 2px #000}
+#bottom{position:absolute;bottom:10px;left:10px;background:#11182de8;border:2px solid #62f4ef;border-radius:10px;padding:9px 12px;font-size:12px;line-height:1.6}
+#notice{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:#fff08a;color:#241d39;padding:10px 16px;border-radius:10px;font-weight:bold;opacity:0;transition:opacity .2s;text-align:center}
+#panel{position:absolute;inset:0;background:#090d20ed;display:flex;align-items:center;justify-content:center;padding:12px}
+#card{width:min(560px,94vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#263d65,#17162e);border:3px solid #62f4ef;border-radius:20px;padding:22px;text-align:center;box-shadow:0 0 35px #00e5ff55}
+h1{font-size:clamp(27px,5vw,42px);color:#72fff1;margin:6px}
+h2{color:#ffdc70}
 p{line-height:1.5}
-.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}
-.small{font-size:13px;color:#d5defe}
-#message{text-align:center;color:#ffe36e;font-weight:700;min-height:25px;padding:6px}
-#bottom{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 5px;color:#d5defe}
-@media(max-width:600px){.brand{width:100%;text-align:center}.stat{font-size:12px;padding:6px 8px}.panel{padding:14px}}
+button{border:0;border-radius:10px;background:#ffe078;color:#25203b;font-weight:bold;padding:11px 16px;margin:5px;font-size:15px;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+.small{font-size:12px;color:#d1d9f1}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
-<header>
- <div class="brand">🛹 SPEED CITY: NEON SKATE ESCAPE</div>
- <div class="row" style="margin:0">
-  <button class="secondary" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
-  <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
-  <button class="pink" onclick="restartLevel()">↻ Restart</button>
- </div>
-</header>
-
-<div id="stats">
- <div class="stat">🌆 Level: <span id="level">1</span> / 4</div>
- <div class="stat">❤️ Hearts: <span id="hearts">❤️❤️❤️</span></div>
- <div class="stat">🪙 Coins: <span id="coins">0</span></div>
- <div class="stat">⭐ Score: <span id="score">0</span></div>
- <div class="stat">⚡ Speed: <span id="speed">0</span></div>
- <div class="stat">🎨 Spray: <span id="spray">0</span> / 3</div>
+<canvas id="game" width="960" height="540"></canvas>
+<div id="hud">
+ <div class="stat" id="distance">🏙️ CITY: 0%</div>
+ <div class="stat" id="coins">🪙 0</div>
+ <div class="stat" id="speed">⚡ SPEED: 0</div>
+ <div class="stat" id="paint">🎨 PAINT: 100%</div>
+ <div class="stat" id="boss">👾 BOSS: NONE</div>
 </div>
-
-<div id="wrap">
- <div id="stage">
-  <canvas id="game" width="960" height="540"></canvas>
-  <div id="overlay">
-   <div class="panel" id="panel">
-    <div style="font-size:55px">🛹🌃🎨</div>
-    <h1>SPEED CITY</h1>
-    <h2>NEON SKATE ESCAPE</h2>
-    <p>Skate through a futuristic city! Jump over obstacles, perform tricks, collect coins, and escape the robot patrol.</p>
-    <p><b>A / D</b> move · <b>W</b> or <b>SPACE</b> jump · <b>S</b> crouch / slide · <b>X</b> spray paint</p>
-    <p class="small">Perform tricks in the air to earn points and build your speed boost. Complete four levels to face the giant robot boss!</p>
-    <div class="row"><button onclick="startGame()">🚀 START SKATING</button></div>
-   </div>
-  </div>
+<div id="bottom">A/D or ←/→: Move · SPACE: Jump<br>F: Trick in the air · Hold Z: Spray paint<br>X: Special ability · ESC: Pause</div>
+<div id="notice"></div>
+<div id="panel">
+ <div id="card">
+  <h1>⚡ SPEED CITY</h1>
+  <h2>ENDLESS SPRAY RUN!</h2>
+  <p>Race through the neon tech city, paint the buildings, collect coins, and escape the flying robot and helicopter!</p>
+  <p>Look out for giant ramps and surprise boss battles. How much of the city can you paint?</p>
+  <button onclick="startGame()">START RUN</button>
+  <button onclick="showHelp()">HOW TO PLAY</button>
+  <p class="small">Fast action · Endless city · Boss battles · Huge jumps · Spray-paint tricks</p>
  </div>
- <div id="bottom">
-  <div>🛹 Skyler's skate crew: Neon City Edition</div>
-  <div>✨ Tricks = speed · 🎨 Spray paint = boss challenge</div>
- </div>
- <div id="message">Ready to roll? Let's skate!</div>
 </div>
-
 <script>
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const W=960,H=540,$=id=>document.getElementById(id);
-let level=1,hearts=3,coins=0,score=0,speed=4,boost=0;
-let player,platforms,items,hazards,particles,camera=0;
-let running=false,paused=false,keys={},last=0;
-let boss=null,finishX=3500,levelCoins=0,levelStartScore=0;
-let trickLock=0,hitCooldown=0,levelComplete=false;
-const groundY=440;
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const W=960,H=540;
+let keys={};
+let running=false,paused=false,raf=0,last=0;
+let player,robot,heli;
+let distance=0,coins=0,painted=0,paint=100;
+let speed=450,worldSpeed=450;
+let obstacles=[],ramps=[],coinItems=[],paintMarks=[],particles=[];
+let boss=null,bossTimer=0,bossesDefeated=0;
+let trickCount=0,combo=0,comboTimer=0;
+let ability='none',abilityTime=0,abilityCooldown=0;
+let robotDistance=0,robotPressure=0;
+let paintTimer=0,spawnTimer=0,coinTimer=0;
+let health=3,score=0;
+let jumping=false,jumpY=0,jumpV=0;
+let tricking=false,trickAngle=0;
+let noticeTimer=0,cityColor=0;
+let gameOver=false;
+let frame=0;
 
-function makePlayer(){
- return {x:80,y:groundY-62,vx:0,vy:0,w:38,h:58,onGround:true,face:1,trick:0};
+const palettes=[
+ ['#132b53','#13c8d8','#ff55bc','#ffe078'],
+ ['#1d2856','#a86bff','#63ffca','#ff6b9e'],
+ ['#172b42','#ff7b54','#5ee8ff','#e7ff78'],
+ ['#251d4e','#ff5bc8','#7dffdf','#ffe078']
+];
+
+function rand(a,b){return a+Math.random()*(b-a)}
+function ri(n){return Math.floor(Math.random()*n)}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function say(t){
+ const el=document.getElementById('notice');
+ el.textContent=t;el.style.opacity=1;noticeTimer=2.2;
 }
-function hud(){
- $('level').textContent=level;$('hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
- $('coins').textContent=coins;$('score').textContent=score;
- $('speed').textContent=Math.round(speed+boost*3);
- $('spray').textContent=boss?boss.tags:0;
+function showPanel(html){
+ document.getElementById('card').innerHTML=html;
+ document.getElementById('panel').classList.remove('hidden');
 }
-function buildLevel(){
- player=makePlayer();camera=0;boost=0;levelCoins=0;
- platforms=[{x:0,y:groundY,w:550,h:100,type:'ground'}];
- let x=550;
- for(let i=0;i<17;i++){
-  let gap=level===1?55:65+level*9;
-  let width=210+(i%3)*30;
-  x+=gap;
-  let y=groundY-(i%3===0?65+level*8:i%3===1?15:90+level*5);
-  platforms.push({x,y,w:width,h:24,type:'platform'});
-  platforms.push({x:x+width+gap,y:groundY,w:180,h:100,type:'ground'});
-  x+=width+180;
- }
- finishX=x+250;
- items=[];hazards=[];particles=[];
- for(let i=0;i<32+level*5;i++){
-  let px=180+i*100;
-  let py=groundY-75-(i%4)*45;
-  items.push({x:px,y:py,type:'coin',taken:false});
- }
- for(let i=0;i<10+level*2;i++){
-  let px=450+i*270;
-  let py=groundY-55-(i%3)*35;
-  hazards.push({x:px,y:py,type:i%3===0?'robot':'drone',alive:true,phase:i});
- }
- boss=level===4?{x:finishX-420,y:groundY-155,tags:0,active:false,w:110,h:150,wave:0}:null;
- levelComplete=false;trickLock=0;hitCooldown=0;
+function hidePanel(){document.getElementById('panel').classList.add('hidden')}
+function showHelp(){
+ showPanel('<h1>HOW TO PLAY</h1><p><b>A/D or arrows:</b> Move left and right.</p><p><b>SPACE:</b> Jump. Ramps give you a huge boost!</p><p><b>F:</b> Perform tricks while airborne to earn bonus coins.</p><p><b>Hold Z:</b> Spray-paint buildings and the city.</p><p><b>X:</b> Use your special ability.</p><p>Avoid obstacles, escape the robot, and defeat bosses when they appear!</p><button onclick="showTitle()">BACK</button>');
+}
+function showTitle(){
+ running=false;paused=false;cancelAnimationFrame(raf);
+ showPanel('<h1>⚡ SPEED CITY</h1><h2>ENDLESS SPRAY RUN!</h2><p>Ready to paint the whole city?</p><button onclick="startGame()">START RUN</button><button onclick="showHelp()">HOW TO PLAY</button>');
 }
 function startGame(){
- level=1;hearts=3;coins=0;score=0;speed=4;buildLevel();
- running=true;paused=false;$('overlay').style.display='none';
- $('pauseBtn').textContent='⏸ Pause';hud();
- $('message').textContent='Level 1: Welcome to Neon City!';
- last=performance.now();requestAnimationFrame(loop);
+ cancelAnimationFrame(raf);
+ distance=0;coins=0;painted=0;paint=100;
+ speed=450;worldSpeed=450;
+ obstacles=[];ramps=[];coinItems=[];paintMarks=[];particles=[];
+ boss=null;bossTimer=700;bossesDefeated=0;
+ trickCount=0;combo=0;comboTimer=0;
+ ability='none';abilityTime=0;abilityCooldown=0;
+ robotDistance=0;robotPressure=0;
+ paintTimer=0;spawnTimer=0;coinTimer=0;
+ health=3;score=0;
+ jumping=false;jumpY=0;jumpV=0;tricking=false;trickAngle=0;
+ gameOver=false;cityColor=0;
+ player={x:210,y:380,vy:0,air:false,invincible:0,anim:0};
+ robot={x:35,y:240,phase:0};
+ heli={x:760,y:85,phase:0};
+ running=true;paused=false;hidePanel();
+ updateHUD();last=performance.now();raf=requestAnimationFrame(loop);
+ say('GO! PAINT THE CITY!');
 }
-function restartLevel(){
- if(!running&&level===1){startGame();return;}
- buildLevel();running=true;paused=false;
- $('overlay').style.display='none';$('pauseBtn').textContent='⏸ Pause';
- $('message').textContent='Level restarted. Give it another try!';
- last=performance.now();hud();requestAnimationFrame(loop);
+function updateHUD(){
+ document.getElementById('distance').textContent='🏙️ CITY: '+Math.min(100,Math.floor(painted/10))+'%';
+ document.getElementById('coins').textContent='🪙 '+coins;
+ document.getElementById('speed').textContent='⚡ SPEED: '+Math.floor(speed/10);
+ document.getElementById('paint').textContent='🎨 PAINT: '+Math.floor(paint)+'%';
+ document.getElementById('boss').textContent=boss?'👾 BOSS: '+boss.hp+' HP':'👾 BOSS: NONE';
 }
-function pauseGame(){
- if(!running)return;
- paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
- if(paused)$('message').textContent='Paused! Your progress is safe.';
- else{last=performance.now();requestAnimationFrame(loop);}
-}
-function hit(){
- if(hitCooldown>0)return;
- hearts--;hitCooldown=1.5;boost=0;player.vx=-2;
- $('message').textContent='BUMP! Watch out for robots and drones!';
- if(hearts<=0){
-  running=false;paused=false;
-  $('overlay').style.display='flex';
-  $('panel').innerHTML=`<div style="font-size:50px">🛹💫</div><h1>WIPEOUT!</h1>
-  <h2>Try that level again!</h2><p>You used all your hearts. Your coins and score are saved.</p>
-  <div class="row"><button onclick="restartLevel()">🔄 TRY AGAIN</button></div>`;
+function spawnObstacle(){
+ let type=Math.random();
+ if(type<.55){
+  obstacles.push({x:W+50,y:395,w:rand(35,55),h:rand(35,75),type:'barrier',color:['#f55d83','#f5d76a','#6ee7f3'][ri(3)]});
+ }else if(type<.8){
+  obstacles.push({x:W+50,y:390,w:45,h:50,type:'drone',phase:rand(0,6)});
+ }else{
+  obstacles.push({x:W+50,y:405,w:65,h:30,type:'crate',color:'#ab71f2'});
  }
- hud();
 }
-function completeLevel(){
- if(levelComplete)return;
- levelComplete=true;running=false;score+=500+level*250;
- $('overlay').style.display='flex';
- $('panel').innerHTML=`<div style="font-size:50px">🏆</div><h1>LEVEL COMPLETE!</h1>
- <h2>${level===4?'YOU BEAT THE BOSS!':'Awesome skating!'}</h2>
- <p>You earned a level bonus! Your next level will be faster and trickier.</p>
- <p>Coins: ${coins} · Score: ${score}</p>
- <div class="row"><button onclick="nextLevel()">${level===4?'🏆 FINISH GAME':'➡️ NEXT LEVEL'}</button></div>`;
- hud();
+function spawnRamp(){
+ ramps.push({x:W+80,y:420,w:110,h:48,used:false});
 }
-function nextLevel(){
- if(level>=4){
-  $('panel').innerHTML=`<div style="font-size:55px">🏆🛹🌈</div><h1>NEON CITY CHAMPION!</h1>
-  <h2>You escaped the robot patrol!</h2><p>Final score: ${score} · Coins collected: ${coins}</p>
-  <div class="row"><button onclick="startGame()">🔁 PLAY AGAIN</button></div>`;
-  return;
+function spawnCoins(){
+ let x=W+50;
+ let count=5+ri(4);
+ for(let i=0;i<count;i++){
+  coinItems.push({x:x+i*30,y:rand(290,360),got:false,phase:rand(0,6)});
  }
- level++;buildLevel();running=true;paused=false;
- $('overlay').style.display='none';$('pauseBtn').textContent='⏸ Pause';
- $('message').textContent='Level '+level+'! The city gets faster!';
- hud();last=performance.now();requestAnimationFrame(loop);
 }
 function spray(){
- if(!boss||level!==4)return;
- if(Math.abs(player.x-boss.x)>185){
-  $('message').textContent='Get closer to the giant robot to tag its panels!';
-  return;
- }
- if(boss.tags>=3)return;
- boss.tags++;score+=250;
- $('message').textContent='🎨 TAG! Robot panel '+boss.tags+' of 3!';
- for(let i=0;i<16;i++)particles.push({x:boss.x+Math.random()*100,y:boss.y+Math.random()*100,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,life:1,color:['#ff62cb','#63f8e8','#ffe36e'][i%3]});
- if(boss.tags===3){
-  $('message').textContent='🎉 ROBOT SHUT DOWN! The city is yours!';
-  score+=2000;
- }
- hud();
-}
-function trick(){
- if(!player.onGround&&trickLock<=0){
-  player.trick=1;trickLock=.6;boost=Math.min(3,boost+1.2);
-  score+=100;$('message').textContent='✨ AWESOME TRICK! +100 points and speed boost!';
+ if(paint<=0)return;
+ paint=Math.max(0,paint-.12);
+ paintTimer+=.02;
+ if(paintTimer>.11){
+  paintTimer=0;
+  const c=palettes[cityColor%palettes.length][ri(4)];
+  for(let i=0;i<3;i++){
+   particles.push({x:player.x+rand(10,45),y:player.y-20+jumpY+rand(-12,12),vx:rand(30,100),vy:rand(-70,70),life:rand(.3,.7),color:c,size:rand(3,8)});
+  }
+  if(Math.random()<.08){
+   painted=Math.min(1000,painted+1);
+   paintMarks.push({x:rand(0,W),y:rand(90,280),color:c,life:10});
+  }
  }
 }
-function collides(a,b){
- return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h;
+function jump(){
+ if(!player.air){
+  player.vy=-720;player.air=true;jumping=true;jumpY=0;
+ }
+}
+function doTrick(){
+ if(!player.air){say('Jump first, then press F for a trick!');return}
+ if(tricking)return;
+ tricking=true;trickAngle=0;trickCount++;
+ combo++;comboTimer=2;
+ coins+=2+Math.min(combo,8);
+ score+=100*combo;
+ say('🔥 TRICK! +'+(2+Math.min(combo,8))+' COINS!');
+}
+function useAbility(){
+ if(abilityCooldown>0){say('Special ability recharging!');return}
+ if(ability==='none'){
+  say('Find a special ability power-up first!');return;
+ }
+ if(ability==='paintstorm'){
+  painted=Math.min(1000,painted+45);
+  paint=Math.min(100,paint+25);
+  for(let i=0;i<50;i++)particles.push({x:rand(0,W),y:rand(80,400),vx:rand(-100,100),vy:rand(-100,100),life:1,color:palettes[cityColor%4][ri(4)],size:rand(4,10)});
+  say('🌈 PAINT STORM! THE CITY IS COLORFUL!');
+ }else if(ability==='boost'){
+  speed=850;abilityTime=4;say('⚡ TURBO BOOST!');
+ }else if(ability==='shield'){
+  player.invincible=6;say('🛡️ NEON SHIELD ACTIVATED!');
+ }
+ abilityCooldown=12;updateHUD();
+}
+function spawnPowerup(){
+ obstacles.push({x:W+80,y:rand(280,360),w:25,h:25,type:'power',power:['paintstorm','boost','shield'][ri(3)]});
+}
+function startBoss(){
+ if(boss)return;
+ boss={x:W+80,y:230,hp:12,max:12,phase:0,shotTimer:1,flash:0};
+ bossTimer=850;
+ say('🚨 BOSS INCOMING! SPRAY IT!');
+}
+function damageBoss(){
+ if(!boss)return;
+ boss.hp--;boss.flash=.15;
+ score+=150;
+ for(let i=0;i<8;i++)particles.push({x:boss.x,y:boss.y,vx:rand(-100,100),vy:rand(-100,100),life:.4,color:'#ffdc70',size:5});
+ if(boss.hp<=0){
+  boss=null;bossesDefeated++;coins+=20;score+=1000;
+  ability=['paintstorm','boost','shield'][ri(3)];
+  say('🏆 BOSS DEFEATED! +20 COINS! SPECIAL ABILITY FOUND!');
+ }
+ updateHUD();
+}
+function hit(){
+ if(player.invincible>0)return;
+ health--;player.invincible=1.5;robotPressure+=70;
+ say('OUCH! WATCH OUT!');
+ if(health<=0)endGame();
+ updateHUD();
+}
+function endGame(){
+ running=false;gameOver=true;cancelAnimationFrame(raf);
+ showPanel('<h1>🏁 RUN OVER!</h1><h2>YOU PAINTED '+Math.floor(painted/10)+'% OF THE CITY!</h2><p>Distance: '+Math.floor(distance)+' m</p><p>Coins: '+coins+' · Tricks: '+trickCount+' · Bosses defeated: '+bossesDefeated+'</p><button onclick="startGame()">PLAY AGAIN</button><button onclick="showTitle()">HOME</button>');
 }
 function update(dt){
- if(hitCooldown>0)hitCooldown-=dt;
- if(trickLock>0)trickLock-=dt;
- let dir=(keys.d?1:0)-(keys.a?1:0);
- if(dir)player.face=dir;
- let target=keys.s?2.1:5.4+level*.35;
- if(boost>0){target+=5;boost-=dt;}
- player.vx+=(dir*.65*dt*60);
- if(!dir)player.vx*=Math.pow(.88,dt*60);
- player.vx=Math.max(-target,Math.min(target,player.vx));
- if(keys.w||keys[' ']){
-  if(player.onGround){player.vy=-12.5;player.onGround=false;}
-  else trick();
+ frame++;
+ speed=Math.min(780,450+distance*.025);
+ worldSpeed=speed;
+ distance+=speed*dt*.045;
+ if(comboTimer>0)comboTimer-=dt;else combo=0;
+ if(abilityCooldown>0)abilityCooldown-=dt;
+ if(abilityTime>0){abilityTime-=dt;if(abilityTime<=0)speed=450+distance*.025}
+ if(player.invincible>0)player.invincible-=dt;
+ player.anim+=dt*12;
+ if(keys.a||keys.arrowleft)player.x-=330*dt;
+ if(keys.d||keys.arrowright)player.x+=330*dt;
+ player.x=clamp(player.x,90,490);
+ // Jump physics
+ if(player.air){
+  player.vy+=1500*dt;
+  jumpY+=player.vy*dt;
+  if(jumpY>=0){jumpY=0;player.vy=0;player.air=false;jumping=false;tricking=false}
  }
- if(keys.x){keys.x=false;spray();}
- player.x+=player.vx*dt*60;
- player.vy+=.58*dt*60;
- player.y+=player.vy*dt*60;
- player.onGround=false;
- for(let p of platforms){
-  if(player.x+player.w>p.x&&player.x<p.x+p.w&&
-     player.y+player.h>=p.y&&player.y+player.h<=p.y+30&&player.vy>=0){
-   player.y=p.y-player.h;player.vy=0;player.onGround=true;
-  }
- }
- // Pickups
- for(let item of items){
-  if(!item.taken&&Math.abs(player.x-item.x)<35&&Math.abs(player.y-item.y)<55){
-   item.taken=true;coins+=10;score+=25;levelCoins++;
-   $('message').textContent='+10 coins! +25 points!';
-  }
- }
- // Moving robot patrols
- for(let h of hazards){
-  if(!h.alive)continue;
-  let hx=h.x-camera;
-  let hy=h.y+Math.sin(performance.now()/380+h.phase)*13;
-  if(Math.abs(player.x-h.x)<32&&Math.abs(player.y-hy)<45)hit();
- }
- // Robot boss energy waves
- if(boss){
-  boss.active=player.x>boss.x-500;
-  boss.wave+=dt;
-  if(boss.active&&boss.tags<3){
-   let waveX=boss.x-220+((boss.wave*170)%360);
-   if(Math.abs(player.x-waveX)<24&&player.y+player.h>groundY-45&&player.y<groundY-5)hit();
-  }
- }
- if(player.y>H+100){hit();player.y=groundY-100;player.vy=0;}
- if(player.x<0)player.x=0;
- if(player.x>finishX-40){
-  if(!boss||boss.tags>=3)completeLevel();
-  else player.x=finishX-50;
- }
- camera=Math.max(0,Math.min(finishX-W+150,player.x-250));
- particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=dt;});
- particles=particles.filter(p=>p.life>0);
- hud();
-}
-function drawBackground(){
- let sky=ctx.createLinearGradient(0,0,0,H);
- sky.addColorStop(0,'#171a43');sky.addColorStop(.65,'#392c70');sky.addColorStop(1,'#ed5d9a');
- ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
- // Neon moon
- ctx.fillStyle='#ffe7a1';ctx.beginPath();ctx.arc(790,95,42,0,Math.PI*2);ctx.fill();
- // City skyline
- for(let i=0;i<22;i++){
-  let x=i*125-(camera*.22%125),height=110+(i*71%170);
-  ctx.fillStyle=['#252e60','#303b73','#45336f','#234b68'][i%4];
-  ctx.fillRect(x,groundY-height,90,height);
-  for(let yy=groundY-height+15;yy<groundY-12;yy+=24)
-   for(let xx=x+12;xx<x+80;xx+=22){
-    ctx.fillStyle=(i+Math.floor(yy/24))%3===0?'#ffe36e':'#61f2ed';
-    ctx.fillRect(xx,yy,7,10);
+ if(keys.z&&paint>0)spray();
+ // Robot always pursues from behind.
+ robot.phase+=dt*3;
+ robot.x=35+Math.sin(robot.phase)*12;
+ robot.y=245+Math.sin(robot.phase*1.6)*30;
+ robotDistance+=dt*(boss?10:4);
+ if(robotDistance>20){robotDistance=0;robotPressure+=1}
+ if(robotPressure>100){robotPressure=0;hit()}
+ // Helicopter tracks the player overhead.
+ heli.phase+=dt*1.5;
+ heli.x=player.x+100+Math.sin(heli.phase)*90;
+ heli.y=85+Math.sin(heli.phase*2)*15;
+ // Spawn objects
+ spawnTimer+=dt;
+ if(spawnTimer>Math.max(.55,1.25-distance*.00002)){spawnTimer=0;spawnObstacle()}
+ coinTimer+=dt;
+ if(coinTimer>1.5){coinTimer=0;spawnCoins()}
+ if(Math.random()<dt*.16)spawnRamp();
+ if(Math.random()<dt*.045)spawnPowerup();
+ bossTimer-=dt*speed*.05;
+ if(bossTimer<=0&&!boss)startBoss();
+ // Move world objects
+ const move=speed*dt;
+ obstacles.forEach(o=>o.x-=move);
+ ramps.forEach(o=>o.x-=move);
+ coinItems.forEach(o=>{o.x-=move;o.phase+=dt*4});
+ paintMarks.forEach(o=>o.life-=dt);
+ obstacles=obstacles.filter(o=>o.x>-100);
+ ramps=ramps.filter(o=>o.x>-150);
+ coinItems=coinItems.filter(o=>o.x>-50&&!o.got);
+ paintMarks=paintMarks.filter(o=>o.life>0);
+ // Obstacles, powerups and collision
+ obstacles.forEach(o=>{
+  if(o.type==='power'){
+   if(Math.abs(o.x-player.x)<35&&Math.abs(o.y-(player.y+jumpY))<40){
+    ability=o.power;coins+=3;o.x=-100;
+    say('SPECIAL ABILITY: '+ability.toUpperCase()+'!');updateHUD();
    }
-  ctx.fillStyle='#ff66cc';ctx.fillRect(x+40,groundY-height-15,4,15);
+   return;
+  }
+  if(Math.abs(o.x-player.x)<30&&Math.abs((o.y+o.h/2)-(player.y+jumpY))<40&&!player.air){
+   o.x=-100;hit();
+  }
+ });
+ // Coins
+ coinItems.forEach(o=>{
+  if(!o.got&&Math.abs(o.x-player.x)<24&&Math.abs(o.y-(player.y+jumpY))<28){
+   o.got=true;coins++;score+=20;
+  }
+ });
+ // Ramps launch the player high into the air.
+ ramps.forEach(r=>{
+  if(!r.used&&r.x<player.x+25&&r.x+r.w>player.x-20&&Math.abs(player.x-r.x)<45){
+   r.used=true;
+   player.vy=-1050;player.air=true;jumpY=0;
+   say('🚀 MEGA RAMP JUMP!');
+  }
+ });
+ // Boss moves toward the player and fires energy pulses.
+ if(boss){
+  boss.phase+=dt*2;
+  boss.x-=speed*.25*dt;
+  boss.y=230+Math.sin(boss.phase)*65;
+  boss.shotTimer-=dt;
+  if(boss.shotTimer<=0){
+   boss.shotTimer=1.6;
+   obstacles.push({x:boss.x-20,y:boss.y+60,w:24,h:24,type:'bossShot',color:'#ff4e9a'});
+  }
+  if(boss.flash>0)boss.flash-=dt;
+  if(Math.abs(boss.x-player.x)<45&&Math.abs(boss.y-(player.y+jumpY))<55){
+   damageBoss();boss.x+=45;
+  }
  }
- // Stars
- for(let i=0;i<55;i++){
-  let x=(i*177-camera*.08)%W;if(x<0)x+=W;
-  ctx.fillStyle='#ffffff99';ctx.fillRect(x,35+(i*41%180),3,3);
+ obstacles.forEach(o=>{
+  if(o.type==='bossShot'&&Math.abs(o.x-player.x)<25&&Math.abs(o.y-(player.y+jumpY))<30){
+   o.x=-100;hit();
+  }
+ });
+ // Robot can be sprayed to push it back.
+ if(keys.z&&Math.random()<dt*2&&robotPressure>0)robotPressure=Math.max(0,robotPressure-1.4);
+ // City progress: spray marks build toward 100%.
+ painted=Math.min(1000,painted);
+ updateHUD();
+ if(distance>0&&Math.floor(distance)%500===0&&cityColor!==Math.floor(distance/500)%4)cityColor=Math.floor(distance/500)%4;
+}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
+function drawBackground(){
+ const pal=palettes[cityColor%4];
+ let grad=ctx.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,pal[0]);grad.addColorStop(1,'#11182e');
+ ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ // Stars and distant skyline
+ for(let i=0;i<60;i++){
+  let x=(i*173-distance*.25)%W;if(x<0)x+=W;
+  rect(x,(i*79)%170,2,2,'#b6edff');
  }
+ // City skyline
+ for(let i=0;i<15;i++){
+  let x=(i*95-distance*.45)%1200;if(x<-90)x+=1200;
+  let h=100+(i*37)%110;
+  rect(x,310-h,65,h,pal[1]);
+  rect(x+8,320-h,6,h-15,pal[2]);
+  for(let y=320-h+15;y<300;y+=19)for(let wx=x+13;wx<x+58;wx+=17)rect(wx,y,7,9,'#ffe78a');
+  rect(x+22,300-h,20,10,pal[3]);
+ }
+ // Street
+ rect(0,390,W,150,'#242b42');
+ rect(0,390,W,8,'#68728a');
+ rect(0,468,W,5,'#ffe36c');
+ for(let i=0;i<15;i++){
+  let x=(i*100-distance)%1100;if(x<-30)x+=1100;
+  rect(x,450,50,5,'#fff0a0');
+ }
+}
+function drawBuildingPaint(){
+ paintMarks.forEach(o=>{
+  ctx.globalAlpha=Math.min(1,o.life);
+  rect(o.x,o.y,rand(8,20),rand(8,20),o.color);
+  ctx.globalAlpha=1;
+ });
+}
+function drawPlayer(){
+ let x=player.x,y=player.y+jumpY;
+ // shadow gets smaller in the air
+ let shadow=clamp(1+jumpY/900,.25,1);
+ ctx.globalAlpha=shadow;
+ rect(player.x-22,player.y+12,45,7,'#0b1025');
+ ctx.globalAlpha=1;
+ // Skateboard
+ rect(x-25,y+11,50,7,'#202a48');
+ rect(x-20,y+18,8,4,'#ffdc70');rect(x+12,y+18,8,4,'#ffdc70');
+ // legs
+ let walk=Math.sin(player.anim)*4;
+ rect(x-12+walk,y-3,9,17,'#20243e');
+ rect(x+4-walk,y-3,9,17,'#20243e');
+ // body
+ rect(x-16,y-35,32,34,'#ff58b8');
+ rect(x-12,y-31,24,23,'#ff9bd9');
+ // head
+ rect(x-13,y-58,26,24,'#d99b78');
+ rect(x-16,y-65,32,12,'#4b2a48');
+ rect(x-15,y-57,5,13,'#4b2a48');
+ rect(x+10,y-57,5,13,'#4b2a48');
+ rect(x-7,y-49,4,4,'#241c37');rect(x+4,y-49,4,4,'#241c37');
+ rect(x-3,y-42,7,2,'#8c365d');
+ // spray can
+ rect(x+17,y-31,9,18,'#61f3e9');
+ rect(x+19,y-35,5,4,'#d6fffb');
+ if(keys.z&&paint>0){
+  for(let i=0;i<5;i++)rect(x+30+Math.random()*25,y-30+Math.random()*25,4,4,palettes[cityColor%4][ri(4)]);
+ }
+ if(player.invincible>0&&frame%8<4)ctx.globalAlpha=.4;
+ ctx.globalAlpha=1;
+}
+function drawRobot(){
+ let x=robot.x,y=robot.y;
+ // robot body
+ rect(x-30,y-25,60,48,'#687a9b');
+ rect(x-22,y-37,44,17,'#8b9bb7');
+ rect(x-20,y-16,40,20,'#9eacc7');
+ rect(x-15,y-10,10,8,'#ff426d');
+ rect(x+6,y-10,10,8,'#ff426d');
+ rect(x-35,y+19,14,9,'#53647f');
+ rect(x+21,y+19,14,9,'#53647f');
+ rect(x-42,y-7,12,24,'#455776');
+ rect(x+30,y-7,12,24,'#455776');
+ rect(x-15,y+24,30,7,'#f04c91');
+ rect(x-8,y-42,16,6,'#ff4e8a');
+ // laser
+ rect(x+25,y+5,60,3,'#ff4e8a');
+ rect(x+75,y+2,10,9,'#ff4e8a');
+}
+function drawHeli(){
+ let x=heli.x,y=heli.y;
+ rect(x-25,y-9,50,18,'#7f9bb4');
+ rect(x+15,y-5,27,7,'#9bc8e3');
+ rect(x-18,y-5,18,10,'#17294b');
+ rect(x-4,y-22,8,15,'#8ca8c7');
+ rect(x-45,y-25,90,4,'#d4e9ff');
+ rect(x-4,y+8,8,22,'#53677d');
+ rect(x-22,y+28,45,3,'#b3d7ee');
+ rect(x+38,y-2,5,5,'#ff6a83');
+}
+function drawObstacles(){
+ obstacles.forEach(o=>{
+  if(o.type==='barrier'){
+   rect(o.x,o.y,o.w,o.h,o.color);
+   rect(o.x+5,o.y+8,o.w-10,7,'#fff1b4');
+   rect(o.x+5,o.y+25,o.w-10,7,'#fff1b4');
+  }else if(o.type==='drone'){
+   rect(o.x,o.y,o.w,o.h,'#6c87b5');
+   rect(o.x+7,o.y+10,o.w-14,10,'#ff548d');
+   rect(o.x-10,o.y+3,10,4,'#d2f8ff');
+   rect(o.x+o.w,o.y+3,10,4,'#d2f8ff');
+  }else if(o.type==='crate'){
+   rect(o.x,o.y,o.w,o.h,o.color);
+   rect(o.x+7,o.y+7,o.w-14,o.h-14,'#e3b0ff');
+  }else if(o.type==='power'){
+   let c=o.power==='boost'?'#ffe078':o.power==='shield'?'#63f6ed':'#ff66d1';
+   rect(o.x,o.y,o.w,o.h,c);
+   rect(o.x+6,o.y+6,o.w-12,o.h-12,'#fff');
+   rect(o.x+10,o.y+10,5,5,c);
+  }else if(o.type==='bossShot'){
+   rect(o.x,o.y,o.w,o.h,'#ff3f9b');
+   rect(o.x+5,o.y+5,o.w-10,o.h-10,'#ffd7f0');
+  }
+ });
+}
+function drawRamps(){
+ ramps.forEach(r=>{
+  ctx.fillStyle='#ffcf69';
+  ctx.beginPath();ctx.moveTo(r.x,r.y+r.h);ctx.lineTo(r.x+r.w,r.y+r.h);ctx.lineTo(r.x+r.w,r.y-20);ctx.closePath();ctx.fill();
+  rect(r.x+12,r.y+8,r.w-20,5,'#fff3ad');
+  rect(r.x+28,r.y+23,r.w-40,5,'#ff6cb8');
+  rect(r.x+10,r.y+r.h-7,r.w-15,5,'#9c6cf5');
+ });
+}
+function drawCoins(){
+ coinItems.forEach(o=>{
+  if(o.got)return;
+  let bob=Math.sin(o.phase)*4;
+  rect(o.x-8,o.y-9+bob,16,18,'#ffcf51');
+  rect(o.x-5,o.y-6+bob,10,12,'#fff0a1');
+  rect(o.x-2,o.y-4+bob,4,8,'#ffb93c');
+ });
+}
+function drawBoss(){
+ if(!boss)return;
+ let x=boss.x,y=boss.y;
+ let flash=boss.flash>0?'#ffffff':'#a34de0';
+ rect(x-45,y-30,90,65,flash);
+ rect(x-35,y-42,70,15,'#c37af5');
+ rect(x-25,y-55,50,15,'#d89bff');
+ rect(x-25,y-8,15,13,'#fff');
+ rect(x+10,y-8,15,13,'#fff');
+ rect(x-20,y-4,6,8,'#20163c');
+ rect(x+15,y-4,6,8,'#20163c');
+ rect(x-12,y+15,25,5,'#4a1d65');
+ rect(x-42,y-65,84,7,'#28223e');
+ rect(x-40,y-63,80*(boss.hp/boss.max),3,'#ff577e');
+ label('BOSS!',x,y-75);
+}
+function label(t,x,y){
+ ctx.font='bold 15px Arial';ctx.textAlign='center';
+ ctx.fillStyle='#10152a';ctx.fillText(t,x+2,y+2);
+ ctx.fillStyle='#fff';ctx.fillText(t,x,y);
+}
+function drawParticles(dt){
+ particles.forEach(p=>{
+  p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
+  rect(p.x,p.y,p.size,p.size,p.color);
+ });
+ particles=particles.filter(p=>p.life>0);
 }
 function draw(){
  drawBackground();
- // platforms
- for(let p of platforms){
-  let x=p.x-camera;if(x+p.w<0||x>W)continue;
-  ctx.fillStyle=p.type==='ground'?'#292b51':'#3d4272';
-  ctx.fillRect(x,p.y,p.w,p.h);
-  ctx.fillStyle='#68f6e8';ctx.fillRect(x,p.y,p.w,7);
-  ctx.fillStyle='#ff5dbe';ctx.fillRect(x,p.y+8,p.w,4);
-  for(let j=0;j<p.w;j+=40){ctx.fillStyle='#737ab0';ctx.fillRect(x+j,p.y+25,3,8);}
+ drawBuildingPaint();
+ drawRamps();
+ drawCoins();
+ drawObstacles();
+ if(boss)drawBoss();
+ drawHeli();
+ drawRobot();
+ drawPlayer();
+ drawParticles(1/60);
+ // City progress bar
+ rect(15,510,220,12,'#1b203c');
+ rect(17,512,216*(Math.min(1000,painted)/1000),8,'#ff66cb');
+ ctx.font='12px Arial';ctx.textAlign='left';ctx.fillStyle='white';
+ ctx.fillText('CITY PAINTED',16,503);
+ // Health
+ for(let i=0;i<3;i++){
+  ctx.fillStyle=i<health?'#ff658c':'#55566e';
+  ctx.fillText('♥',850+i*30,510);
  }
- // Ramp decorations
- for(let i=0;i<8;i++){
-  let x=400+i*420-camera;
-  if(x>-100&&x<W+100){
-   ctx.fillStyle='#ff9d52';ctx.beginPath();ctx.moveTo(x,groundY);ctx.lineTo(x+90,groundY-70);ctx.lineTo(x+120,groundY);ctx.fill();
-   ctx.strokeStyle='#ffe36e';ctx.lineWidth=5;ctx.stroke();
-  }
- }
- // Coins
- for(let item of items)if(!item.taken){
-  let x=item.x-camera;if(x<-20||x>W+20)continue;
-  ctx.fillStyle='#ffe36e';ctx.beginPath();ctx.arc(x,item.y,11,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#fff8bd';ctx.lineWidth=3;ctx.stroke();
-  ctx.fillStyle='#a56a19';ctx.font='bold 13px Arial';ctx.fillText('$',x-4,item.y+5);
- }
- // Robots and drones
- for(let h of hazards)if(h.alive){
-  let x=h.x-camera,y=h.y+Math.sin(performance.now()/380+h.phase)*13;
-  if(x<-50||x>W+50)continue;
-  if(h.type==='drone'){
-   ctx.fillStyle='#ff647f';ctx.beginPath();ctx.ellipse(x,y,24,13,0,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle='#ffe36e';ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
-   ctx.strokeStyle='#b9e9ff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x-32,y-10);ctx.lineTo(x+32,y-10);ctx.stroke();
-  }else{
-   ctx.fillStyle='#7b8ba8';ctx.fillRect(x-17,y-26,34,40);
-   ctx.fillStyle='#ff637b';ctx.fillRect(x-10,y-16,20,7);
-   ctx.fillStyle='#d4eaff';ctx.fillRect(x-12,y+14,8,15);ctx.fillRect(x+5,y+14,8,15);
-  }
- }
- // Boss robot
- if(boss){
-  let x=boss.x-camera;
-  if(x>-180&&x<W+180){
-   ctx.fillStyle='#626f9a';ctx.fillRect(x,boss.y,boss.w,boss.h);
-   ctx.fillStyle='#31395f';ctx.fillRect(x+15,boss.y+20,80,50);
-   ctx.fillStyle='#ff526f';ctx.fillRect(x+25,boss.y+35,17,12);ctx.fillRect(x+68,boss.y+35,17,12);
-   ctx.fillStyle='#aab6d8';ctx.fillRect(x-20,boss.y+35,20,85);ctx.fillRect(x+boss.w,boss.y+35,20,85);
-   for(let i=0;i<3;i++){
-    ctx.fillStyle=i<boss.tags?'#75f4ee':'#ff5dbe';
-    ctx.fillRect(x+15+i*29,boss.y+85,22,22);
-    ctx.strokeStyle='white';ctx.lineWidth=2;ctx.strokeRect(x+15+i*29,boss.y+85,22,22);
-   }
-   ctx.fillStyle='white';ctx.font='bold 15px Fredoka';ctx.fillText('ROBOT BOSS',x-5,boss.y-12);
-   if(boss.active&&boss.tags<3){
-    ctx.fillStyle='#ffe36e';ctx.font='bold 15px Outfit';
-    ctx.fillText('PRESS X TO SPRAY THE TARGETS!',x-80,boss.y-35);
-    let wx=x-220+((boss.wave*170)%360);
-    ctx.fillStyle='#ff5b83';ctx.fillRect(wx- camera*0,groundY-45,35,9);
-   }
-  }
- }
- // Player skateboarder
- let px=player.x-camera,py=player.y;
- ctx.save();ctx.translate(px+player.w/2,py+player.h/2);
- if(player.trick>0)ctx.rotate(Math.sin(performance.now()/55)*.5);
- // skateboard
- ctx.fillStyle='#ff64c5';ctx.fillRect(-25,24,50,7);
- ctx.fillStyle='#252b49';ctx.beginPath();ctx.arc(-15,34,5,0,Math.PI*2);ctx.arc(15,34,5,0,Math.PI*2);ctx.fill();
- // legs
- ctx.strokeStyle='#f0c19d';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-5,10);ctx.lineTo(-13,25);ctx.moveTo(7,10);ctx.lineTo(14,24);ctx.stroke();
- // hoodie
- ctx.fillStyle='#68f5e7';ctx.fillRect(-14,-13,28,27);
- // arms
- ctx.strokeStyle='#f0c19d';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-12,-8);ctx.lineTo(-23,8);ctx.moveTo(12,-8);ctx.lineTo(23,5);ctx.stroke();
- // head
- ctx.fillStyle='#f0c19d';ctx.beginPath();ctx.arc(0,-25,12,0,Math.PI*2);ctx.fill();
- // hair and cap
- ctx.fillStyle='#262846';ctx.beginPath();ctx.arc(0,-30,12,Math.PI,Math.PI*2);ctx.fill();
- ctx.fillStyle='#ff5fc5';ctx.fillRect(-13,-35,25,5);
- ctx.restore();
- // Particles
- particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;ctx.fillRect(p.x-camera,p.y,7,7);});
- ctx.globalAlpha=1;
- // Progress bar
- ctx.fillStyle='#151a37';ctx.fillRect(20,18,230,13);
- ctx.fillStyle='#75f4ee';ctx.fillRect(20,18,230*Math.min(1,player.x/finishX),13);
- ctx.fillStyle='white';ctx.font='bold 13px Outfit';ctx.fillText('CITY ESCAPE PROGRESS',20,13);
 }
-function loop(now){
+function loop(t){
  if(!running||paused)return;
- let dt=Math.min(.04,(now-last)/1000||0);last=now;
+ let dt=Math.min(.035,(t-last)/1000||.016);last=t;
+ if(noticeTimer>0){noticeTimer-=dt;if(noticeTimer<=0)document.getElementById('notice').style.opacity=0}
  update(dt);draw();
- if(running)requestAnimationFrame(loop);
+ raf=requestAnimationFrame(loop);
 }
-document.addEventListener('keydown',e=>{
+function pauseGame(){
+ if(!running||paused)return;
+ paused=true;cancelAnimationFrame(raf);
+ showPanel('<h1>⏸ PAUSED</h1><p>Catch your breath, spray painter!</p><button onclick="resumeGame()">RESUME</button><button onclick="showTitle()">HOME</button>');
+}
+function resumeGame(){
+ paused=false;hidePanel();last=performance.now();raf=requestAnimationFrame(loop);
+}
+addEventListener('keydown',e=>{
  let k=e.key.toLowerCase();
- if(['a','d','w','s',' ','arrowleft','arrowright','arrowup','arrowdown'].includes(k))e.preventDefault();
- if(['a','d','w','s'].includes(k)||k===' ')keys[k]=true;
- if(k==='x'&&!keys.x){keys.x=true;}
- if(k==='p')pauseGame();
- if(k==='r'&&running)restartLevel();
+ if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k===' '&&!e.repeat)jump();
+ if(k==='f'&&!e.repeat)doTrick();
+ if(k==='x'&&!e.repeat)useAbility();
+ if(k==='escape'&&!e.repeat)pauseGame();
 });
-document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={};});
-buildLevel();draw();hud();
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('blur',()=>keys={});
+addEventListener('resize',()=>{});
+showTitle();
 </script>
 </body>
 </html>
