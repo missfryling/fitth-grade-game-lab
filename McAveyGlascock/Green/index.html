@@ -3,329 +3,315 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Speed City - Skateboard Escape</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed City: Graffiti Run</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#10152b;color:white;font-family:Fredoka,sans-serif;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
-#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap;pointer-events:none}
-.pill{background:#171d38eF;border:2px solid #55e6ed;border-radius:12px;padding:8px 12px;font-weight:700;font-size:15px;box-shadow:0 3px 0 #080c1b}
-#buttons{position:fixed;right:12px;top:65px;display:flex;gap:7px}
-button{font-family:Fredoka,sans-serif;font-size:16px;font-weight:700;padding:10px 16px;border:0;border-radius:12px;background:#ffcf4a;color:#28203c;cursor:pointer}
-button:hover{filter:brightness(1.12)}
-#panel{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:#080d20d9}
-.card{max-width:510px;width:100%;padding:26px;background:#1c2850;border:3px solid #55e6ed;border-radius:22px;text-align:center;box-shadow:0 12px 45px #0009}
-h1{font-family:'Press Start 2P',monospace;color:#ffdf65;font-size:clamp(22px,4vw,36px);line-height:1.5;margin:0 0 12px}
-.card p{font-size:18px;line-height:1.5;color:#e1f5ff}
-.card .small{font-size:14px;color:#b7d8e8}
-.card button{font-size:20px;padding:13px 28px;margin-top:8px}
+body{margin:0;background:#090d20;color:white;font-family:Fredoka,sans-serif;overflow:hidden}
+#wrap{height:100vh;width:100vw;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#24335c,#090d20)}
+#game{position:relative;width:min(100vw,960px);aspect-ratio:16/9;max-height:100vh;border:3px solid #45e8ee;border-radius:14px;overflow:hidden;box-shadow:0 0 35px #00d9ff55}
+canvas{width:100%;height:100%;display:block;background:#101a38}
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:none}
+.pill{background:#10182de8;border:1px solid #49dce9;border-radius:20px;padding:6px 12px;font-size:14px;text-shadow:1px 2px #000}
+#topButtons{position:absolute;right:12px;top:55px;display:flex;gap:8px}
+button{font-family:inherit;font-weight:700;border:0;border-radius:11px;padding:9px 14px;background:#126f91;color:white;cursor:pointer;box-shadow:0 3px 0 #08384d}
+button:hover{filter:brightness(1.2)}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #08384d}
+#panel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#080d20ed;padding:18px}
+#panel.hidden{display:none}
+#panelCard{width:min(90%,560px);max-height:92%;overflow:auto;background:linear-gradient(145deg,#1b3151,#11172d);border:2px solid #42dce9;border-radius:22px;padding:22px;text-align:center;box-shadow:0 0 30px #00d9ff33}
+h1{font-size:clamp(27px,5vw,43px);margin:5px 0 10px;color:#75f5f3;text-shadow:3px 3px #14506d}
+p{line-height:1.5;color:#d8e9ff}
+.big{font-size:19px;padding:12px 23px;background:#e34a9a;box-shadow:0 3px 0 #82214e}
+.buttons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.note{font-size:13px;color:#a9c8e8}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
+<div id="wrap">
+<div id="game">
+<canvas id="c" width="960" height="540"></canvas>
 <div id="hud">
- <div class="pill">🌆 <span id="level">Level 1</span></div>
- <div class="pill">🪙 <span id="coins">0</span></div>
- <div class="pill">❤️ <span id="hearts">3</span></div>
- <div class="pill">⭐ <span id="score">0</span></div>
+ <div class="pill" id="score">⭐ Score: 0</div>
+ <div class="pill" id="coins">🪙 Coins: 0</div>
+ <div class="pill" id="level">🏙️ District 1</div>
+ <div class="pill" id="lives">❤️❤️❤️</div>
+ <div class="pill" id="paint">🎨 Paint: 0</div>
 </div>
-<div id="buttons"><button id="pause">Ⅱ Pause</button></div>
+<div id="topButtons">
+ <button id="pause">Ⅱ Pause</button>
+</div>
 <div id="panel">
- <div class="card">
-  <h1 id="heading">SPEED CITY</h1>
-  <p id="message">Grab your skateboard and race through the city! Collect coins, perform tricks, find secret doors, and escape the robots chasing you!</p>
-  <p class="small">MOVE: A/D or ←/→<br>JUMP: SPACE or W or ↑<br>TRICK: X while in the air<br>BOOST: SHIFT<br>SECRET DOOR: E when nearby</p>
-  <button id="mainButton">START SKATING!</button>
+ <div id="panelCard">
+  <h1>🛹 SPEED CITY</h1>
+  <p><b>GRAFFITI RUN</b></p>
+  <p>Race through a futuristic city, spray-paint graffiti targets, collect coins, and escape the police!</p>
+  <p><b>CONTROLS</b><br>
+  ← → or A / D: Switch lanes<br>
+  SPACE or ↑: Jump over obstacles<br>
+  X: Spray paint targets<br>
+  SHIFT: Speed boost</p>
+  <div class="buttons">
+   <button class="big" id="start">START SKATING!</button>
+  </div>
+  <p class="note">Dodge police robots, flying drones, and helicopters. Collect power-ups and make your mark on the city!</p>
  </div>
+</div>
+</div>
 </div>
 <script>
 (()=>{
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+'use strict';
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=960,H=540;
 const $=id=>document.getElementById(id);
-let W=innerWidth,H=innerHeight,dpr=1;
-function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
-addEventListener('resize',resize);resize();
-
-const keys={};
-addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();keys[k]=true;
- if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
- if(k==='p')togglePause();
- if(k==='e')tryDoor();
-});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-addEventListener('blur',()=>Object.keys(keys).forEach(k=>keys[k]=false));
-
-const LEVELS=[
- {name:'NEON DOWNTOWN',sky:'#20265a',ground:'#303a62',accent:'#46e6e6'},
- {name:'ROBOT ROW',sky:'#342052',ground:'#49315d',accent:'#ff70c5'},
- {name:'SKYLINE EXPRESS',sky:'#173b61',ground:'#315b79',accent:'#ffe36b'},
- {name:'CYBERPARK',sky:'#164d4b',ground:'#28705e',accent:'#8bff91'},
- {name:'THE FINAL RUN',sky:'#49234d',ground:'#65365c',accent:'#ff9c4a'}
-];
-const WORLD=2600,GROUND=500;
-let level=0,player,robot,platforms,coins,powerups,doors,ramps,obstacles;
-let camera=0,score=0,totalCoins=0,lives=3,gameRunning=false,paused=false;
-let frame=0,toast='',toastTime=0,levelCoins=0,doorMessage='',doorTimer=0;
-
-function makeLevel(){
- platforms=[];coins=[];powerups=[];doors=[];ramps=[];obstacles=[];
- platforms.push({x:0,y:GROUND,w:WORLD,h:100});
- // Floating rooftops and platforms
- for(let i=0;i<13;i++){
-  let x=260+i*175;
-  let y=GROUND-(i%3===0?100:i%3===1?65:125);
-  platforms.push({x,y,w:105+(i%2)*35,h:18});
- }
- // Ramps, rails and hazards
- for(let i=0;i<10;i++){
-  let x=360+i*220;
-  ramps.push({x,y:GROUND-8,w:90,h:48});
-  if(i%2===0)obstacles.push({x:x+125,y:GROUND-30,w:32,h:30,type:'cone'});
-  else obstacles.push({x:x+130,y:GROUND-48,w:36,h:48,type:'barrier'});
- }
- // Coin trails and platform coins
- for(let i=0;i<50;i++){
-  let x=180+i*46;
-  let y=GROUND-65-(i%5===0?95:i%3===0?45:0);
-  coins.push({x,y,got:false,phase:i*.5});
- }
- // Power-ups
- for(let i=0;i<5;i++)powerups.push({x:500+i*390,y:GROUND-100-(i%2)*65,got:false,type:['boost','shield','heart','magnet','mega'][i]});
- // Secret doors, hidden in city scenery
- doors.push({x:830,y:GROUND-55,open:false});
- doors.push({x:1660,y:GROUND-55,open:false});
- // Finish gate
-}
-function startLevel(){
- makeLevel();
- player={x:95,y:GROUND-60,vx:0,vy:0,w:36,h:48,onGround:false,angle:0,trick:0,boost:0,shield:0,magnet:0,inv:100};
- robot={x:-145,y:GROUND-58};
- camera=0;levelCoins=0;frame=0;
- updateHUD();
-}
-function updateHUD(){
- $('level').textContent='Level '+(level+1);
- $('coins').textContent=totalCoins;
- $('hearts').textContent=lives;
- $('score').textContent=score;
-}
-function showPanel(title,msg,button){
- gameRunning=false;paused=false;
- $('heading').textContent=title;$('message').textContent=msg;
- $('mainButton').textContent=button;$('panel').style.display='flex';
- $('pause').textContent='Ⅱ Pause';
+let running=false,paused=false,raf=0,last=0;
+let score=0,coins=0,paint=0,lives=3,district=1;
+let speed=.34,distance=0,spawnTimer=0,room=0;
+let lane=1,jump=0,boost=0,shield=0,paintFlash=0,hitFlash=0;
+let objects=[],particles=[],keys={};
+let roomHue=190,roomName='NEON DISTRICT';
+const laneX=[-1,0,1];
+const names=['NEON DISTRICT','ROBOT ROW','CYBER PLAZA','LASER AVENUE','SKYLINE SECTOR','POLICE ZONE','GRAFFITI GARDENS'];
+let rngSeed=12345;
+function rand(){rngSeed=(rngSeed*1664525+1013904223)>>>0;return rngSeed/4294967296;}
+function randInt(n){return Math.floor(rand()*n);}
+function hud(){
+ $('score').textContent='⭐ Score: '+score;
+ $('coins').textContent='🪙 Coins: '+coins;
+ $('level').textContent='🏙️ District '+district;
+ $('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
+ $('paint').textContent='🎨 Paint: '+paint;
 }
 function startGame(){
- level=0;score=0;totalCoins=0;lives=3;
- startLevel();gameRunning=true;paused=false;
- $('panel').style.display='none';$('pause').textContent='Ⅱ Pause';
- cancelAnimationFrame(raf);last=performance.now();loop();
+ cancelAnimationFrame(raf);
+ score=0;coins=0;paint=0;lives=3;district=1;
+ speed=.34;distance=0;spawnTimer=.3;room=0;lane=1;jump=0;boost=0;shield=0;
+ objects=[];particles=[];rngSeed=(Date.now()>>>0);
+ newRoom();running=true;paused=false;hidePanel();hud();
+ last=performance.now();raf=requestAnimationFrame(loop);
 }
-$('mainButton').onclick=()=>{
- if(paused){paused=false;$('panel').style.display='none';$('pause').textContent='Ⅱ Pause';last=performance.now();loop()}
- else startGame();
-};
-$('pause').onclick=()=>togglePause();
-let raf=0,last=0;
-function togglePause(){
- if(!gameRunning&&!paused)return;
- if(!paused){paused=true;showPanel('GAME PAUSED','Your board is ready when you are! Take a break, then jump back into the chase.','RESUME')}
- else{paused=false;$('panel').style.display='none';$('pause').textContent='Ⅱ Pause';last=performance.now();loop()}
+function hidePanel(){$('panel').classList.add('hidden');}
+function panel(title,body,buttons){
+ running=false;paused=false;
+ $('panelCard').innerHTML='<h1>'+title+'</h1>'+body+'<div class="buttons">'+buttons+'</div>';
+ $('panel').classList.remove('hidden');
 }
-function say(s){toast=s;toastTime=100}
-function tryDoor(){
- if(!gameRunning||paused)return;
- const d=doors.find(d=>Math.abs(d.x-player.x)<65&&!d.open);
- if(d){d.open=true;player.x=d.x+90;score+=100;say('SECRET TUNNEL! +100');updateHUD()}
+function newRoom(){
+ room++;roomHue=175+randInt(125);
+ roomName=names[(district-1)%names.length];
 }
-function hit(){
- if(player.inv>0)return;
- if(player.shield>0){player.shield=0;say('SHIELD SAVED YOU!');return}
- lives--;player.inv=100;player.vx=-4;player.vy=-7;
- if(lives<=0){updateHUD();showPanel('ROBOT CAUGHT YOU!','The robots caught up! Give it another try and see if you can make it to the end of Speed City.','TRY AGAIN');return}
- say('WATCH OUT!');updateHUD();
+function spawn(type,l,z=1){
+ objects.push({type,l,z,hp:1,done:false,phase:rand()*6.28});
 }
-function nextLevel(){
- if(level>=LEVELS.length-1){
-  showPanel('CITY CHAMPION!','You escaped every robot and conquered all five city levels! You are the ultimate Speed City skater!','PLAY AGAIN');return;
+function spawnWave(){
+ const r=rand();
+ if(r<.24){
+  spawn('tag',randInt(3));
+ }else if(r<.43){
+  spawn('coin',randInt(3));spawn('coin',randInt(3),1.13);spawn('coin',randInt(3),1.26);
+ }else if(r<.64){
+  const l=randInt(3);spawn(['robot','police','drone'][randInt(3)],l);
+  if(rand()<.45)spawn('coin',(l+1)%3,1.2);
+ }else if(r<.79){
+  spawn('power',randInt(3));
+ }else if(r<.91){
+  const safe=randInt(3);
+  for(let l=0;l<3;l++)if(l!==safe)spawn(rand()<.5?'robot':'police',l);
+ }else{
+  spawn('heli',randInt(3));
  }
- level++;say('LEVEL '+(level+1)+'!');startLevel();
 }
-function overlap(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function project(l,z){
+ const depth=1-z;
+ const y=105+depth*360;
+ const roadHalf=48+depth*430;
+ const center=480;
+ const x=center+laneX[l]*roadHalf*.59;
+ const scale=.22+depth*1.05;
+ return {x,y,scale,roadHalf};
+}
+function rectHit(a,b){return a.l===b.l&&a.z<.105&&a.z>-.04;}
+function loseLife(){
+ if(hitFlash>0||shield>0)return;
+ lives--;hitFlash=1.1;hud();
+ if(lives<=0)gameOver();
+}
+function gameOver(){
+ panel('🚨 BUSTED!',`<p>The police caught up with you!</p><p>Final score: <b>${score}</b><br>Coins collected: 🪙 ${coins}<br>Graffiti tags: 🎨 ${paint}</p>`,
+ '<button class="big" id="again">TRY AGAIN</button><button id="home">MAIN MENU</button>');
+ $('again').onclick=startGame;$('home').onclick=mainMenu;
+}
+function mainMenu(){
+ panel('🛹 SPEED CITY',`<p>Race through randomly generated futuristic city districts. Paint the walls, collect coins, and escape the police!</p><p>← → Move &nbsp; SPACE Jump &nbsp; X Spray &nbsp; SHIFT Boost</p>`,
+ '<button class="big" id="start2">START SKATING!</button>');
+ $('start2').onclick=startGame;
+}
+function pauseGame(){
+ if(!running&&!paused)return;
+ if(paused){
+  paused=false;running=true;hidePanel();last=performance.now();raf=requestAnimationFrame(loop);return;
+ }
+ paused=true;running=false;
+ panel('⏸️ SKATE BREAK',`<p>District ${district} • Score ${score} • Coins ${coins}</p><p>Your chase is paused. Catch your breath!</p>`,
+ '<button class="big" id="resume">RESUME</button><button id="restart">RESTART</button><button id="home">MAIN MENU</button>');
+ paused=true;
+ $('resume').onclick=()=>{paused=false;running=true;hidePanel();last=performance.now();raf=requestAnimationFrame(loop);};
+ $('restart').onclick=startGame;$('home').onclick=mainMenu;
+}
+function spray(){
+ if(!running)return;
+ let target=objects.find(o=>o.type==='tag'&&!o.done&&o.l===lane&&o.z<.3&&o.z>-.08);
+ if(target){
+  target.done=true;paint++;score+=100;paintFlash=.5;
+  for(let i=0;i<15;i++)particles.push({x:project(target.l,target.z).x,y:project(target.l,target.z).y,vx:(rand()-.5)*180,vy:(rand()-.5)*180,life:.5,color:`hsl(${randInt(360)},100%,65%)`});
+  hud();
+ }
+}
 function update(dt){
- frame++;
- const p=player;
- let left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
- let jump=keys[' ']||keys.w||keys.arrowup;
- let target=right?4.5:left?-3.2:0;
- if(p.boost>0)target*=1.35;
- p.vx+=(target-p.vx)*.16;
- p.x+=p.vx;
- p.x=Math.max(0,Math.min(WORLD-p.w,p.x));
- if(jump&&p.onGround){p.vy=-12.2;p.onGround=false;p.trick=0}
- p.vy+=.58;p.vy=Math.min(p.vy,14);
- let oldBottom=p.y+p.h;
- p.y+=p.vy;p.onGround=false;
- // Platform collision: land only when falling onto a platform.
- if(p.vy>=0){
-  for(const plat of platforms){
-   if(p.x+p.w>plat.x&&p.x<plat.x+plat.w&&oldBottom<=plat.y+5&&p.y+p.h>=plat.y){
-    p.y=plat.y-p.h;p.vy=0;p.onGround=true;
-   }
+ const t=Math.min(dt/1000,.04);
+ speed=Math.min(.64,speed+t*.002);
+ distance+=speed*t*60;
+ spawnTimer-=t;
+ if(spawnTimer<=0){
+  spawnWave();spawnTimer=Math.max(.48,1.12-speed*.7);
+ }
+ if(distance>room*1700){newRoom();district=Math.floor(room/2)+1;}
+ if(keys.ArrowLeft||keys.a||keys.A){lane=Math.max(0,lane-1);keys.ArrowLeft=keys.a=keys.A=false;}
+ if(keys.ArrowRight||keys.d||keys.D){lane=Math.min(2,lane+1);keys.ArrowRight=keys.d=keys.D=false;}
+ if(keys[' ']||keys.ArrowUp||keys.w){if(jump<=0)jump=.72;keys[' ']=keys.ArrowUp=keys.w=false;}
+ if(keys.Shift||keys.shift){boost=1.8;keys.Shift=keys.shift=false;}
+ if(jump>0)jump-=t;
+ if(boost>0)boost-=t;
+ if(shield>0)shield-=t;
+ if(paintFlash>0)paintFlash-=t;
+ if(hitFlash>0)hitFlash-=t;
+ const pace=speed*(boost>0?1.55:1);
+ objects.forEach(o=>{
+  o.z-=pace*t*.82;
+  if(o.type==='coin'||o.type==='power'||o.type==='tag')return;
+  if(rectHit(o,{l:lane})&&jump<.18&&o.z<.09&&!o.done){
+   o.done=true;loseLife();
   }
- }
- if(p.y>H+300){hit();p.y=GROUND-p.h;p.vy=0}
- // Trick points while airborne
- if(!p.onGround&&keys.x&&p.trick===0){p.trick=1;p.angle+=Math.PI*2;score+=50;say('AWESOME TRICK! +50');updateHUD()}
- if(p.onGround){p.angle=0;p.trick=0}
- // Ramp boost
- for(const r of ramps){
-  if(p.x+p.w>r.x&&p.x<r.x+r.w&&p.y+p.h>r.y-10&&p.y+p.h<r.y+20&&p.vx>0){
-   p.vy=-10.5;p.vx=Math.max(p.vx,5.2);p.onGround=false;say('RAMP LAUNCH!');
-  }
- }
- // Hazards
- for(const o of obstacles)if(overlap(p,o))hit();
- // Collect coins
- for(const c of coins){
-  if(c.got)continue;
-  let dist=Math.hypot(p.x+p.w/2-c.x,p.y+p.h/2-c.y);
-  if(p.magnet>0&&dist<150||dist<28){
-   c.got=true;totalCoins++;levelCoins++;score+=10;updateHUD();
-  }
- }
- // Powerups
- for(const q of powerups)if(!q.got&&Math.hypot(p.x+18-q.x,p.y+20-q.y)<35){
-  q.got=true;
-  if(q.type==='boost')p.boost=360;
-  if(q.type==='shield')p.shield=600;
-  if(q.type==='heart')lives=Math.min(5,lives+1);
-  if(q.type==='magnet')p.magnet=500;
-  if(q.type==='mega'){score+=200;totalCoins+=5}
-  say(q.type.toUpperCase()+' POWER-UP!');updateHUD();
- }
- if(p.boost>0)p.boost--;if(p.shield>0)p.shield--;if(p.magnet>0)p.magnet--;if(p.inv>0)p.inv--;
- // Robot relentlessly follows behind the skater.
- let chaseSpeed=2.0+level*.22;
- robot.x+=Math.max(.7,(p.x-robot.x-105)*.008)+chaseSpeed*.45;
- robot.y=GROUND-57+Math.sin(frame*.07)*5;
- if(robot.x>p.x-35)hit();
- // Camera follows the player
- camera=Math.max(0,Math.min(WORLD-W,p.x-W*.35));
- if(p.x>WORLD-120)nextLevel();
- if(toastTime>0)toastTime--;
+ });
+ objects.forEach(o=>{
+  if(o.done||o.z<0||o.z>.12||o.l!==lane)return;
+  if(o.type==='coin'){o.done=true;coins++;score+=25;hud();}
+  if(o.type==='power'){o.done=true;shield=5;score+=50;hud();}
+ });
+ objects=objects.filter(o=>o.z>-.12&&!o.done);
+ particles.forEach(p=>{p.x+=p.vx*t;p.y+=p.vy*t;p.life-=t;});
+ particles=particles.filter(p=>p.life>0);
+ score+=Math.floor(pace*3);
+ hud();
 }
-function pixelRect(x,y,w,h,color){ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
-function drawBackground(){
- const theme=LEVELS[level];
- ctx.fillStyle=theme.sky;ctx.fillRect(0,0,W,H);
- // stars and skyline
- for(let i=0;i<70;i++){
-  let x=((i*137-camera*.12)%(W+30)+W+30)%(W+30),y=(i*67)%Math.max(150,H*.55);
-  pixelRect(x,y,3,3,'#d7f4ff');
+function drawCity(){
+ const sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,'#10152e');sky.addColorStop(.6,'#28345b');sky.addColorStop(1,'#11182d');
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ // Neon skyline
+ for(let i=0;i<14;i++){
+  const x=i*78-((distance*.11)%78);
+  const bh=90+(i*47%130);
+  ctx.fillStyle=i%2?'#192544':'#202747';
+  ctx.fillRect(x,240-bh,65,bh);
+  ctx.fillStyle=`hsl(${roomHue},90%,65%)`;
+  for(let yy=255-bh;yy<235;yy+=22)for(let xx=x+9;xx<x+60;xx+=18)if((xx+yy+i)%3!==0)ctx.fillRect(xx,yy,7,10);
+  ctx.fillStyle='#a2faff';ctx.fillRect(x+25,240-bh-13,14,13);
  }
- for(let i=0;i<16;i++){
-  let x=((i*190-camera*.25)%(W+210)+W+210)%(W+210)-80;
-  let h=90+(i*47%180),y=GROUND-h;
-  pixelRect(x,y,100,h,'#182444');
-  for(let wx=x+13;wx<x+90;wx+=22)for(let wy=y+15;wy<GROUND-12;wy+=25){
-   if((wx+wy+i)%3!==0)pixelRect(wx,wy,8,10,LEVELS[level].accent);
-  }
+ // Distant horizon glow
+ ctx.fillStyle=`hsla(${roomHue},90%,60%,.18)`;ctx.fillRect(0,235,W,4);
+ // Road perspective
+ ctx.fillStyle='#151a30';
+ ctx.beginPath();ctx.moveTo(432,190);ctx.lineTo(528,190);ctx.lineTo(960,540);ctx.lineTo(0,540);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#36e4e8';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(432,190);ctx.lineTo(0,540);ctx.moveTo(528,190);ctx.lineTo(960,540);ctx.stroke();
+ // Lane separators
+ for(let l=1;l<=2;l++){
+  const top=480+(l-1)*0;
+  ctx.strokeStyle='#d7e8ff88';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(480+(l-1)*24,190);ctx.lineTo(l===1?320:640,540);ctx.stroke();
  }
- // faraway road
- pixelRect(0,GROUND,W,H-GROUND,theme.ground);
- pixelRect(0,GROUND,W,8,theme.accent);
- ctx.fillStyle='#c5d7e5';ctx.globalAlpha=.55;
- for(let x=-(camera%120);x<W;x+=120)ctx.fillRect(x,GROUND+62,55,5);
- ctx.globalAlpha=1;
+ // Road stripes moving toward player
+ for(let i=0;i<10;i++){
+  const z=((i/10+distance*.0015)%1);
+  const y=190+z*350,half=48+z*430;
+  ctx.fillStyle='#c4e6eeaa';
+  ctx.fillRect(480-half/3,y,3+z*3,9+z*18);
+  ctx.fillRect(480+half/3,y,3+z*3,9+z*18);
+ }
+ // Sidewalks
+ ctx.fillStyle='#28354c';
+ ctx.beginPath();ctx.moveTo(0,540);ctx.lineTo(432,190);ctx.lineTo(412,190);ctx.lineTo(0,480);ctx.fill();
+ ctx.beginPath();ctx.moveTo(960,540);ctx.lineTo(528,190);ctx.lineTo(548,190);ctx.lineTo(960,480);ctx.fill();
 }
-function drawRamp(r){
- ctx.fillStyle='#f4a64e';ctx.beginPath();ctx.moveTo(r.x-camera,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND-r.h);ctx.closePath();ctx.fill();
- ctx.strokeStyle='#ffe18a';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(r.x-camera,GROUND);ctx.lineTo(r.x-camera+r.w,GROUND-r.h);ctx.stroke();
+function drawObject(o){
+ const p=project(o.l,o.z),x=p.x,y=p.y,s=p.scale;
+ ctx.save();ctx.translate(x,y);
+ if(o.type==='coin'){
+  ctx.font=`${Math.round(23*s)}px sans-serif`;ctx.textAlign='center';ctx.fillText('🪙',0,0);
+ }else if(o.type==='power'){
+  ctx.font=`${Math.round(27*s)}px sans-serif`;ctx.textAlign='center';ctx.fillText('⚡',0,0);
+ }else if(o.type==='tag'){
+  ctx.fillStyle='#17233b';ctx.fillRect(-24*s,-38*s,48*s,35*s);
+  ctx.strokeStyle='#52f7e9';ctx.lineWidth=2*s;ctx.strokeRect(-24*s,-38*s,48*s,35*s);
+  ctx.fillStyle=`hsl(${roomHue},100%,70%)`;ctx.font=`bold ${Math.max(9,16*s)}px Fredoka`;ctx.textAlign='center';ctx.fillText('SPRAY!',0,-15*s);
+ }else{
+  const emoji={robot:'🤖',police:'👮',drone:'🚁',heli:'🚁'}[o.type];
+  ctx.font=`${Math.round((o.type==='heli'?42:36)*s)}px sans-serif`;ctx.textAlign='center';
+  ctx.fillText(emoji,0,0);
+  if(o.type==='heli'){ctx.strokeStyle='#f34f83';ctx.lineWidth=2*s;ctx.beginPath();ctx.moveTo(-24*s,-25*s);ctx.lineTo(24*s,-25*s);ctx.stroke();}
+ }
+ ctx.restore();
 }
 function drawSkater(){
- const p=player,x=p.x-camera,y=p.y;
- ctx.save();ctx.translate(x+18,y+24);ctx.rotate(p.angle);
- if(p.inv>0&&Math.floor(p.inv/7)%2===0)ctx.globalAlpha=.45;
- // skateboard
- pixelRect(-24,19,48,6,'#ffca48');pixelRect(-18,25,7,4,'#1b233e');pixelRect(12,25,7,4,'#1b233e');
- // legs
- pixelRect(-9,9,7,12,'#253b70');pixelRect(5,8,7,13,'#253b70');
- // hoodie body
- pixelRect(-12,-9,25,20,'#ff5d83');pixelRect(-8,-14,17,7,'#ff91a8');
- // head and hair
- pixelRect(-8,-27,17,15,'#efbd8e');pixelRect(-10,-31,20,7,'#39274a');
- pixelRect(-8,-16,16,4,'#fff');
- pixelRect(3,-22,3,3,'#20203a');
- // helmet
- pixelRect(-11,-33,23,5,'#46e6e6');pixelRect(-7,-37,15,5,'#46e6e6');
- if(p.shield>0){ctx.strokeStyle='#79f7ff';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,37,0,Math.PI*2);ctx.stroke()}
- ctx.restore();
-}
-function drawRobot(){
- const x=robot.x-camera,y=robot.y;
- ctx.save();ctx.translate(x,y);
- pixelRect(-22,-37,44,37,'#8993a8');pixelRect(-16,-48,32,14,'#aeb8ca');
- pixelRect(-13,-42,7,6,'#ff3e6c');pixelRect(6,-42,7,6,'#ff3e6c');
- pixelRect(-27,-29,7,17,'#68748c');pixelRect(20,-29,7,17,'#68748c');
- pixelRect(-14,0,8,12,'#56627b');pixelRect(7,0,8,12,'#56627b');
- pixelRect(-7,-25,14,7,'#ff5e74');
- ctx.restore();
+ const x=480+laneX[lane]*115;
+ const y=455-(jump>0?Math.sin((.72-jump)/.72*Math.PI)*125:0);
+ // Shadow
+ ctx.fillStyle='#0008';ctx.beginPath();ctx.ellipse(x,y+8,35,8,0,0,Math.PI*2);ctx.fill();
+ // Board
+ ctx.fillStyle='#ff4ba4';ctx.fillRect(x-31,y+2,62,8);
+ ctx.fillStyle='#eafaff';ctx.beginPath();ctx.arc(x-20,y+12,5,0,Math.PI*2);ctx.arc(x+20,y+12,5,0,Math.PI*2);ctx.fill();
+ // Skater body
+ ctx.strokeStyle='#f4c59b';ctx.lineWidth=7;ctx.lineCap='round';
+ ctx.beginPath();ctx.moveTo(x,y-35);ctx.lineTo(x-10,y-5);ctx.lineTo(x-23,y+1);ctx.moveTo(x-10,y-5);ctx.lineTo(x+16,y+1);ctx.stroke();
+ ctx.strokeStyle='#45e7ee';ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(x,y-37);ctx.lineTo(x-3,y-14);ctx.stroke();
+ ctx.fillStyle='#f2c5a1';ctx.beginPath();ctx.arc(x,y-48,12,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#111b36';ctx.beginPath();ctx.arc(x,y-53,13,Math.PI,Math.PI*2);ctx.fill();
+ // Arms
+ ctx.strokeStyle='#f2c5a1';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(x-3,y-32);ctx.lineTo(x-25,y-24);ctx.moveTo(x-3,y-32);ctx.lineTo(x+21,y-28);ctx.stroke();
+ if(shield>0){ctx.strokeStyle='#6ffaff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(x,y-22,48,0,Math.PI*2);ctx.stroke();}
+ if(paintFlash>0){ctx.fillStyle='#ff69c8';ctx.font='bold 20px Fredoka';ctx.textAlign='center';ctx.fillText('TAGGED!',x,y-95);}
 }
 function draw(){
- drawBackground();
- ctx.save();ctx.translate(-camera,0);
- // platforms
- for(const p of platforms){
-  if(p.y>=GROUND)continue;
-  pixelRect(p.x,p.y,p.w,p.h,'#596e9b');
-  pixelRect(p.x,p.y,p.w,5,'#b4d8f2');
-  pixelRect(p.x+8,p.y+7,p.w-16,4,'#34456d');
- }
- for(const r of ramps)drawRamp(r);
- for(const o of obstacles){
-  pixelRect(o.x,o.y,o.w,o.h,o.type==='cone'?'#ff9c47':'#ec5b78');
-  pixelRect(o.x+5,o.y+7,o.w-10,5,'#ffe08a');
- }
- for(const d of doors){
-  pixelRect(d.x,d.y,44,55,d.open?'#38d8b4':'#242e58');
-  pixelRect(d.x+6,d.y+7,32,42,d.open?'#79ffdb':'#a45ce0');
-  pixelRect(d.x+31,d.y+26,4,4,'#ffdc6c');
-  if(!d.open){ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.fillText('?',d.x+17,d.y-7)}
- }
- for(const c of coins)if(!c.got){
-  ctx.fillStyle='#ffda50';ctx.beginPath();ctx.arc(c.x,c.y+Math.sin(frame*.08+c.phase)*3,9,0,Math.PI*2);ctx.fill();
-  pixelRect(c.x-2,c.y-5,4,10,'#fff2a8');
- }
- for(const q of powerups)if(!q.got){
-  const colors={boost:'#ff9c47',shield:'#55e6ed',heart:'#ff6585',magnet:'#d28bff',mega:'#ffe36b'};
-  pixelRect(q.x-12,q.y-12,24,24,colors[q.type]);
-  ctx.fillStyle='#17203d';ctx.font='bold 15px Fredoka';ctx.textAlign='center';
-  ctx.fillText(({boost:'B',shield:'S',heart:'+',magnet:'M',mega:'★'})[q.type],q.x,q.y+5);
- }
- ctx.restore();
- drawRobot();drawSkater();
- // Level name
- ctx.fillStyle='#fff';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
- ctx.fillText(LEVELS[level].name,W/2, H-18);
- if(toastTime>0){
-  ctx.fillStyle='#10172cdd';ctx.fillRect(W/2-155,95,310,43);
-  ctx.fillStyle='#ffe36b';ctx.font='bold 19px Fredoka';ctx.textAlign='center';ctx.fillText(toast,W/2,123);
- }
+ drawCity();
+ // Draw farthest objects first
+ [...objects].sort((a,b)=>b.z-a.z).forEach(drawObject);
+ drawSkater();
+ particles.forEach(p=>{ctx.fillStyle=p.color;ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillRect(p.x,p.y,5,5);ctx.globalAlpha=1;});
+ if(boost>0){ctx.fillStyle='#55eaff';ctx.globalAlpha=.18;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;ctx.fillStyle='white';ctx.font='bold 20px Fredoka';ctx.textAlign='center';ctx.fillText('⚡ BOOST!',480,145);}
+ if(hitFlash>0){ctx.fillStyle='#ff3355';ctx.globalAlpha=.25;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
+ ctx.fillStyle='#e7faff';ctx.font='bold 16px Fredoka';ctx.textAlign='center';ctx.fillText(roomName,480,205);
 }
 function loop(now){
- if(!gameRunning||paused)return;
- let dt=Math.min(2,(now-last)/16.67||1);last=now;
- // update uses frame-based physics; clamp large frame gaps
- update(dt);
- if(!gameRunning)return;
- draw();
- raf=requestAnimationFrame(loop);
+ if(!running)return;
+ const dt=Math.min(now-last,40);last=now;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
 }
-makeLevel();startLevel();
+document.addEventListener('keydown',e=>{
+ const k=e.key;
+ if(['ArrowLeft','ArrowRight','ArrowUp',' '].includes(k))e.preventDefault();
+ if(k==='Escape'){pauseGame();return;}
+ if(k.toLowerCase()==='x'){spray();return;}
+ keys[k]=true;keys[k.toLowerCase()]=true;
+});
+document.addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false;});
+window.addEventListener('blur',()=>{keys={};});
+$('start').onclick=startGame;
+$('pause').onclick=pauseGame;
+drawCity();drawSkater();
 })();
 </script>
 </body>
