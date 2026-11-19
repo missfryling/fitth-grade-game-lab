@@ -3,365 +3,265 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Skyler's 3D Maze Quest</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Skyler's Keyboard Maze</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#14243a;color:white;font-family:Outfit,Arial,sans-serif}
-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#203653}
-.brand{font:700 23px Fredoka;color:#a7f28b}
-button{border:0;border-radius:13px;padding:10px 16px;background:#ffe36e;color:#26334b;font-weight:800;font-family:inherit;cursor:pointer;box-shadow:0 4px 0 #c69e39}
-button:hover{filter:brightness(1.08);transform:translateY(-1px)}
-button.secondary{background:#a9e9ff;box-shadow:0 4px 0 #589dbb}
-button.pink{background:#ffb4d4;box-shadow:0 4px 0 #bd7295}
-#stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:10px}
-.stat{background:#294463;border:1px solid #496789;border-radius:12px;padding:8px 12px;font-weight:700;font-size:14px}
-#layout{width:min(1100px,100%);margin:auto;padding:0 12px}
-#gamebox{position:relative}
-canvas{display:block;width:100%;aspect-ratio:16/9;background:#152039;border:4px solid #6a8db3;border-radius:17px}
-#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:12px;background:#0c1729dc;border-radius:17px;text-align:center}
-.panel{max-width:590px;width:100%;padding:24px;background:#254363;border:3px solid #a7f28b;border-radius:24px;box-shadow:0 12px 35px #0008}
-h1{font:700 clamp(28px,5vw,46px) Fredoka;color:#b6ff98;margin:0 0 8px}
-h2{font:700 25px Fredoka;color:#ffe36e;margin:5px 0}
-p{line-height:1.5}
-.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}
-.small{font-size:13px;color:#d9eaff}
-#bottom{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 5px;color:#d8e9ff}
-#message{text-align:center;color:#ffe36e;font-weight:700;min-height:25px;padding:5px}
-#profile{display:inline-flex;align-items:center;gap:8px;color:#c7f6b7;font-weight:700}
-.avatar{font-size:30px;background:#426184;border-radius:50%;padding:4px}
-@media(max-width:600px){header{justify-content:center}.brand{width:100%;text-align:center}.stat{font-size:12px;padding:6px 8px}.panel{padding:14px}}
+body{margin:0;background:#080b25;color:white;font-family:Fredoka,Arial;overflow:hidden;touch-action:manipulation}
+canvas{display:block;width:100vw;height:100vh;touch-action:none}
+#top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:7px;pointer-events:none;flex-wrap:wrap}
+.pill{background:#171b48eF;border:1px solid #8e8bff;border-radius:18px;padding:7px 13px;font-weight:700;font-size:14px;box-shadow:0 0 12px #726bff66}
+#tools{position:absolute;bottom:9px;left:0;right:0;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
+button,select,input{font:inherit}
+button{border:1px solid #b6aaff;border-radius:13px;padding:9px 14px;background:#d7caff;color:#27214d;font-weight:700;box-shadow:0 3px 0 #8071c9}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #8071c9}
+#overlay{position:absolute;inset:0;background:#07091deF;display:flex;align-items:center;justify-content:center;padding:15px}
+#card{width:min(550px,96vw);max-height:92vh;overflow:auto;background:#171b48;border:2px solid #aaa3ff;border-radius:24px;padding:23px;text-align:center;box-shadow:0 0 35px #746aff66}
+h1{font-size:clamp(28px,6vw,45px);color:#d9caff;margin:5px 0}
+h2{margin:8px 0}
+p{line-height:1.4}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.grid button{min-height:48px}
+input,select{padding:9px;border-radius:10px;border:1px solid #aaa3ff;background:#fff;color:#242044;width:100%;margin:5px 0 12px}
+label{display:block;text-align:left;font-size:14px}
+.small{font-size:13px;color:#c8c4ff}
+.hidden{display:none!important}
+#notice{position:absolute;top:62px;left:50%;transform:translateX(-50%);background:#fff0b9;color:#33234b;padding:7px 15px;border-radius:15px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
 </style>
 </head>
 <body>
-<header>
- <div class="brand">🗝️ SKYLER'S 3D MAZE QUEST</div>
- <div class="row" style="margin:0">
-  <button class="secondary" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
-  <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
-  <button class="pink" onclick="restartLevel()">↻ Restart Level</button>
- </div>
-</header>
-
-<div id="stats">
- <div class="stat">🌎 World: <span id="world">1</span> / 5</div>
- <div class="stat">🗝️ Level: <span id="level">1</span> / 14</div>
- <div class="stat">❤️ Hearts: <span id="hearts">❤️❤️❤️</span></div>
- <div class="stat">👣 Steps: <span id="steps">0</span></div>
- <div class="stat">⭐ Points: <span id="points">0</span></div>
- <div class="stat">🪙 Coins: <span id="coins">0</span></div>
- <div class="stat">✨ Shield: <span id="shield">No</span></div>
+<canvas id="game"></canvas>
+<div id="top">
+ <div class="pill" id="worldLabel">🌌 Galaxy World 1</div>
+ <div class="pill" id="levelLabel">Level 1 / 15</div>
+ <div class="pill" id="stepLabel">👣 Steps: 0</div>
+ <div class="pill" id="nameLabel">⭐ Skyler</div>
 </div>
-
-<div id="layout">
- <div id="gamebox">
-  <canvas id="game" width="960" height="540"></canvas>
-  <div id="overlay">
-   <div class="panel" id="panel">
-    <div style="font-size:54px">🧍🏻‍♂️🗝️</div>
-    <h1>SKYLER'S 3D MAZE QUEST</h1>
-    <h2>70 MAZES. 5 WORLDS. ONE BIG ADVENTURE!</h2>
-    <p>Help Skyler escape colorful mazes, collect coins, find power-ups, and avoid monsters as the worlds get harder!</p>
-    <p><b>W</b> forward · <b>S</b> backward · <b>A</b> strafe left · <b>D</b> strafe right</p>
-    <p><b>SPACE</b> use your shield · <b>P</b> pause</p>
-    <p class="small">No timers! Take your time and find the exit. You have three hearts in each world.</p>
-    <div class="row"><button onclick="newAdventure()">🚀 START ADVENTURE</button></div>
-   </div>
+<div id="notice"></div>
+<div id="tools">
+ <button onclick="openSettings()">⚙️ Settings</button>
+ <button onclick="togglePause()">Ⅱ Pause</button>
+ <button onclick="restartLevel()">↻ Restart Level</button>
+ <button onclick="showHome()">⌂ Home</button>
+</div>
+<div id="overlay">
+ <div id="card">
+  <h1>🌌 Skyler's Keyboard Maze</h1>
+  <p>Explore five galaxy worlds, solve 75 mazes, and find the glowing exit!</p>
+  <div class="grid">
+   <button onclick="startGame()">🚀 Start Maze</button>
+   <button onclick="openSettings()">⚙️ Settings</button>
   </div>
+  <p class="small">Touchscreen: tap a nearby floor tile to move one step. Keyboard: WASD or arrow keys. Find the glowing portal!</p>
+  <p class="small">No monsters. No timers. Just you, the maze, and the galaxy!</p>
  </div>
- <div id="bottom">
-  <div id="profile"><span class="avatar">🧍🏻‍♂️</span> Skyler the Maze Explorer</div>
-  <div>🟡 Coins = bonus points &nbsp; 💎 Shield = protection &nbsp; 🚪 Find the exit!</div>
- </div>
- <div id="message">Your adventure is waiting!</div>
 </div>
-
 <script>
 const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const W=960,H=540;
-const $=id=>document.getElementById(id);
-let world=1,level=1,hearts=3,steps=0,points=0,coins=0;
-let shield=0,maze=[],mw=9,mh=9,player={x:1.5,y:1.5,a:0};
-let exit={x:7,y:7},items=[],monsters=[],gameOn=false,paused=false;
-let keys={},last=0,stepLock=0,monsterMove=0,levelCoins=0;
-let worldStartPoints=0,worldStartCoins=0,worldStartSteps=0;
-const colors=[
- ['#58a96c','#a7f28b','#244d42'],
- ['#4279bb','#a4d8ff','#203d71'],
- ['#a16acb','#e5b5ff','#4c2b70'],
- ['#d58b47','#ffce88','#744323'],
- ['#cf6489','#ffb4d4','#6b2b54']
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);draw();
+}
+addEventListener('resize',resize);
+const worldNames=['Nebula Galaxy','Candy Comet','Frozen Starfield','Rainbow Universe','Cosmic Dream'];
+const palettes=[
+ {bg:'#090d35',wall:'#343b8b',floor:'#151e55',glow:'#a99cff',portal:'#65f3ff'},
+ {bg:'#301044',wall:'#9a4b9c',floor:'#51205f',glow:'#ffb2ed',portal:'#ffe58b'},
+ {bg:'#071c3b',wall:'#367da8',floor:'#123a5c',glow:'#9feaff',portal:'#ffffff'},
+ {bg:'#211044',wall:'#7845b5',floor:'#392064',glow:'#ff9de1',portal:'#9dffe5'},
+ {bg:'#071e2b',wall:'#287e82',floor:'#12494f',glow:'#b1fff2',portal:'#fff3a0'}
 ];
-function hud(){
- $('world').textContent=world;$('level').textContent=level;
- $('hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
- $('steps').textContent=steps;$('points').textContent=points;
- $('coins').textContent=coins;$('shield').textContent=shield>0?'Ready!':'No';
-}
-function monsterCount(){return [0,1,2,3,4][world-1];}
-function mazeSize(){
- let n=9+(world-1)*2+Math.floor((level-1)/4)*2;
- return Math.min(25,n%2===0?n+1:n);
-}
+let world=1,level=1,steps=0,playerName='Skyler',maze=[],player={x:1,y:1},exit={x:1,y:1};
+let running=false,paused=false,settings=false,moveLock=false;
+let soundChoice='Hee-hee clicking',musicChoice='Calming space music',soundOn=true,musicOn=true,audio=null,musicTimer=null;
+const COLS=19,ROWS=15;
+function rand(n){return Math.floor(Math.random()*n)}
 function makeMaze(){
- mw=mazeSize();mh=mw;
- maze=Array.from({length:mh},()=>Array(mw).fill(1));
+ const size=level+world*2;
+ const cols=Math.min(31,19+Math.floor((size-1)/3)*2);
+ const rows=Math.min(25,15+Math.floor((size-1)/4)*2);
+ maze=Array.from({length:rows},()=>Array(cols).fill(1));
  function carve(x,y){
   maze[y][x]=0;
-  let dirs=[[0,-2],[2,0],[0,2],[-2,0]].sort(()=>Math.random()-.5);
-  for(let [dx,dy] of dirs){
+  let dirs=[[2,0],[-2,0],[0,2],[0,-2]].sort(()=>Math.random()-.5);
+  for(const [dx,dy] of dirs){
    let nx=x+dx,ny=y+dy;
-   if(nx>0&&ny>0&&nx<mw-1&&ny<mh-1&&maze[ny][nx]===1){
+   if(nx>0&&ny>0&&nx<cols-1&&ny<rows-1&&maze[ny][nx]===1){
     maze[y+dy/2][x+dx/2]=0;carve(nx,ny);
    }
   }
  }
  carve(1,1);
- // Add a few extra passages to make exploring interesting
- for(let i=0;i<Math.floor(world*level/3);i++){
-  let x=1+Math.floor(Math.random()*(mw-2));
-  let y=1+Math.floor(Math.random()*(mh-2));
-  if(Math.random()<.35)maze[y][x]=0;
+ // Add a few extra passages in later worlds to create alternate routes.
+ let openings=Math.floor(world*level*.55);
+ for(let i=0;i<openings;i++){
+  let x=1+rand(cols-2),y=1+rand(rows-2);
+  if(maze[y][x]===1&&((maze[y][x-1]===0&&maze[y][x+1]===0)||(maze[y-1]?.[x]===0&&maze[y+1]?.[x]===0)))maze[y][x]=0;
  }
- player={x:1.5,y:1.5,a:0};
- exit={x:mw-2,y:mh-2};
- items=[];monsters=[];levelCoins=0;shield=0;
- let empty=[];
- for(let y=1;y<mh-1;y++)for(let x=1;x<mw-1;x++){
-  if(maze[y][x]===0&&!(x===1&&y===1)&&!(x===exit.x&&y===exit.y))empty.push({x,y});
- }
- empty.sort(()=>Math.random()-.5);
- let coinCount=7+world*2+level;
- for(let i=0;i<Math.min(coinCount,empty.length);i++)
-  items.push({...empty[i],type:'coin',taken:false});
- for(let i=coinCount;i<Math.min(coinCount+2+world,empty.length);i++)
-  items.push({...empty[i],type:'shield',taken:false});
- for(let i=0;i<monsterCount()&&i+coinCount+2+world<empty.length;i++){
-  let spot=empty[coinCount+2+world+i];
-  monsters.push({x:spot.x+.5,y:spot.y+.5,alive:true,dir:Math.random()*6.28});
- }
+ player={x:1,y:1};exit={x:cols-2,y:rows-2};
+ maze[1][1]=0;maze[exit.y][exit.x]=0;
+ steps=0;moveLock=false;updateHUD();draw();
 }
-function beginLevel(){
- makeMaze();steps=0;gameOn=true;paused=false;stepLock=0;monsterMove=0;
- $('overlay').style.display='none';$('pauseBtn').textContent='⏸ Pause';
- hud();$('message').textContent=`World ${world} · Level ${level}: Find the exit!`;
- draw();last=performance.now();requestAnimationFrame(loop);
+function updateHUD(){
+ document.getElementById('worldLabel').textContent='🌌 '+worldNames[world-1];
+ document.getElementById('levelLabel').textContent='Level '+level+' / 15';
+ document.getElementById('stepLabel').textContent='👣 Steps: '+steps;
+ document.getElementById('nameLabel').textContent='⭐ '+playerName;
 }
-function newAdventure(){
- world=1;level=1;hearts=3;steps=0;points=0;coins=0;shield=0;
- worldStartPoints=0;worldStartCoins=0;worldStartSteps=0;
- beginLevel();
+function startGame(){world=1;level=1;running=true;paused=false;makeMaze();hideOverlay();startMusic()}
+function hideOverlay(){document.getElementById('overlay').classList.add('hidden')}
+function showOverlay(html){document.getElementById('card').innerHTML=html;document.getElementById('overlay').classList.remove('hidden')}
+function showHome(){running=false;paused=false;stopMusic();showOverlay('<h1>🌌 Skyler’s Keyboard Maze</h1><p>Ready to explore the galaxy?</p><div class="grid"><button onclick="startGame()">🚀 Start Maze</button><button onclick="openSettings()">⚙️ Settings</button></div><p class="small">Five worlds · 15 levels each · 75 mazes!</p>')}
+function openSettings(){
+ let wasRunning=running&&!paused;paused=true;
+ showOverlay('<h1>⚙️ Settings</h1><label>Character name</label><input id="playerNameInput" maxlength="16" value="'+escapeText(playerName)+'"><label>Sound effect</label><select id="soundChoice"><option>Snow</option><option>Candy wrappers</option><option>Hee-hee clicking</option><option>Honey on a keyboard</option></select><label>Background music</label><select id="musicChoice"><option>Calming space music</option><option>Dreamy stars</option><option>Quiet galaxy</option><option>None</option></select><div class="grid"><button onclick="saveSettings()">Save Settings</button><button onclick="closeSettings()">Back</button></div><p class="small">Sound and music can be turned on or off below.</p><button onclick="toggleSound()">Sound: '+(soundOn?'ON':'OFF')+'</button> <button onclick="toggleMusic()">Music: '+(musicOn?'ON':'OFF')+'</button>');
+ document.getElementById('soundChoice').value=soundChoice;
+ document.getElementById('musicChoice').value=musicChoice;
 }
-function restartLevel(){
- if(!gameOn&&world===1&&level===1){beginLevel();return;}
- beginLevel();
+function escapeText(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function saveSettings(){
+ playerName=(document.getElementById('playerNameInput').value.trim()||'Skyler').slice(0,16);
+ soundChoice=document.getElementById('soundChoice').value;
+ musicChoice=document.getElementById('musicChoice').value;
+ updateHUD();closeSettings();
 }
-function pauseGame(){
- if(!gameOn)return;
- paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
- if(paused){$('message').textContent='Paused! Your maze progress is safe.';}
- else{last=performance.now();requestAnimationFrame(loop);}
+function closeSettings(){if(running){paused=false;hideOverlay()}else showHome()}
+function toggleSound(){soundOn=!soundOn;openSettings()}
+function toggleMusic(){musicOn=!musicOn;if(musicOn)startMusic();else stopMusic();openSettings()}
+function togglePause(){
+ if(!running)return;
+ paused=!paused;
+ if(paused)showOverlay('<h1>⏸ Maze Paused</h1><p>Take a break, galaxy explorer!</p><button onclick="resumeGame()">Resume Maze</button> <button onclick="showHome()">Home</button>');
+ else hideOverlay();
 }
-function wall(x,y){
- let gx=Math.floor(x),gy=Math.floor(y);
- return gx<0||gy<0||gx>=mw||gy>=mh||maze[gy][gx]===1;
-}
-function tryMove(dx,dy){
- let nx=player.x+dx,ny=player.y+dy;
- if(!wall(nx+Math.sign(dx)*.18,player.y))player.x=nx;
- if(!wall(player.x,ny+Math.sign(dy)*.18))player.y=ny;
-}
-function movePlayer(){
- if(stepLock>0)return;
- let dx=0,dy=0;
- let fx=Math.cos(player.a),fy=Math.sin(player.a);
- let sx=-Math.sin(player.a),sy=Math.cos(player.a);
- if(keys.w){dx+=fx*.22;dy+=fy*.22;}
- if(keys.s){dx-=fx*.22;dy-=fy*.22;}
- if(keys.a){dx+=sx*.22;dy+=sy*.22;}
- if(keys.d){dx-=sx*.22;dy-=sy*.22;}
- if(dx===0&&dy===0)return;
- let oldX=player.x,oldY=player.y;
- tryMove(dx,dy);
- if(Math.hypot(player.x-oldX,player.y-oldY)>.01){
-  steps++;stepLock=9;
-  collectItems();checkMonster();
-  if(Math.floor(player.x)===exit.x&&Math.floor(player.y)===exit.y)completeLevel();
- }
-}
-function collectItems(){
- for(let item of items){
-  if(item.taken)continue;
-  if(Math.hypot(player.x-(item.x+.5),player.y-(item.y+.5))<.55){
-   item.taken=true;
-   if(item.type==='coin'){coins+=10;levelCoins++;points+=15;$('message').textContent='+10 coins! +15 points!';}
-   else{shield=1;$('message').textContent='✨ Shield power-up collected! Press SPACE to use it.';}
-  }
- }
-}
-function checkMonster(){
- for(let m of monsters){
-  if(!m.alive)continue;
-  if(Math.hypot(player.x-m.x,player.y-m.y)<.48){
-   if(shield){shield=0;m.alive=false;points+=50;$('message').textContent='✨ Shield saved you! Monster escaped! +50 points!';}
-   else{loseHeart();return;}
-  }
- }
-}
-function loseHeart(){
- hearts--;hud();
- if(hearts<=0){
-  gameOn=false;paused=false;
-  $('overlay').style.display='flex';
-  $('panel').innerHTML=`<div style="font-size:50px">💚</div><h1>WORLD RESET!</h1>
-   <h2>Skyler needs a fresh start!</h2>
-   <p>You used all three hearts. You must restart World ${world} from Level 1.</p>
-   <p>Your coins and points are kept, but your progress in this world starts over.</p>
-   <div class="row"><button onclick="restartWorld()">🔄 RESTART WORLD</button></div>`;
-  $('message').textContent='Take a breath and try the world again!';
- }else{
-  player={x:1.5,y:1.5,a:0};shield=0;
-  $('message').textContent='Ouch! You lost a heart. Find your way again!';
-  hud();
- }
-}
-function restartWorld(){
- level=1;hearts=3;beginLevel();
-}
-function completeLevel(){
- if(!gameOn)return;
- gameOn=false;points+=world*100+level*25+levelCoins*5;
- if(level<14)level++;
- else if(world<5){world++;level=1;hearts=3;}
+function resumeGame(){paused=false;hideOverlay()}
+function restartLevel(){if(!running)return;makeMaze();say('Level restarted!')}
+function say(t){let n=document.getElementById('notice');n.textContent=t;n.style.opacity=1;clearTimeout(say.timer);say.timer=setTimeout(()=>n.style.opacity=0,1400)}
+function nextLevel(){
+ if(level<15)level++;
+ else if(world<5){world++;level=1}
  else{
-  $('overlay').style.display='flex';
-  $('panel').innerHTML=`<div style="font-size:55px">🏆</div><h1>MAZE MASTER!</h1>
-  <h2>You conquered all 70 levels!</h2>
-  <p>Skyler escaped every world! Final points: ${points}. Coins collected: ${coins}.</p>
-  <div class="row"><button onclick="newAdventure()">🌟 PLAY AGAIN</button></div>`;
-  hud();return;
+  running=false;stopMusic();
+  showOverlay('<h1>🏆 GALAXY MAZE MASTER!</h1><p>'+escapeText(playerName)+', you completed all five worlds and all 75 levels!</p><button onclick="startGame()">Play Again</button> <button onclick="showHome()">Home</button>');
+  return;
  }
- let newWorld=level===1;
- $('overlay').style.display='flex';
- $('panel').innerHTML=`<div style="font-size:48px">${newWorld?'🌎':'🎉'}</div>
- <h1>${newWorld?'NEW WORLD UNLOCKED!':'LEVEL COMPLETE!'}</h1>
- <h2>${newWorld?'Welcome to World '+world:'Great exploring, Skyler!'}</h2>
- <p>You found the exit! You earned <b>${world*100+(level===1?14:level-1)*25+levelCoins*5}</b> points for this maze.</p>
- <p>${newWorld?'A new world brings a harder maze and more monsters!':'Keep going! The next maze will be a little trickier.'}</p>
- <div class="row"><button onclick="beginLevel()">➡️ NEXT MAZE</button></div>`;
- hud();
+ makeMaze();say('✨ Portal reached! Welcome to '+worldNames[world-1]+', Level '+level+'!');
 }
-function raycast(angle){
- let dist=.02,hit=0;
- while(dist<22){
-  let x=player.x+Math.cos(angle)*dist;
-  let y=player.y+Math.sin(angle)*dist;
-  if(wall(x,y)){hit=1;break;}
-  dist+=.025;
- }
- return {dist,hit};
+function move(dx,dy){
+ if(!running||paused||moveLock)return;
+ let nx=player.x+dx,ny=player.y+dy;
+ if(ny<0||ny>=maze.length||nx<0||nx>=maze[0].length||maze[ny][nx]===1){playSound(false);return}
+ player.x=nx;player.y=ny;steps++;updateHUD();playSound(true);
+ moveLock=true;setTimeout(()=>moveLock=false,75);
+ if(player.x===exit.x&&player.y===exit.y)nextLevel();
+ draw();
+}
+function playSound(success){
+ if(!soundOn)return;
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  let osc=audio.createOscillator(),gain=audio.createGain(),now=audio.currentTime;
+  let type=soundChoice;
+  osc.type=type==='Snow'?'sine':type==='Candy wrappers'?'triangle':type==='Honey on a keyboard'?'sawtooth':'square';
+  let freq=type==='Snow'?880:type==='Candy wrappers'?520:type==='Honey on a keyboard'?190:success?680:240;
+  osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(success?freq*1.3:freq*.7,now+.09);
+  gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.045,now+.01);gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
+  osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+.14);
+ }catch(e){}
+}
+function startMusic(){
+ stopMusic();if(!musicOn||musicChoice==='None')return;
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  let notes=musicChoice==='Dreamy stars'?[392,494,587,494]:musicChoice==='Quiet galaxy'?[220,262,294,262]:[261,329,392,329];
+  let i=0;
+  musicTimer=setInterval(()=>{
+   if(!running||paused||!musicOn)return;
+   let osc=audio.createOscillator(),gain=audio.createGain(),t=audio.currentTime;
+   osc.type='sine';osc.frequency.value=notes[i++%notes.length];
+   gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(.018,t+.3);gain.gain.linearRampToValueAtTime(.0001,t+1.1);
+   osc.connect(gain);gain.connect(audio.destination);osc.start(t);osc.stop(t+1.12);
+  },1150);
+ }catch(e){}
+}
+function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null}}
+addEventListener('keydown',e=>{
+ let k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d'].includes(k))e.preventDefault();
+ if(k==='w'||k==='arrowup')move(0,-1);
+ if(k==='s'||k==='arrowdown')move(0,1);
+ if(k==='a'||k==='arrowleft')move(-1,0);
+ if(k==='d'||k==='arrowright')move(1,0);
+ if(k==='escape')togglePause();
+});
+canvas.addEventListener('pointerdown',e=>{
+ if(!running||paused)return;
+ const rect=canvas.getBoundingClientRect();
+ let x=e.clientX-rect.left,y=e.clientY-rect.top;
+ let layout=getLayout();
+ let gx=Math.floor((x-layout.x)/layout.cell),gy=Math.floor((y-layout.y)/layout.cell);
+ let dx=gx-player.x,dy=gy-player.y;
+ // A tap selects an adjacent tile only, so players cannot skip maze walls.
+ if(Math.abs(dx)+Math.abs(dy)===1)move(dx,dy);
+ else say('Tap one tile next to your character to move!');
+});
+function getLayout(){
+ let rows=maze.length,cols=maze[0]?.length||19;
+ let availableH=H-135,availableW=W-24;
+ let cell=Math.max(10,Math.min(availableW/cols,availableH/rows,40));
+ let x=(W-cols*cell)/2,y=(H-rows*cell)/2+8;
+ return{x,y,cell};
 }
 function draw(){
- let c=colors[world-1];
- let sky=ctx.createLinearGradient(0,0,0,H/2);
- sky.addColorStop(0,'#9cddff');sky.addColorStop(1,'#e8f6ff');
- ctx.fillStyle=sky;ctx.fillRect(0,0,W,H/2);
- let floor=ctx.createLinearGradient(0,H/2,0,H);
- floor.addColorStop(0,c[0]);floor.addColorStop(1,c[2]);
- ctx.fillStyle=floor;ctx.fillRect(0,H/2,W,H/2);
- const fov=Math.PI/3,columns=240,strip=W/columns;
- let zbuffer=[];
- for(let i=0;i<columns;i++){
-  let a=player.a-fov/2+(i/columns)*fov;
-  let hit=raycast(a),d=hit.dist*Math.cos(a-player.a);
-  zbuffer[i]=d;
-  let h=Math.min(H,380/(d+.08));
-  let shade=Math.max(.24,1-d/13);
-  let r=parseInt(c[1].slice(1,3),16),g=parseInt(c[1].slice(3,5),16),b=parseInt(c[1].slice(5,7),16);
-  let tint=`rgb(${Math.floor(r*shade)},${Math.floor(g*shade)},${Math.floor(b*shade)})`;
-  ctx.fillStyle=tint;ctx.fillRect(i*strip,(H-h)/2,strip+1,h);
-  if(i%8===0){ctx.fillStyle='#ffffff12';ctx.fillRect(i*strip,(H-h)/2,1,h);}
+ ctx.clearRect(0,0,W,H);
+ let p=palettes[world-1];
+ ctx.fillStyle=p.bg;ctx.fillRect(0,0,W,H);
+ // Starry galaxy background
+ for(let i=0;i<90;i++){
+  let x=(i*173+31)%W,y=(i*97+17)%H;
+  ctx.fillStyle=i%3===0?p.glow:'#ffffff';ctx.globalAlpha=.25+(i%5)*.1;
+  ctx.beginPath();ctx.arc(x,y,i%3===0?2:1,0,Math.PI*2);ctx.fill();
  }
- // Exit beacon
- drawSprite(exit.x+.5,exit.y+.5,'🚪',zbuffer,columns,strip,fov,player.a,1);
- // Coins and power-ups
- for(let item of items)if(!item.taken)
-  drawSprite(item.x+.5,item.y+.5,item.type==='coin'?'🪙':'✨',zbuffer,columns,strip,fov,player.a,.8);
- // Monsters
- for(let m of monsters)if(m.alive)
-  drawSprite(m.x,m.y,'👾',zbuffer,columns,strip,fov,player.a,1.2);
- // first person hands and Skyler's sleeves
- ctx.fillStyle='#315c9b';ctx.beginPath();ctx.moveTo(0,540);ctx.lineTo(0,475);ctx.lineTo(90,500);ctx.lineTo(140,540);ctx.fill();
- ctx.beginPath();ctx.moveTo(960,540);ctx.lineTo(960,475);ctx.lineTo(870,500);ctx.lineTo(820,540);ctx.fill();
- ctx.fillStyle='#f1c49c';ctx.beginPath();ctx.arc(110,500,17,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.arc(850,500,17,0,Math.PI*2);ctx.fill();
- // World and direction hint
- ctx.fillStyle='#10233acc';ctx.fillRect(15,15,260,45);
- ctx.fillStyle='white';ctx.font='bold 18px Outfit';
- ctx.fillText('WORLD '+world+'  •  LEVEL '+level,28,44);
- ctx.fillStyle='#ffffffcc';ctx.font='14px Outfit';
- ctx.fillText('Find the glowing exit!',W-210,30);
-}
-function drawSprite(x,y,emoji,zbuffer,columns,strip,fov,angle,size){
- let dx=x-player.x,dy=y-player.y;
- let dist=Math.hypot(dx,dy);
- let rel=Math.atan2(dy,dx)-angle;
- while(rel>Math.PI)rel-=Math.PI*2;
- while(rel<-Math.PI)rel+=Math.PI*2;
- if(Math.abs(rel)>fov*.7||dist<.2)return;
- let screenX=(.5+rel/fov)*W;
- let col=Math.max(0,Math.min(columns-1,Math.floor(screenX/strip)));
- if(dist>zbuffer[col]+.15)return;
- let spriteSize=Math.min(150,230/(dist+.2))*size;
- ctx.font=`${spriteSize}px Arial`;ctx.textAlign='center';
- ctx.fillText(emoji,screenX,H/2+spriteSize*.35);
- ctx.textAlign='left';
-}
-function moveMonsters(){
- for(let m of monsters){
-  if(!m.alive)continue;
-  let dx=player.x-m.x,dy=player.y-m.y;
-  let d=Math.hypot(dx,dy);
-  if(d<5){
-   let nx=m.x+Math.sign(dx)*.16,ny=m.y+Math.sign(dy)*.16;
-   if(!wall(nx,m.y))m.x=nx;
-   if(!wall(m.x,ny))m.y=ny;
+ ctx.globalAlpha=1;
+ if(!maze.length)return;
+ let l=getLayout(),c=l.cell;
+ // Soft galaxy glow behind maze
+ ctx.shadowColor=p.glow;ctx.shadowBlur=18;
+ ctx.fillStyle=p.floor;ctx.fillRect(l.x,l.y,maze[0].length*c,maze.length*c);
+ ctx.shadowBlur=0;
+ for(let y=0;y<maze.length;y++)for(let x=0;x<maze[0].length;x++){
+  let px=l.x+x*c,py=l.y+y*c;
+  if(maze[y][x]===1){
+   ctx.fillStyle=p.wall;ctx.fillRect(px+1,py+1,c-2,c-2);
+   ctx.fillStyle='#ffffff';ctx.globalAlpha=.12;ctx.fillRect(px+3,py+3,c-6,2);ctx.globalAlpha=1;
+   ctx.strokeStyle=p.glow;ctx.globalAlpha=.25;ctx.strokeRect(px+1,py+1,c-2,c-2);ctx.globalAlpha=1;
   }else{
-   let nx=m.x+Math.cos(m.dir)*.15,ny=m.y+Math.sin(m.dir)*.15;
-   if(wall(nx,ny)){m.dir=Math.random()*Math.PI*2;}
-   else{m.x=nx;m.y=ny;}
+   ctx.fillStyle=p.floor;ctx.fillRect(px,py,c,c);
+   ctx.fillStyle='#ffffff';ctx.globalAlpha=.12;ctx.beginPath();ctx.arc(px+c*.5,py+c*.5,1.3,0,7);ctx.fill();ctx.globalAlpha=1;
   }
  }
- checkMonster();
+ // Exit portal
+ let ex=l.x+exit.x*c+c/2,ey=l.y+exit.y*c+c/2;
+ ctx.save();ctx.shadowColor=p.portal;ctx.shadowBlur=22;
+ ctx.fillStyle=p.portal;ctx.beginPath();ctx.arc(ex,ey,c*.32,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,ey,c*.15,0,Math.PI*2);ctx.fill();ctx.restore();
+ // Player visible in the maze
+ let px=l.x+player.x*c+c/2,py=l.y+player.y*c+c/2;
+ ctx.save();ctx.shadowColor='#fff2a6';ctx.shadowBlur=16;
+ ctx.fillStyle='#ffe58d';ctx.beginPath();ctx.arc(px,py,c*.34,0,Math.PI*2);ctx.fill();
+ ctx.shadowBlur=0;
+ ctx.fillStyle='#48346c';ctx.beginPath();ctx.arc(px-c*.11,py-c*.04,Math.max(1.5,c*.045),0,7);ctx.arc(px+c*.11,py-c*.04,Math.max(1.5,c*.045),0,7);ctx.fill();
+ ctx.fillStyle='#fff';ctx.font='bold '+Math.max(9,c*.3)+'px Fredoka';ctx.textAlign='center';ctx.fillText(playerName.slice(0,9),px,py-c*.48);ctx.restore();
+ // World and level label in play area
+ ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 14px Fredoka';
+ ctx.fillText(worldNames[world-1]+' · Level '+level,W/2, H-75);
 }
-function loop(now){
- if(!gameOn||paused)return;
- let dt=Math.min(.05,(now-last)/1000||0);last=now;
- if(stepLock>0)stepLock--;
- if(keys.w||keys.s||keys.a||keys.d){
-  movePlayer();
-  monsterMove+=dt;
-  if(monsterMove>1.2){monsterMove=0;moveMonsters();}
- }
- draw();hud();requestAnimationFrame(loop);
-}
-document.addEventListener('keydown',e=>{
- let k=e.key.toLowerCase();
- if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
- if(['w','a','s','d'].includes(k))keys[k]=true;
- if(k==='p')pauseGame();
- if(k===' '&&gameOn&&!paused&&shield){
-  shield=0;monsters.forEach(m=>{if(m.alive&&Math.hypot(player.x-m.x,player.y-m.y)<2.2){m.alive=false;points+=50;}});
-  $('message').textContent='✨ SHIELD BLAST! Nearby monsters have disappeared!';
-  hud();
- }
-});
-document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={};});
-canvas.addEventListener('click',()=>{if(gameOn&&!paused){$('message').textContent='Use W, A, S, D to explore the maze!';}});
-hud();draw();
+resize();
 </script>
 </body>
 </html>
+
