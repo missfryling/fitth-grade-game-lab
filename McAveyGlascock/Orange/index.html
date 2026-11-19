@@ -3,408 +3,938 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NO, I'M NOT HUMAN: Lilly's House</title>
-<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>75 Nights in the Spooky Forest</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Nunito:wght@700;900&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#090b12;color:#eee;font-family:Outfit,sans-serif}
-button{border:1px solid #777;background:#343743;color:white;border-radius:9px;padding:12px 17px;font:700 14px Outfit;cursor:pointer}
-button:hover{background:#55596a}
-button:disabled{opacity:.4;cursor:not-allowed}
-#app{height:100vh;display:flex;flex-direction:column}
-header{height:64px;background:#171923;border-bottom:1px solid #45434a;display:flex;align-items:center;justify-content:space-between;padding:0 18px;gap:10px}
-.logo{font:22px 'Special Elite';color:#e8b9b9}
-.stats{display:flex;gap:8px;flex-wrap:wrap}
-.stat{background:#292c37;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:800}
-#scene{flex:1;min-height:0;position:relative;overflow:hidden;background:linear-gradient(#171a24,#090b10)}
-.room{position:absolute;inset:0;background:linear-gradient(90deg,#11131b,#24232b 50%,#11131b)}
-.ceiling{position:absolute;top:0;left:0;width:100%;height:18%;background:#161720;border-bottom:4px solid #39353a}
-.floor{position:absolute;bottom:0;left:0;width:100%;height:24%;background:linear-gradient(#29252a,#100f15);border-top:5px solid #484047}
-.wallline{position:absolute;top:18%;bottom:24%;left:50%;width:2px;background:#ffffff0b}
-.door{position:absolute;width:min(34vw,270px);height:66%;left:50%;top:18%;transform:translateX(-50%);background:linear-gradient(90deg,#382b2b,#59403a,#302529);border:9px solid #17151b;box-shadow:0 0 35px #000;display:flex;align-items:center;justify-content:center}
-.door:before{content:"";position:absolute;inset:9px;border:2px solid #8a6a59}
-.doorhandle{position:absolute;right:22px;top:52%;width:17px;height:17px;border-radius:50%;background:#b69a67;box-shadow:0 0 8px #000}
-.peephole{position:absolute;top:27%;left:50%;transform:translateX(-50%);width:27px;height:27px;border-radius:50%;background:#06080b;border:4px solid #a18c70;box-shadow:0 0 0 3px #17151b}
-.rug{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);width:36%;height:8%;background:#473137;border:2px solid #72515a;clip-path:polygon(8% 0,92% 0,100% 100%,0 100%)}
-.lamp{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:95px;height:20px;background:#e0cda0;border-radius:50%;box-shadow:0 0 65px 30px #d5bd7b25}
-#roomText{position:absolute;left:18px;bottom:18px;color:#c4bdba;font:14px 'Special Elite';text-shadow:0 2px 4px black}
-#actions{position:absolute;bottom:18px;right:18px;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-#message{position:absolute;top:16px;left:50%;transform:translateX(-50%);background:#090b10dd;padding:10px 17px;border:1px solid #62575b;border-radius:8px;opacity:0;transition:opacity .2s;z-index:5;text-align:center;max-width:90%;font-size:13px}
-#overlay{position:absolute;inset:0;background:#05060beF;z-index:10;display:flex;align-items:center;justify-content:center;padding:14px}
-.panel{width:min(620px,96%);max-height:96%;overflow:auto;background:#191c27;border:1px solid #67555b;padding:25px;border-radius:15px;text-align:center;box-shadow:0 20px 80px #000}
-h1{font:clamp(29px,6vw,49px) 'Special Elite';color:#e5b7b7;margin:8px 0 15px}
-h2{font:24px 'Special Elite';color:#e3c6a5}
-.panel p{color:#d0cbd0;line-height:1.55}
-.big{background:#8e454b;border-color:#bd777c;font-size:17px;padding:14px 24px}
-.green{background:#315c4b;border-color:#6da18a}
-.red{background:#71383d;border-color:#b66d73}
-.gray{background:#444653}
-.small{font-size:12px;color:#a8a5ae}
-#inspection{position:absolute;inset:0;background:#05060af5;z-index:7;display:none;align-items:center;justify-content:center;padding:12px}
-.inspectPanel{width:min(720px,97%);max-height:96%;overflow:auto;background:#171a25;border:1px solid #75616a;border-radius:14px;padding:20px;text-align:center}
-#peepholeView{margin:10px auto 15px;width:min(360px,80vw);height:230px;border-radius:48%;border:13px solid #08090d;box-shadow:0 0 0 3px #9d866f,0 0 35px #000;background:radial-gradient(ellipse,#8a8177,#24232b 72%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-#visitorFace{font-size:115px;filter:drop-shadow(0 8px 5px #0009)}
-#visitorSilhouette{position:absolute;bottom:-25px;width:165px;height:100px;border-radius:50% 50% 0 0;background:#292b34}
-#clueBox{background:#292c37;border-radius:9px;padding:12px;margin:12px auto;max-width:540px;text-align:left;font-size:13px;line-height:1.6;color:#ddd}
-#choiceButtons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}
-#selfCheck{position:absolute;inset:0;background:#05060af5;z-index:8;display:none;align-items:center;justify-content:center;padding:12px}
-.mirror{margin:12px auto;width:210px;height:220px;border:9px solid #87715f;border-radius:48% 48% 12px 12px;background:linear-gradient(130deg,#87909a,#323642 60%,#171a24);display:flex;align-items:center;justify-content:center;font-size:100px;box-shadow:0 0 30px #000}
-#bottom{background:#171923;padding:8px;text-align:center;color:#9c9ba5;font-size:11px}
-@media(max-width:600px){header{height:auto;min-height:60px;padding:8px}.logo{font-size:16px}.stat{font-size:10px;padding:5px}.door{width:53vw}.panel{padding:17px}#actions{bottom:10px;right:8px;left:8px;justify-content:center}#roomText{bottom:68px}}
+body{margin:0;background:#100d19;color:#fff;font-family:Nunito,Arial,sans-serif;display:grid;place-items:center;min-height:100vh}
+#wrap{width:min(1100px,100vw);padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+h1{font:clamp(22px,4vw,36px) Creepster;color:#b7ff9b;margin:0;letter-spacing:2px}
+.hud{display:flex;gap:7px;flex-wrap:wrap}
+.pill{background:#282139;border:1px solid #65517b;border-radius:8px;padding:7px 10px;font-weight:900;font-size:13px}
+#stage{position:relative;border:3px solid #69517d;border-radius:12px;overflow:hidden;box-shadow:0 15px 45px #000b}
+canvas{width:100%;height:auto;display:block;image-rendering:pixelated}
+#panel{position:absolute;inset:0;background:#080710eF;display:flex;align-items:center;justify-content:center;padding:12px;text-align:center;overflow:auto}
+.card{max-width:680px;width:100%;background:#211a30;border:2px solid #8b6aa4;border-radius:14px;padding:20px;box-shadow:0 10px 40px #000b}
+.card h2{font:clamp(26px,5vw,42px) Creepster;color:#baff9b;margin:0 0 10px;letter-spacing:2px}
+.card p{line-height:1.5}
+.btn{border:0;border-radius:8px;padding:11px 17px;margin:5px;background:#79c65f;color:#12210f;font-size:15px;font-weight:1000;cursor:pointer}
+.btn.alt{background:#70528c;color:white}
+.btn.red{background:#bd4655;color:white}
+.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:8px;margin:12px 0}
+.shopitem{background:#302641;border:1px solid #765e87;border-radius:8px;padding:9px}
+.small{font-size:13px;color:#d6c9e2}
+#message{text-align:center;min-height:28px;padding:7px;color:#c7ffb7;font-weight:900}
 </style>
 </head>
 <body>
-<div id="app">
+<main id="wrap">
 <header>
- <div class="logo">NO, I'M NOT HUMAN</div>
- <div class="stats">
-  <div class="stat">NIGHT <span id="night">1</span>/5</div>
-  <div class="stat">VISITOR <span id="visitorNum">0</span>/5</div>
-  <div class="stat">❤️ <span id="hearts">3</span></div>
-  <div class="stat">🔦 <span id="flash">3</span></div>
- </div>
+<h1>75 NIGHTS IN THE SPOOKY FOREST</h1>
+<div class="hud">
+<div class="pill" id="level">NIGHT 1 / 75</div>
+<div class="pill" id="lives">LIVES: ♥ ♥ ♥ ♥ ♥</div>
+<div class="pill" id="coins">COINS: 0</div>
+<div class="pill" id="bossHud">BOSS: 100%</div>
+</div>
 </header>
 
-<div id="scene">
- <div class="room">
-  <div class="ceiling"></div><div class="lamp"></div>
-  <div class="wallline"></div>
-  <div class="door"><div class="peephole"></div><div class="doorhandle"></div></div>
-  <div class="rug"></div><div class="floor"></div>
- </div>
- <div id="roomText">LILLY'S HOUSE • 2:17 AM • STAY INSIDE</div>
- <div id="actions">
-  <button onclick="inspectVisitor()">🔍 Look through peephole</button>
-  <button onclick="checkMirror()">🪞 Check yourself</button>
-  <button onclick="useFlashlight()">🔦 Flashlight</button>
-  <button onclick="pauseGame()">⏸ Pause</button>
- </div>
- <div id="message"></div>
-
- <div id="inspection">
-  <div class="inspectPanel">
-   <div class="small">PEEPHOLE CAMERA • LOOK CAREFULLY</div>
-   <h2 id="visitorTitle">Someone is at the door...</h2>
-   <div id="peepholeView">
-    <div id="visitorSilhouette"></div>
-    <div id="visitorFace">👤</div>
-   </div>
-   <div id="clueBox">
-    <b>What do you notice?</b>
-    <div id="clues"></div>
-   </div>
-   <div id="choiceButtons">
-    <button class="green" onclick="decide('human')">LET THEM IN</button>
-    <button class="red" onclick="decide('danger')">KEEP THEM OUT</button>
-   </div>
-   <p class="small">Humans can look strange. Mimics can look perfectly normal. Trust the evidence.</p>
-  </div>
- </div>
-
- <div id="selfCheck">
-  <div class="inspectPanel">
-   <div class="small">LILLY'S BEDROOM • MIRROR INSPECTION</div>
-   <h2>Is Lilly still human?</h2>
-   <div class="mirror" id="mirrorFace">👩🏻</div>
-   <div id="selfClues" class="clueBox"></div>
-   <p>Look for signs that something about Lilly has changed.</p>
-   <div id="choiceButtons">
-    <button class="green" onclick="decideSelf('human')">I AM HUMAN</button>
-    <button class="red" onclick="decideSelf('danger')">SOMETHING IS WRONG</button>
-   </div>
-  </div>
- </div>
-
- <div id="overlay">
-  <div class="panel" id="panel">
-   <h1>NO, I'M NOT HUMAN</h1>
-   <div style="font-size:65px">🚪👁️🌙</div>
-   <h2>LILLY'S LAST NIGHT</h2>
-   <p>You are Lilly. You are inside your house while strange visitors arrive at your door.</p>
-   <p>Look through the peephole. Study their eyes, faces, shadows, reflections, and behavior. Some visitors are human. Others are mimics or transfigured humans pretending to be normal.</p>
-   <p><b>But don't forget to check yourself in the mirror, too.</b></p>
-   <p class="small">Five nights • Five visitors each night • Changing patterns • Three hearts</p>
-   <button class="big" onclick="startGame()">BEGIN THE NIGHT</button>
-  </div>
- </div>
+<div id="stage">
+<canvas id="game" width="960" height="540"></canvas>
+<div id="panel">
+<div class="card">
+<h2>75 NIGHTS</h2>
+<p>Enter the spooky forest and survive 75 dangerous nights! Every night has a boss. Fight with your sword, block attacks with your shield, collect coins, and discover secret doors.</p>
+<p><b>Controls:</b><br>
+A/D or arrows = Move<br>
+SPACE / W / UP = Jump<br>
+X = Sword attack<br>
+C = Shield block<br>
+E = Open a secret door<br>
+P = Pause</p>
+<button class="btn" id="start">ENTER THE FOREST</button>
+<button class="btn alt" id="shopStart">SKIN SHOP</button>
 </div>
-<div id="bottom">LILLY'S HOUSE • DO NOT OPEN THE DOOR WITHOUT CHECKING • LISTEN CAREFULLY</div>
 </div>
+</div>
+<div id="message">Can you survive all 75 nights?</div>
+</main>
 
 <script>
+(()=>{
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const panel=document.getElementById('panel');
 const $=id=>document.getElementById(id);
 
-let night=1,visitorNum=0,hearts=3,flashlights=3;
-let running=false,paused=false;
-let currentVisitor=null,visitors=[],selfStatus='human';
-let selfChecked=false,flashlightUsed=false,score=0;
-let nightCorrect=0,totalCorrect=0;
-let lastDecision=null;
-let patterns=[];
-let visitorInspected=false;
+let level=1,lives=5,coins=0;
+let running=false,paused=false,raf=0,last=0;
+let player,boss,platforms=[],spikes=[],coinItems=[],potions=[],doors=[],fireballs=[];
+let camera=0,worldWidth=1900,frame=0;
+let attackTimer=0,shieldTimer=0,shieldActive=false;
+let attackCooldown=0,doorMessage=0;
+let skin='CLASSIC';
+let ownedSkins=['CLASSIC'];
+let checkpointX=100;
+let levelComplete=false;
 
-const faces=['👨🏻','👩🏼','👨🏽','👩🏻','👵🏻','👨🏾','👩🏿','🧑🏻','👨🏼','👩🏽','🧔🏻','👩🏼‍🦰'];
-const names=['Alex','Morgan','Jamie','Taylor','Jordan','Casey','Riley','Sam','Avery','Charlie','Robin','Drew'];
-const normalDetails=[
- 'Their breathing seems steady.',
- 'They blink at a normal pace.',
- 'Their shadow moves with them.',
- 'Their reflection appears normal.',
- 'Their eyes follow the peephole.',
- 'Their voice sounds nervous but natural.',
- 'They seem cold and are shivering.',
- 'They look tired from walking outside.'
-];
-const mimicClues=[
- 'One eye seems to blink a moment later than the other.',
- 'Their shadow points in the wrong direction.',
- 'Their smile stays frozen while they speak.',
- 'Their reflection seems to move slightly late.',
- 'They do not blink, even after a long moment.',
- 'Their fingers seem to bend at an unusual angle.',
- 'Their voice repeats the last word they say.',
- 'Their eyes seem to look in two directions.',
- 'Their face looks almost right, but not quite.',
- 'Their breathing does not match the movement of their chest.'
-];
-const transfiguredClues=[
- 'Their face seems to shift when the light changes.',
- 'Their skin has strange patterns near the neck.',
- 'Their mouth moves even when they are silent.',
- 'Their eyes look unusually bright in the dark.',
- 'Their outline seems to ripple around the edges.',
- 'Their fingers appear slightly too long.',
- 'Their expression changes without their face moving.',
- 'Something seems to be moving beneath their skin.'
+const skins=[
+{name:'CLASSIC',price:0,color:'#4c9a5d',description:'Forest adventurer'},
+{name:'GHOST',price:50,color:'#d5e6ee',description:'Ghostly white armor'},
+{name:'VAMPIRE',price:90,color:'#9d354e',description:'Dark vampire outfit'},
+{name:'WITCH',price:130,color:'#9864d0',description:'Purple forest magic'},
+{name:'SHADOW',price:180,color:'#343345',description:'Mysterious shadow armor'},
+{name:'GOLD',price:250,color:'#f3c64c',description:'Golden champion'}
 ];
 
-function updateHUD(){
- $('night').textContent=night;
- $('visitorNum').textContent=visitorNum;
- $('hearts').textContent=hearts;
- $('flash').textContent=flashlights;
+const keys={left:false,right:false,jump:false,attack:false,shield:false};
+
+function nightTheme(){
+if(level===75)return 'dragon';
+if(level<16)return 'forest';
+if(level<31)return 'graveyard';
+if(level<46)return 'swamp';
+if(level<61)return 'haunted';
+return 'dark';
 }
-function say(t){
- $('message').textContent=t;
- $('message').style.opacity=1;
- clearTimeout(say.timer);
- say.timer=setTimeout(()=>$('message').style.opacity=0,2200);
+
+function bossName(){
+if(level===75)return 'THE FIRE DRAGON';
+if(level%15===0)return 'THE FOREST DEMON';
+if(level%10===0)return 'THE GIANT SKELETON';
+if(level%5===0)return 'THE WITCH';
+return 'NIGHT BOSS '+level;
 }
-function shuffle(a){
- for(let i=a.length-1;i>0;i--){
-  let j=Math.floor(Math.random()*(i+1));
-  [a[i],a[j]]=[a[j],a[i]];
- }
- return a;
+
+function bossMaxHealth(){
+return 45+level*3;
 }
+
+function updateHud(){
+$('level').textContent='NIGHT '+level+' / 75';
+$('lives').textContent='LIVES: '+'♥ '.repeat(Math.max(0,lives));
+$('coins').textContent='COINS: '+coins;
+$('bossHud').textContent=boss?'BOSS: '+Math.ceil(boss.hp/boss.maxHp*100)+'%':'BOSS: DEFEATED';
+}
+
+function resetLevel(){
+player={
+x:90,y:350,w:32,h:48,
+vx:0,vy:0,onGround:false,
+inv:0,face:1,blocking:false
+};
+
+camera=0;
+worldWidth=1900;
+frame=0;
+attackTimer=0;
+shieldTimer=0;
+attackCooldown=0;
+fireballs=[];
+levelComplete=false;
+checkpointX=90;
+
+platforms=[
+{x:0,y:455,w:450},
+{x:510,y:455,w:300},
+{x:870,y:455,w:350},
+{x:1280,y:455,w:300},
+{x:1640,y:455,w:260},
+{x:250,y:350,w:150},
+{x:570,y:330,w:140},
+{x:940,y:350,w:140},
+{x:1250,y:320,w:150},
+{x:1510,y:350,w:130}
+];
+
+spikes=[];
+for(let x=370;x<worldWidth-240;x+=260){
+spikes.push({x,y:455,w:34,h:30});
+}
+
+coinItems=[];
+for(let x=180;x<worldWidth-100;x+=125){
+coinItems.push({
+x,y:300+(x%3)*15,got:false
+});
+}
+
+potions=[];
+for(let x=600;x<worldWidth-300;x+=480){
+potions.push({x,y:410,got:false});
+}
+
+// Secret doors blend into the forest.
+// Their location is not marked with a glowing outline.
+doors=[
+{x:740,y:405,used:false},
+{x:1450,y:405,used:false}
+];
+
+boss={
+x:worldWidth-160,
+y:365,
+w:72,
+h:80,
+hp:bossMaxHealth(),
+maxHp:bossMaxHealth(),
+direction:-1,
+cooldown:80,
+fireRate:Math.max(55,125-level*.7),
+flash:0
+};
+
+updateHud();
+}
+
 function startGame(){
- night=1;visitorNum=0;hearts=3;flashlights=3;
- score=0;totalCorrect=0;running=true;paused=false;
- $('overlay').style.display='none';
- beginNight();
+if(running)return;
+lives=5;
+level=1;
+coins=0;
+resetLevel();
+running=true;
+paused=false;
+panel.style.display='none';
+last=performance.now();
+cancelAnimationFrame(raf);
+raf=requestAnimationFrame(loop);
+$('message').textContent='Night 1: Defeat the boss!';
 }
-function beginNight(){
- visitorNum=0;
- nightCorrect=0;
- selfChecked=false;
- flashlightUsed=false;
- patterns=[];
- // The mix changes every night. Humans are usually the most common.
- let pool=['human','human','human','mimic','transfigured'];
- if(night>=3)pool=['human','human','mimic','mimic','transfigured'];
- if(night===5)pool=['human','mimic','mimic','transfigured','transfigured'];
- visitors=shuffle(pool.slice());
- makeVisitor();
- updateHUD();
- $('roomText').textContent='LILLY\\'S HOUSE • NIGHT '+night+' • CHECK THE MIRROR';
- say('Night '+night+'. Check yourself before answering the door.');
+
+function drawForest(){
+let theme=nightTheme();
+
+let sky=theme==='dragon'?'#28101c':
+theme==='graveyard'?'#20243b':
+theme==='swamp'?'#172c27':
+theme==='haunted'?'#171a30':
+theme==='dark'?'#10101e':'#182b28';
+
+ctx.fillStyle=sky;
+ctx.fillRect(0,0,960,540);
+
+// Moon
+ctx.fillStyle=theme==='dragon'?'#ff9b5e':'#d6d7ad';
+ctx.beginPath();
+ctx.arc(790,100,42,0,Math.PI*2);
+ctx.fill();
+
+// Distant trees
+for(let i=0;i<17;i++){
+let x=((i*115-camera*.18)%1100+1100)%1100-50;
+ctx.fillStyle=theme==='dragon'?'#4b1b25':'#101c19';
+ctx.fillRect(x+20,190,18,260);
+ctx.beginPath();
+ctx.moveTo(x-35,260);
+ctx.lineTo(x+29,85);
+ctx.lineTo(x+92,260);
+ctx.closePath();
+ctx.fill();
 }
-function makeVisitor(){
- let type=visitors[visitorNum];
- let face=faces[Math.floor(Math.random()*faces.length)];
- let name=names[Math.floor(Math.random()*names.length)];
- let clue='';
- if(type==='human')clue=normalDetails[Math.floor(Math.random()*normalDetails.length)];
- if(type==='mimic')clue=mimicClues[Math.floor(Math.random()*mimicClues.length)];
- if(type==='transfigured')clue=transfiguredClues[Math.floor(Math.random()*transfiguredClues.length)];
- let extra=type==='human'
-  ?normalDetails[Math.floor(Math.random()*normalDetails.length)]
-  :type==='mimic'
-   ?mimicClues[Math.floor(Math.random()*mimicClues.length)]
-   :transfiguredClues[Math.floor(Math.random()*transfiguredClues.length)];
- // Sometimes a suspicious-looking human has an innocent odd detail.
- if(type==='human'&&Math.random()<.45)clue=mimicClues[Math.floor(Math.random()*mimicClues.length)];
- currentVisitor={
-  type,face,name,
-  clues:shuffle([clue,extra]).slice(0,2),
-  inspected:false
- };
+
+// Graveyard decorations
+if(theme==='graveyard'||theme==='haunted'){
+for(let i=0;i<8;i++){
+let x=((i*150-camera*.13)%1100+1100)%1100-40;
+ctx.fillStyle='#6e7880';
+ctx.fillRect(x,365,36,60);
+ctx.fillStyle='#a2aab1';
+ctx.fillRect(x+8,377,20,4);
 }
-function inspectVisitor(){
- if(!running||paused)return;
- if(!selfChecked){
-  say('Check yourself in the mirror first!');
-  checkMirror();return;
- }
- if(!currentVisitor)return;
- visitorInspected=true;
- $('inspection').style.display='flex';
- $('visitorTitle').textContent=currentVisitor.name+' is at the door';
- $('visitorFace').textContent=currentVisitor.face;
- $('clues').innerHTML=currentVisitor.clues.map((c,i)=>'<div>• '+c+'</div>').join('');
 }
-function useFlashlight(){
- if(!running||paused)return;
- if(flashlights<=0){say('Your flashlight batteries are dead!');return}
- flashlights--;
- updateHUD();
- if($('inspection').style.display==='flex'){
-  let clue=currentVisitor.type==='human'
-   ?'The flashlight reveals ordinary details. Nothing unusual stands out.'
-   :currentVisitor.type==='mimic'
-    ?'The flashlight catches a strange movement in their eyes. Something is not right.'
-    :'The light reveals an unnatural change around their face and neck.';
-  $('clues').innerHTML+='<div><b>🔦 FLASHLIGHT:</b> '+clue+'</div>';
- }else{
-  say('You shine the flashlight toward the door. A shadow moves outside...');
- }
+
+// Swamp decorations
+if(theme==='swamp'){
+for(let i=0;i<8;i++){
+let x=((i*140-camera*.12)%1100+1100)%1100-40;
+ctx.fillStyle='#44816a';
+ctx.fillRect(x,310,9,130);
+ctx.beginPath();
+ctx.arc(x+5,305,28,0,Math.PI*2);
+ctx.fill();
 }
-function decide(choice){
- if(!currentVisitor)return;
- $('inspection').style.display='none';
- let correct=(currentVisitor.type==='human'&&choice==='human')||
-             (currentVisitor.type!=='human'&&choice==='danger');
- if(correct){
-  nightCorrect++;totalCorrect++;score+=100;
-  say(currentVisitor.type==='human'?'Correct! A real human. They are safe.':'Good catch! That was not human!');
- }else{
-  hearts--;
-  updateHUD();
-  score=Math.max(0,score-50);
-  say(currentVisitor.type==='human'
-   ?'That visitor was human! You made a mistake.'
-   :'It was a '+currentVisitor.type+'! You should have kept it out!');
- }
- visitorNum++;
- updateHUD();
- currentVisitor=null;
- if(hearts<=0){
-  gameOver();return;
- }
- if(visitorNum>=5){
-  finishNight();return;
- }
- makeVisitor();
 }
-function checkMirror(){
- if(!running||paused)return;
- if(selfChecked){
-  say('You already checked the mirror tonight.');
-  return;
- }
- // Lilly's condition changes randomly each night.
- selfStatus=Math.random()<.82?'human':(Math.random()<.5?'mimic':'transfigured');
- $('selfCheck').style.display='flex';
- $('mirrorFace').textContent=selfStatus==='human'?'👩🏻':selfStatus==='mimic'?'👩🏻‍🦰':'👁️';
- let clues;
- if(selfStatus==='human'){
-  clues=['Your reflection copies your movements.','Your eyes look normal.','Your shadow stays connected to your feet.'];
- }else if(selfStatus==='mimic'){
-  clues=['Your reflection smiles when you do not.','Your eyes blink at different times.','Your reflection seems to be watching you.'];
- }else{
-  clues=['Your reflection looks different around the edges.','Your face seems to shift in the mirror.','Your fingers look unusually long.'];
- }
- $('selfClues').innerHTML=clues.map(c=>'<div>• '+c+'</div>').join('');
+
+// Dragon lair
+if(theme==='dragon'){
+ctx.fillStyle='#5a2028';
+ctx.fillRect(650,245,260,210);
+ctx.fillStyle='#8e3031';
+ctx.beginPath();
+ctx.moveTo(625,245);ctx.lineTo(780,115);ctx.lineTo(935,245);ctx.fill();
+ctx.fillStyle='#e98b43';
+ctx.fillRect(750,330,60,125);
+ctx.fillStyle='#ffd078';
+ctx.fillRect(765,345,30,100);
 }
-function decideSelf(choice){
- $('selfCheck').style.display='none';
- selfChecked=true;
- let correct=(selfStatus==='human'&&choice==='human')||(selfStatus!=='human'&&choice==='danger');
- if(correct){
-  score+=50;
-  say(selfStatus==='human'?'Lilly is human. You are safe... for now.':'Something is wrong with Lilly. You noticed the signs!');
- }else{
-  hearts--;
-  updateHUD();
-  say('You misread the mirror. Lilly is not what you thought!');
- }
- if(hearts<=0){gameOver();return}
- updateHUD();
+
+// Ground
+ctx.fillStyle=theme==='dragon'?'#51242a':'#263c2c';
+ctx.fillRect(0,455,960,85);
+ctx.fillStyle=theme==='dragon'?'#9c4b37':'#567c43';
+ctx.fillRect(0,455,960,7);
+
+// Ground grass
+ctx.fillStyle='#89a75c';
+for(let x=0;x<960;x+=35){
+ctx.fillRect(x,464+(x%3)*4,12,4);
 }
-function finishNight(){
- running=false;
- $('overlay').style.display='flex';
- $('panel').innerHTML=
- '<h1>NIGHT '+night+' SURVIVED</h1>'+
- '<div style="font-size:55px">🌙🚪</div>'+
- '<h2>'+nightCorrect+' / 5 correct decisions</h2>'+
- '<p>You made it through the visitors tonight. But tomorrow night, the visitors may look even more convincing.</p>'+
- '<p>Score: '+score+' • Hearts remaining: '+hearts+'</p>'+
- '<button class="big" onclick="nextNight()">CONTINUE TO NIGHT '+(night+1)+'</button>';
 }
-function nextNight(){
- if(night>=5){
-  winGame();return;
- }
- night++;
- $('overlay').style.display='none';
- running=true;
- beginNight();
-}
-function gameOver(){
- running=false;
- $('inspection').style.display='none';
- $('selfCheck').style.display='none';
- $('overlay').style.display='flex';
- $('panel').innerHTML=
- '<h1>THE HOUSE IS NOT SAFE</h1><div style="font-size:60px">🚪👁️</div>'+
- '<p>Lilly ran out of hearts. The visitors have taken over the night.</p>'+
- '<p>Final score: '+score+'</p>'+
- '<button class="big" onclick="restartGame()">TRY AGAIN</button>'+
- '<button class="gray" onclick="backToLab()">BACK TO GAME LAB</button>';
-}
-function winGame(){
- running=false;
- $('overlay').style.display='flex';
- $('panel').innerHTML=
- '<h1>YOU SURVIVED! 🌅</h1><div style="font-size:60px">🏠🌞</div>'+
- '<h2>THE SUN HAS RISEN</h2>'+
- '<p>Lilly survived all five nights! You inspected visitors, caught mimics, and checked yourself before it was too late.</p>'+
- '<p>Final score: '+score+' • Total correct inspections: '+totalCorrect+'</p>'+
- '<button class="big" onclick="restartGame()">PLAY AGAIN</button>'+
- '<button class="gray" onclick="backToLab()">BACK TO GAME LAB</button>';
-}
-function restartGame(){
- $('overlay').style.display='none';
- startGame();
-}
-function pauseGame(){
- if(!running)return;
- paused=true;
- $('overlay').style.display='flex';
- $('panel').innerHTML=
- '<h1>PAUSED</h1><div style="font-size:50px">🌙</div>'+
- '<p>Lilly is safe inside for now. Your progress is saved.</p>'+
- '<button class="big" onclick="resumeGame()">RESUME</button>'+
- '<button class="gray" onclick="backToLab()">BACK TO GAME LAB</button>';
-}
-function resumeGame(){
- paused=false;
- $('overlay').style.display='none';
-}
-function backToLab(){location.href='../../index.html'}
-document.addEventListener('keydown',e=>{
- if(e.code==='Escape'||e.code==='KeyP'){
-  if(running&&!paused)pauseGame();
-  return;
- }
- if(e.code==='KeyE'&&!e.repeat)inspectVisitor();
- if(e.code==='KeyF'&&!e.repeat)useFlashlight();
+
+function drawPlatforms(){
+ctx.save();
+ctx.translate(-camera,0);
+
+platforms.forEach(p=>{
+ctx.fillStyle='#443d43';
+ctx.fillRect(p.x,p.y,p.w,16);
+ctx.fillStyle='#71835a';
+ctx.fillRect(p.x,p.y,p.w,5);
+ctx.fillStyle='#292b32';
+ctx.fillRect(p.x,p.y+16,p.w,8);
 });
-document.addEventListener('visibilitychange',()=>{
- if(document.hidden&&running&&!paused)pauseGame();
+
+spikes.forEach(s=>{
+ctx.fillStyle='#c6c6d0';
+ctx.beginPath();
+ctx.moveTo(s.x,s.y);
+ctx.lineTo(s.x+s.w/2,s.y-s.h);
+ctx.lineTo(s.x+s.w,s.y);
+ctx.closePath();
+ctx.fill();
+ctx.fillStyle='#fff';
+ctx.fillRect(s.x+s.w/2-2,s.y-22,4,6);
 });
+
+ctx.restore();
+}
+
+function drawDoors(){
+ctx.save();
+ctx.translate(-camera,0);
+
+doors.forEach(d=>{
+if(d.used)return;
+// Camouflaged wooden door, deliberately blends into background
+ctx.fillStyle='#342b27';
+ctx.fillRect(d.x,d.y,42,50);
+ctx.fillStyle='#514034';
+ctx.fillRect(d.x+5,d.y+5,32,42);
+ctx.fillStyle='#6e543b';
+ctx.fillRect(d.x+28,d.y+23,4,4);
+// Vines camouflage the door
+ctx.strokeStyle='#315339';
+ctx.lineWidth=5;
+ctx.beginPath();
+ctx.moveTo(d.x+3,d.y+4);
+ctx.lineTo(d.x+12,d.y+18);
+ctx.lineTo(d.x+8,d.y+35);
+ctx.moveTo(d.x+35,d.y+1);
+ctx.lineTo(d.x+27,d.y+18);
+ctx.lineTo(d.x+36,d.y+40);
+ctx.stroke();
+});
+ctx.restore();
+}
+
+function drawPlayer(){
+let x=player.x,y=player.y;
+let selected=skins.find(s=>s.name===skin)||skins[0];
+
+ctx.save();
+ctx.translate(x,y);
+
+// Flashing while hurt
+if(player.inv>0&&Math.floor(frame/5)%2===0){
+ctx.globalAlpha=.35;
+}
+
+// Body
+ctx.fillStyle=selected.color;
+ctx.fillRect(5,15,24,29);
+
+// Head
+ctx.fillStyle='#e6c29d';
+ctx.fillRect(8,0,21,20);
+
+// Hair / helmet
+ctx.fillStyle=skin==='GHOST'?'#dcecff':'#25212b';
+ctx.fillRect(7,0,23,6);
+
+// Eyes
+ctx.fillStyle='#17131c';
+ctx.fillRect(12,8,4,4);
+ctx.fillRect(22,8,4,4);
+
+// Legs
+ctx.fillStyle='#26283c';
+ctx.fillRect(7,40,8,9);
+ctx.fillRect(21,40,8,9);
+
+// Sword
+ctx.fillStyle='#b9eaff';
+ctx.fillRect(player.face===1?31:-9,20,8,28);
+ctx.fillStyle='#e4c16b';
+ctx.fillRect(player.face===1?29:-7,28,12,5);
+
+// Shield
+if(shieldActive){
+ctx.fillStyle='#55c8ff';
+ctx.beginPath();
+ctx.moveTo(player.face===1?0:32,12);
+ctx.lineTo(player.face===1?-14:46,18);
+ctx.lineTo(player.face===1?-12:44,40);
+ctx.lineTo(player.face===1?0:32,48);
+ctx.lineTo(player.face===1?12:20,40);
+ctx.lineTo(player.face===1?14:18,18);
+ctx.closePath();
+ctx.fill();
+ctx.strokeStyle='#e1faff';
+ctx.lineWidth=2;
+ctx.stroke();
+}
+
+ctx.restore();
+}
+
+function drawBoss(){
+if(!boss)return;
+ctx.save();
+ctx.translate(-camera,0);
+
+let dragon=level===75;
+let color=dragon?'#a72e39':
+level%15===0?'#713d8d':
+level%10===0?'#8b8b9a':
+'#5a8c48';
+
+if(boss.flash>0)color='#fff';
+
+ctx.fillStyle=color;
+ctx.fillRect(boss.x,boss.y,boss.w,boss.h);
+
+// Head
+ctx.fillStyle=dragon?'#d64b3b':color;
+ctx.fillRect(boss.x+10,boss.y-24,boss.w-10,34);
+
+// Eyes
+ctx.fillStyle='#ffed7b';
+ctx.fillRect(boss.x+22,boss.y-12,9,8);
+ctx.fillRect(boss.x+48,boss.y-12,9,8);
+
+// Mouth
+ctx.fillStyle='#25151b';
+ctx.fillRect(boss.x+28,boss.y+4,28,7);
+
+// Horns
+ctx.fillStyle=dragon?'#e9b16a':'#b7b0ba';
+ctx.beginPath();
+ctx.moveTo(boss.x+12,boss.y-17);
+ctx.lineTo(boss.x+3,boss.y-39);
+ctx.lineTo(boss.x+27,boss.y-20);
+ctx.fill();
+ctx.beginPath();
+ctx.moveTo(boss.x+54,boss.y-17);
+ctx.lineTo(boss.x+70,boss.y-39);
+ctx.lineTo(boss.x+65,boss.y-12);
+ctx.fill();
+
+// Dragon wings
+if(dragon){
+ctx.fillStyle='#6b2637';
+ctx.beginPath();
+ctx.moveTo(boss.x+10,boss.y+15);
+ctx.lineTo(boss.x-35,boss.y-35);
+ctx.lineTo(boss.x+20,boss.y+45);
+ctx.fill();
+ctx.beginPath();
+ctx.moveTo(boss.x+58,boss.y+15);
+ctx.lineTo(boss.x+110,boss.y-35);
+ctx.lineTo(boss.x+70,boss.y+45);
+ctx.fill();
+}
+
+// Health bar
+ctx.fillStyle='#20131c';
+ctx.fillRect(boss.x-10,boss.y-54,95,12);
+ctx.fillStyle='#e44e61';
+ctx.fillRect(boss.x-8,boss.y-52,91*(boss.hp/boss.maxHp),8);
+
+ctx.restore();
+}
+
+function drawFireballs(){
+ctx.save();
+ctx.translate(-camera,0);
+fireballs.forEach(f=>{
+ctx.fillStyle='#ff713d';
+ctx.beginPath();
+ctx.arc(f.x,f.y,12,0,Math.PI*2);
+ctx.fill();
+ctx.fillStyle='#ffe18a';
+ctx.beginPath();
+ctx.arc(f.x-3,f.y-3,5,0,Math.PI*2);
+ctx.fill();
+});
+ctx.restore();
+}
+
+function drawItems(){
+ctx.save();
+ctx.translate(-camera,0);
+
+coinItems.forEach(o=>{
+if(o.got)return;
+ctx.fillStyle='#ffd64e';
+ctx.beginPath();
+ctx.arc(o.x,o.y,10,0,Math.PI*2);
+ctx.fill();
+ctx.fillStyle='#fff3a3';
+ctx.fillRect(o.x-2,o.y-6,4,12);
+});
+
+potions.forEach(o=>{
+if(o.got)return;
+ctx.fillStyle='#68d7ff';
+ctx.fillRect(o.x-9,o.y-12,18,23);
+ctx.fillStyle='#eaffff';
+ctx.fillRect(o.x-4,o.y-17,8,6);
+});
+
+ctx.restore();
+}
+
+function draw(){
+drawForest();
+drawPlatforms();
+drawDoors();
+drawItems();
+drawBoss();
+drawFireballs();
+drawPlayer();
+
+ctx.fillStyle='#171321dd';
+ctx.fillRect(15,14,280,40);
+ctx.fillStyle='#fff';
+ctx.font='bold 17px Nunito';
+ctx.fillText('BOSS: '+bossName(),25,40);
+
+if(shieldActive){
+ctx.fillStyle='#75dcff';
+ctx.font='bold 16px Nunito';
+ctx.fillText('SHIELD BLOCKING!',760,35);
+}
+}
+
+function hit(a,b){
+return a.x<b.x+b.w&&
+a.x+a.w>b.x&&
+a.y<b.y+b.h&&
+a.y+a.h>b.y;
+}
+
+function damage(){
+if(player.inv>0)return;
+if(shieldActive)return;
+
+lives--;
+player.inv=90;
+player.vy=-7;
+player.vx=-5;
+updateHud();
+
+if(lives<=0){
+running=false;
+show('GAME OVER',`
+The forest defeated you on Night ${level}.
+You collected ${coins} coins. Try again!
+`,`
+<button class="btn" data-action="retry">TRY AGAIN</button>
+<button class="btn alt" data-action="shop">SKIN SHOP</button>
+`);
+}
+}
+
+function attack(){
+if(!running||attackCooldown>0)return;
+
+attackCooldown=22;
+attackTimer=12;
+
+let range={
+x:player.face===1?player.x+player.w:player.x-65,
+y:player.y+5,
+w:65,h:40
+};
+
+if(boss&&hit(range,{
+x:boss.x,y:boss.y-20,w:boss.w,h:boss.h+20
+})){
+boss.hp-=15;
+boss.flash=8;
+updateHud();
+
+if(boss.hp<=0){
+defeatBoss();
+}
+}
+}
+
+function block(){
+shieldActive=true;
+shieldTimer=20;
+}
+
+function useDoor(){
+let found=doors.find(d=>
+!d.used&&Math.abs((d.x+20)-(player.x+16))<65&&
+Math.abs(d.y-player.y)<90
+);
+
+if(found){
+found.used=true;
+player.x=checkpointX+40;
+player.y=300;
+player.vy=0;
+player.inv=60;
+$('message').textContent='SECRET PASSAGE FOUND! You escaped danger!';
+}else{
+$('message').textContent='No secret door nearby... look carefully!';
+}
+}
+
+function defeatBoss(){
+boss=null;
+fireballs=[];
+levelComplete=true;
+coins+=20;
+updateHud();
+$('message').textContent='BOSS DEFEATED! +20 COINS! Find the exit!';
+
+// Exit appears after the boss is defeated
+}
+
+function nextLevel(){
+if(level>=75){
+running=false;
+show('YOU SURVIVED 75 NIGHTS!',`
+You defeated the final dragon and escaped the spooky forest!
+<br><br>
+Total coins collected: ${coins}
+<br><br>
+You are the champion of the forest!
+`,`
+<button class="btn" data-action="restart">PLAY AGAIN</button>
+<button class="btn alt" data-action="shop">SKIN SHOP</button>
+`);
+return;
+}
+
+level++;
+lives=Math.min(5,lives+1);
+resetLevel();
+$('message').textContent='NIGHT '+level+': '+bossName()+' is waiting!';
+updateHud();
+}
+
+function update(){
+frame++;
+
+let accel=.7;
+if(keys.left){
+player.vx-=accel;
+player.face=-1;
+}
+if(keys.right){
+player.vx+=accel;
+player.face=1;
+}
+
+player.vx*=.86;
+player.vx=Math.max(-6,Math.min(6,player.vx));
+
+// Jump
+if(keys.jump&&player.onGround){
+player.vy=-12;
+player.onGround=false;
+keys.jump=false;
+}
+
+player.vy+=.58;
+player.vy=Math.min(player.vy,13);
+player.x+=player.vx;
+player.y+=player.vy;
+
+player.onGround=false;
+
+// Ground/platform collision
+platforms.forEach(p=>{
+if(player.vy>=0&&
+player.x+player.w>p.x&&
+player.x<p.x+p.w&&
+player.y+player.h>=p.y&&
+player.y+player.h<=p.y+23){
+player.y=p.y-player.h;
+player.vy=0;
+player.onGround=true;
+}
+});
+
+// Keep character on screen
+player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
+
+if(player.y>560){
+damage();
+player.x=checkpointX;
+player.y=300;
+player.vy=0;
+}
+
+// Spike collision
+spikes.forEach(s=>{
+if(hit(player,{
+x:s.x+5,y:s.y-s.h+8,w:s.w-10,h:s.h
+})){
+damage();
+}
+});
+
+// Coins
+coinItems.forEach(o=>{
+if(!o.got&&hit(player,{
+x:o.x-10,y:o.y-10,w:20,h:20
+})){
+o.got=true;
+coins+=5;
+updateHud();
+}
+});
+
+// Potions restore one life
+potions.forEach(o=>{
+if(!o.got&&hit(player,{
+x:o.x-10,y:o.y-15,w:20,h:25
+})){
+o.got=true;
+lives=Math.min(5,lives+1);
+updateHud();
+$('message').textContent='HEALTH POTION! +1 LIFE!';
+}
+});
+
+// Boss movement and attacks
+if(boss){
+let distance=player.x-boss.x;
+boss.x+=distance>0?-1.2:1.2;
+boss.x=Math.max(worldWidth-330,Math.min(worldWidth-100,boss.x));
+
+if(boss.cooldown>0)boss.cooldown--;
+
+if(boss.cooldown<=0){
+boss.cooldown=boss.fireRate;
+fireballs.push({
+x:boss.x+30,
+y:boss.y+30,
+vx:player.x<boss.x?-5:5,
+vy:-1.5
+});
+}
+
+if(hit(player,{
+x:boss.x,y:boss.y-20,w:boss.w,h:boss.h+20
+})){
+damage();
+}
+if(boss.flash>0)boss.flash--;
+}
+
+// Fireballs
+fireballs.forEach(f=>{
+f.x+=f.vx;
+f.y+=f.vy;
+f.vy+=.08;
+
+if(hit(player,{x:f.x-10,y:f.y-10,w:20,h:20})){
+damage();
+f.hit=true;
+}
+});
+
+fireballs=fireballs.filter(f=>
+!f.hit&&f.x>camera-100&&f.x<camera+1100&&f.y<550
+);
+
+// Timers
+if(player.inv>0)player.inv--;
+if(attackCooldown>0)attackCooldown--;
+if(attackTimer>0)attackTimer--;
+if(shieldTimer>0)shieldTimer--;
+else shieldActive=false;
+
+camera=Math.max(0,Math.min(worldWidth-960,player.x-300));
+
+// Exit is at the far right, only after boss defeat
+if(levelComplete&&player.x>worldWidth-110){
+nextLevel();
+}
+}
+
+function loop(t){
+if(!running||paused)return;
+last=t;
+update();
+draw();
+raf=requestAnimationFrame(loop);
+}
+
+function show(title,body,buttons){
+panel.style.display='flex';
+panel.innerHTML=`
+<div class="card">
+<h2>${title}</h2>
+<p>${body}</p>
+${buttons}
+</div>`;
+}
+
+function shop(){
+running=false;
+paused=false;
+
+let html='<div class="shopgrid">';
+skins.forEach(s=>{
+let owned=ownedSkins.includes(s.name);
+html+=`
+<div class="shopitem">
+<b style="color:${s.color}">${s.name}</b>
+<p class="small">${s.description}</p>
+<p class="small">${s.price===0?'FREE':s.price+' COINS'}</p>
+<button class="btn ${owned?'alt':''}" data-skin="${s.name}">
+${owned?(skin===s.name?'EQUIPPED':'EQUIP'):'BUY'}
+</button>
+</div>`;
+});
+html+='</div>';
+
+show('PLAYER SKIN SHOP',`
+You have ${coins} coins.
+<br>Buy a new look for your forest adventurer!
+`,html+`
+<button class="btn" data-action="back">BACK</button>
+<button class="btn alt" data-action="resume">RETURN TO GAME</button>
+`);
+}
+
+panel.addEventListener('click',e=>{
+let action=e.target.dataset.action;
+let selected=e.target.dataset.skin;
+
+if(selected){
+let s=skins.find(x=>x.name===selected);
+if(ownedSkins.includes(selected)){
+skin=selected;
+}else if(coins>=s.price){
+coins-=s.price;
+ownedSkins.push(selected);
+skin=selected;
+}else{
+$('message').textContent='Not enough coins! Collect more in the forest.';
+}
+updateHud();
+shop();
+return;
+}
+
+if(action==='retry'){
+lives=5;
+resetLevel();
+running=true;
+paused=false;
+panel.style.display='none';
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}
+if(action==='restart'){
+level=1;
+lives=5;
+coins=0;
+resetLevel();
+running=true;
+paused=false;
+panel.style.display='none';
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}
+if(action==='shop'){
+shop();
+}
+if(action==='back'||action==='resume'){
+panel.style.display='none';
+if(!running){
+running=true;
+paused=false;
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}
+}
+});
+
+// Buttons
+$('start').addEventListener('click',startGame);
+$('shopStart').addEventListener('click',shop);
+
+// Keyboard
+window.addEventListener('keydown',e=>{
+let k=e.key.toLowerCase();
+
+if(['arrowleft','arrowright','arrowup',' '].includes(k)){
+e.preventDefault();
+}
+
+if(k==='a'||k==='arrowleft')keys.left=true;
+if(k==='d'||k==='arrowright')keys.right=true;
+if(k==='w'||k==='arrowup'||k===' '){
+if(!keys.jump)keys.jump=true;
+}
+if(k==='x'&&!e.repeat)attack();
+if(k==='c')block();
+if(k==='e'&&!e.repeat)useDoor();
+
+if(k==='p'&&running){
+paused=!paused;
+if(paused){
+show('PAUSED','The forest is waiting...',`
+<button class="btn" data-action="resume">RESUME</button>
+<button class="btn alt" data-action="shop">SKIN SHOP</button>
+`);
+}else{
+panel.style.display='none';
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}
+}
+});
+
+window.addEventListener('keyup',e=>{
+let k=e.key.toLowerCase();
+if(k==='a'||k==='arrowleft')keys.left=false;
+if(k==='d'||k==='arrowright')keys.right=false;
+if(k==='w'||k==='arrowup'||k===' ')keys.jump=false;
+});
+
+window.addEventListener('blur',()=>{
+keys.left=false;
+keys.right=false;
+keys.jump=false;
+});
+
+resetLevel();
+draw();
+updateHud();
+})();
 </script>
 </body>
 </html>
