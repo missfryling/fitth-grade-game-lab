@@ -2,29 +2,425 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JHughes - Orange Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fff7ed; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Is the Door? - Kayla's Secret Maze</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#11172c;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+button{border:0;border-radius:12px;padding:10px 15px;background:#80f0d0;color:#102c2c;font-family:inherit;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
+#hud>*{pointer-events:auto}
+.logo{font-family:Fredoka;font-size:23px;color:#8df4e2;text-shadow:0 0 12px #35d8cb}
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#141d38eF;border:1px solid #63769c;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:800}
+#bottom{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#141d38ed;border:1px solid #63769c;border-radius:10px;padding:7px 12px;font-size:12px;color:#e1edff;white-space:nowrap}
+#corner{position:absolute;right:12px;bottom:55px}
+#overlay{position:absolute;inset:0;background:#070d20c9;display:flex;align-items:center;justify-content:center;padding:16px}
+.panel{width:min(490px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#29345e,#151c38);border:2px solid #8df4e2;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #35d8cb30}
+.panel h1{font-family:Fredoka;font-size:clamp(28px,5vw,43px);color:#8df4e2;margin:0 0 8px}
+.panel p{line-height:1.5;color:#e2eaff}
+.small{font-size:12px;color:#b8c8e8}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.secondary{background:#f2a5e1;color:#37183b}
+.hidden{display:none!important}
+#message{position:absolute;top:78px;left:50%;transform:translateX(-50%);background:#111a35eF;border:1px solid #8df4e2;border-radius:12px;padding:9px 15px;font-size:13px;font-weight:700;text-align:center;max-width:90vw;pointer-events:none}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-orange-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-orange-600">JHughes Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Orange Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-orange-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="logo">🚪 WHERE IS THE DOOR?</div>
+  <div class="stats">
+    <div class="stat" id="level">LEVEL 1 / 5</div>
+    <div class="stat" id="keyStatus">🗝️ NO KEY</div>
+    <div class="stat" id="secrets">✨ SECRETS 0</div>
+  </div>
+  <button onclick="togglePause()">Ⅱ PAUSE</button>
+</div>
+
+<div id="message">Find the hidden door and discover the key!</div>
+<div id="corner"><button onclick="resetGame()">↻ RESET</button></div>
+<div id="bottom">MOVE: WASD / ARROW KEYS &nbsp; • &nbsp; E: SEARCH / OPEN &nbsp; • &nbsp; FIND THE MATCHING KEY!</div>
+
+<div id="overlay">
+  <div class="panel" id="panel">
+    <h1>🚪 WHERE IS THE DOOR?</h1>
+    <p>Help Kayla escape a mysterious maze full of hidden doors! Search the walls, discover secret rooms, and find the keys that match each colored door.</p>
+    <p>🔴 Red • 🔵 Blue • 🟢 Green • 🟣 Purple • 🟡 GOLD</p>
+    <p><b>The golden key is hidden behind the hardest secret door!</b></p>
+    <p class="small">Use WASD or arrow keys to move. Press E near a suspicious wall to search for a secret door. Press E again to open it.</p>
+    <div class="actions"><button onclick="startGame()">START THE MAZE!</button></div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;draw()}
+addEventListener("resize",resize);
+
+const COLORS=[
+ {name:"RED",color:"#ff647c",emoji:"🔴"},
+ {name:"BLUE",color:"#66b8ff",emoji:"🔵"},
+ {name:"GREEN",color:"#75e99c",emoji:"🟢"},
+ {name:"PURPLE",color:"#c18aff",emoji:"🟣"},
+ {name:"GOLD",color:"#ffd45c",emoji:"🟡"}
+];
+const COLS=21,ROWS=15;
+const CELL=36;
+let grid=[],player={x:1,y:1},keys=[],coins=[],secretDoor=null,exit=null;
+let level=1,secretsFound=0,hasKey=false,keyColor=null;
+let running=false,paused=false,moveLock=0,flash=0;
+let messageTimer=0,frame=0,raf=0,last=0;
+let gateOpen=false,secretOpen=false,roomKey=null;
+let hintPulse=0;
+
+const input={};
+addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ input[k]=true;
+ if(k==="e"&&!e.repeat)interact();
+ if(k==="escape"&&!e.repeat)togglePause();
+});
+addEventListener("keyup",e=>input[e.key.toLowerCase()]=false);
+addEventListener("blur",()=>{Object.keys(input).forEach(k=>input[k]=false);if(running)pauseGame()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
+
+function say(msg){
+ document.getElementById("message").textContent=msg;
+ messageTimer=180;
+}
+function hud(){
+ document.getElementById("level").textContent=`LEVEL ${level} / 5`;
+ document.getElementById("keyStatus").textContent=hasKey?`${keyColor.emoji} ${keyColor.name} KEY`:"🗝️ NO KEY";
+ document.getElementById("secrets").textContent="✨ SECRETS "+secretsFound;
+}
+function inside(x,y){return x>=0&&y>=0&&x<COLS&&y<ROWS}
+function isFloor(x,y){return inside(x,y)&&grid[y][x]===0}
+function randomChoice(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function generateMaze(){
+ grid=Array.from({length:ROWS},()=>Array(COLS).fill(1));
+ const stack=[{x:1,y:1}];
+ grid[1][1]=0;
+ while(stack.length){
+  let current=stack[stack.length-1];
+  let options=[];
+  for(const [dx,dy] of [[0,-2],[0,2],[-2,0],[2,0]]){
+   let nx=current.x+dx,ny=current.y+dy;
+   if(nx>0&&ny>0&&nx<COLS-1&&ny<ROWS-1&&grid[ny][nx]===1)
+    options.push({x:nx,y:ny,dx,dy});
+  }
+  if(options.length){
+   let next=randomChoice(options);
+   grid[current.y+next.dy/2][current.x+next.dx/2]=0;
+   grid[next.y][next.x]=0;
+   stack.push({x:next.x,y:next.y});
+  }else stack.pop();
+ }
+}
+
+function distancesFromStart(){
+ let dist=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
+ let q=[{x:1,y:1}];dist[1][1]=0;
+ for(let i=0;i<q.length;i++){
+  let p=q[i];
+  for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0]]){
+   let x=p.x+dx,y=p.y+dy;
+   if(isFloor(x,y)&&dist[y][x]===-1){
+    dist[y][x]=dist[p.y][p.x]+1;q.push({x,y});
+   }
+  }
+ }
+ return dist;
+}
+function makeLevel(){
+ generateMaze();
+ player={x:1,y:1};
+ hasKey=false;keyColor=COLORS[level-1];
+ gateOpen=false;secretOpen=false;roomKey=null;
+ coins=[];keys=[];
+ const dist=distancesFromStart();
+ let candidates=[];
+ for(let y=1;y<ROWS-1;y+=2){
+  for(let x=1;x<COLS-1;x+=2){
+   if(isFloor(x,y)&&dist[y][x]>0)candidates.push({x,y,d:dist[y][x]});
+  }
+ }
+ candidates.sort((a,b)=>a.d-b.d);
+ let far=candidates[candidates.length-1];
+ exit={x:far.x,y:far.y};
+
+ // Place the hidden door and its secret chamber.
+ let secretCandidates=[];
+ for(let y=1;y<ROWS-1;y+=2){
+  for(let x=2;x<COLS-2;x+=2){
+   if(isFloor(x-1,y)&&grid[y][x]===1&&grid[y][x+1]===1&&dist[y][x-1]>0){
+    secretCandidates.push({door:{x,y},room:{x:x+1,y},d:dist[y][x-1]});
+   }
+  }
+ }
+ // For later levels, prefer secret doors farther into the maze.
+ secretCandidates.sort((a,b)=>a.d-b.d);
+ let pick;
+ if(secretCandidates.length){
+  let min=Math.min(secretCandidates.length-1,Math.floor(level/5*secretCandidates.length));
+  let index=Math.floor(secretCandidates.length*.45)+Math.floor(Math.random()*Math.max(1,secretCandidates.length*.4));
+  pick=secretCandidates[Math.min(secretCandidates.length-1,index)];
+ }
+ if(!pick){
+  // Backup secret doorway: a wall beside an existing corridor.
+  for(let y=2;y<ROWS-2&&!pick;y++){
+   for(let x=1;x<COLS-1&&!pick;x++){
+    if(isFloor(x,y)&&grid[y+1][x]===1){
+     pick={door:{x,y:y+1},room:{x,y:y+2},d:dist[y][x]};
+     break;
+    }
+   }
+  }
+ }
+ if(pick){
+  grid[pick.door.y][pick.door.x]=2;
+  grid[pick.room.y][pick.room.x]=0;
+  secretDoor={...pick.door,room:pick.room,revealed:false,opened:false};
+  roomKey={x:pick.room.x,y:pick.room.y,found:false};
+ }else{
+  secretDoor=null;
+  roomKey={x:3,y:3,found:false};
+  grid[3][3]=0;
+ }
+
+ // Coins are scattered through the maze.
+ for(let i=0;i<9+level*2;i++){
+  let p=randomFloor(dist,2);
+  if(p)coins.push({...p,taken:false});
+ }
+ hud();
+}
+function randomFloor(dist,minDist=2){
+ let list=[];
+ for(let y=1;y<ROWS-1;y++){
+  for(let x=1;x<COLS-1;x++){
+   if(isFloor(x,y)&&dist[y][x]>=minDist&&!(x===exit.x&&y===exit.y)&&!(x===player.x&&y===player.y)){
+    list.push({x,y});
+   }
+  }
+ }
+ return list.length?randomChoice(list):null;
+}
+function startGame(){
+ level=1;secretsFound=0;
+ running=true;paused=false;moveLock=0;
+ makeLevel();
+ document.getElementById("overlay").classList.add("hidden");
+ say("Find the hidden "+keyColor.name+" door. Search the walls!");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function resetGame(){startGame()}
+function pauseGame(){
+ if(!running)return;
+ running=false;paused=true;
+ showPanel("GAME PAUSED","Kayla's maze adventure is waiting. Your progress is safe.","RESUME",resumeGame);
+}
+function resumeGame(){
+ paused=false;running=true;
+ document.getElementById("overlay").classList.add("hidden");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function togglePause(){
+ if(paused){resumeGame();return}
+ if(running)pauseGame();
+}
+function showPanel(title,msg,button,callback){
+ document.getElementById("panel").innerHTML=
+ `<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
+ document.getElementById("panelBtn").onclick=callback;
+ document.getElementById("overlay").classList.remove("hidden");
+}
+function completeLevel(){
+ running=false;paused=true;
+ if(level>=5){
+  showPanel("🏆 MAZE MASTER!","Kayla found every key, opened every colored door, and escaped the golden maze! You solved all five levels!","PLAY AGAIN",startGame);
+ }else{
+  showPanel("🎉 DOOR UNLOCKED!",`You found the ${keyColor.name} key and escaped Level ${level}! A new maze and a new colored key are waiting.`,`NEXT LEVEL`,()=>{
+   level++;makeLevel();running=true;paused=false;
+   document.getElementById("overlay").classList.add("hidden");
+   say("Level "+level+": Find the "+keyColor.name+" key!");
+   last=performance.now();raf=requestAnimationFrame(loop);
+  });
+ }
+}
+function interact(){
+ if(!running)return;
+ const adjacent=[];
+ for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0]]){
+  adjacent.push({x:player.x+dx,y:player.y+dy});
+ }
+ // Search for hidden door.
+ if(secretDoor&&!secretDoor.opened){
+  let near=adjacent.some(p=>p.x===secretDoor.x&&p.y===secretDoor.y);
+  if(near){
+   if(!secretDoor.revealed){
+    secretDoor.revealed=true;
+    say("✨ YOU FOUND A SECRET DOOR! Press E again to open it!");
+   }else{
+    secretDoor.opened=true;
+    grid[secretDoor.y][secretDoor.x]=0;
+    secretsFound++;
+    say("🚪 SECRET DOOR OPEN! Something is hidden inside!");
+   }
+   hud();draw();return;
+  }
+ }
+ // Check exit.
+ if(adjacent.some(p=>p.x===exit.x&&p.y===exit.y)){
+  if(hasKey&&keyColor){
+   gateOpen=true;completeLevel();
+  }else{
+   say("🔒 This "+keyColor.name+" door is locked! Find its matching key.");
+  }
+  return;
+ }
+ say("Nothing nearby. Keep searching the walls!");
+}
+function collectItems(){
+ if(roomKey&&!roomKey.found&&player.x===roomKey.x&&player.y===roomKey.y){
+  roomKey.found=true;hasKey=true;
+  say("🗝️ YOU FOUND THE "+keyColor.name+" KEY! Find the matching door!");
+  hud();
+ }
+ coins.forEach(c=>{
+  if(!c.taken&&c.x===player.x&&c.y===player.y){
+   c.taken=true;scoreCoin();
+  }
+ });
+}
+let totalCoins=0;
+function scoreCoin(){
+ totalCoins++;
+ say("🪙 Coin collected! Total: "+totalCoins);
+}
+function move(dx,dy){
+ if(!running||moveLock>0)return;
+ let nx=player.x+dx,ny=player.y+dy;
+ if(!inside(nx,ny))return;
+ if(grid[ny][nx]===1)return;
+ if(grid[ny][nx]===2){
+  if(secretDoor&&secretDoor.revealed&&!secretDoor.opened){
+   say("Press E to open the secret door!");
+  }else{
+   say("Hmm... this wall might be hiding something. Press E to search!");
+  }
+  return;
+ }
+ if(nx===exit.x&&ny===exit.y){
+  if(hasKey){player.x=nx;player.y=ny;completeLevel()}
+  else say("🔒 The "+keyColor.name+" door needs its matching key!");
+  return;
+ }
+ player.x=nx;player.y=ny;moveLock=8;
+ collectItems();
+}
+function update(dt){
+ frame++;
+ moveLock=Math.max(0,moveLock-dt);
+ if(messageTimer>0)messageTimer-=dt;
+ hintPulse+=dt*.04;
+ if(input.w||input.arrowup)move(0,-1);
+ else if(input.s||input.arrowdown)move(0,1);
+ else if(input.a||input.arrowleft)move(-1,0);
+ else if(input.d||input.arrowright)move(1,0);
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ ctx.fillStyle="#10172d";ctx.fillRect(0,0,W,H);
+ let margin=22,top=112,bottom=54;
+ let cell=Math.min((W-margin*2)/COLS,(H-top-bottom)/ROWS,48);
+ let mapW=COLS*cell,mapH=ROWS*cell;
+ let ox=(W-mapW)/2,oy=top+(H-top-bottom-mapH)/2;
+ // Maze floor and walls.
+ for(let y=0;y<ROWS;y++){
+  for(let x=0;x<COLS;x++){
+   let px=ox+x*cell,py=oy+y*cell;
+   if(grid[y][x]===0){
+    ctx.fillStyle="#263552";ctx.fillRect(px,py,cell,cell);
+    ctx.fillStyle="#344565";ctx.fillRect(px+2,py+2,cell-4,cell-4);
+   }else if(grid[y][x]===1){
+    ctx.fillStyle="#53698b";ctx.fillRect(px,py,cell,cell);
+    ctx.fillStyle="#7185a6";ctx.fillRect(px+2,py+2,cell-4,cell-4);
+    ctx.fillStyle="#91a5c2";ctx.fillRect(px+3,py+3,cell-6,3);
+   }else if(grid[y][x]===2){
+    ctx.fillStyle="#53698b";ctx.fillRect(px,py,cell,cell);
+    ctx.fillStyle="#7185a6";ctx.fillRect(px+2,py+2,cell-4,cell-4);
+    if(secretDoor&&secretDoor.revealed){
+     ctx.fillStyle="#f0d47a";ctx.fillRect(px+cell*.25,py+2,cell*.5,cell-4);
+     ctx.fillStyle="#fff1a8";ctx.beginPath();ctx.arc(px+cell*.68,py+cell*.5,2.5,0,Math.PI*2);ctx.fill();
+    }else{
+     ctx.globalAlpha=.18+Math.sin(hintPulse)*.12;
+     ctx.fillStyle="#fff0a0";ctx.fillRect(px+cell*.42,py+cell*.42,cell*.16,cell*.16);
+     ctx.globalAlpha=1;
+    }
+   }
+  }
+ }
+ // Exit door.
+ let ex=ox+exit.x*cell,ey=oy+exit.y*cell;
+ ctx.fillStyle=keyColor.color;
+ ctx.fillRect(ex+cell*.12,ey+cell*.08,cell*.76,cell*.84);
+ ctx.fillStyle="#20243b";
+ ctx.fillRect(ex+cell*.22,ey+cell*.18,cell*.56,cell*.64);
+ ctx.fillStyle=keyColor.color;
+ ctx.fillRect(ex+cell*.28,ey+cell*.24,cell*.44,cell*.52);
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(ex+cell*.65,ey+cell*.5,2.5,0,Math.PI*2);ctx.fill();
+ // Coins.
+ coins.forEach(c=>{
+  if(c.taken)return;
+  let x=ox+c.x*cell+cell/2,y=oy+c.y*cell+cell/2;
+  ctx.fillStyle="#ffdc65";ctx.beginPath();ctx.arc(x,y,cell*.22,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#fff0a5";ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle="#8a5d20";ctx.font=`bold ${cell*.25}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("$",x,y);
+ });
+ // Key in secret room.
+ if(roomKey&&!roomKey.found){
+  let x=ox+roomKey.x*cell+cell/2,y=oy+roomKey.y*cell+cell/2;
+  ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(frame*.06)*.12);
+  ctx.fillStyle=keyColor.color;ctx.font=`bold ${cell*.7}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.fillText("🗝️",0,0);ctx.restore();
+ }
+ // Player Kayla.
+ let px=ox+player.x*cell+cell/2,py=oy+player.y*cell+cell/2;
+ ctx.fillStyle="#f5bd9b";ctx.beginPath();ctx.arc(px,py-cell*.04,cell*.28,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#754c38";ctx.beginPath();ctx.arc(px,py-cell*.18,cell*.29,Math.PI,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#ff8bc5";ctx.fillRect(px-cell*.19,py+cell*.13,cell*.38,cell*.3);
+ ctx.fillStyle="#26314c";ctx.beginPath();ctx.arc(px-cell*.09,py-cell*.05,2,0,Math.PI*2);ctx.arc(px+cell*.09,py-cell*.05,2,0,Math.PI*2);ctx.fill();
+ // Labels
+ ctx.textAlign="center";ctx.textBaseline="middle";
+ ctx.font="bold 13px Fredoka";
+ ctx.fillStyle="#fff";ctx.fillText("START",ox+cell*1.5,oy+cell*.45);
+ ctx.fillStyle=keyColor.color;ctx.fillText("EXIT",ex+cell/2,ey-cell*.15);
+ if(secretDoor&&!secretDoor.revealed){
+  let sx=ox+secretDoor.x*cell+cell/2,sy=oy+secretDoor.y*cell+cell/2;
+  ctx.fillStyle="#fff3a6";ctx.font="bold 10px Arial";ctx.fillText("?",sx,sy);
+ }
+ // Level title
+ ctx.fillStyle="#fff";ctx.font="bold 17px Fredoka";ctx.textAlign="center";
+ ctx.fillText("KAYLA'S MAZE • "+keyColor.name+" KEY",W/2,96);
+}
+function loop(t){
+ if(!running)return;
+ let dt=Math.min(2,(t-last)/16.67||1);last=t;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
+}
+function resetGame(){totalCoins=0;startGame()}
+resize();
+</script>
 </body>
 </html>
