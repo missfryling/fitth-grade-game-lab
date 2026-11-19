@@ -4,347 +4,323 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>No, I'm Not Human - Lilly's Last Night</title>
+<title>NO, I'm Not Human — Lily's House</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#090d19;color:#f5f1ed;font-family:Fredoka,sans-serif;min-height:100vh}
-button{font-family:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 18px;font-weight:700;font-size:16px;transition:.15s}
-button:hover{filter:brightness(1.15);transform:translateY(-1px)}
-#game{min-height:100vh;background:radial-gradient(ellipse at 50% 10%,#28334a,#101522 65%,#080b13);padding:14px}
-header{max-width:1000px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.brand{font-weight:700;font-size:20px;letter-spacing:1px;color:#e7d4b6}
-.stats{display:flex;gap:8px;flex-wrap:wrap}
-.stat{background:#1b2434;border:1px solid #49546a;padding:8px 12px;border-radius:12px;font-weight:600}
-#house{max-width:1000px;margin:auto;background:#202b3b;border:3px solid #59657a;border-radius:20px;overflow:hidden;box-shadow:0 15px 50px #0008}
-#scene{height:270px;position:relative;overflow:hidden;background:linear-gradient(#111a2c 0%,#283449 70%,#3b3d48 70%,#272b35 100%)}
-#moon{position:absolute;right:12%;top:28px;width:65px;height:65px;border-radius:50%;background:#e8e0c5;box-shadow:0 0 35px #e8e0c566}
-.window{position:absolute;top:65px;width:100px;height:135px;background:#0c1425;border:9px solid #654f48;box-shadow:inset 0 0 25px #5b7890}
-.window:before{content:"";position:absolute;left:42px;top:0;bottom:0;width:6px;background:#654f48}
-.window:after{content:"";position:absolute;top:57px;left:0;right:0;height:6px;background:#654f48}
-#w1{left:9%}#w2{right:9%}
-#curtain{position:absolute;left:0;right:0;bottom:0;height:34%;background:#4c3840;border-top:8px solid #76545a}
-#visitorArea{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:230px;height:245px;display:flex;align-items:flex-end;justify-content:center}
-#visitor{font-size:112px;line-height:1;filter:drop-shadow(0 8px 5px #0008);position:relative;z-index:2}
-#door{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:170px;height:220px;background:linear-gradient(90deg,#543d32,#795744,#49352e);border:8px solid #302b2c;border-bottom:0;border-radius:85px 85px 0 0;z-index:1}
-#doorKnob{position:absolute;right:15px;top:115px;width:12px;height:12px;background:#e2bf69;border-radius:50%}
-#sceneLabel{position:absolute;top:12px;left:14px;color:#d8d7d0;font-size:14px;text-shadow:0 2px 3px #000}
-#room{padding:18px;background:linear-gradient(#303846,#202a38)}
-#visitorName{font-size:25px;font-weight:700;color:#f3dcae;text-align:center;margin:0 0 5px}
-#visitorText{text-align:center;color:#d4d9e2;margin:0 0 14px;min-height:27px}
-#clues{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
-.clue{background:#182230;border:1px solid #49566b;border-radius:12px;padding:12px;text-align:center;min-height:88px}
-.clue strong{display:block;color:#f0d8a8;margin-bottom:6px}
-.clue span{font-size:14px;color:#d8e0e9}
-#actions{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
-.inspect{background:#465b79;color:white}
-.admit{background:#3d936a;color:white}
-.deny{background:#a94c52;color:white}
-.secret{background:#7555a6;color:white}
-#feedback{min-height:42px;margin:13px 0 0;text-align:center;font-weight:600;font-size:17px;color:#ffe39c}
-#bottom{max-width:1000px;margin:12px auto 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#b8c1ce;font-size:14px}
-#panel{position:fixed;inset:0;background:#060914ed;display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
-.card{width:100%;max-width:530px;background:#202b3d;border:2px solid #9b876c;border-radius:22px;padding:28px;text-align:center;box-shadow:0 15px 55px #000b}
-.card h1{font-size:clamp(28px,5vw,43px);line-height:1.15;color:#f1d8a8;margin:0 0 12px}
-.card p{font-size:18px;line-height:1.5;color:#dce2e9}
-.card .small{font-size:14px;color:#aeb9c8}
-.card button{background:#e5bd70;color:#282018;font-size:21px;padding:14px 30px;margin-top:10px}
-#pauseBtn{background:#46536a;color:white}
-.hidden{display:none!important}
-@media(max-width:650px){
- #scene{height:230px}
- #visitor{font-size:90px}
- #visitorArea{height:210px}
- #door{height:190px;width:145px}
- #clues{grid-template-columns:1fr}
- .clue{min-height:60px}
- #actions{grid-template-columns:repeat(2,1fr)}
-}
+body{margin:0;background:#10101b;color:white;font-family:Fredoka,sans-serif;overflow:hidden}
+#wrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#30263c,#100e18)}
+#game{position:relative;width:min(100vw,960px);aspect-ratio:16/9;max-height:100vh;border:3px solid #a78ac5;border-radius:14px;overflow:hidden;box-shadow:0 0 30px #000}
+canvas{width:100%;height:100%;display:block}
+#hud{position:absolute;top:9px;left:12px;right:12px;display:flex;gap:7px;flex-wrap:wrap;pointer-events:none}
+.pill{background:#171526eF;border:1px solid #9d83bd;border-radius:20px;padding:6px 11px;font-size:13px}
+#actions{position:absolute;bottom:10px;left:10px;right:10px;display:flex;justify-content:center;gap:7px;flex-wrap:wrap}
+button{font-family:inherit;font-weight:700;border:0;border-radius:10px;padding:9px 12px;color:white;background:#76549a;cursor:pointer;box-shadow:0 3px 0 #39294b}
+button:hover{filter:brightness(1.2)}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #39294b}
+button:disabled{opacity:.4;cursor:not-allowed}
+#panel{position:absolute;inset:0;background:#100e19ed;display:flex;align-items:center;justify-content:center;padding:16px}
+#panel.hidden{display:none}
+#card{width:min(90%,570px);max-height:92%;overflow:auto;background:linear-gradient(145deg,#342a43,#191726);border:2px solid #b49bce;border-radius:20px;padding:22px;text-align:center;box-shadow:0 0 25px #0009}
+h1{font-size:clamp(25px,4.8vw,42px);color:#f1d7ff;margin:4px 0 10px;text-shadow:2px 3px #4d315f}
+p{line-height:1.45;color:#e6ddec}
+.buttons{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.big{background:#a24d87;font-size:18px;padding:12px 22px;box-shadow:0 3px 0 #58294b}
+.green{background:#397e63;box-shadow:0 3px 0 #204638}
+.red{background:#a64250;box-shadow:0 3px 0 #59232c}
+.note{font-size:12px;color:#c8b9d5}
+#toast{position:absolute;top:75px;left:50%;transform:translateX(-50%);background:#171526ed;border:1px solid #c2a1e5;border-radius:12px;padding:9px 15px;display:none;text-align:center;max-width:85%;pointer-events:none}
 </style>
 </head>
 <body>
+<div id="wrap">
 <div id="game">
-<header>
- <div class="brand">🌙 NO, I'M NOT HUMAN</div>
- <div class="stats">
-  <div class="stat">🌃 Night <span id="night">1</span>/5</div>
-  <div class="stat">❤️ <span id="hearts">3</span></div>
-  <div class="stat">🚪 Visitors <span id="visitors">0</span>/3</div>
- </div>
- <button id="pauseBtn">Ⅱ Pause</button>
-</header>
-
-<div id="house">
- <div id="scene">
-  <div id="moon"></div>
-  <div class="window" id="w1"></div><div class="window" id="w2"></div>
-  <div id="door"><div id="doorKnob"></div></div>
-  <div id="visitorArea"><div id="visitor">👤</div></div>
-  <div id="curtain"></div>
-  <div id="sceneLabel">LILLY'S HOUSE • 2:17 AM</div>
- </div>
- <div id="room">
-  <h2 id="visitorName">Someone is at the door...</h2>
-  <p id="visitorText">A visitor is waiting outside. Look carefully before making a decision.</p>
-  <div id="clues">
-   <div class="clue"><strong>👁️ EYES</strong><span id="eyes">Not inspected</span></div>
-   <div class="clue"><strong>✋ HANDS</strong><span id="hands">Not inspected</span></div>
-   <div class="clue"><strong>🌑 SHADOW</strong><span id="shadow">Not inspected</span></div>
-  </div>
-  <div id="actions">
-   <button class="inspect" id="inspectEyes">Inspect Eyes</button>
-   <button class="inspect" id="inspectHands">Inspect Hands</button>
-   <button class="inspect" id="inspectShadow">Check Shadow</button>
-   <button class="secret" id="secretBtn">🚪 Secret Door</button>
-   <button class="admit" id="admitBtn">LET THEM IN</button>
-   <button class="deny" id="denyBtn">DO NOT LET IN</button>
-  </div>
-  <div id="feedback">Listen carefully. Not everyone is who they say they are.</div>
- </div>
+<canvas id="c" width="960" height="540"></canvas>
+<div id="hud">
+ <div class="pill" id="night">🌙 Night 1 / 5</div>
+ <div class="pill" id="hearts">❤️❤️❤️</div>
+ <div class="pill" id="people">🏠 Humans: 0</div>
+ <div class="pill" id="reports">📞 Reports: 0</div>
+ <div class="pill" id="visitor">🚪 Door: Quiet</div>
 </div>
-<div id="bottom">
- <span>🔎 Inspect small details before deciding.</span>
- <span>🚪 The secret basement door can save you in an emergency.</span>
+<div id="toast"></div>
+<div id="actions">
+ <button id="peek">👁 Peephole</button>
+ <button id="invite" class="green">🚪 Let In</button>
+ <button id="call" class="red">📞 Call 9990</button>
+ <button id="check">🏠 Check People</button>
+ <button id="mirror">🪞 Bathroom</button>
+ <button id="basement">🔑 Basement</button>
+ <button id="next">Next Visitor</button>
+ <button id="pause">Ⅱ Pause</button>
 </div>
-</div>
-
 <div id="panel">
- <div class="card">
-  <h1 id="panelTitle">🌙 Lilly's Last Night</h1>
-  <p id="panelText">It is late. Strange visitors are knocking on Lilly's door. Some are human. Some are mimics wearing human faces. Let the wrong one inside, and it could be the end...</p>
-  <p class="small">Inspect eyes, hands, and shadows for tiny clues.<br>Let humans in. Keep mimics out.<br>You have 3 hearts and a secret basement door.</p>
-  <button id="mainBtn" type="button">START NIGHT 1</button>
+ <div id="card">
+  <h1>🚪 NO, I'M NOT HUMAN</h1>
+  <p>Welcome to Lily's house. Strange visitors are knocking at the door. Some are human. Some are mimics pretending to be human.</p>
+  <p>Look through the peephole. Study the visitor. Let humans in, but call SHFV at <b>9990</b> when you spot a mimic.</p>
+  <p>Walk around the house, check on your guests, and use the bathroom mirror to check Lily. On Night 5, the mimics will raid the house. You have only <b>10 seconds</b> to reach the secret basement!</p>
+  <p><b>Move:</b> WASD or arrow keys<br><b>Interact:</b> E near a room or door</p>
+  <div class="buttons"><button class="big" id="start">START NIGHT 1</button></div>
+  <p class="note">A survival mystery game. Pay attention to the details!</p>
  </div>
 </div>
-
+</div>
+</div>
 <script>
 (()=>{
 'use strict';
-const $=id=>document.getElementById(id);
-let night=1,hearts=3,visitorNumber=0,score=0;
-let current=null,inspected={eyes:false,hands:false,shadow:false};
-let running=false,paused=false,finished=false,basementUses=0;
-const VISITORS=[
- {name:'The Neighbor',emoji:'🧔'},
- {name:'The Delivery Person',emoji:'🧑‍🍳'},
- {name:'The Traveler',emoji:'👩'},
- {name:'The Student',emoji:'🧑'},
- {name:'The Old Friend',emoji:'👵'},
- {name:'The Stranger',emoji:'🧑‍🦱'},
- {name:'The Night Guard',emoji:'👮'},
- {name:'The Visitor',emoji:'👨'}
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const W=960,H=540,$=id=>document.getElementById(id);
+let running=false,paused=false,raf=0,last=0;
+let night=1,hearts=3,reports=0,humans=0,visitorNumber=0;
+let player={x:475,y:320,w:25,h:32,speed:3};
+let guests=[],visitor=null,inspected=false,raid=false,raidTime=10,hidden=false;
+let keys={},toastTime=0,doorLocked=false;
+const visitors=[
+ {name:'Mara',human:true,look:'A woman with a blue coat and a small suitcase.',clue:'Her shadow moves normally and both hands have five fingers.'},
+ {name:'Elliot',human:true,look:'A tired-looking man carrying groceries.',clue:'His eyes blink normally. His reflection in the glass looks ordinary.'},
+ {name:'Nora',human:true,look:'A young visitor with a yellow scarf.',clue:'Her fingers, eyes, and shadow all look normal.'},
+ {name:'The Tall One',human:false,look:'A very tall visitor wearing a gray jacket.',clue:'Its shadow points toward the light instead of away from it.'},
+ {name:'Mr. Smiles',human:false,look:'A cheerful visitor smiling at the door.',clue:'The smile never changes, even when it stops talking.'},
+ {name:'The Visitor',human:false,look:'A quiet person standing perfectly still.',clue:'It has too many fingers on one hand.'},
+ {name:'Red Eyes',human:false,look:'A visitor wearing a dark hood.',clue:'Its eyes shine red when the porch light flickers.'},
+ {name:'The Neighbor',human:true,look:'A familiar neighbor carrying a package.',clue:'The visitor has a normal shadow and a tiny scar above one eyebrow.'},
+ {name:'The Guest',human:false,look:'A visitor who looks almost exactly like a human.',clue:'Its reflection does not move when it tilts its head.'}
 ];
-const normalClues={
- eyes:['Their eyes look tired and ordinary.','Their pupils react normally to the light.','You notice a normal blink.'],
- hands:['Their fingers move naturally.','Their hands look a little cold, but normal.','Their fingers are relaxed.'],
- shadow:['Their shadow moves when they move.','The porch light casts a normal shadow.','Their shadow matches their position.']
-};
-const mimicClues={
- eyes:['For a split second, their pupils seem to point in different directions.','Their eyes do not blink at the same time.','Their pupils look just a little too dark.'],
- hands:['One finger bends at an unusual angle.','Their fingers stay perfectly still.','Their fingernails look slightly too long.'],
- shadow:['Their shadow moves a moment after they do.','The shadow seems to lean the wrong way.','Their shadow looks like it has an extra arm.']
-};
-function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
-function updateHUD(){
- $('night').textContent=night;
- $('hearts').textContent=hearts;
- $('visitors').textContent=visitorNumber;
+let pool=[];
+function shuffle(a){return a.sort(()=>Math.random()-.5);}
+function hud(){
+ $('night').textContent=`🌙 Night ${night} / 5`;
+ $('hearts').textContent='❤️'.repeat(hearts)+'🖤'.repeat(3-hearts);
+ $('people').textContent='🏠 Humans: '+humans;
+ $('reports').textContent='📞 Reports: '+reports;
+ $('visitor').textContent=visitor?'🚪 Someone is at the door':'🚪 Door: Quiet';
+ $('peek').disabled=!visitor||inspected;
+ $('invite').disabled=!visitor||!inspected;
+ $('call').disabled=!visitor||!inspected;
+ $('next').disabled=!!visitor||raid||!running;
 }
-function setFeedback(text){$('feedback').textContent=text}
-function makeVisitor(){
- const mimic=Math.random()<.42;
- current={
-  ...pick(VISITORS),
-  mimic,
-  clues:{
-   eyes:pick(mimic?mimicClues.eyes:normalClues.eyes),
-   hands:pick(mimic?mimicClues.hands:normalClues.hands),
-   shadow:pick(mimic?mimicClues.shadow:normalClues.shadow)
-  }
- };
- inspected={eyes:false,hands:false,shadow:false};
- $('visitor').textContent=current.emoji;
- $('visitorName').textContent=current.name+' is at the door';
- $('visitorText').textContent='They say they need help. Do you recognize them?';
- $('eyes').textContent='Not inspected';
- $('hands').textContent='Not inspected';
- $('shadow').textContent='Not inspected';
- $('inspectEyes').disabled=false;
- $('inspectHands').disabled=false;
- $('inspectShadow').disabled=false;
- $('admitBtn').disabled=false;
- $('denyBtn').disabled=false;
- $('secretBtn').disabled=false;
- $('visitorArea').style.display='flex';
- setFeedback('Look closely. The differences can be very small.');
- updateHUD();
+function message(t){
+ $('toast').textContent=t;$('toast').style.display='block';toastTime=150;
 }
-function startGame(){
- night=1;hearts=3;visitorNumber=0;score=0;basementUses=0;
- running=true;paused=false;finished=false;
- $('panel').style.display='none';
- $('pauseBtn').textContent='Ⅱ Pause';
- nextVisitor();
+function show(title,html,buttons){
+ running=false;paused=false;
+ $('card').innerHTML=`<h1>${title}</h1>${html}<div class="buttons">${buttons}</div>`;
+ $('panel').classList.remove('hidden');
+}
+function hide(){$('panel').classList.add('hidden');}
+function start(){
+ cancelAnimationFrame(raf);
+ night=1;hearts=3;reports=0;humans=0;visitorNumber=0;
+ guests=[];visitor=null;inspected=false;raid=false;hidden=false;
+ player={x:475,y:320,w:25,h:32,speed:3};
+ beginNight();running=true;paused=false;hide();hud();
+ last=performance.now();raf=requestAnimationFrame(loop);
+}
+function beginNight(){
+ visitorNumber=0;visitor=null;inspected=false;raid=false;hidden=false;
+ pool=shuffle([...visitors]);
+ player.x=475;player.y=320;
+ message('Night '+night+' begins. Listen for the doorbell.');
+ hud();
 }
 function nextVisitor(){
- if(!running)return;
+ if(!running||visitor||raid)return;
  if(visitorNumber>=3){
-  nightComplete();return;
- }
- visitorNumber++;
- makeVisitor();
-}
-function inspect(which){
- if(!running||paused||!current||inspected[which])return;
- inspected[which]=true;
- $(which).textContent=current.clues[which];
- $('inspect'+which[0].toUpperCase()+which.slice(1)).disabled=true;
- setFeedback('You noticed something. Think carefully before deciding!');
-}
-function decision(lettingIn){
- if(!running||paused||!current)return;
- const mimic=current.mimic;
- if(lettingIn&&!mimic){
-  score+=100;
-  setFeedback('✅ A real human! You helped them and earned 100 points.');
-  $('visitorText').textContent='They thank Lilly and safely leave the house.';
-  finishVisitor();
- }else if(!lettingIn&&mimic){
-  score+=150;
-  setFeedback('⭐ CORRECT! That was a mimic. You kept Lilly safe!');
-  $('visitorText').textContent='The visitor makes a strange noise and disappears into the darkness.';
-  finishVisitor();
- }else if(lettingIn&&mimic){
-  $('visitorText').textContent='The visitor steps inside... Something is terribly wrong!';
-  $('visitor').textContent='👹';
-  setFeedback('🚨 IT WAS A MIMIC! Get to the secret basement door!');
-  $('admitBtn').disabled=true;
-  $('denyBtn').disabled=true;
-  $('inspectEyes').disabled=true;
-  $('inspectHands').disabled=true;
-  $('inspectShadow').disabled=true;
-  $('secretBtn').textContent='ESCAPE TO BASEMENT!';
-  $('secretBtn').classList.add('admit');
-  $('secretBtn').classList.remove('secret');
-  current.inside=true;
+  if(night===5){startRaid();return;}
+  show('🌙 NIGHT '+night+' COMPLETE',
+   `<p>You made it through the night!</p><p>Humans safe: ${humans} • Mimics reported: ${reports}</p>`,
+   ['<button class="big" id="continue">CONTINUE TO NIGHT '+(night+1)+'</button>']);
+  $('continue').onclick=()=>{
+   night++;beginNight();running=true;hide();last=performance.now();raf=requestAnimationFrame(loop);
+  };
   return;
+ }
+ visitor=pool[visitorNumber%pool.length];visitorNumber++;inspected=false;
+ message('🔔 DING DONG! Someone is at the front door.');
+ hud();
+}
+function peek(){
+ if(!running||!visitor||inspected)return;
+ inspected=true;
+ show('👁 PEEPHOLE INSPECTION',
+ `<p><b>${visitor.name}</b></p><p>${visitor.look}</p><p style="color:#f4d69b"><b>What Lily notices:</b><br>${visitor.clue}</p><p>Does this visitor seem human?</p>`,
+ ['<button class="big" id="back">BACK TO HOUSE</button>']);
+ $('back').onclick=()=>{hide();running=true;last=performance.now();raf=requestAnimationFrame(loop);hud();};
+}
+function resolve(chooseHuman){
+ if(!running||!visitor||!inspected)return;
+ const correct=chooseHuman===visitor.human;
+ if(correct){
+  if(chooseHuman){humans++;guests.push({name:visitor.name,x:210+Math.random()*470,y:180+Math.random()*210});message(visitor.name+' is safely inside.');}
+  else{reports++;message('SHFV 9990 has taken the mimic away!');}
  }else{
   hearts--;
-  setFeedback('❌ That was a human! You turned away someone who needed help. You lost a heart.');
-  finishVisitor();
+  message(chooseHuman?'A MIMIC GOT INSIDE! You lost a heart!':'That was a real human! You turned them away.');
+  if(chooseHuman)guests.push({name:visitor.name,mimic:true,x:210+Math.random()*470,y:180+Math.random()*210});
+  if(hearts<=0){gameOver();return;}
  }
- updateHUD();
+ visitor=null;inspected=false;hud();
 }
-function finishVisitor(){
- $('admitBtn').disabled=true;$('denyBtn').disabled=true;
- $('inspectEyes').disabled=true;$('inspectHands').disabled=true;$('inspectShadow').disabled=true;
- $('secretBtn').disabled=true;
- setTimeout(()=>{
-  if(!running||paused)return;
-  if(hearts<=0){gameOver();return}
-  $('secretBtn').textContent='🚪 Secret Door';
-  $('secretBtn').classList.remove('admit');$('secretBtn').classList.add('secret');
-  nextVisitor();
- },1250);
+function checkPeople(){
+ if(!running)return;
+ const list=guests.length?guests.map(g=>`• ${g.name}${g.mimic?' — ⚠️ Something feels wrong!':' — Safe human'}`).join('<br>'):'Nobody is inside yet.';
+ show('🏠 CHECK ON THE PEOPLE',`<p>${list}</p><p>Walk around the house to visit the living room and bedrooms.</p>`,
+ ['<button class="big" id="back">BACK TO HOUSE</button>']);
+ $('back').onclick=resumeFromPanel;
 }
-function useSecretDoor(){
- if(!running||paused)return;
- if(current&&current.inside){
-  if(basementUses>=3){
-   hearts=0;updateHUD();gameOver();return;
-  }
-  basementUses++;
-  hearts=Math.max(0,hearts-1);
-  setFeedback('🏃 Lilly escapes through the secret basement door! The mimic cannot follow. You lost one heart.');
-  $('visitor').textContent='👹';
-  $('visitorText').textContent='The secret door slams shut behind Lilly.';
-  current=null;
-  $('secretBtn').disabled=true;
-  if(hearts<=0){setTimeout(gameOver,800);return}
-  setTimeout(()=>{
-   if(!running||paused)return;
-   $('secretBtn').textContent='🚪 Secret Door';
-   $('secretBtn').classList.remove('admit');$('secretBtn').classList.add('secret');
-   nextVisitor();
-  },1400);
-  updateHUD();
-  return;
- }
- if(basementUses>=3){
-  setFeedback('The basement door is jammed! You have used all your escapes.');
-  return;
- }
- basementUses++;
- hearts=Math.max(0,hearts-1);
- setFeedback('Lilly hides in the basement and waits for the visitor to leave. You lost one heart.');
- $('visitorText').textContent='You hear footsteps outside, then silence...';
- $('visitor').textContent='🚪';
- $('admitBtn').disabled=true;$('denyBtn').disabled=true;
- $('inspectEyes').disabled=true;$('inspectHands').disabled=true;$('inspectShadow').disabled=true;
- $('secretBtn').disabled=true;
- updateHUD();
- setTimeout(()=>{
-  if(!running||paused)return;
-  if(hearts<=0){gameOver();return}
-  $('secretBtn').textContent='🚪 Secret Door';
-  nextVisitor();
- },1400);
+function bathroom(){
+ if(!running)return;
+ show('🪞 BATHROOM MIRROR',
+ '<p>Lily looks carefully at her reflection.</p><p>Her reflection copies her movements. Her eyes look normal. Her shadow is normal.</p><p style="color:#b9f3c7"><b>Lily is human. For now, she is safe.</b></p>',
+ ['<button class="big" id="back">BACK TO HOUSE</button>']);
+ $('back').onclick=resumeFromPanel;
 }
-function nightComplete(){
- if(night>=5){
-  finished=true;running=false;
-  showPanel('🌅 YOU SURVIVED!','Lilly made it through all five nights! You spotted the mimics, protected the house, and survived until morning. Final score: '+score+'.','PLAY AGAIN');
-  return;
- }
- running=false;
- showPanel('🌙 NIGHT '+night+' SURVIVED!','You made it through the visitors. Lilly can rest until the next night. Keep your eyes open — the mimics are getting harder to spot!','START NIGHT '+(night+1));
- night++;
- visitorNumber=0;
+function resumeFromPanel(){
+ hide();running=true;paused=false;last=performance.now();raf=requestAnimationFrame(loop);hud();
+}
+function startRaid(){
+ raid=true;raidTime=10;doorLocked=true;
+ message('🚨 THE MIMICS ARE RAIDING THE HOUSE! RUN TO THE BASEMENT!');
+ hud();
+}
+function basement(){
+ if(!running)return;
+ if(Math.abs(player.x-830)<125&&Math.abs(player.y-425)<100){
+  if(raid){hidden=true;win();}else message('The basement door is locked until the raid begins.');
+ }else message('Find the hidden basement door in the bottom-right corner!');
+}
+function win(){
+ show('🕳️ YOU ESCAPED!',
+ '<p>Lily made it to the basement just in time!</p><p>The mimics stormed the house, but the secret door saved her.</p><p>Humans saved: '+humans+' • Mimics reported: '+reports+'</p>',
+ ['<button class="big" id="again">PLAY AGAIN</button>']);
+ $('again').onclick=start;
 }
 function gameOver(){
- running=false;paused=false;
- showPanel('👹 LILLY WAS CAUGHT!','A mimic got inside, and Lilly ran out of chances. The house is no longer safe. Try again and inspect the visitors more carefully!','TRY AGAIN');
+ show('💀 LILY DID NOT SURVIVE',
+ '<p>The mimics took over the house.</p><p>You survived until Night '+night+'.</p>',
+ ['<button class="big" id="again">TRY AGAIN</button>']);
+ $('again').onclick=start;
 }
-function showPanel(title,text,button){
- $('panelTitle').textContent=title;
- $('panelText').textContent=text;
- $('mainBtn').textContent=button;
- $('panel').style.display='flex';
-}
-function pauseGame(){
+function pause(){
  if(!running&&!paused)return;
- if(!paused){
-  paused=true;
-  showPanel('⏸ GAME PAUSED','The visitors will wait. Take a breath and get ready to protect Lilly.','RESUME');
-  paused=true;
- }else{
-  paused=false;
-  $('panel').style.display='none';
-  $('pauseBtn').textContent='Ⅱ Pause';
+ if(paused){resumeFromPanel();return;}
+ paused=true;running=false;
+ show('⏸️ GAME PAUSED','<p>The house is quiet... for now.</p>',
+ ['<button class="big" id="resume">RESUME</button>']);
+ paused=true;$('resume').onclick=resumeFromPanel;
+}
+function update(dt){
+ const s=Math.min(dt/16.67,2);
+ if(keys.ArrowLeft||keys.a)player.x-=player.speed*s;
+ if(keys.ArrowRight||keys.d)player.x+=player.speed*s;
+ if(keys.ArrowUp||keys.w)player.y-=player.speed*s;
+ if(keys.ArrowDown||keys.s)player.y+=player.speed*s;
+ player.x=Math.max(55,Math.min(905,player.x));
+ player.y=Math.max(115,Math.min(485,player.y));
+ // Guests wander around the house.
+ guests.forEach(g=>{
+  if(!g.mimic){g.x+=Math.sin(performance.now()/1200+g.y)*.18*s;g.y+=Math.cos(performance.now()/1400+g.x)*.12*s;}
+ });
+ if(raid){
+  raidTime-=dt/1000;
+  if(raidTime<=0){raidTime=0;gameOver();}
+ }
+ if(toastTime>0){toastTime-=s;if(toastTime<=0)$('toast').style.display='none';}
+}
+function draw(){
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#252339');bg.addColorStop(1,'#151522');
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // House floor
+ ctx.fillStyle='#574c5a';ctx.fillRect(70,95,820,400);
+ ctx.strokeStyle='#c4a7c9';ctx.lineWidth=8;ctx.strokeRect(70,95,820,400);
+ // Rooms
+ ctx.fillStyle='#766278';ctx.fillRect(85,110,300,160);
+ ctx.fillStyle='#66566e';ctx.fillRect(395,110,475,160);
+ ctx.fillStyle='#655d70';ctx.fillRect(85,285,300,195);
+ ctx.fillStyle='#51495f';ctx.fillRect(395,285,475,195);
+ ctx.strokeStyle='#c0a6c9';ctx.lineWidth=4;
+ ctx.beginPath();ctx.moveTo(390,95);ctx.lineTo(390,495);ctx.moveTo(70,278);ctx.lineTo(890,278);ctx.stroke();
+ // Room labels
+ ctx.fillStyle='#f2e6f4';ctx.font='bold 16px Fredoka';
+ ctx.fillText('LIVING ROOM',105,137);ctx.fillText('BEDROOMS',415,137);
+ ctx.fillText('KITCHEN',105,312);ctx.fillText('BATHROOM',415,312);
+ // Furniture
+ ctx.fillStyle='#3d3047';ctx.fillRect(130,175,170,55);ctx.fillRect(470,170,110,55);
+ ctx.fillStyle='#ad8eac';ctx.fillRect(150,180,130,10);
+ ctx.fillStyle='#8d7392';ctx.fillRect(485,175,80,40);
+ // Bathroom mirror
+ ctx.fillStyle='#a8d8df';ctx.fillRect(690,330,65,45);
+ ctx.strokeStyle='#f1e2ff';ctx.lineWidth=4;ctx.strokeRect(690,330,65,45);
+ ctx.fillStyle='#fff';ctx.font='13px Fredoka';ctx.fillText('MIRROR',697,392);
+ // Front door and peephole
+ ctx.fillStyle='#784d3f';ctx.fillRect(75,340,38,110);
+ ctx.fillStyle='#e8ce83';ctx.beginPath();ctx.arc(104,395,4,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#f1d9a0';ctx.font='13px Fredoka';ctx.fillText('FRONT DOOR',115,430);
+ ctx.fillStyle='#e8d9a1';ctx.beginPath();ctx.arc(90,358,5,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#ddd';ctx.font='12px Fredoka';ctx.fillText('PEEPHOLE',70,330);
+ // Basement secret door
+ ctx.fillStyle='#332c40';ctx.fillRect(810,425,55,58);
+ ctx.strokeStyle='#bd9ad8';ctx.lineWidth=3;ctx.strokeRect(810,425,55,58);
+ ctx.fillStyle='#e8d4ff';ctx.font='12px Fredoka';ctx.fillText('SECRET',814,450);ctx.fillText('BASEMENT',810,465);
+ // Guests
+ guests.forEach(g=>{
+  ctx.font='26px sans-serif';ctx.fillText(g.mimic?'👤':'🙂',g.x,g.y);
+  ctx.fillStyle='#fff';ctx.font='11px Fredoka';ctx.fillText(g.name,g.x-12,g.y+12);
+  if(g.mimic){ctx.fillStyle='#ff5b70';ctx.fillText('?',g.x+12,g.y-15);}
+ });
+ // Visitor at front porch
+ if(visitor){
+  ctx.fillStyle='#29202c';ctx.fillRect(20,345,44,85);
+  ctx.font='35px sans-serif';ctx.fillText('🚶',20,400);
+  ctx.fillStyle='#fff';ctx.font='13px Fredoka';ctx.fillText('KNOCK KNOCK!',15,330);
+ }
+ // Lily
+ ctx.font='35px sans-serif';ctx.fillText('👧',player.x-8,player.y+25);
+ ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.fillText('LILY',player.x-5,player.y+36);
+ // Raid overlay
+ if(raid){
+  ctx.fillStyle='#3d0b19aa';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#fff';ctx.font='bold 34px Fredoka';ctx.textAlign='center';
+  ctx.fillText('🚨 MIMIC RAID!',480,65);
+  ctx.font='bold 28px Fredoka';ctx.fillStyle='#ffb2bd';
+  ctx.fillText('TIME: '+Math.max(0,raidTime).toFixed(1)+' SECONDS',480,103);
+  ctx.textAlign='left';
+  ctx.font='30px sans-serif';ctx.fillText('👥 👤 👤 👤',700,180);
+  ctx.fillStyle='#fff';ctx.font='16px Fredoka';ctx.fillText('RUN TO THE BASEMENT!',365,140);
  }
 }
-$('mainBtn').addEventListener('click',()=>{
- if(paused){
-  paused=false;
-  $('panel').style.display='none';
-  $('pauseBtn').textContent='Ⅱ Pause';
- }else if(running===false&&night>1&&visitorNumber===0&&!finished){
-  running=true;paused=false;
-  $('panel').style.display='none';
-  $('pauseBtn').textContent='Ⅱ Pause';
-  nextVisitor();
- }else{
-  startGame();
+function loop(now){
+ if(!running)return;
+ const dt=Math.min(now-last,40);last=now;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
+}
+document.addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ if(k==='escape'||k==='p'){pause();return;}
+ if(k==='e'){
+  if(visitor&&Math.abs(player.x-90)<100)peek();
+  else if(Math.abs(player.x-720)<100&&Math.abs(player.y-350)<100)bathroom();
+  else if(Math.abs(player.x-830)<125&&Math.abs(player.y-425)<100)basement();
+  return;
  }
+ keys[k]=true;
 });
-$('pauseBtn').addEventListener('click',pauseGame);
-$('inspectEyes').addEventListener('click',()=>inspect('eyes'));
-$('inspectHands').addEventListener('click',()=>inspect('hands'));
-$('inspectShadow').addEventListener('click',()=>inspect('shadow'));
-$('admitBtn').addEventListener('click',()=>decision(true));
-$('denyBtn').addEventListener('click',()=>decision(false));
-$('secretBtn').addEventListener('click',useSecretDoor);
-updateHUD();
+document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+window.addEventListener('blur',()=>{keys={};});
+$('start').onclick=start;
+$('peek').onclick=peek;
+$('invite').onclick=()=>resolve(true);
+$('call').onclick=()=>resolve(false);
+$('check').onclick=checkPeople;
+$('mirror').onclick=bathroom;
+$('basement').onclick=basement;
+$('next').onclick=nextVisitor;
+$('pause').onclick=pause;
+draw();
 })();
 </script>
 </body>
