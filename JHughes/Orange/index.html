@@ -3,424 +3,315 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Is the Door? - Kayla's Secret Maze</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WHERE IS THE DOOR?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#11172c;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh}
-button{border:0;border-radius:12px;padding:10px 15px;background:#80f0d0;color:#102c2c;font-family:inherit;font-weight:800;cursor:pointer}
-button:hover{filter:brightness(1.12)}
-#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
-#hud>*{pointer-events:auto}
-.logo{font-family:Fredoka;font-size:23px;color:#8df4e2;text-shadow:0 0 12px #35d8cb}
-.stats{display:flex;gap:7px;flex-wrap:wrap}
-.stat{background:#141d38eF;border:1px solid #63769c;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:800}
-#bottom{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#141d38ed;border:1px solid #63769c;border-radius:10px;padding:7px 12px;font-size:12px;color:#e1edff;white-space:nowrap}
-#corner{position:absolute;right:12px;bottom:55px}
-#overlay{position:absolute;inset:0;background:#070d20c9;display:flex;align-items:center;justify-content:center;padding:16px}
-.panel{width:min(490px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#29345e,#151c38);border:2px solid #8df4e2;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #35d8cb30}
-.panel h1{font-family:Fredoka;font-size:clamp(28px,5vw,43px);color:#8df4e2;margin:0 0 8px}
-.panel p{line-height:1.5;color:#e2eaff}
-.small{font-size:12px;color:#b8c8e8}
-.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
-.secondary{background:#f2a5e1;color:#37183b}
-.hidden{display:none!important}
-#message{position:absolute;top:78px;left:50%;transform:translateX(-50%);background:#111a35eF;border:1px solid #8df4e2;border-radius:12px;padding:9px 15px;font-size:13px;font-weight:700;text-align:center;max-width:90vw;pointer-events:none}
+body{margin:0;background:#101326;color:white;font-family:Fredoka,Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:min(100vw,1200px);height:auto;max-height:100vh;aspect-ratio:16/9;margin:auto;border:3px solid #6874b9;border-radius:12px;background:#15182a}
+#hud{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:min(94vw,1100px);display:flex;justify-content:space-between;gap:6px;z-index:2;pointer-events:none;font-size:clamp(11px,2vw,17px)}
+.h{background:#11182de8;border:2px solid #9ba8ff;border-radius:11px;padding:7px 10px}
+#overlay{position:fixed;inset:0;background:#090c1bdc;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
+.panel{width:min(92vw,570px);max-height:90vh;overflow:auto;text-align:center;padding:25px;border:3px solid #a8b5ff;border-radius:22px;background:linear-gradient(145deg,#303c78,#171d3d);box-shadow:0 12px 50px #0009}
+h1{font-size:clamp(32px,6vw,54px);line-height:1;color:#ffe58b;text-shadow:3px 4px #252b5a;margin:8px 0}
+p{line-height:1.5}
+button{font:700 17px Fredoka;border:0;border-radius:12px;padding:12px 22px;margin:6px;background:#ffe58b;color:#29294e;cursor:pointer;box-shadow:0 4px #aa9147}
+button.secondary{background:#a8e8d0;box-shadow:0 4px #548e7c}
+.small{font-size:14px;color:#dce2ff}
+#bossbar{position:fixed;top:62px;left:50%;transform:translateX(-50%);width:min(55vw,430px);height:18px;border:2px solid white;border-radius:20px;background:#361c35;overflow:hidden;display:none;z-index:3}
+#bossfill{height:100%;width:100%;background:linear-gradient(90deg,#ed4b72,#ffbd65)}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-
 <div id="hud">
-  <div class="logo">🚪 WHERE IS THE DOOR?</div>
-  <div class="stats">
-    <div class="stat" id="level">LEVEL 1 / 5</div>
-    <div class="stat" id="keyStatus">🗝️ NO KEY</div>
-    <div class="stat" id="secrets">✨ SECRETS 0</div>
-  </div>
-  <button onclick="togglePause()">Ⅱ PAUSE</button>
+ <div class="h" id="level">LEVEL 1/6</div>
+ <div class="h" id="key">🔑 FIND THE KEY</div>
+ <div class="h" id="coins">🪙 0</div>
+ <div class="h" id="speed">⚡ SPEED 1</div>
+ <div class="h" id="status">FIND THE DOOR!</div>
 </div>
-
-<div id="message">Find the hidden door and discover the key!</div>
-<div id="corner"><button onclick="resetGame()">↻ RESET</button></div>
-<div id="bottom">MOVE: WASD / ARROW KEYS &nbsp; • &nbsp; E: SEARCH / OPEN &nbsp; • &nbsp; FIND THE MATCHING KEY!</div>
-
-<div id="overlay">
-  <div class="panel" id="panel">
-    <h1>🚪 WHERE IS THE DOOR?</h1>
-    <p>Help Kayla escape a mysterious maze full of hidden doors! Search the walls, discover secret rooms, and find the keys that match each colored door.</p>
-    <p>🔴 Red • 🔵 Blue • 🟢 Green • 🟣 Purple • 🟡 GOLD</p>
-    <p><b>The golden key is hidden behind the hardest secret door!</b></p>
-    <p class="small">Use WASD or arrow keys to move. Press E near a suspicious wall to search for a secret door. Press E again to open it.</p>
-    <div class="actions"><button onclick="startGame()">START THE MAZE!</button></div>
-  </div>
-</div>
-
+<div id="bossbar"><div id="bossfill"></div></div>
+<canvas id="game" width="960" height="540"></canvas>
+<div id="overlay"><div class="panel" id="panel">
+ <div style="font-size:55px">🗝️🚪</div>
+ <h1>WHERE IS<br>THE DOOR?</h1>
+ <p>Help Kayla find the color key and escape the maze! Watch out for trapdoors, power-ups, and the Astro Boss.</p>
+ <p><b>Move:</b> W / S<br><b>Turn:</b> Left / Right arrows<br><b>Strafe:</b> A / D<br><b>Pause:</b> ESC</p>
+ <p class="small">Find the key that matches the exit door. Trapdoors move you to a different place. Power-ups make you faster!</p>
+ <button onclick="startGame()">START GAME</button>
+</div></div>
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-let W=innerWidth,H=innerHeight;
-function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;draw()}
-addEventListener("resize",resize);
-
-const COLORS=[
- {name:"RED",color:"#ff647c",emoji:"🔴"},
- {name:"BLUE",color:"#66b8ff",emoji:"🔵"},
- {name:"GREEN",color:"#75e99c",emoji:"🟢"},
- {name:"PURPLE",color:"#c18aff",emoji:"🟣"},
- {name:"GOLD",color:"#ffd45c",emoji:"🟡"}
-];
-const COLS=21,ROWS=15;
-const CELL=36;
-let grid=[],player={x:1,y:1},keys=[],coins=[],secretDoor=null,exit=null;
-let level=1,secretsFound=0,hasKey=false,keyColor=null;
-let running=false,paused=false,moveLock=0,flash=0;
-let messageTimer=0,frame=0,raf=0,last=0;
-let gateOpen=false,secretOpen=false,roomKey=null;
-let hintPulse=0;
-
-const input={};
-addEventListener("keydown",e=>{
- const k=e.key.toLowerCase();
- if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
- input[k]=true;
- if(k==="e"&&!e.repeat)interact();
- if(k==="escape"&&!e.repeat)togglePause();
-});
-addEventListener("keyup",e=>input[e.key.toLowerCase()]=false);
-addEventListener("blur",()=>{Object.keys(input).forEach(k=>input[k]=false);if(running)pauseGame()});
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
-
-function say(msg){
- document.getElementById("message").textContent=msg;
- messageTimer=180;
-}
-function hud(){
- document.getElementById("level").textContent=`LEVEL ${level} / 5`;
- document.getElementById("keyStatus").textContent=hasKey?`${keyColor.emoji} ${keyColor.name} KEY`:"🗝️ NO KEY";
- document.getElementById("secrets").textContent="✨ SECRETS "+secretsFound;
-}
-function inside(x,y){return x>=0&&y>=0&&x<COLS&&y<ROWS}
-function isFloor(x,y){return inside(x,y)&&grid[y][x]===0}
-function randomChoice(arr){return arr[Math.floor(Math.random()*arr.length)]}
-
-function generateMaze(){
- grid=Array.from({length:ROWS},()=>Array(COLS).fill(1));
- const stack=[{x:1,y:1}];
- grid[1][1]=0;
- while(stack.length){
-  let current=stack[stack.length-1];
-  let options=[];
-  for(const [dx,dy] of [[0,-2],[0,2],[-2,0],[2,0]]){
-   let nx=current.x+dx,ny=current.y+dy;
-   if(nx>0&&ny>0&&nx<COLS-1&&ny<ROWS-1&&grid[ny][nx]===1)
-    options.push({x:nx,y:ny,dx,dy});
-  }
-  if(options.length){
-   let next=randomChoice(options);
-   grid[current.y+next.dy/2][current.x+next.dx/2]=0;
-   grid[next.y][next.x]=0;
-   stack.push({x:next.x,y:next.y});
-  }else stack.pop();
- }
-}
-
-function distancesFromStart(){
- let dist=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
- let q=[{x:1,y:1}];dist[1][1]=0;
- for(let i=0;i<q.length;i++){
-  let p=q[i];
-  for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0]]){
-   let x=p.x+dx,y=p.y+dy;
-   if(isFloor(x,y)&&dist[y][x]===-1){
-    dist[y][x]=dist[p.y][p.x]+1;q.push({x,y});
-   }
+(()=>{
+"use strict";
+const c=document.getElementById("game"),ctx=c.getContext("2d");
+const W=960,H=540,cols=19,rows=19;
+const $=id=>document.getElementById(id);
+const colors=["#ff6480","#62dcaa","#71a9ff","#ffd45e","#c58cff","#ff9b54"];
+const colorNames=["PINK","GREEN","BLUE","GOLD","PURPLE","ORANGE"];
+let state="title",level=0,maze=[],player=null,keyItem=null,door=null;
+let trapdoors=[],powerups=[],coinsList=[],particles=[],boss=null;
+let coins=0,frame=0,speedLevel=1,moveSpeed=2.4,trapCooldown=0;
+let zBuffer=new Array(W).fill(999),levelColor=0,mazeSize=9;
+const cell=1;
+function makeMaze(){
+ maze=Array.from({length:rows},()=>Array(cols).fill(1));
+ const visited=Array.from({length:mazeSize},()=>Array(mazeSize).fill(false));
+ function carve(x,y){
+  visited[y][x]=true;maze[y*2+1][x*2+1]=0;
+  let dirs=[[0,-1],[1,0],[0,1],[-1,0]].sort(()=>Math.random()-.5);
+  for(const [dx,dy] of dirs){
+   let nx=x+dx,ny=y+dy;
+   if(nx<0||ny<0||nx>=mazeSize||ny>=mazeSize||visited[ny][nx])continue;
+   maze[y*2+1+dy][x*2+1+dx]=0;carve(nx,ny);
   }
  }
- return dist;
+ carve(0,0);
+ return maze;
 }
-function makeLevel(){
- generateMaze();
- player={x:1,y:1};
- hasKey=false;keyColor=COLORS[level-1];
- gateOpen=false;secretOpen=false;roomKey=null;
- coins=[];keys=[];
- const dist=distancesFromStart();
- let candidates=[];
- for(let y=1;y<ROWS-1;y+=2){
-  for(let x=1;x<COLS-1;x+=2){
-   if(isFloor(x,y)&&dist[y][x]>0)candidates.push({x,y,d:dist[y][x]});
-  }
- }
- candidates.sort((a,b)=>a.d-b.d);
- let far=candidates[candidates.length-1];
- exit={x:far.x,y:far.y};
-
- // Place the hidden door and its secret chamber.
- let secretCandidates=[];
- for(let y=1;y<ROWS-1;y+=2){
-  for(let x=2;x<COLS-2;x+=2){
-   if(isFloor(x-1,y)&&grid[y][x]===1&&grid[y][x+1]===1&&dist[y][x-1]>0){
-    secretCandidates.push({door:{x,y},room:{x:x+1,y},d:dist[y][x-1]});
-   }
-  }
- }
- // For later levels, prefer secret doors farther into the maze.
- secretCandidates.sort((a,b)=>a.d-b.d);
- let pick;
- if(secretCandidates.length){
-  let min=Math.min(secretCandidates.length-1,Math.floor(level/5*secretCandidates.length));
-  let index=Math.floor(secretCandidates.length*.45)+Math.floor(Math.random()*Math.max(1,secretCandidates.length*.4));
-  pick=secretCandidates[Math.min(secretCandidates.length-1,index)];
- }
- if(!pick){
-  // Backup secret doorway: a wall beside an existing corridor.
-  for(let y=2;y<ROWS-2&&!pick;y++){
-   for(let x=1;x<COLS-1&&!pick;x++){
-    if(isFloor(x,y)&&grid[y+1][x]===1){
-     pick={door:{x,y:y+1},room:{x,y:y+2},d:dist[y][x]};
-     break;
-    }
-   }
-  }
- }
- if(pick){
-  grid[pick.door.y][pick.door.x]=2;
-  grid[pick.room.y][pick.room.x]=0;
-  secretDoor={...pick.door,room:pick.room,revealed:false,opened:false};
-  roomKey={x:pick.room.x,y:pick.room.y,found:false};
- }else{
-  secretDoor=null;
-  roomKey={x:3,y:3,found:false};
-  grid[3][3]=0;
- }
-
- // Coins are scattered through the maze.
- for(let i=0;i<9+level*2;i++){
-  let p=randomFloor(dist,2);
-  if(p)coins.push({...p,taken:false});
- }
- hud();
+function floors(){
+ const a=[];
+ for(let y=1;y<rows;y+=2)for(let x=1;x<cols;x+=2)if(!maze[y][x])a.push({x:x+.5,y:y+.5});
+ return a;
 }
-function randomFloor(dist,minDist=2){
- let list=[];
- for(let y=1;y<ROWS-1;y++){
-  for(let x=1;x<COLS-1;x++){
-   if(isFloor(x,y)&&dist[y][x]>=minDist&&!(x===exit.x&&y===exit.y)&&!(x===player.x&&y===player.y)){
-    list.push({x,y});
-   }
-  }
+function pickFar(list,from,used=[]){
+ let available=list.filter(p=>!used.some(u=>u.x===p.x&&u.y===p.y));
+ if(!available.length)return list[0];
+ return available[Math.floor(Math.random()*available.length)];
+}
+function setupLevel(n){
+ level=n;frame=0;trapCooldown=0;speedLevel=1;moveSpeed=2.4;
+ levelColor=n%colors.length;makeMaze();
+ player={x:1.5,y:1.5,angle:0};
+ const all=floors();
+ const end={x:17.5,y:17.5};
+ door={...end,color:colors[levelColor],open:false};
+ const used=[{x:1.5,y:1.5},end];
+ const k=pickFar(all,{x:1.5,y:1.5},used);
+ keyItem={x:k.x,y:k.y,found:false,color:colors[levelColor]};
+ used.push(k);
+ trapdoors=[];
+ for(let i=0;i<2+Math.min(n,3);i++){
+  const p=pickFar(all,player,used);used.push(p);
+  trapdoors.push({...p,used:false});
  }
- return list.length?randomChoice(list):null;
+ powerups=[];
+ for(let i=0;i<3+n;i++){
+  const p=pickFar(all,player,used);used.push(p);
+  powerups.push({...p,kind:i%3===0?"shield":"speed",alive:true});
+ }
+ coinsList=[];
+ for(let i=0;i<5+n*2;i++){
+  const p=pickFar(all,player,used);used.push(p);
+  coinsList.push({...p,alive:true});
+ }
+ boss=null;
+ if(n===5){
+  const b=pickFar(all,player,used);
+  boss={x:b.x,y:b.y,hp:8,max:8,alive:true,step:0,active:false};
+ }
+ updateHud();
 }
-function startGame(){
- level=1;secretsFound=0;
- running=true;paused=false;moveLock=0;
- makeLevel();
- document.getElementById("overlay").classList.add("hidden");
- say("Find the hidden "+keyColor.name+" door. Search the walls!");
- last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+function updateHud(){
+ $("level").textContent=`LEVEL ${level+1}/6`;
+ $("key").textContent=keyItem&&keyItem.found?"🔑 KEY FOUND!":"🔑 "+colorNames[levelColor]+" KEY";
+ $("coins").textContent="🪙 "+coins;
+ $("speed").textContent="⚡ SPEED "+speedLevel;
+ $("status").textContent=level===5?"👾 ASTRO BOSS LEVEL":"FIND THE DOOR!";
 }
-function resetGame(){startGame()}
+function startGame(){coins=0;setupLevel(0);state="playing";$("overlay").style.display="none";}
+function showPanel(title,body,buttons){
+ $("overlay").style.display="flex";
+ $("panel").innerHTML=`<h1>${title}</h1><p>${body}</p>${buttons}`;
+}
 function pauseGame(){
- if(!running)return;
- running=false;paused=true;
- showPanel("GAME PAUSED","Kayla's maze adventure is waiting. Your progress is safe.","RESUME",resumeGame);
+ if(state!=="playing")return;
+ state="paused";
+ showPanel("PAUSED","Take a break from the maze!",'<button onclick="resumeGame()">RESUME</button><button class="secondary" onclick="restartGame()">RESTART</button>');
 }
-function resumeGame(){
- paused=false;running=true;
- document.getElementById("overlay").classList.add("hidden");
- last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+function resumeGame(){state="playing";$("overlay").style.display="none";}
+function restartGame(){coins=0;setupLevel(0);state="playing";$("overlay").style.display="none";}
+function gameOver(){
+ state="over";$("bossbar").style.display="none";
+ showPanel("OH NO!","The Astro Boss caught Kayla! Try the maze again.",'<button onclick="restartGame()">TRY AGAIN</button><button class="secondary" onclick="mainMenu()">MAIN MENU</button>');
 }
-function togglePause(){
- if(paused){resumeGame();return}
- if(running)pauseGame();
+function mainMenu(){
+ state="title";$("bossbar").style.display="none";
+ showPanel("WHERE IS THE DOOR?","Find the matching color key, escape six mazes, and survive the Astro Boss!",'<p>W/S move · A/D strafe · Arrow keys turn · ESC pause</p><button onclick="startGame()">START GAME</button>');
 }
-function showPanel(title,msg,button,callback){
- document.getElementById("panel").innerHTML=
- `<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
- document.getElementById("panelBtn").onclick=callback;
- document.getElementById("overlay").classList.remove("hidden");
+function victory(){
+ state="won";$("bossbar").style.display="none";
+ showPanel("YOU MADE IT :)","🎉✨ KAYLA ESCAPED! ✨🎉<br><br>You found the keys, escaped the trapdoors, and defeated the Astro Boss!<br><br>Total coins: "+coins,'<button onclick="restartGame()">PLAY AGAIN</button><button class="secondary" onclick="mainMenu()">MAIN MENU</button>');
 }
-function completeLevel(){
- running=false;paused=true;
- if(level>=5){
-  showPanel("🏆 MAZE MASTER!","Kayla found every key, opened every colored door, and escaped the golden maze! You solved all five levels!","PLAY AGAIN",startGame);
- }else{
-  showPanel("🎉 DOOR UNLOCKED!",`You found the ${keyColor.name} key and escaped Level ${level}! A new maze and a new colored key are waiting.`,`NEXT LEVEL`,()=>{
-   level++;makeLevel();running=true;paused=false;
-   document.getElementById("overlay").classList.add("hidden");
-   say("Level "+level+": Find the "+keyColor.name+" key!");
-   last=performance.now();raf=requestAnimationFrame(loop);
-  });
- }
-}
-function interact(){
- if(!running)return;
- const adjacent=[];
- for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0]]){
-  adjacent.push({x:player.x+dx,y:player.y+dy});
- }
- // Search for hidden door.
- if(secretDoor&&!secretDoor.opened){
-  let near=adjacent.some(p=>p.x===secretDoor.x&&p.y===secretDoor.y);
-  if(near){
-   if(!secretDoor.revealed){
-    secretDoor.revealed=true;
-    say("✨ YOU FOUND A SECRET DOOR! Press E again to open it!");
-   }else{
-    secretDoor.opened=true;
-    grid[secretDoor.y][secretDoor.x]=0;
-    secretsFound++;
-    say("🚪 SECRET DOOR OPEN! Something is hidden inside!");
-   }
-   hud();draw();return;
-  }
- }
- // Check exit.
- if(adjacent.some(p=>p.x===exit.x&&p.y===exit.y)){
-  if(hasKey&&keyColor){
-   gateOpen=true;completeLevel();
-  }else{
-   say("🔒 This "+keyColor.name+" door is locked! Find its matching key.");
-  }
-  return;
- }
- say("Nothing nearby. Keep searching the walls!");
-}
-function collectItems(){
- if(roomKey&&!roomKey.found&&player.x===roomKey.x&&player.y===roomKey.y){
-  roomKey.found=true;hasKey=true;
-  say("🗝️ YOU FOUND THE "+keyColor.name+" KEY! Find the matching door!");
-  hud();
- }
- coins.forEach(c=>{
-  if(!c.taken&&c.x===player.x&&c.y===player.y){
-   c.taken=true;scoreCoin();
-  }
- });
-}
-let totalCoins=0;
-function scoreCoin(){
- totalCoins++;
- say("🪙 Coin collected! Total: "+totalCoins);
-}
+function wall(x,y){let ix=Math.floor(x),iy=Math.floor(y);return ix<0||iy<0||ix>=cols||iy>=rows||maze[iy][ix]===1;}
 function move(dx,dy){
- if(!running||moveLock>0)return;
- let nx=player.x+dx,ny=player.y+dy;
- if(!inside(nx,ny))return;
- if(grid[ny][nx]===1)return;
- if(grid[ny][nx]===2){
-  if(secretDoor&&secretDoor.revealed&&!secretDoor.opened){
-   say("Press E to open the secret door!");
-  }else{
-   say("Hmm... this wall might be hiding something. Press E to search!");
-  }
-  return;
- }
- if(nx===exit.x&&ny===exit.y){
-  if(hasKey){player.x=nx;player.y=ny;completeLevel()}
-  else say("🔒 The "+keyColor.name+" door needs its matching key!");
-  return;
- }
- player.x=nx;player.y=ny;moveLock=8;
- collectItems();
+ const r=.18;
+ if(!wall(player.x+dx+r,player.y)&&!wall(player.x+dx-r,player.y))player.x+=dx;
+ if(!wall(player.x,player.y+dy+r)&&!wall(player.x,player.y+dy-r))player.y+=dy;
 }
-function update(dt){
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+function teleport(){
+ const f=floors().filter(p=>distance(p,player)>5);
+ if(f.length){
+  const p=f[Math.floor(Math.random()*f.length)];
+  player.x=p.x;player.y=p.y;trapCooldown=150;
+  burst(W/2,H/2,"#bd9bff",24);
+  flashMessage("TRAPDOOR! TELEPORTED!");
+ }
+}
+let message="",messageTimer=0;
+function flashMessage(t){message=t;messageTimer=100;}
+function burst(x,y,color,n=12){
+ for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,life:30,color});
+}
+function update(){
+ if(state!=="playing")return;
  frame++;
- moveLock=Math.max(0,moveLock-dt);
- if(messageTimer>0)messageTimer-=dt;
- hintPulse+=dt*.04;
- if(input.w||input.arrowup)move(0,-1);
- else if(input.s||input.arrowdown)move(0,1);
- else if(input.a||input.arrowleft)move(-1,0);
- else if(input.d||input.arrowright)move(1,0);
+ const turn=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0);
+ player.angle+=turn*.045;
+ const forward=(keys.KeyW||keys.ArrowUp?1:0)-(keys.KeyS||keys.ArrowDown?1:0);
+ const side=(keys.KeyD?1:0)-(keys.KeyA?1:0);
+ const sp=moveSpeed*(keys.ShiftLeft?1.25:1);
+ if(forward||side){
+  const dx=(Math.cos(player.angle)*forward+Math.cos(player.angle+Math.PI/2)*side)*sp*.035;
+  const dy=(Math.sin(player.angle)*forward+Math.sin(player.angle+Math.PI/2)*side)*sp*.035;
+  move(dx,dy);
+ }
+ if(trapCooldown>0)trapCooldown--;
+ for(const t of trapdoors){
+  if(distance(player,t)<.48&&!trapCooldown){teleport();break;}
+ }
+ if(keyItem&&!keyItem.found&&distance(player,keyItem)<.5){
+  keyItem.found=true;burst(W/2,H/2,keyItem.color,22);flashMessage("YOU FOUND THE "+colorNames[levelColor]+" KEY!");updateHud();
+ }
+ for(const p of powerups){
+  if(p.alive&&distance(player,p)<.5){
+   p.alive=false;speedLevel++;moveSpeed=Math.min(5.2,2.4+speedLevel*.42);
+   if(p.kind==="shield")player.shield=300;
+   else player.speedTimer=650;
+   burst(W/2,H/2,p.kind==="shield"?"#8deaff":"#ffe58b",18);
+   flashMessage(p.kind==="shield"?"SHIELD POWER-UP!":"SPEED BOOST!");updateHud();
+  }
+ }
+ for(const q of coinsList)if(q.alive&&distance(player,q)<.45){q.alive=false;coins++;burst(W/2,H/2,"#ffdc69",7);updateHud();}
+ if(player.shield>0)player.shield--;
+ if(player.speedTimer>0)player.speedTimer--;
+ if(messageTimer>0)messageTimer--;
+ if(distance(player,door)<.65){
+  if(keyItem.found){
+   burst(W/2,H/2,"#fff0a5",35);
+   if(level<5){setupLevel(level+1);flashMessage("LEVEL "+(level+1)+"!");}
+   else victory();
+  }else flashMessage("YOU NEED THE "+colorNames[levelColor]+" KEY!");
+ }
+ if(boss&&boss.alive){
+  if(distance(player,boss)<8)boss.active=true;
+  if(boss.active){
+   boss.step++;
+   if(boss.step%18===0){
+    const dx=player.x-boss.x,dy=player.y-boss.y,l=Math.hypot(dx,dy)||1;
+    let nx=boss.x+dx/l*.16,ny=boss.y+dy/l*.16;
+    if(!wall(nx,ny)){boss.x=nx;boss.y=ny;}
+    else if(!wall(nx,boss.y))boss.x=nx;
+    else if(!wall(boss.x,ny))boss.y=ny;
+   }
+   if(distance(player,boss)<.55){
+    if(player.shield>0){boss.hp--;player.shield=0;boss.active=false;burst(W/2,H/2,"#8deaff",20);if(boss.hp<=0)boss.alive=false;}
+    else if(!player.hitCooldown){player.hitCooldown=70;boss.hp--;if(boss.hp<=0)boss.alive=false;flashMessage("BOSS HIT!");}
+   }
+   if(player.hitCooldown>0)player.hitCooldown--;
+   $("bossbar").style.display="block";$("bossfill").style.width=Math.max(0,boss.hp/boss.max*100)+"%";
+   if(!boss.alive){$("bossbar").style.display="none";flashMessage("ASTRO BOSS DEFEATED! FIND THE EXIT!");}
+  }
+ }
+ for(const q of particles){q.x+=q.vx;q.y+=q.vy;q.vx*=.97;q.vy*=.97;q.life--;}
+ particles=particles.filter(q=>q.life>0);
+}
+const keys={};
+function renderWorld(){
+ const sky=ctx.createLinearGradient(0,0,0,H/2);sky.addColorStop(0,"#151b3d");sky.addColorStop(1,"#515a91");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H/2);
+ const floor=ctx.createLinearGradient(0,H/2,0,H);floor.addColorStop(0,"#34334e");floor.addColorStop(1,"#10121f");
+ ctx.fillStyle=floor;ctx.fillRect(0,H/2,W,H/2);
+ const fov=Math.PI/3;
+ for(let x=0;x<W;x++){
+  const ray=player.angle-fov/2+(x/W)*fov;
+  const rx=Math.cos(ray),ry=Math.sin(ray);
+  let mx=Math.floor(player.x),my=Math.floor(player.y);
+  const ddx=Math.abs(1/(rx||.00001)),ddy=Math.abs(1/(ry||.00001));
+  let sx,sy,sdx,sdy,hit=false,side=0;
+  if(rx<0){sx=-1;sdx=(player.x-mx)*ddx;}else{sx=1;sdx=(mx+1-player.x)*ddx;}
+  if(ry<0){sy=-1;sdy=(player.y-my)*ddy;}else{sy=1;sdy=(my+1-player.y)*ddy;}
+  let steps=0;
+  while(!hit&&steps++<45){
+   if(sdx<sdy){sdx+=ddx;mx+=sx;side=0;}else{sdy+=ddy;my+=sy;side=1;}
+   if(mx<0||my<0||mx>=cols||my>=rows||maze[my][mx]===1)hit=true;
+  }
+  let dist=side===0?sdx-ddx:sdy-ddy;
+  dist=Math.max(.08,dist*Math.cos(ray-player.angle));
+  zBuffer[x]=dist;
+  let h=Math.min(H*2,H/(dist));
+  const y=(H-h)/2;
+  let shade=Math.max(.2,1-dist/13)*(side?.72:1);
+  const base=colors[levelColor];
+  const r=parseInt(base.slice(1,3),16),g=parseInt(base.slice(3,5),16),b=parseInt(base.slice(5,7),16);
+  ctx.fillStyle=`rgb(${r*shade},${g*shade},${b*shade})`;
+  ctx.fillRect(x,y,1,h);
+  if(h>18){
+   ctx.fillStyle=`rgba(255,255,255,${.04*shade})`;
+   if((mx+my)%3===0)ctx.fillRect(x,y+h*.3,1,2);
+  }
+ }
+ drawSprites();
+}
+function drawSprites(){
+ const objects=[];
+ function add(o,emoji,size){let dx=o.x-player.x,dy=o.y-player.y,d=Math.hypot(dx,dy);let a=Math.atan2(dy,dx)-player.angle;while(a<-Math.PI)a+=Math.PI*2;while(a>Math.PI)a-=Math.PI*2;if(Math.abs(a)<Math.PI/3+.2)objects.push({o,emoji,size,d,a});}
+ if(keyItem&&!keyItem.found)add(keyItem,"🔑",.8);
+ if(door)add(door,keyItem&&keyItem.found?"🚪":"🔒",1.1);
+ for(const t of trapdoors)add(t,"🕳️",.85);
+ for(const p of powerups)if(p.alive)add(p,p.kind==="shield"?"🛡️":"⚡",.8);
+ for(const q of coinsList)if(q.alive)add(q,"🪙",.6);
+ if(boss&&boss.alive&&boss.active)add(boss,"👾",2.1);
+ objects.sort((a,b)=>b.d-a.d);
+ for(const s of objects){
+  if(s.d<.2)continue;
+  const sx=W/2+Math.tan(s.a)/(Math.tan(Math.PI/6))*W/2;
+  const size=Math.min(H*1.2,H*s.size/s.d);
+  if(sx<0||sx>W)continue;
+  const zi=Math.max(0,Math.min(W-1,Math.floor(sx)));
+  if(s.d>zBuffer[zi]+.2)continue;
+  ctx.font=`${size}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";
+  ctx.fillText(s.emoji,sx,H/2);
+ }
 }
 function draw(){
- ctx.clearRect(0,0,W,H);
- ctx.fillStyle="#10172d";ctx.fillRect(0,0,W,H);
- let margin=22,top=112,bottom=54;
- let cell=Math.min((W-margin*2)/COLS,(H-top-bottom)/ROWS,48);
- let mapW=COLS*cell,mapH=ROWS*cell;
- let ox=(W-mapW)/2,oy=top+(H-top-bottom-mapH)/2;
- // Maze floor and walls.
- for(let y=0;y<ROWS;y++){
-  for(let x=0;x<COLS;x++){
-   let px=ox+x*cell,py=oy+y*cell;
-   if(grid[y][x]===0){
-    ctx.fillStyle="#263552";ctx.fillRect(px,py,cell,cell);
-    ctx.fillStyle="#344565";ctx.fillRect(px+2,py+2,cell-4,cell-4);
-   }else if(grid[y][x]===1){
-    ctx.fillStyle="#53698b";ctx.fillRect(px,py,cell,cell);
-    ctx.fillStyle="#7185a6";ctx.fillRect(px+2,py+2,cell-4,cell-4);
-    ctx.fillStyle="#91a5c2";ctx.fillRect(px+3,py+3,cell-6,3);
-   }else if(grid[y][x]===2){
-    ctx.fillStyle="#53698b";ctx.fillRect(px,py,cell,cell);
-    ctx.fillStyle="#7185a6";ctx.fillRect(px+2,py+2,cell-4,cell-4);
-    if(secretDoor&&secretDoor.revealed){
-     ctx.fillStyle="#f0d47a";ctx.fillRect(px+cell*.25,py+2,cell*.5,cell-4);
-     ctx.fillStyle="#fff1a8";ctx.beginPath();ctx.arc(px+cell*.68,py+cell*.5,2.5,0,Math.PI*2);ctx.fill();
-    }else{
-     ctx.globalAlpha=.18+Math.sin(hintPulse)*.12;
-     ctx.fillStyle="#fff0a0";ctx.fillRect(px+cell*.42,py+cell*.42,cell*.16,cell*.16);
-     ctx.globalAlpha=1;
-    }
-   }
-  }
+ renderWorld();
+ // First-person hands and small center reticle.
+ ctx.fillStyle="#e9c59f";ctx.beginPath();ctx.ellipse(W/2-65,H-22,48,18,-.3,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.ellipse(W/2+65,H-22,48,18,.3,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.arc(W/2,H/2,7,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#fff";ctx.fillRect(W/2-1,H/2-13,2,26);ctx.fillRect(W/2-13,H/2-1,26,2);
+ if(player.shield>0){ctx.strokeStyle="#8deaff";ctx.lineWidth=5;ctx.strokeRect(4,4,W-8,H-8);}
+ if(messageTimer>0){
+  ctx.fillStyle="#11182de8";ctx.fillRect(W/2-230,120,460,52);
+  ctx.strokeStyle="#ffe58b";ctx.lineWidth=2;ctx.strokeRect(W/2-230,120,460,52);
+  ctx.fillStyle="#ffe58b";ctx.font="bold 24px Fredoka";ctx.textAlign="center";ctx.fillText(message,W/2,153);
  }
- // Exit door.
- let ex=ox+exit.x*cell,ey=oy+exit.y*cell;
- ctx.fillStyle=keyColor.color;
- ctx.fillRect(ex+cell*.12,ey+cell*.08,cell*.76,cell*.84);
- ctx.fillStyle="#20243b";
- ctx.fillRect(ex+cell*.22,ey+cell*.18,cell*.56,cell*.64);
- ctx.fillStyle=keyColor.color;
- ctx.fillRect(ex+cell*.28,ey+cell*.24,cell*.44,cell*.52);
- ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(ex+cell*.65,ey+cell*.5,2.5,0,Math.PI*2);ctx.fill();
- // Coins.
- coins.forEach(c=>{
-  if(c.taken)return;
-  let x=ox+c.x*cell+cell/2,y=oy+c.y*cell+cell/2;
-  ctx.fillStyle="#ffdc65";ctx.beginPath();ctx.arc(x,y,cell*.22,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle="#fff0a5";ctx.lineWidth=2;ctx.stroke();
-  ctx.fillStyle="#8a5d20";ctx.font=`bold ${cell*.25}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("$",x,y);
- });
- // Key in secret room.
- if(roomKey&&!roomKey.found){
-  let x=ox+roomKey.x*cell+cell/2,y=oy+roomKey.y*cell+cell/2;
-  ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(frame*.06)*.12);
-  ctx.fillStyle=keyColor.color;ctx.font=`bold ${cell*.7}px Arial`;ctx.textAlign="center";ctx.textBaseline="middle";
-  ctx.fillText("🗝️",0,0);ctx.restore();
- }
- // Player Kayla.
- let px=ox+player.x*cell+cell/2,py=oy+player.y*cell+cell/2;
- ctx.fillStyle="#f5bd9b";ctx.beginPath();ctx.arc(px,py-cell*.04,cell*.28,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#754c38";ctx.beginPath();ctx.arc(px,py-cell*.18,cell*.29,Math.PI,Math.PI*2);ctx.fill();
- ctx.fillStyle="#ff8bc5";ctx.fillRect(px-cell*.19,py+cell*.13,cell*.38,cell*.3);
- ctx.fillStyle="#26314c";ctx.beginPath();ctx.arc(px-cell*.09,py-cell*.05,2,0,Math.PI*2);ctx.arc(px+cell*.09,py-cell*.05,2,0,Math.PI*2);ctx.fill();
- // Labels
- ctx.textAlign="center";ctx.textBaseline="middle";
- ctx.font="bold 13px Fredoka";
- ctx.fillStyle="#fff";ctx.fillText("START",ox+cell*1.5,oy+cell*.45);
- ctx.fillStyle=keyColor.color;ctx.fillText("EXIT",ex+cell/2,ey-cell*.15);
- if(secretDoor&&!secretDoor.revealed){
-  let sx=ox+secretDoor.x*cell+cell/2,sy=oy+secretDoor.y*cell+cell/2;
-  ctx.fillStyle="#fff3a6";ctx.font="bold 10px Arial";ctx.fillText("?",sx,sy);
- }
- // Level title
- ctx.fillStyle="#fff";ctx.font="bold 17px Fredoka";ctx.textAlign="center";
- ctx.fillText("KAYLA'S MAZE • "+keyColor.name+" KEY",W/2,96);
+ for(const p of particles){ctx.globalAlpha=p.life/30;ctx.fillStyle=p.color;ctx.fillRect(p.x,p.y,6,6);}
+ ctx.globalAlpha=1;
 }
-function loop(t){
- if(!running)return;
- let dt=Math.min(2,(t-last)/16.67||1);last=t;
- update(dt);draw();
- if(running)raf=requestAnimationFrame(loop);
-}
-function resetGame(){totalCoins=0;startGame()}
-resize();
+function loop(){if(state==="playing"){update();draw();}else if(state==="paused")draw();requestAnimationFrame(loop);}
+document.addEventListener("keydown",e=>{
+ if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space"].includes(e.code))e.preventDefault();
+ keys[e.code]=true;
+ if(e.code==="Escape"&&!e.repeat){if(state==="playing")pauseGame();else if(state==="paused")resumeGame();}
+});
+document.addEventListener("keyup",e=>keys[e.code]=false);
+window.addEventListener("blur",()=>{for(const k in keys)keys[k]=false;});
+window.startGame=startGame;window.resumeGame=resumeGame;window.restartGame=restartGame;window.mainMenu=mainMenu;
+setupLevel(0);state="title";loop();
+})();
 </script>
 </body>
 </html>
