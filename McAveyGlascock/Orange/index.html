@@ -3,315 +3,533 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>COCONUT WUTERR</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COCONUT WUTERR: Blood Moon Jungle</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#153c35;color:white;font-family:Outfit,sans-serif;display:flex;align-items:center;justify-content:center;padding:12px}
-#app{width:min(1100px,100%);background:#205347;border:3px solid #79b85e;border-radius:22px;padding:14px;box-shadow:0 15px 50px #061d17}
-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-h1{font:700 clamp(25px,4vw,38px) Fredoka,sans-serif;color:#ffe47b;margin:0}
-header a{color:#d8f5bd;text-decoration:none;font-size:13px;font-weight:700}
-#hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
-.stat{background:#316c53;border:1px solid #8ac878;border-radius:11px;padding:7px 11px;font-size:13px;font-weight:700}
-#stage{position:relative;overflow:hidden;border:3px solid #a3d779;border-radius:14px;background:#8edb9b}
-canvas{display:block;width:100%;height:auto;aspect-ratio:16/9}
-#overlay{position:absolute;inset:0;background:#102e29eF;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px}
-.panel{max-width:570px}
-.panel h2{font:700 clamp(30px,6vw,53px) Fredoka,sans-serif;color:#ffe47b;margin:0 0 8px}
-.panel p{line-height:1.5;color:#e2f4d8}
-.big{background:#ffdf67;color:#29462e;border:0;border-radius:13px;padding:13px 24px;font:700 19px Fredoka,sans-serif;cursor:pointer;margin:8px}
-.big:hover{background:#fff09b}
-.small{background:#316c53;color:white;border:1px solid #9bd17c;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
-#controls{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
-#help{font-size:12px;color:#d7f0d0;line-height:1.6}
-#message{text-align:center;min-height:22px;color:#ffe47b;font-weight:700;font-size:14px;margin-top:7px}
-@media(max-width:600px){body{padding:4px}#app{padding:8px}.stat{font-size:11px;padding:6px 8px}}
+body{margin:0;background:#101522;color:white;font-family:Outfit,sans-serif}
+#app{height:100vh;display:flex;flex-direction:column}
+header{background:#20283a;border-bottom:3px solid #68465d;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.logo{font:700 23px Fredoka;color:#ffb1a5}
+#stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#354056;padding:8px 11px;border-radius:10px;font-size:13px;font-weight:800}
+#gameArea{flex:1;min-height:0;position:relative;display:flex;justify-content:center;align-items:center;background:#171b29}
+canvas{width:min(100%,1100px);height:100%;object-fit:contain;display:block}
+#overlay{position:absolute;inset:0;background:#090d19eF;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
+.panel{width:min(570px,96%);max-height:95%;overflow:auto;text-align:center;background:#29283b;border:2px solid #986277;border-radius:23px;padding:25px;box-shadow:0 15px 50px #000b}
+h1{font:700 clamp(30px,6vw,52px)/1.05 Fredoka;color:#ffb5a9;margin:8px 0 12px}
+h2{font-family:Fredoka;color:#ffdb8a}
+.panel p{color:#e0dce9;line-height:1.5}
+.big{font-size:18px;padding:14px 25px;background:#ffad9c;color:#371d25}
+button{border:0;border-radius:12px;padding:10px 15px;font:800 14px Outfit;cursor:pointer;margin:5px;background:#ffbd9f;color:#321d26}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.secondary{background:#59647d;color:white}
+.coconut{font-size:76px;display:block}
+#message{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#171829eF;border:1px solid #ffffff44;border-radius:12px;padding:10px 17px;font-weight:800;z-index:2;opacity:0;transition:opacity .2s;text-align:center;pointer-events:none}
+#controls{position:absolute;bottom:10px;left:10px;background:#111626d9;padding:9px 12px;border-radius:10px;font-size:12px;color:#f4e8ec;pointer-events:none}
+#pause{position:absolute;right:12px;top:12px;z-index:3}
+footer{background:#20283a;color:#c9c4d4;text-align:center;padding:8px;font-size:12px}
+@media(max-width:600px){.logo{font-size:17px}.stat{font-size:11px;padding:6px}header{padding:8px}#controls{font-size:10px}}
 </style>
 </head>
 <body>
 <div id="app">
 <header>
-<h1>🥥 COCONUT WUTERR</h1>
-<a href="../../index.html">← BACK TO GAME LAB</a>
+ <div class="logo">🥥 COCONUT WUTERR</div>
+ <div id="stats">
+  <div class="stat">STAGE <span id="stage">1</span>/3</div>
+  <div class="stat">❤️ <span id="health">3</span></div>
+  <div class="stat">🪙 <span id="coins">0</span></div>
+  <div class="stat">⚔️ <span id="swords">0</span></div>
+  <div class="stat">🛡️ <span id="shields">0</span></div>
+ </div>
 </header>
-<div id="hud">
-<div class="stat" id="stageStat">🌴 Stage 1 / 3</div>
-<div class="stat" id="coconutStat">🥥 Coconut Man</div>
-<div class="stat" id="coinStat">🪙 0</div>
-<div class="stat" id="heartStat">❤️❤️❤️</div>
-<div class="stat" id="bossStat">👹 Boss: --</div>
+<div id="gameArea">
+ <canvas id="game" width="960" height="540"></canvas>
+ <div id="message"></div>
+ <button id="pause" onclick="pauseGame()">⏸ Pause</button>
+ <div id="controls">A/D or ←/→ Move · W/SPACE Jump · X Sword · C Shield</div>
+ <div id="overlay">
+  <div class="panel" id="panel">
+   <span class="coconut">🥥</span>
+   <h1>COCONUT WUTERR</h1>
+   <h2>THE BLOOD MOON JUNGLE</h2>
+   <p>Welcome to a mysterious jungle under a giant red moon! Play as Coconut, collect coins, find secret doors, and escape the moldy coconut monster.</p>
+   <p>Use your coconut sword and shields to survive. At the end, face the giant dragon and its fireballs!</p>
+   <button class="big" onclick="startGame()">START ADVENTURE</button>
+   <p style="font-size:12px">A/D move · W or SPACE jump · X sword · C shield</p>
+  </div>
+ </div>
 </div>
-<div id="stage">
-<canvas id="game" width="960" height="540"></canvas>
-<div id="overlay">
-<div class="panel">
-<h2>🥥 COCONUT WUTERR</h2>
-<p>Meet Coconut Man! Run, jump, collect coins, dodge monsters, and escape the tropical chaos!</p>
-<p>Beat all three stages to unlock three different coconut characters. Watch out for the MAD COCONUT!</p>
-<p><b>Move:</b> A / D or arrow keys<br><b>Jump:</b> W / Space / Up<br><b>Coconut blast:</b> E &nbsp; <b>Pause:</b> P</p>
-<button class="big" id="startBtn">LET'S GET COCONUTTY!</button>
+<footer>Explore the jungle • Find secret doors • Defeat the dragon!</footer>
 </div>
-</div>
-</div>
-<div id="controls">
-<div id="help">A / D or ← / → Move &nbsp; • &nbsp; SPACE / W Jump &nbsp; • &nbsp; E Coconut Blast &nbsp; • &nbsp; P Pause</div>
-<div>
-<button class="small" id="pauseBtn">Ⅱ Pause</button>
-<button class="small" id="restartBtn">↻ Restart Stage</button>
-</div>
-</div>
-<div id="message">Stay coconutty! 🥥</div>
-</div>
+
 <script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-const W=960,H=540,ground=450;
-const stages=[
-{name:"Tropical Forest",emoji:"🥥",sky:"#87d9a0",far:"#399866",land:"#27734b",ground:"#6b9c48",length:2450,prize:"Classic Coconut"},
-{name:"Coconut Chaos",emoji:"🥥😎",sky:"#65c9be",far:"#237e70",land:"#155d50",ground:"#4d8947",length:2750,prize:"Cool Coconut"},
-{name:"Mad Coconut's Lair",emoji:"🥥🔥",sky:"#e69a62",far:"#994e43",land:"#693d38",ground:"#76503c",length:2500,prize:"Golden Coconut"}
-];
-let stageNo=0,coins=0,lives=3,playing=false,paused=false,frame=0,camera=0;
-let player={},platforms=[],spikes=[],enemies=[],pickups=[],doors=[],projectiles=[];
-let boss=null,keys={},messageTimer=0,blastCooldown=0,wonStages=[];
-let stageCoins=0;
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const W=960,H=540;
 const $=id=>document.getElementById(id);
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function say(s){$("message").textContent=s;messageTimer=130}
+
+const stages=[
+ {name:'Blood Moon Jungle',sky:'#24182f',ground:'#315c39',dark:'#172c27',decor:'🌴'},
+ {name:'Moldy Coconut Marsh',sky:'#202c35',ground:'#42634b',dark:'#263c34',decor:'🌿'},
+ {name:'Dragon Mountain',sky:'#351b29',ground:'#574044',dark:'#30232c',decor:'🌋'}
+];
+
+let stage=1,health=3,coins=0,swords=0,shields=0;
+let running=false,paused=false,keys={};
+let player,platforms,hazards,enemy,items,secretDoors,fireballs;
+let boss=null,bossActive=false,bossDefeated=false;
+let camera=0,worldWidth=3000,groundY=450;
+let gameTime=0,lastTime=0;
+let swordTimer=0,shieldTimer=0;
+let messageTimer=0,exitUnlocked=false;
+let particles=[];
+
+function say(msg){
+ $('message').textContent=msg;
+ $('message').style.opacity=1;
+ clearTimeout(messageTimer);
+ messageTimer=setTimeout(()=>$('message').style.opacity=0,1900);
+}
 function updateHUD(){
-$("stageStat").textContent="🌴 Stage "+(stageNo+1)+" / 3";
-$("coconutStat").textContent=stageNo===0?"🥥 Coconut Man":stageNo===1?"😎 Cool Coconut":"✨ Golden Coconut";
-$("coinStat").textContent="🪙 "+coins;
-$("heartStat").textContent="❤️".repeat(Math.max(0,lives))+"🖤".repeat(3-Math.max(0,lives));
-$("bossStat").textContent=boss?"👹 Boss: "+Math.max(0,boss.hp)+" HP":"👹 Boss: --";
+ $('stage').textContent=stage;
+ $('health').textContent=health;
+ $('coins').textContent=coins;
+ $('swords').textContent=swords;
+ $('shields').textContent=shields;
 }
-function makeStage(){
-let s=stages[stageNo];
-player={x:65,y:ground-55,vx:0,vy:0,w:42,h:48,onGround:false,inv:0};
-camera=0;frame=0;stageCoins=0;blastCooldown=0;projectiles=[];
-platforms=[{x:0,y:ground,w:s.length,h:100}];
-spikes=[];enemies=[];pickups=[];doors=[];
-for(let i=0;i<12;i++){
-let x=220+i*175;
-let y=ground-90-(i%3)*38;
-platforms.push({x,y,w:100+(i%2)*35,h:18});
+function startGame(){
+ stage=1;health=3;coins=0;swords=0;shields=0;
+ running=true;paused=false;
+ $('overlay').style.display='none';
+ buildStage();
+ lastTime=performance.now();
+ requestAnimationFrame(loop);
 }
-for(let i=0;i<14;i++){
-let x=180+i*155;
-spikes.push({x,y:ground-23,w:34,h:23});
+function buildStage(){
+ let data=stages[stage-1];
+ worldWidth=stage===3?2700:3000;
+ camera=0;
+ player={x:80,y:groundY-58,w:48,h:55,vx:0,vy:0,onGround:false,facing:1,invulnerable:0};
+ platforms=[];
+ hazards=[];
+ items=[];
+ secretDoors=[];
+ fireballs=[];
+ particles=[];
+ swordTimer=0;shieldTimer=0;
+ exitUnlocked=false;
+ boss=null;bossActive=false;bossDefeated=false;
+
+ // Platforms for jumping and exploring.
+ for(let i=0;i<10;i++){
+  let x=360+i*260;
+  platforms.push({x,y:rand(290,365),w:rand(100,155),h:18});
+ }
+ // Spikes and jungle obstacles.
+ for(let i=0;i<10+stage*2;i++){
+  let x=rand(280,worldWidth-300);
+  hazards.push({x,y:groundY-28,w:rand(35,55),h:28,type:Math.random()<.6?'spikes':'mold'});
+ }
+ // Coins.
+ for(let i=0;i<25;i++){
+  items.push({x:rand(250,worldWidth-160),y:rand(270,390),type:'coin',taken:false});
+ }
+ // Pickups.
+ for(let i=0;i<4;i++){
+  items.push({x:rand(400,worldWidth-200),y:rand(300,390),type:Math.random()<.5?'sword':'shield',taken:false});
+ }
+ // Secret doors.
+ for(let i=0;i<3;i++){
+  secretDoors.push({x:rand(500,worldWidth-400),opened:false});
+ }
+ // Moldy coconut pursuer.
+ enemy={x:stage===1?850:700,y:groundY-55,w:52,h:52,speed:stage===1?95:120+stage*12,stun:0};
+ if(stage===3){
+  enemy=null;
+  boss={x:worldWidth-500,y:groundY-180,w:120,h:145,hp:8,maxHp:8,attackTimer:1.5,fireballs:[]};
+ }
+ updateHUD();
+ say(data.name+'! Watch out for the moldy coconut!');
 }
-for(let i=0;i<6;i++){
-let x=390+i*330;
-enemies.push({x,y:ground-40,w:38,h:35,vx:i%2?1.4:-1.4,min:x-65,max:x+65,alive:true,type:i%2});
+function rand(a,b){return a+Math.random()*(b-a)}
+
+function jump(){
+ if(player.onGround){
+  player.vy=-620;
+  player.onGround=false;
+ }
 }
-for(let i=0;i<15;i++){
-let x=150+i*145;
-pickups.push({x,y:ground-55-(i%3)*55,r:12,got:false,type:"coin"});
+function useSword(){
+ if(!running||paused||swordTimer>0)return;
+ swordTimer=.35;
+ if(swords<=0){say('Find a coconut sword first!');return}
+ swords--;
+ let hit=false;
+ if(enemy&&Math.abs((enemy.x+enemy.w/2)-(player.x+player.w/2))<125&&Math.abs(enemy.y-player.y)<90){
+  enemy.stun=2.5;
+  enemy.x+=player.facing*85;
+  hit=true;
+ }
+ if(boss&&bossActive&&Math.abs((boss.x+boss.w/2)-(player.x+player.w/2))<180&&Math.abs(boss.y-player.y)<190){
+  boss.hp--;
+  hit=true;
+  say('Direct hit on the dragon! 🐉');
+  if(boss.hp<=0)defeatBoss();
+ }
+ if(hit)scoreEffect();
+ else say('Sword swing!');
+ updateHUD();
 }
-for(let i=0;i<3;i++){
-let x=520+i*650;
-doors.push({x,y:ground-75,used:false});
+function scoreEffect(){
+ for(let i=0;i<10;i++)particles.push({x:player.x+player.w/2,y:player.y+20,vx:rand(-100,100),vy:rand(-130,30),life:.6});
 }
-boss=null;
-if(stageNo===2){
-boss={x:s.length-390,y:ground-105,w:95,h:100,hp:8,maxHp:8,vx:2,attack:0,flash:0};
+function useShield(){
+ if(!running||paused||shieldTimer>0)return;
+ if(shields<=0){say('Find a shield first!');return}
+ shields--;
+ player.invulnerable=2.5;
+ shieldTimer=5;
+ say('🛡️ Coconut shield activated!');
+ updateHUD();
 }
-updateHUD();
+function hitPlayer(){
+ if(player.invulnerable>0)return;
+ health--;
+ player.invulnerable=1.6;
+ player.vx=-200;
+ player.vy=-260;
+ updateHUD();
+ if(health<=0){
+  running=false;
+  showPanel('OH NO! 🥥','The jungle was too dangerous! Try the stage again. Your coins and collected equipment are kept.','RETRY STAGE',()=>{
+   health=3;
+   $('overlay').style.display='none';
+   running=true;paused=false;
+   buildStage();lastTime=performance.now();requestAnimationFrame(loop);
+  });
+ }else say('Ouch! You lost a heart!');
 }
+function collectItems(){
+ for(let it of items){
+  if(it.taken)continue;
+  if(Math.abs(player.x+player.w/2-it.x)<37&&Math.abs(player.y+player.h/2-it.y)<45){
+   it.taken=true;
+   if(it.type==='coin'){coins++;say('+1 coin! 🪙')}
+   if(it.type==='sword'){swords+=3;say('🥥 Coconut swords! +3')}
+   if(it.type==='shield'){shields+=2;say('🛡️ Two shields collected!')}
+   updateHUD();
+  }
+ }
+}
+function openSecretDoor(){
+ let door=secretDoors.find(d=>!d.opened&&Math.abs(d.x-player.x)<90);
+ if(!door){say('No secret door nearby!');return}
+ door.opened=true;
+ coins+=5;swords++;
+ items.push({x:door.x,y:groundY-110,type:'shield',taken:false});
+ say('SECRET ROOM! +5 coins, sword, and shield!');
+ updateHUD();
+}
+function defeatBoss(){
+ if(bossDefeated)return;
+ bossDefeated=true;bossActive=false;
+ say('THE DRAGON IS DEFEATED! 🐉');
+ for(let i=0;i<35;i++)particles.push({x:boss.x+60,y:boss.y+60,vx:rand(-200,200),vy:rand(-200,100),life:1.2});
+ setTimeout(()=>{
+  if(running)completeStage();
+ },1400);
+}
+function completeStage(){
+ if(!running)return;
+ running=false;
+ if(stage===3){
+  showPanel('YOU DEFEATED THE DRAGON! 🏆','Coconut saved the Blood Moon Jungle! You defeated the moldy coconut and the mighty dragon. You are the champion of COCONUT WUTERR!','PLAY AGAIN',restartGame);
+ }else{
+  showPanel('STAGE '+stage+' COMPLETE! 🌟','You escaped '+stages[stage-1].name+'! A new challenge is waiting.','NEXT STAGE',()=>{
+   stage++;
+   health=Math.min(5,health+1);
+   $('overlay').style.display='none';
+   running=true;paused=false;
+   buildStage();lastTime=performance.now();requestAnimationFrame(loop);
+  });
+ }
+}
+function restartGame(){
+ stage=1;health=3;coins=0;swords=0;shields=0;
+ $('overlay').style.display='none';
+ running=true;paused=false;
+ buildStage();lastTime=performance.now();requestAnimationFrame(loop);
+}
+
+function update(dt){
+ gameTime+=dt;
+ if(swordTimer>0)swordTimer-=dt;
+ if(shieldTimer>0)shieldTimer-=dt;
+ if(player.invulnerable>0)player.invulnerable-=dt;
+
+ let speed=270;
+ if(keys.KeyD||keys.ArrowRight){player.vx=speed;player.facing=1}
+ else if(keys.KeyA||keys.ArrowLeft){player.vx=-speed;player.facing=-1}
+ else player.vx*=Math.pow(.001,dt);
+ player.x+=player.vx*dt;
+ player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
+
+ if((keys.Space||keys.KeyW||keys.ArrowUp)&&player.onGround&&!player.jumpLock){
+  jump();player.jumpLock=true;
+ }
+ if(!(keys.Space||keys.KeyW||keys.ArrowUp))player.jumpLock=false;
+
+ player.vy+=1500*dt;
+ let oldY=player.y;
+ player.y+=player.vy*dt;
+ player.onGround=false;
+ if(player.y+player.h>=groundY){
+  player.y=groundY-player.h;player.vy=0;player.onGround=true;
+ }
+ for(let p of platforms){
+  if(player.vy>=0&&oldY+player.h<=p.y+5&&player.y+player.h>=p.y&&player.x+player.w>p.x&&player.x<p.x+p.w){
+   player.y=p.y-player.h;player.vy=0;player.onGround=true;
+  }
+ }
+
+ // Hazards.
+ for(let h of hazards){
+  if(collide(player,{x:h.x+5,y:h.y+5,w:h.w-10,h:h.h-5}))hitPlayer();
+ }
+ collectItems();
+
+ // Moldy coconut follows the player.
+ if(enemy){
+  if(enemy.stun>0)enemy.stun-=dt;
+  else{
+   let direction=Math.sign(player.x-enemy.x);
+   enemy.x+=direction*enemy.speed*dt;
+   if(Math.abs(enemy.x-player.x)<45&&Math.abs(enemy.y-player.y)<55)hitPlayer();
+  }
+ }
+
+ // Dragon boss and fireballs.
+ if(boss&&stage===3&&!bossDefeated){
+  if(player.x>worldWidth-1050)bossActive=true;
+  if(bossActive){
+   boss.attackTimer-=dt;
+   boss.y=groundY-boss.h+Math.sin(gameTime*2)*12;
+   if(boss.attackTimer<=0){
+    boss.attackTimer=Math.max(.9,2.1-stage*.2);
+    boss.fireballs.push({x:boss.x+15,y:boss.y+75,vx:-330,vy:rand(-80,35),r:18});
+    say('🔥 THE DRAGON IS THROWING FIREBALLS!');
+   }
+   for(let f of boss.fireballs){
+    f.x+=f.vx*dt;f.y+=f.vy*dt;
+    f.vy+=120*dt;
+    if(collide(player,{x:f.x-f.r,y:f.y-f.r,w:f.r*2,h:f.r*2})){
+     f.x=-500;hitPlayer();
+    }
+   }
+   boss.fireballs=boss.fireballs.filter(f=>f.x>-200);
+  }
+ }
+
+ for(let p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=260*dt;p.life-=dt}
+ particles=particles.filter(p=>p.life>0);
+
+ camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.32));
+
+ if(stage<3&&player.x>worldWidth-180)completeStage();
+ if(stage===3&&bossDefeated)completeStage();
+}
+
+function collide(a,b){
+ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+}
+
 function drawBackground(){
-let s=stages[stageNo];
-ctx.fillStyle=s.sky;ctx.fillRect(0,0,W,H);
-ctx.fillStyle=s.far;
-for(let i=0;i<10;i++){
-let x=(i*145-camera*.18)%1150-100;
-ctx.beginPath();ctx.arc(x+60,ground-110,95,Math.PI,0);ctx.fill();
+ let s=stages[stage-1];
+ let grad=ctx.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,s.sky);grad.addColorStop(1,'#5a4652');
+ ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+
+ // Giant blood moon.
+ ctx.fillStyle='#bd343e';
+ ctx.beginPath();ctx.arc(770,105,65,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#e66b63';
+ ctx.beginPath();ctx.arc(750,85,13,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#7d252f';
+ ctx.beginPath();ctx.arc(795,125,17,0,Math.PI*2);ctx.fill();
+
+ // Jungle silhouettes.
+ for(let i=0;i<9;i++){
+  let x=((i*150-camera*.18)%(W+200)+W+200)%(W+200)-80;
+  ctx.fillStyle='#101f22';
+  ctx.fillRect(x,160,18,groundY-160);
+  ctx.beginPath();ctx.arc(x+8,150,55,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x-22,190,35,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(x+37,195,40,0,Math.PI*2);ctx.fill();
+ }
+ // Ground.
+ ctx.fillStyle=s.ground;ctx.fillRect(0,groundY,W,H-groundY);
+ ctx.fillStyle=s.dark;ctx.fillRect(0,groundY,W,9);
+ for(let i=0;i<24;i++){
+  let x=((i*75-camera*.8)%(W+80)+W+80)%(W+80)-30;
+  ctx.fillStyle='#ffffff20';ctx.fillRect(x,groundY+25+(i%4)*17,17,3);
+ }
 }
-for(let i=0;i<12;i++){
-let x=(i*130-camera*.35)%1200-100;
-ctx.fillStyle=stageNo===2?"#643f35":"#286e48";
-ctx.fillRect(x+45,ground-165,18,165);
-ctx.beginPath();ctx.arc(x+55,ground-165,58,0,Math.PI*2);ctx.fill();
-ctx.fillStyle="#f4dc7b";ctx.beginPath();ctx.arc(x+20,ground-120,5,0,Math.PI*2);ctx.fill();
-}
-ctx.fillStyle=s.ground;ctx.fillRect(0,ground,W,H-ground);
-ctx.fillStyle="#ffffff22";
-for(let i=0;i<35;i++)ctx.fillRect((i*57-camera*.7)%W,ground+18+(i%4)*18,25,3);
+function drawHazards(){
+ for(let h of hazards){
+  let x=h.x-camera;
+  if(x<-80||x>W+80)continue;
+  if(h.type==='spikes'){
+   ctx.fillStyle='#c5d1d2';ctx.beginPath();
+   for(let i=0;i<3;i++){
+    let sx=x+i*h.w/3;
+    ctx.moveTo(sx,h.y+h.h);ctx.lineTo(sx+h.w/6,h.y);ctx.lineTo(sx+h.w/3,h.y+h.h);
+   }
+   ctx.fill();
+   ctx.strokeStyle='#64747b';ctx.stroke();
+  }else{
+   ctx.font='40px serif';ctx.textAlign='center';ctx.fillText('🥥',x+h.w/2,h.y+h.h);
+   ctx.font='17px serif';ctx.fillText('🦠',x+h.w/2,h.y+4);
+  }
+ }
 }
 function draw(){
-drawBackground();
-let s=stages[stageNo];
-platforms.forEach(p=>{
-let x=p.x-camera;
-if(x+p.w<0||x>W)return;
-ctx.fillStyle=s.land;ctx.fillRect(x,p.y,p.w,p.h);
-ctx.fillStyle="#c7d977";ctx.fillRect(x,p.y,p.w,5);
-});
-spikes.forEach(p=>{
-let x=p.x-camera;if(x<-50||x>W+50)return;
-ctx.fillStyle="#e4e8dd";
-ctx.beginPath();ctx.moveTo(x,p.y+p.h);ctx.lineTo(x+p.w/2,p.y);ctx.lineTo(x+p.w,p.y+p.h);ctx.fill();
-ctx.fillStyle="#aab2a8";ctx.fillRect(x,p.y+p.h-3,p.w,3);
-});
-doors.forEach(d=>{
-let x=d.x-camera;
-if(x<-50||x>W+50)return;
-ctx.fillStyle="#5a3375";ctx.fillRect(x,d.y,40,75);
-ctx.strokeStyle="#f4d46a";ctx.lineWidth=4;ctx.strokeRect(x,d.y,40,75);
-ctx.fillStyle="#fff";ctx.font="bold 12px Fredoka";ctx.fillText("SECRET",x-3,d.y-8);
-ctx.fillStyle="#f6d65d";ctx.beginPath();ctx.arc(x+30,d.y+38,4,0,Math.PI*2);ctx.fill();
-});
-pickups.forEach(o=>{
-if(o.got)return;
-let x=o.x-camera;if(x<-30||x>W+30)return;
-ctx.beginPath();ctx.fillStyle="#ffda54";ctx.arc(x,o.y,o.r,0,Math.PI*2);ctx.fill();
-ctx.strokeStyle="#fff5bd";ctx.lineWidth=2;ctx.stroke();
-ctx.fillStyle="#77501b";ctx.font="bold 13px Fredoka";ctx.textAlign="center";ctx.fillText("$",x,o.y+5);
-});
-enemies.forEach(e=>{
-if(!e.alive)return;
-let x=e.x-camera;
-ctx.font="32px Arial";ctx.textAlign="center";ctx.fillText(e.type?"👾":"👹",x+e.w/2,e.y+30);
-});
-if(boss){
-let x=boss.x-camera;
-ctx.font="90px Arial";ctx.textAlign="center";
-ctx.fillText("🥥",x+boss.w/2,boss.y+90);
-ctx.font="bold 14px Fredoka";ctx.fillStyle="#fff";ctx.fillText("MAD COCONUT",x+boss.w/2,boss.y-10);
-ctx.fillStyle="#3b2222";ctx.fillRect(x,boss.y-28,boss.w,10);
-ctx.fillStyle="#ff4e4e";ctx.fillRect(x,boss.y-28,boss.w*(boss.hp/boss.maxHp),10);
+ drawBackground();
+ // Platforms.
+ for(let p of platforms){
+  let x=p.x-camera;
+  if(x<-200||x>W+200)continue;
+  ctx.fillStyle='#4a362b';ctx.fillRect(x,p.y,p.w,p.h);
+  ctx.fillStyle='#7d9b51';ctx.fillRect(x,p.y,p.w,6);
+ }
+ drawHazards();
+
+ // Secret doors.
+ for(let d of secretDoors){
+  if(d.opened)continue;
+  let x=d.x-camera;
+  if(x<-80||x>W+80)continue;
+  ctx.fillStyle='#6b423d';ctx.fillRect(x,groundY-105,48,105);
+  ctx.strokeStyle='#f4c77b';ctx.lineWidth=4;ctx.strokeRect(x+5,groundY-98,38,92);
+  ctx.font='19px serif';ctx.textAlign='center';ctx.fillText('🔑',x+24,groundY-50);
+ }
+ // Collectibles.
+ for(let it of items){
+  if(it.taken)continue;
+  let x=it.x-camera;
+  if(x<-40||x>W+40)continue;
+  let em=it.type==='coin'?'🪙':it.type==='sword'?'⚔️':'🛡️';
+  ctx.font='27px serif';ctx.textAlign='center';
+  ctx.fillText(em,it.x-camera,it.y+Math.sin(gameTime*4+it.x)*5);
+ }
+ // Exit.
+ if(stage<3){
+  let ex=worldWidth-110-camera;
+  ctx.font='65px serif';ctx.textAlign='center';ctx.fillText('🚪',ex,groundY-15);
+  ctx.font='15px Outfit';ctx.fillStyle='white';ctx.fillText('EXIT',ex,groundY-90);
+ }else{
+  let ex=worldWidth-110-camera;
+  ctx.font='55px serif';ctx.textAlign='center';ctx.fillText('🏆',ex,groundY-20);
+ }
+ // Moldy coconut enemy.
+ if(enemy){
+  let x=enemy.x-camera;
+  ctx.font='52px serif';ctx.textAlign='center';ctx.fillText('🥥',x+enemy.w/2,enemy.y+enemy.h);
+  ctx.font='20px serif';ctx.fillText('🦠',x+enemy.w/2,enemy.y+10);
+ }
+ // Dragon.
+ if(boss&&!bossDefeated){
+  let x=boss.x-camera;
+  if(x>-200&&x<W+200){
+   ctx.font='115px serif';ctx.textAlign='center';
+   ctx.fillText('🐉',x+boss.w/2,boss.y+boss.h);
+   if(bossActive){
+    ctx.fillStyle='#17101acc';ctx.fillRect(x-15,boss.y-24,boss.w+30,13);
+    ctx.fillStyle='#ff5d52';ctx.fillRect(x-15,boss.y-24,(boss.w+30)*(boss.hp/boss.maxHp),13);
+    ctx.strokeStyle='white';ctx.strokeRect(x-15,boss.y-24,boss.w+30,13);
+    ctx.font='15px Outfit';ctx.fillStyle='white';ctx.fillText('DRAGON BOSS',x+boss.w/2,boss.y-32);
+   }
+  }
+  for(let f of boss.fireballs){
+   let x=f.x-camera;
+   ctx.font='35px serif';ctx.fillText('🔥',x,f.y+12);
+  }
+ }
+ // Player.
+ if(!(player.invulnerable>0&&Math.floor(gameTime*12)%2===0)){
+  let x=player.x-camera;
+  ctx.font='53px serif';ctx.textAlign='center';
+  ctx.fillText('🥥',x+player.w/2,player.y+player.h);
+  if(swordTimer>0){
+   ctx.font='32px serif';
+   ctx.fillText('⚔️',x+player.w/2+player.facing*37,player.y+25);
+  }
+  if(player.invulnerable>0){
+   ctx.strokeStyle='#82eaff';ctx.lineWidth=5;
+   ctx.beginPath();ctx.ellipse(x+player.w/2,player.y+player.h/2,37,39,0,0,Math.PI*2);ctx.stroke();
+  }
+ }
+ for(let p of particles){
+  ctx.globalAlpha=Math.max(0,p.life);
+  ctx.fillStyle='#ffd978';ctx.beginPath();ctx.arc(p.x-camera,p.y,5,0,Math.PI*2);ctx.fill();
+ }
+ ctx.globalAlpha=1;
+
+ // Stage and progress display.
+ ctx.fillStyle='#110e20bb';ctx.beginPath();ctx.roundRect(15,15,235,55,12);ctx.fill();
+ ctx.font='18px Outfit';ctx.textAlign='left';ctx.fillStyle='white';
+ ctx.fillText(stages[stage-1].name,28,39);
+ ctx.font='12px Outfit';ctx.fillStyle='#f7c6ba';
+ ctx.fillText(stage===3&&bossActive?'Defeat the Dragon!':'Find the exit and explore!',28,58);
+ if(stage===3&&bossActive&&boss){
+  ctx.fillStyle='#170f1acc';ctx.fillRect(W/2-150,17,300,15);
+  ctx.fillStyle='#ff695e';ctx.fillRect(W/2-150,17,300*boss.hp/boss.maxHp,15);
+  ctx.strokeStyle='white';ctx.strokeRect(W/2-150,17,300,15);
+ }
 }
-projectiles.forEach(p=>{
-ctx.font="26px Arial";ctx.textAlign="center";ctx.fillText("🥥",p.x-camera,p.y);
-});
-if(player.inv>0&&Math.floor(frame/5)%2===0)ctx.globalAlpha=.35;
-ctx.font="43px Arial";ctx.textAlign="center";
-ctx.fillText(stageNo===0?"🥥":stageNo===1?"😎":"✨",player.x-camera+player.w/2,player.y+player.h-2);
-ctx.globalAlpha=1;
-ctx.textAlign="left";
-ctx.fillStyle="#fff";ctx.font="bold 14px Fredoka";
-ctx.fillText("STAGE "+(stageNo+1)+": "+s.name.toUpperCase(),18,25);
-ctx.fillText("COCONUT BLAST: "+(blastCooldown>0?"RECHARGING":"READY (E)"),18,48);
+function loop(now){
+ if(!running)return;
+ if(paused){requestAnimationFrame(loop);return}
+ let dt=Math.min((now-lastTime)/1000,.04);
+ lastTime=now;
+ update(dt);
+ draw();
+ requestAnimationFrame(loop);
 }
-function hit(a,b){
-return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+function showPanel(title,desc,button,action){
+ $('overlay').style.display='flex';
+ $('panel').innerHTML='<span class="coconut">🥥</span><h1>'+title+'</h1><p>'+desc+'</p><button class="big" id="panelAction">'+button+'</button><button class="secondary" onclick="backToLab()">BACK TO GAME LAB</button>';
+ $('panelAction').onclick=action;
 }
-function hurt(){
-if(player.inv>0)return;
-lives--;player.inv=100;player.vy=-6;player.vx=-4;
-updateHUD();say("OUCH! Watch out for those spikes!");
-if(lives<=0){
-playing=false;
-showOverlay("COCONUT CRASH! 🥥","Coconut Man ran out of hearts. Try the stage again!","TRY AGAIN",()=>{lives=3;makeStage();playing=true;hideOverlay()});
-}
-}
-function jump(){if(player.onGround){player.vy=-13;player.onGround=false}}
-function blast(){
-if(!playing||paused||blastCooldown>0)return;
-blastCooldown=90;
-projectiles.push({x:player.x+player.w,y:player.y+20,vx:8,yv:0});
-say("COCONUT BLAST! 🥥");
-}
-function secretDoor(d){
-if(d.used)return;
-d.used=true;coins+=10;updateHUD();
-say("SECRET COCONUT ROOM! +10 BONUS COINS!");
-}
-function winStage(){
-playing=false;
-if(!wonStages.includes(stageNo))wonStages.push(stageNo);
-let reward=stageNo===0?"🥥 Classic Coconut":stageNo===1?"😎 Cool Coconut":"✨ Golden Coconut";
-if(stageNo===2){
-showOverlay("YOU DEFEATED MAD COCONUT! 🏆","YOU DID IT! You beat all three stages and unlocked the "+reward+"! Total coins: "+coins+". You're officially COCONUT ROYALTY!","PLAY AGAIN",()=>{stageNo=0;coins=0;lives=3;wonStages=[];makeStage();playing=true;hideOverlay()});
-}else{
-showOverlay("STAGE COMPLETE! 🎉","You escaped "+stages[stageNo].name+"! You unlocked "+reward+". Get ready for the next coconut adventure!","NEXT STAGE",()=>{stageNo++;lives=3;makeStage();playing=true;hideOverlay();say("Welcome to "+stages[stageNo].name+"!")});
-}
-}
-function showOverlay(title,desc,button,action){
-$("overlay").style.display="flex";
-$("overlay").innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button class="big" id="overlayAction">'+button+'</button></div>';
-$("overlayAction").onclick=action;
-}
-function hideOverlay(){$("overlay").style.display="none"}
+function backToLab(){location.href='../../index.html'}
 function pauseGame(){
-if(!playing)return;
-paused=!paused;
-if(paused)showOverlay("PAUSED 🥥","Coconut Man is taking a coconut break.","RESUME",()=>{paused=false;hideOverlay()});
-else hideOverlay();
-$("pauseBtn").textContent=paused?"▶ Resume":"Ⅱ Pause";
+ if(!running)return;
+ paused=true;
+ showPanel('GAME PAUSED ⏸️','Coconut is safe for now. Your adventure is waiting!','RESUME GAME',()=>{
+  $('overlay').style.display='none';
+  paused=false;lastTime=performance.now();requestAnimationFrame(loop);
+ });
 }
-function update(){
-if(!playing||paused)return;
-frame++;
-if(blastCooldown>0)blastCooldown--;
-let speed=4.3;
-if(keys.a||keys.ArrowLeft)player.vx=-speed;
-else if(keys.d||keys.ArrowRight)player.vx=speed;
-else player.vx*=.78;
-player.x+=player.vx;
-player.vy+=.58;player.y+=player.vy;
-player.onGround=false;
-for(let p of platforms){
-if(player.x+player.w>p.x&&player.x<p.x+p.w&&player.y+player.h>=p.y&&player.y+player.h<=p.y+Math.max(18,player.vy+5)&&player.vy>=0){
-player.y=p.y-player.h;player.vy=0;player.onGround=true;
-}
-}
-player.x=clamp(player.x,0,stages[stageNo].length-player.w);
-if(player.y>H+50){hurt();player.x=Math.max(30,player.x-80);player.y=ground-100;player.vy=0}
-spikes.forEach(p=>{if(hit(player,{x:p.x+5,y:p.y+8,w:p.w-10,h:p.h-8}))hurt()});
-enemies.forEach(e=>{
-if(!e.alive)return;
-e.x+=e.vx;
-if(e.x<e.min||e.x>e.max)e.vx*=-1;
-if(hit(player,e))hurt();
+document.addEventListener('keydown',e=>{
+ if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space'].includes(e.code))e.preventDefault();
+ if(e.code==='Escape'||e.code==='KeyP'){if(running&&!paused)pauseGame();return}
+ if(e.code==='KeyX'&&!e.repeat){useSword();return}
+ if(e.code==='KeyC'&&!e.repeat){useShield();return}
+ if(e.code==='KeyE'&&!e.repeat){openSecretDoor();return}
+ keys[e.code]=true;
 });
-pickups.forEach(o=>{
-if(!o.got&&Math.abs(player.x+player.w/2-o.x)<27&&Math.abs(player.y+20-o.y)<35){
-o.got=true;coins++;stageCoins++;updateHUD();say("+1 COIN!");
+document.addEventListener('keyup',e=>keys[e.code]=false);
+window.addEventListener('blur',()=>keys={});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
+
+function drawStart(){
+ ctx.fillStyle='#24182f';ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='#bd343e';ctx.beginPath();ctx.arc(770,105,65,0,Math.PI*2);ctx.fill();
+ ctx.font='100px serif';ctx.textAlign='center';ctx.fillText('🥥',W/2,H/2+40);
 }
-});
-doors.forEach(d=>{
-if(!d.used&&Math.abs(player.x-d.x)<30&&Math.abs(player.y+player.h/2-(d.y+35))<60)secretDoor(d);
-});
-projectiles.forEach(p=>{
-p.x+=p.vx;
-if(boss&&hit({x:p.x-12,y:p.y-12,w:24,h:24},boss)){
-boss.hp--;p.x=99999;boss.flash=10;updateHUD();say("MAD COCONUT GOT HIT!");
-}
-enemies.forEach(e=>{
-if(e.alive&&hit({x:p.x-12,y:p.y-12,w:24,h:24},e)){e.alive=false;p.x=99999;say("MONSTER DEFEATED!")}
-});
-});
-projectiles=projectiles.filter(p=>p.x<player.x+1100);
-if(boss){
-boss.x+=boss.vx;
-if(boss.x<stages[stageNo].length-580||boss.x>stages[stageNo].length-300)boss.vx*=-1;
-if(hit(player,boss))hurt();
-if(boss.hp<=0){winStage();return}
-}
-camera=clamp(player.x-350,0,stages[stageNo].length-W);
-if(stageNo<2&&player.x>stages[stageNo].length-90)winStage();
-if(stageNo===2&&player.x>stages[stageNo].length-90&&boss&&boss.hp>0)say("DEFEAT THE MAD COCONUT FIRST!");
-if(stageNo===2&&player.x>stages[stageNo].length-90&&boss&&boss.hp<=0)winStage();
-if(player.inv>0)player.inv--;
-if(messageTimer>0)messageTimer--;
-}
-function loop(){update();draw();requestAnimationFrame(loop)}
-$("startBtn").onclick=()=>{playing=true;hideOverlay();say("Let's go, Coconut Man!")};
-$("pauseBtn").onclick=pauseGame;
-$("restartBtn").onclick=()=>{if(playing){makeStage();say("Stage restarted!")}};
-window.addEventListener("keydown",e=>{
-let k=e.key.length===1?e.key.toLowerCase():e.key;
-if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"," "].includes(k))e.preventDefault();
-keys[k]=true;
-if((k===" "||k==="w"||k==="ArrowUp")&&!e.repeat&&playing&&!paused)jump();
-if(k==="e"&&!e.repeat)blast();
-if(k==="p"&&!e.repeat)pauseGame();
-});
-window.addEventListener("keyup",e=>{let k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
-window.addEventListener("blur",()=>keys={});
-document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
-makeStage();loop();
+drawStart();
 </script>
 </body>
 </html>
