@@ -2,29 +2,404 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JHughes - Red Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fff1f2; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jurassic Dream Escape</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#172b24;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+button{border:0;border-radius:12px;padding:10px 14px;background:#ffd36e;color:#302414;font-family:inherit;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
+#hud>*{pointer-events:auto}
+.logo{font-family:Fredoka;font-size:22px;color:#d5f49a;text-shadow:0 2px 8px #172b24}
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#172b24ed;border:1px solid #a6c88c;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:800}
+#buttons{position:absolute;right:12px;bottom:52px;display:flex;flex-direction:column;gap:7px}
+#buttons button{background:#ffd36e}
+#controls{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);background:#172b24ed;border:1px solid #a6c88c;border-radius:10px;padding:7px 12px;font-size:11px;color:#e7f6d8;white-space:nowrap}
+#message{position:absolute;top:65px;left:50%;transform:translateX(-50%);background:#172b24ed;border:1px solid #ffd36e;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;text-align:center;max-width:90vw;pointer-events:none}
+#overlay{position:absolute;inset:0;background:#07140fdb;display:flex;align-items:center;justify-content:center;padding:16px}
+.panel{width:min(510px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#385b3d,#192d2b);border:2px solid #c8e99a;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #a4dc7335}
+.panel h1{font-family:Fredoka;font-size:clamp(29px,5vw,43px);color:#e1f6a7;margin:0 0 8px}
+.panel p{line-height:1.5;color:#e5f2df}
+.small{font-size:12px;color:#c8ddc0}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.hidden{display:none!important}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-red-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-red-600">JHughes Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Red Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-red-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+ <div class="logo">🦖 JURASSIC DREAM ESCAPE</div>
+ <div class="stats">
+  <div class="stat" id="level">LEVEL 1 / 3</div>
+  <div class="stat" id="hearts">❤️❤️❤️</div>
+  <div class="stat" id="power">⚡ POWER: NONE</div>
+  <div class="stat" id="goal">🏁 FIND THE EXIT</div>
+ </div>
+ <button onclick="togglePause()">Ⅱ PAUSE</button>
+</div>
+
+<div id="message">Help Bob escape the dinosaur dream!</div>
+
+<div id="buttons">
+ <button onclick="usePower()">⚡ USE POWER (X)</button>
+ <button onclick="resetGame()">↻ RESET</button>
+</div>
+
+<div id="controls">MOVE: A / D or ← / → &nbsp; • &nbsp; JUMP: SPACE / W / ↑ &nbsp; • &nbsp; POWER: X</div>
+
+<div id="overlay">
+ <div class="panel" id="panel">
+  <h1>🦖 JURASSIC DREAM ESCAPE</h1>
+  <p>Bob is a technology scientist who has been working on a time machine for days. He falls asleep in his lab… and suddenly finds himself in the dinosaur age!</p>
+  <p>Run, jump, dodge dinosaurs, collect power-ups, and escape through three prehistoric levels.</p>
+  <p>🛡️ Shields protect Bob. ⚡ Lightning boosts make him faster. Watch out for the dinosaurs!</p>
+  <p class="small">WASD or arrow keys to move. SPACE to jump. X to use your power-up.</p>
+  <div class="actions"><button onclick="startGame()">ENTER THE JURASSIC DREAM!</button></div>
+ </div>
+</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;draw()}
+addEventListener("resize",resize);
+
+const keys={};
+addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if(["arrowleft","arrowright","arrowup","arrowdown"," "].includes(k))e.preventDefault();
+ keys[k]=true;
+ if((k===" "||k==="w"||k==="arrowup")&&!e.repeat)jump();
+ if(k==="x"&&!e.repeat)usePower();
+ if(k==="escape"&&!e.repeat)togglePause();
+});
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+function clearKeys(){Object.keys(keys).forEach(k=>keys[k]=false)}
+addEventListener("blur",()=>{clearKeys();if(running)pauseGame()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
+
+const levelNames=["The Jungle of Giants","The Dino Swamp","The Volcano Escape"];
+const levelColors=[
+ {sky:"#8fc77c",ground:"#426b3d",mountain:"#547c55"},
+ {sky:"#70a6a0",ground:"#355d4e",mountain:"#426d70"},
+ {sky:"#e98b57",ground:"#65433b",mountain:"#754b43"}
+];
+
+let running=false,paused=false,level=1,hearts=3;
+let player,platforms,dinos,powerups,particles;
+let camera=0,worldWidth=2600,ground=0;
+let frame=0,last=0,raf=0;
+let powerType="none",powerTime=0,invulnerable=0;
+let levelComplete=false,ending=false;
+let messageTimer=0;
+
+function say(msg){
+ document.getElementById("message").textContent=msg;
+ messageTimer=180;
+}
+function hud(){
+ document.getElementById("level").textContent=`LEVEL ${level} / 3`;
+ document.getElementById("hearts").textContent="❤️".repeat(hearts)+"🖤".repeat(3-hearts);
+ document.getElementById("power").textContent="⚡ POWER: "+(powerType==="none"?"NONE":powerType.toUpperCase()+" "+Math.ceil(powerTime)+"s");
+ document.getElementById("goal").textContent=levelComplete?"🏆 LEVEL CLEAR":"🏁 FIND THE EXIT";
+}
+function startGame(){
+ level=1;hearts=3;powerType="none";powerTime=0;ending=false;
+ buildLevel();
+ running=true;paused=false;
+ document.getElementById("overlay").classList.add("hidden");
+ say("Bob is dreaming! Find the exit!");
+ hud();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function resetGame(){startGame()}
+function buildLevel(){
+ ground=H-95;
+ worldWidth=2500+level*220;
+ camera=0;levelComplete=false;
+ player={x:70,y:ground-48,w:28,h:46,vx:0,vy:0,onGround:false};
+ platforms=[{x:0,y:ground,w:worldWidth,h:140}];
+ const gap=175;
+ for(let i=0;i<13;i++){
+  let x=220+i*gap;
+  let y=ground-95-(i%3)*65;
+  platforms.push({x,y,w:100+(i%2)*25,h:18});
+ }
+ // Extra climbing platforms near the end.
+ for(let i=0;i<5;i++){
+  platforms.push({x:worldWidth-780+i*125,y:ground-130-i*48,w:95,h:18});
+ }
+ dinos=[];
+ const count=3+level;
+ for(let i=0;i<count;i++){
+  let x=400+i*(worldWidth-700)/count;
+  dinos.push({
+   x,y:ground-54,w:55,h:48,
+   minX:Math.max(260,x-100),maxX:x+140,
+   dir:i%2?1:-1,speed:1+level*.35,
+   type:i%3===0?"🦖":i%3===1?"🦕":"🐊"
+  });
+ }
+ powerups=[];
+ for(let i=0;i<7;i++){
+  powerups.push({
+   x:330+i*300,
+   y:ground-130-(i%3)*55,
+   type:i%2===0?"shield":"speed",
+   taken:false
+  });
+ }
+ particles=[];
+ hud();
+}
+function jump(){
+ if(!running||paused||ending)return;
+ if(player.onGround){player.vy=-12.5;player.onGround=false}
+}
+function usePower(){
+ if(!running||paused||powerType==="none"||powerTime<=0)return;
+ if(powerType==="shield"){
+  invulnerable=Math.max(invulnerable,Math.ceil(powerTime*60));
+  say("🛡️ SHIELD ACTIVATED! Dinosaurs cannot hurt you!");
+ }else{
+  powerTime=8;
+  say("⚡ SUPER SPEED! Bob is zooming!");
+ }
+ powerType="none";
+ powerTime=0;
+ hud();
+}
+function loseHeart(){
+ if(invulnerable>0||powerType==="shield")return;
+ hearts--;invulnerable=100;
+ player.vy=-7;player.vx=-5;
+ say("A dinosaur caught Bob! You lost a heart!");
+ hud();
+ if(hearts<=0){
+  running=false;paused=true;
+  showPanel("DINO TROUBLE!","The dinosaurs caught Bob! Try again and see if you can escape.","TRY AGAIN",startGame);
+ }
+}
+function showPanel(title,msg,button,callback){
+ document.getElementById("panel").innerHTML=
+ `<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
+ document.getElementById("panelBtn").onclick=callback;
+ document.getElementById("overlay").classList.remove("hidden");
+}
+function pauseGame(){
+ if(!running)return;
+ running=false;paused=true;clearKeys();
+ showPanel("GAME PAUSED","Bob is taking a break from the dinosaurs. Your progress is safe!","RESUME",resumeGame);
+}
+function resumeGame(){
+ paused=false;running=true;
+ document.getElementById("overlay").classList.add("hidden");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function togglePause(){
+ if(paused){resumeGame();return}
+ if(running)pauseGame();
+}
+function nextLevel(){
+ if(level>=3){wakeUp();return}
+ level++;
+ buildLevel();
+ say("New level! The dinosaurs are getting faster!");
+}
+function finishLevel(){
+ if(levelComplete)return;
+ levelComplete=true;
+ running=false;paused=true;
+ showPanel("LEVEL COMPLETE! 🏆",`Bob escaped ${levelNames[level-1]}! Get ready for the next challenge.`,level===3?"WAKE UP!":"NEXT LEVEL",()=>{
+  if(level===3){wakeUp();return}
+  nextLevel();
+  running=true;paused=false;
+  document.getElementById("overlay").classList.add("hidden");
+  last=performance.now();raf=requestAnimationFrame(loop);
+ });
+}
+function wakeUp(){
+ running=false;paused=true;ending=true;
+ drawEnding();
+ showPanel("😴 BOB WAKES UP…","Bob wakes up at his lab desk. He looks at his time machine and laughs. It was just a dream… right? Suddenly, the machine starts shaking. A real dinosaur steps out! Bob's invention actually worked! 🦖", "SEE THE SURPRISE!",()=>{
+  document.getElementById("panel").innerHTML=
+  `<h1>🦖 IT WAS REAL!</h1>
+   <p>ROOOAAARRR!</p>
+   <p>The dinosaur has arrived in Bob's lab! Bob's time machine really worked. What an adventure!</p>
+   <p>🎉 YOU COMPLETED JURASSIC DREAM ESCAPE!</p>
+   <div class="actions"><button id="again">PLAY AGAIN</button><button class="secondary" id="back">BACK TO GAME LAB</button></div>`;
+  document.getElementById("again").onclick=startGame;
+  document.getElementById("back").onclick=()=>location.href="../../index.html";
+ });
+}
+function drawEnding(){
+ ctx.fillStyle="#172b24";ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#a9c5a2";ctx.fillRect(0,H-100,W,100);
+ ctx.fillStyle="#d7e6d2";ctx.font="bold 32px Fredoka";ctx.textAlign="center";
+ ctx.fillText("BOB'S TECHNOLOGY LAB",W/2,70);
+ ctx.font="90px Arial";ctx.fillText("🧑‍🔬",W*.36,H*.57);
+ ctx.font="100px Arial";ctx.fillText("🦖",W*.65,H*.58);
+ ctx.font="22px Fredoka";ctx.fillStyle="#fff0b5";
+ ctx.fillText("THE TIME MACHINE WORKED!",W/2,H-35);
+}
+function update(dt){
+ frame++;
+ if(messageTimer>0)messageTimer-=dt;
+ if(invulnerable>0)invulnerable=Math.max(0,invulnerable-dt*60);
+ if(powerTime>0){
+  powerTime=Math.max(0,powerTime-dt);
+  if(powerTime===0)powerType="none";
+ }
+ const left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
+ let speed=powerType==="speed"?8:5;
+ if(left){player.vx=Math.max(player.vx-.7*dt*60,-speed)}
+ else if(right){player.vx=Math.min(player.vx+.7*dt*60,speed)}
+ else player.vx*=Math.pow(.78,dt*60);
+ player.x+=player.vx*dt*60;
+ player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
+
+ let oldY=player.y;
+ player.vy+=.58*dt*60;
+ player.y+=player.vy*dt*60;
+ player.onGround=false;
+ for(const p of platforms){
+  if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
+   player.y=p.y-player.h;player.vy=0;player.onGround=true;
+  }
+ }
+ if(player.y>H+80){
+  loseHeart();
+  player.y=ground-player.h;player.vy=0;
+ }
+ // Dinosaurs patrol their areas and chase Bob when he gets close.
+ dinos.forEach(d=>{
+  const distance=Math.abs(player.x-d.x);
+  if(distance<300){
+   d.dir=player.x>d.x?1:-1;
+  }
+  d.x+=d.dir*d.speed*dt*60;
+  if(d.x<d.minX){d.x=d.minX;d.dir=1}
+  if(d.x>d.maxX){d.x=d.maxX;d.dir=-1}
+  if(player.x+player.w>d.x+5&&player.x<d.x+d.w-5&&player.y+player.h>d.y+7&&player.y<d.y+d.h){
+   loseHeart();
+  }
+ });
+ // Collect power-ups.
+ powerups.forEach(p=>{
+  if(p.taken)return;
+  if(Math.abs(player.x-p.x)<30&&Math.abs(player.y+player.h/2-p.y)<40){
+   p.taken=true;powerType=p.type;powerTime=p.type==="shield"?12:10;
+   say(p.type==="shield"?"🛡️ Shield collected! Press X to activate it!":"⚡ Speed boost collected! Press X to activate it!");
+   hud();
+  }
+ });
+ particles.forEach(p=>{p.x+=p.vx*dt*60;p.y+=p.vy*dt*60;p.life-=dt*60});
+ particles=particles.filter(p=>p.life>0);
+ camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.34));
+ if(player.x>worldWidth-115)finishLevel();
+ hud();
+}
+function drawBackground(){
+ let c=levelColors[level-1];
+ let g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,c.sky);g.addColorStop(1,"#d7d99a");
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // distant mountains
+ for(let i=0;i<8;i++){
+  let x=(i*260-camera*.18)%(W+300);
+  if(x< -200)x+=W+300;
+  ctx.fillStyle=c.mountain;
+  ctx.beginPath();ctx.moveTo(x-100,ground);ctx.lineTo(x+60,ground-250-(i%3)*35);ctx.lineTo(x+220,ground);ctx.fill();
+ }
+ // clouds
+ ctx.fillStyle="#ffffff77";
+ for(let i=0;i<5;i++){
+  let x=(i*260-frame*.15)%(W+200);
+  ctx.beginPath();ctx.arc(x,90+i%2*45,24,0,Math.PI*2);ctx.arc(x+25,90+i%2*45,30,0,Math.PI*2);ctx.arc(x+55,90+i%2*45,22,0,Math.PI*2);ctx.fill();
+ }
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ drawBackground();
+ // Platforms and ground
+ platforms.forEach(p=>{
+  let x=p.x-camera;
+  if(x+p.w<0||x>W)return;
+  ctx.fillStyle="#634a35";ctx.fillRect(x,p.y,p.w,p.h);
+  ctx.fillStyle="#76a94e";ctx.fillRect(x,p.y,p.w,6);
+  ctx.fillStyle="#8a6742";
+  for(let i=0;i<p.w;i+=30)ctx.fillRect(x+i,p.y+8,13,5);
+ });
+ // Decorations
+ for(let i=0;i<18;i++){
+  let x=(i*190-camera*.85)%(W+100);
+  if(x<0)x+=W+100;
+  ctx.font="30px Arial";ctx.textAlign="center";
+  ctx.fillText(i%3===0?"🌴":i%3===1?"🌿":"🪨",x,ground-8);
+ }
+ // Power-ups
+ powerups.forEach(p=>{
+  if(p.taken)return;
+  let x=p.x-camera;
+  if(x<-30||x>W+30)return;
+  ctx.fillStyle=p.type==="shield"?"#83e9ff":"#fff17c";
+  ctx.beginPath();ctx.arc(x,p.y,17,0,Math.PI*2);ctx.fill();
+  ctx.font="21px Arial";ctx.fillText(p.type==="shield"?"🛡️":"⚡",x,p.y+7);
+ });
+ // Dinosaurs
+ dinos.forEach(d=>{
+  let x=d.x-camera;
+  if(x<-100||x>W+100)return;
+  ctx.font="46px Arial";ctx.textAlign="center";
+  ctx.fillText(d.type,x+d.w/2,d.y+43);
+  ctx.fillStyle="#3d3025";ctx.font="10px Arial";
+  ctx.fillText("ROAR!",x+d.w/2,d.y-3);
+ });
+ // Exit portal
+ let ex=worldWidth-camera-65;
+ ctx.fillStyle="#c5f6a4";ctx.fillRect(ex,ground-100,12,100);
+ ctx.fillRect(ex+55,ground-100,12,100);
+ ctx.fillRect(ex,ground-100,67,12);
+ ctx.fillStyle="#fff";ctx.font="bold 13px Fredoka";ctx.textAlign="center";
+ ctx.fillText("EXIT",ex+33,ground-115);
+ // Bob
+ let x=player.x-camera,y=player.y;
+ ctx.save();
+ if(invulnerable>0&&Math.floor(frame/5)%2===0)ctx.globalAlpha=.35;
+ ctx.strokeStyle="#263b36";ctx.lineWidth=5;ctx.lineCap="round";
+ ctx.fillStyle="#f0c39a";
+ ctx.beginPath();ctx.arc(x+14,y+9,9,0,Math.PI*2);ctx.fill();
+ ctx.stroke();
+ ctx.beginPath();
+ ctx.moveTo(x+14,y+18);ctx.lineTo(x+14,y+33);
+ ctx.moveTo(x+14,y+23);ctx.lineTo(x+3,y+28);
+ ctx.moveTo(x+14,y+23);ctx.lineTo(x+26,y+28);
+ ctx.moveTo(x+14,y+33);ctx.lineTo(x+5,y+46);
+ ctx.moveTo(x+14,y+33);ctx.lineTo(x+25,y+46);
+ ctx.stroke();
+ ctx.fillStyle="#e4f1e7";ctx.fillRect(x+7,y+19,15,14);
+ ctx.restore();
+ // Particles
+ particles.forEach(p=>{
+  ctx.globalAlpha=Math.max(0,p.life/30);
+  ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x-camera,p.y,4,0,Math.PI*2);ctx.fill();
+ });
+ ctx.globalAlpha=1;
+}
+function loop(t){
+ if(!running)return;
+ let dt=Math.min(.04,(t-last)/1000||.016);last=t;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
+}
+resize();
+</script>
 </body>
 </html>
+
