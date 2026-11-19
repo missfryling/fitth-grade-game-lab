@@ -3,457 +3,742 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jurassic Dream Escape</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#101d19;color:white;font-family:Fredoka,Arial,sans-serif;overflow:hidden}
-#gameWrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,#294b3b,#101d19)}
-canvas{display:block;width:min(100vw,1280px);height:auto;max-height:100vh;aspect-ratio:16/9;background:#9bd7b0;border:3px solid #426c50;border-radius:12px;box-shadow:0 12px 50px #0009}
-#hud{position:fixed;top:12px;left:50%;transform:translateX(-50%);width:min(94vw,1180px);display:flex;justify-content:space-between;align-items:center;gap:8px;pointer-events:none;font-size:clamp(12px,2vw,19px);text-shadow:2px 2px 3px #14251c;z-index:2}
-.hudbox{background:#142b25d9;border:2px solid #9bd17c;border-radius:12px;padding:7px 12px}
-#overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#07130dcc;z-index:5;padding:18px}
-.panel{width:min(92vw,600px);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#244d3a,#132c29);border:3px solid #b3e77e;border-radius:22px;padding:26px;text-align:center;box-shadow:0 15px 50px #0009}
-h1{font-size:clamp(30px,6vw,52px);line-height:1;margin:8px 0;color:#c6f18e;text-shadow:3px 4px #173322}
-h2{color:#d8f5a8}
-p{line-height:1.5}
-button{font-family:inherit;font-weight:700;font-size:17px;border:0;border-radius:12px;padding:12px 22px;margin:6px;background:#b9eb78;color:#183525;cursor:pointer;box-shadow:0 4px 0 #648e43}
-button:hover{filter:brightness(1.12);transform:translateY(-1px)}
-button.secondary{background:#f5c96b;color:#422d0c;box-shadow:0 4px 0 #a87828}
-.small{font-size:14px;color:#d4e8d2}
-#bossBar{position:fixed;top:65px;left:50%;transform:translateX(-50%);width:min(65vw,500px);height:18px;border:2px solid white;border-radius:20px;background:#381b1b;overflow:hidden;display:none;z-index:3}
-#bossFill{height:100%;width:100%;background:linear-gradient(90deg,#f44336,#ffb23f)}
-#bossLabel{position:fixed;top:84px;left:50%;transform:translateX(-50%);font-size:13px;text-shadow:2px 2px #000;display:none;z-index:3}
-@media(max-width:600px){.panel{padding:18px}.hudbox{padding:5px 7px}button{font-size:15px;padding:10px 15px}}
+body{margin:0;background:#102b27;color:white;font-family:Fredoka,Arial,sans-serif}
+#wrap{max-width:1100px;margin:auto;padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+h1{margin:0;color:#ffe28a;font-size:clamp(23px,4vw,34px)}
+#hud{display:flex;gap:7px;flex-wrap:wrap}
+.pill{background:#214c3e;border:1px solid #628b68;border-radius:20px;padding:7px 11px;font-size:14px}
+#stage{position:relative;border:4px solid #a9d5a2;border-radius:15px;overflow:hidden;background:#9dd5e5}
+canvas{width:100%;height:auto;display:block;aspect-ratio:16/9}
+#overlay{position:absolute;inset:0;background:#081b18df;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center}
+.panel{max-width:580px;width:100%;background:#214b3d;border:2px solid #a5d39c;border-radius:20px;padding:22px}
+.panel h2{color:#ffe28a;font-size:32px;margin:0 0 10px}
+.panel p{line-height:1.5}
+button{font:600 15px Fredoka;border:0;border-radius:11px;padding:9px 14px;background:#f5ca62;color:#392b18;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+#bottom{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:9px}
+#message{color:#ffe7a2;min-height:22px;font-size:14px}
+.small{font-size:13px;color:#d5ebd9}
 </style>
 </head>
 <body>
-<div id="gameWrap"><canvas id="game" width="960" height="540"></canvas></div>
-
+<div id="wrap">
+<header>
+<h1>🦖 JURASSIC DREAM ESCAPE</h1>
 <div id="hud">
- <div class="hudbox" id="levelHud">LEVEL 1</div>
- <div class="hudbox" id="healthHud">❤️❤️❤️</div>
- <div class="hudbox" id="coinHud">🪙 0</div>
- <div class="hudbox" id="powerHud">⚡ 3</div>
- <div class="hudbox" id="distanceHud">0 m</div>
+<span class="pill" id="level">🌋 Level 1 / 6</span>
+<span class="pill" id="health">❤️❤️❤️❤️❤️</span>
+<span class="pill" id="coins">🪙 0</span>
+<span class="pill" id="power">⚡ 0</span>
 </div>
-<div id="bossBar"><div id="bossFill"></div></div>
-<div id="bossLabel">T-REX HEALTH</div>
-
+</header>
+<div id="stage">
+<canvas id="game" width="960" height="540"></canvas>
 <div id="overlay">
- <div class="panel" id="panel">
-  <div style="font-size:55px">🧑‍🔬🦖</div>
-  <h1>JURASSIC<br>DREAM ESCAPE</h1>
-  <p>Bob the scientist has fallen into another dinosaur dream! Make it through six dangerous worlds and escape the prehistoric nightmare.</p>
-  <p><b>Move:</b> A/D or arrow keys<br><b>Jump:</b> SPACE, W, or UP<br><b>Energy Blast:</b> X<br><b>Pause:</b> ESC</p>
-  <p class="small">Jump on dinosaurs or blast them with energy. Watch out for flying dinosaurs and fireballs!</p>
-  <button onclick="startGame()">START ADVENTURE</button>
- </div>
+<div class="panel" id="panel">
+<h2>🦖 Jurassic Dream Escape!</h2>
+<p>Bob the scientist is trapped in a dinosaur dream! Run, jump, collect coins, defeat dinosaurs, and escape through six prehistoric worlds.</p>
+<p><b>Controls</b><br>
+A / D or arrow keys = Move<br>
+SPACE / W / UP = Jump<br>
+X = Energy blast<br>
+ESC = Pause
+</p>
+<p class="small">Watch out! Dinosaurs can attack as soon as they touch Bob. The final level has a giant T-Rex boss!</p>
+<button id="start">START ADVENTURE!</button>
+</div>
+</div>
+</div>
+<div id="bottom">
+<div id="message">Help Bob escape the dinosaur dream!</div>
+<div>
+<button id="pause">⏸ Pause</button>
+<button id="restart">↻ Restart</button>
+<button id="home">🏠 Game Lab</button>
+</div>
+</div>
 </div>
 
 <script>
 (()=>{
-"use strict";
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+'use strict';
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
 const W=960,H=540;
 const $=id=>document.getElementById(id);
-const overlay=$("overlay"),panel=$("panel");
-const keys={};
-let state="title",level=0,camera=0,coins=0,frame=0,particles=[],shots=[],enemyShots=[],pickups=[],platforms=[],enemies=[];
-let distance=0,levelLength=3000,exitX=2850,shake=0;
-let player,boss,levelName="",worldColor="#80c78a",groundY=455;
+
 const levelNames=[
- "THE JUNGLE OF GIANTS","THE DINO SWAMP","PTERODACTYL PEAKS",
- "RAPTOR RUN","VOLCANO ESCAPE","T-REX SHOWDOWN"
+'Lava Landing',
+'The Dino Forest',
+'The Flying Valley',
+'Fireball Canyon',
+'The Ancient Jungle',
+'T-Rex Showdown'
 ];
-const palettes=[
- ["#83cfa0","#286b43","#17452f"],
- ["#80c4b2","#30665e","#193e3a"],
- ["#9dc4e8","#456c9c","#273b62"],
- ["#d8bb83","#91613f","#4b3429"],
- ["#e99b68","#a44835","#542b27"],
- ["#e6a36d","#854c36","#3c2528"]
+
+const levelColors=[
+['#f2b56e','#9b563c','#54382d'],
+['#a9d8a0','#43834e','#24533b'],
+['#a5d9ed','#568c9d','#315d70'],
+['#f5b16d','#b85b3b','#713d35'],
+['#b6d59a','#477c4b','#284c36'],
+['#f2a16e','#98452f','#482b29']
 ];
-function makePlayer(){
- return {x:100,y:300,vx:0,vy:0,w:30,h:58,ground:false,health:5,maxHealth:5,
- invuln:0,face:1,power:3,blastCool:0,shield:0,speed:1,doubleJump:true,
- usedDouble:false,stomp:0};
+
+let state='title';
+let keys={};
+let player;
+let platforms=[];
+let enemies=[];
+let coins=[];
+let powerups=[];
+let shots=[];
+let enemyShots=[];
+let particles=[];
+let boss=null;
+let level=1;
+let totalCoins=0;
+let levelCoins=0;
+let powerCount=0;
+let lives=5;
+let cameraX=0;
+let worldWidth=2400;
+let last=0;
+let messageTimer=0;
+let gameTime=0;
+let raf=0;
+let levelChanging=false;
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rand=(a,b)=>a+Math.random()*(b-a);
+const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+function say(t){
+ $('message').textContent=t;
+ messageTimer=2.8;
 }
-function makeLevel(n){
- level=n;camera=0;distance=0;frame=0;shake=0;
- player=makePlayer();particles=[];shots=[];enemyShots=[];pickups=[];enemies=[];platforms=[];
+
+function updateHUD(){
+ $('level').textContent='🌋 Level '+level+' / 6';
+ $('health').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(5-Math.max(0,lives));
+ $('coins').textContent='🪙 '+totalCoins;
+ $('power').textContent='⚡ '+powerCount;
+}
+
+// Every level is rebuilt from scratch here.
+// This prevents old objects, old positions, and old timers from
+// interfering with the beginning of the next level.
+function buildLevel(){
+ levelChanging=true;
+ worldWidth=2400+(level-1)*260;
+ levelCoins=0;
+ shots=[];
+ enemyShots=[];
+ particles=[];
+ enemies=[];
+ coins=[];
+ powerups=[];
  boss=null;
- levelName=levelNames[n];levelLength=n===5?3600:3100+n*250;exitX=levelLength-170;
- worldColor=palettes[n][0];groundY=455;
- // Platforms are intentionally varied to make later worlds harder.
- let x=270;
- while(x<exitX-180){
-  const gap= n===0?130:n===1?155:n===2?175:n===3?190:205;
-  const px=x+Math.random()*55;
-  const py=320+Math.random()*105;
-  platforms.push({x:px,y:py,w:90+Math.random()*100,h:18});
-  x+=gap+Math.random()*110;
+
+ player={
+   x:65,
+   y:300,
+   w:32,
+   h:48,
+   vx:0,
+   vy:0,
+   speed:255,
+   jumpPower:590,
+   grounded:false,
+   facing:1,
+   invulnerable:1.5,
+   attackCooldown:0,
+   animation:0,
+   jumping:false
+ };
+
+ platforms=[];
+ // Ground segments with gaps.
+ platforms.push({x:0,y:465,w:460,h:100,ground:true});
+ for(let x=510;x<worldWidth-100;x+=rand(220,300)){
+   platforms.push({x,y:465,w:rand(170,255),h:100,ground:true});
  }
- // Floating platforms and obstacles.
- for(let i=0;i<12+n*2;i++){
-  const px=350+i*230+Math.random()*100;
-  if(px<exitX-150)platforms.push({x:px,y:245+Math.random()*125,w:75+Math.random()*75,h:16});
+ platforms.push({x:worldWidth-250,y:465,w:300,h:100,ground:true});
+
+ // Elevated platforms.
+ for(let i=0;i<13+level;i++){
+   const x=rand(180,worldWidth-260);
+   const y=rand(280,420);
+   platforms.push({x,y,w:rand(90,160),h:18});
  }
- // Dinosaurs get more numerous and faster in each world.
- const count=7+n*2;
- for(let i=0;i<count;i++){
-  const ex=430+i*(levelLength-700)/count+Math.random()*90;
-  const flying=(n>=1 && Math.random()<(n>=3?.48:.28));
-  const fire=(n>=2 && Math.random()<(n>=4?.55:.35));
-  enemies.push({
-   x:ex,y:flying?170+Math.random()*120:groundY-48,
-   baseY:flying?170+Math.random()*120:groundY-48,
-   w:flying?58:58,h:flying?36:48,
-   type:flying?"fly":"ground",fire,
-   hp:fire?3:2,speed:(1.1+n*.32)*(Math.random()*.5+.8),
-   phase:Math.random()*6.28,alive:true,shotTimer:100+Math.random()*130,
-   color:Math.random()>.5?"#6a9d51":"#a2a54d"
-  });
+
+ // Coins.
+ for(let i=0;i<35+level*5;i++){
+   coins.push({x:rand(100,worldWidth-100),y:rand(210,430),r:10,got:false,spin:rand(0,6)});
  }
- // Pickups distributed across the adventure.
- const types=["coin","coin","coin","shield","speed","heart","blast","double"];
- for(let i=0;i<17+n*2;i++){
-  const px=360+i*(levelLength-650)/(17+n*2)+Math.random()*60;
-  const type=types[Math.floor(Math.random()*types.length)];
-  pickups.push({x:px,y:250+Math.random()*145,type,alive:true,bob:Math.random()*6.28});
+
+ // Power-ups.
+ const types=['heart','shield','blast','speed'];
+ for(let i=0;i<7;i++){
+   powerups.push({
+     x:rand(180,worldWidth-180),
+     y:rand(250,420),
+     type:types[i%types.length],
+     got:false,
+     bob:rand(0,6)
+   });
  }
- if(n===5){
-  boss={x:levelLength-620,y:groundY-150,w:190,h:150,hp:24,max:24,active:false,shotTimer:90,step:0,alive:true};
+
+ // Enemies become stronger and more numerous as levels increase.
+ const enemyCount=5+level*2;
+ for(let i=0;i<enemyCount;i++){
+   const flying=i%3===0;
+   const shooter=i%4===0&&level>=2;
+   const x=rand(300,worldWidth-280);
+   enemies.push({
+     x,y:flying?rand(190,330):390,
+     w:flying?48:55,
+     h:flying?34:45,
+     type:flying?'flyer':shooter?'shooter':'dino',
+     vx:rand(35,65)*(Math.random()<.5?-1:1),
+     speed:65+level*15,
+     hp:1+(level>=4?1:0),
+     shootTimer:rand(1,3),
+     bob:rand(0,6),
+     alive:true
+   });
  }
- updateHud();
+
+ // The final level has a large T-Rex.
+ if(level===6){
+   boss={
+     x:worldWidth-390,
+     y:350,
+     w:135,
+     h:112,
+     hp:12,
+     maxHp:12,
+     vx:0,
+     shootTimer:1.5,
+     attackTimer:0,
+     active:false
+   };
+ }
+
+ levelChanging=false;
+ updateHUD();
+ say(level===6?'THE T-REX IS WAITING!':'Level '+level+': '+levelNames[level-1]+'!');
 }
-function startGame(){coins=0;makeLevel(0);state="playing";overlay.style.display="none";updateHud();}
-function showPanel(title,body,buttons){
- overlay.style.display="flex";
- panel.innerHTML=`<h1>${title}</h1><p>${body}</p>${buttons}`;
+
+function startGame(){
+ cancelAnimationFrame(raf);
+ level=1;
+ totalCoins=0;
+ powerCount=0;
+ lives=5;
+ cameraX=0;
+ gameTime=0;
+ state='playing';
+ buildLevel();
+ $('overlay').style.display='none';
+ last=performance.now();
+ raf=requestAnimationFrame(loop);
 }
-function pauseGame(){
- if(state==="playing"){state="paused";showPanel("PAUSED","Bob is catching his breath. Your adventure is waiting!",'<button onclick="resumeGame()">RESUME</button><button class="secondary" onclick="restartGame()">RESTART</button>');}
-}
-function resumeGame(){state="playing";overlay.style.display="none";}
-function restartGame(){coins=0;makeLevel(0);state="playing";overlay.style.display="none";}
-function updateHud(){
- $("levelHud").textContent=`LEVEL ${level+1}/6 · ${levelName}`;
- $("healthHud").textContent="❤️".repeat(Math.max(0,player?player.health:3))+"🖤".repeat(Math.max(0,5-(player?player.health:3)));
- $("coinHud").textContent="🪙 "+coins;
- $("powerHud").textContent="⚡ "+(player?player.power:0);
- $("distanceHud").textContent=Math.floor(distance)+" m";
-}
-function hurt(amount=1){
- if(player.invuln>0)return;
- if(player.shield>0){player.shield=0;player.invuln=55;burst(player.x+15,player.y+25,"#80eaff",16);return;}
- player.health-=amount;player.invuln=75;shake=12;burst(player.x+15,player.y+25,"#ff6655",12);
- if(player.health<=0)gameOver();
- updateHud();
-}
-function gameOver(){
- state="over";
- showPanel("DREAM OVER!","The dinosaurs caught Bob! You collected "+coins+" coins. Try again and see if you can escape!",'<button onclick="restartGame()">TRY AGAIN</button><button class="secondary" onclick="backTitle()">MAIN MENU</button>');
-}
-function backTitle(){
- state="title";$("bossBar").style.display="none";$("bossLabel").style.display="none";
- showPanel("JURASSIC DREAM ESCAPE","Bob the scientist needs your help escaping the dinosaur ages!",'<p>Move: A/D or arrow keys · Jump: SPACE/W/UP · Energy Blast: X · Pause: ESC</p><button onclick="startGame()">START ADVENTURE</button>');
-}
+
 function nextLevel(){
- if(level<5){makeLevel(level+1);state="playing";}
- else{
-  state="won";$("bossBar").style.display="none";$("bossLabel").style.display="none";
-  showPanel("BOB ESCAPED!","Bob finally wakes up in his laboratory. The time machine is quiet... until a REAL dinosaur steps out! 🦖<br><br>Did Bob really escape his dream?",'<button onclick="restartGame()">PLAY AGAIN</button><button class="secondary" onclick="backTitle()">MAIN MENU</button>');
+ if(levelChanging||state!=='playing')return;
+ if(level>=6){
+   state='won';
+   showEnd(true);
+   return;
+ }
+ level++;
+ cameraX=0;
+ buildLevel();
+ player.invulnerable=2;
+ say('Level '+level+' begins! '+levelNames[level-1]);
+}
+
+function showEnd(won){
+ $('overlay').style.display='flex';
+ $('panel').innerHTML=won?
+ `<h2>🎉 BOB ESCAPED!</h2>
+ <p>Bob defeated the mighty T-Rex and escaped the dinosaur dream!</p>
+ <p style="font-size:48px">🧪 🦖 🏆</p>
+ <p><b>YOU ARE A JURASSIC HERO!</b></p>
+ <p>You collected ${totalCoins} coins along the way!</p>
+ <button id="again">PLAY AGAIN</button>`:
+ `<h2>💤 DREAM OVER!</h2>
+ <p>The dinosaurs caught Bob! Don't give up, scientist!</p>
+ <button id="again">TRY AGAIN</button>`;
+ $('again').onclick=startGame;
+}
+
+function rect(a,b){
+ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+}
+
+function jump(){
+ if(state!=='playing')return;
+ if(player.grounded){
+   player.vy=-player.jumpPower;
+   player.grounded=false;
+   player.jumping=true;
  }
 }
-function burst(x,y,color,count=8){
- for(let i=0;i<count;i++)particles.push({x,y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6-2,life:25+Math.random()*20,color});
+
+function attack(){
+ if(state!=='playing'||player.attackCooldown>0)return;
+ player.attackCooldown=.45;
+ shots.push({
+   x:player.facing===1?player.x+player.w:player.x-16,
+   y:player.y+18,
+   w:17,h:12,
+   vx:player.facing*520,
+   life:1.6
+ });
+ say('ENERGY BLAST!');
 }
-function blast(){
- if(state!=="playing"||player.power<=0||player.blastCool>0)return;
- player.power--;player.blastCool=28;
- shots.push({x:player.x+(player.face>0?player.w:0),y:player.y+25,vx:player.face*10,life:65});
- burst(player.x+15+player.face*25,player.y+27,"#b9f5ff",8);updateHud();
-}
-function collect(p){
- p.alive=false;
- if(p.type==="coin"){coins++;burst(p.x,p.y,"#ffd45b",7);}
- if(p.type==="shield"){player.shield=1;burst(p.x,p.y,"#72eaff",12);}
- if(p.type==="speed"){player.speed=1.65;player.speedTimer=500;burst(p.x,p.y,"#ffe47b",12);}
- if(p.type==="heart"){player.health=Math.min(5,player.health+1);burst(p.x,p.y,"#ff758b",12);}
- if(p.type==="blast"){player.power=Math.min(9,player.power+3);burst(p.x,p.y,"#b9f5ff",12);}
- if(p.type==="double"){player.doubleJump=true;player.doubleTimer=650;burst(p.x,p.y,"#c59cff",12);}
- updateHud();
-}
-function hitEnemy(e){
- if(!e.alive)return;
- e.hp--;
- burst(e.x+e.w/2,e.y+e.h/2,"#c7e78a",10);
- if(e.hp<=0){e.alive=false;coins+=2;burst(e.x+e.w/2,e.y+e.h/2,"#ffe36a",18);updateHud();}
-}
-function fireEnemy(e){
- const dx=player.x-e.x,dy=player.y-e.y;
- const len=Math.hypot(dx,dy)||1;
- enemyShots.push({x:e.x+e.w/2,y:e.y+e.h/2,vx:dx/len*3.6,vy:dy/len*2.2,life:180,r:10,color:"#ff713f"});
-}
-function update(){
- if(state!=="playing")return;
- frame++;
- const p=player;
- if(p.invuln>0)p.invuln--;
- if(p.blastCool>0)p.blastCool--;
- if(p.speedTimer>0){p.speedTimer--;if(p.speedTimer===0)p.speed=1;}
- if(p.doubleTimer>0){p.doubleTimer--;if(p.doubleTimer===0)p.doubleJump=false;}
- if(p.stomp>0)p.stomp--;
- const left=keys.ArrowLeft||keys.KeyA,right=keys.ArrowRight||keys.KeyD;
- const jump=keys.Space||keys.ArrowUp||keys.KeyW;
- const sp=4.1*p.speed;
- if(left){p.vx=-sp;p.face=-1;}else if(right){p.vx=sp;p.face=1;}else p.vx*=.78;
- p.x+=p.vx;
- if(p.x<camera+25)p.x=camera+25;
- if(p.x>levelLength-40)p.x=levelLength-40;
- if(jump&&!p.jumpLock){
-  if(p.ground){p.vy=-12.8;p.ground=false;p.usedDouble=false;}
-  else if(p.doubleJump&&!p.usedDouble){p.vy=-11.5;p.usedDouble=true;burst(p.x+15,p.y+45,"#c59cff",7);}
-  p.jumpLock=true;
+
+function damage(){
+ if(player.invulnerable>0||state!=='playing')return;
+ lives--;
+ player.invulnerable=1.6;
+ player.vy=-260;
+ updateHUD();
+ say('Watch out! Bob was hit!');
+ if(lives<=0){
+   state='over';
+   showEnd(false);
  }
- if(!jump)p.jumpLock=false;
- p.vy+=.58;p.y+=p.vy;p.ground=false;
- // Ground collision.
- if(p.y+p.h>=groundY){p.y=groundY-p.h;p.vy=0;p.ground=true;p.usedDouble=false;}
- // Platform collision, only when falling.
- for(const b of platforms){
-  if(p.vy>=0&&p.x+p.w>b.x&&p.x<b.x+b.w&&p.y+p.h>=b.y&&p.y+p.h-p.vy<=b.y+5){
-   p.y=b.y-p.h;p.vy=0;p.ground=true;p.usedDouble=false;
-  }
+}
+
+function stompEnemy(e){
+ e.alive=false;
+ player.vy=-330;
+ totalCoins+=2;
+ updateHUD();
+ say('Dinosaur defeated! +2 coins!');
+ for(let i=0;i<9;i++){
+   particles.push({
+     x:e.x+e.w/2,y:e.y+e.h/2,
+     vx:rand(-140,140),vy:rand(-180,40),life:.6,
+     color:'#ffe17c'
+   });
  }
- // Dinosaurs.
+}
+
+function update(dt){
+ if(state!=='playing')return;
+ gameTime+=dt;
+ if(messageTimer>0){
+   messageTimer-=dt;
+   if(messageTimer<=0)$('message').textContent='Keep moving, jumping, and collecting coins!';
+ }
+
+ player.animation+=dt*12;
+ player.invulnerable=Math.max(0,player.invulnerable-dt);
+ player.attackCooldown=Math.max(0,player.attackCooldown-dt);
+
+ // Movement.
+ let move=0;
+ if(keys.a||keys.ArrowLeft)move--;
+ if(keys.d||keys.ArrowRight)move++;
+ player.vx=move*player.speed;
+ if(move!==0)player.facing=move;
+
+ if((keys[' ']||keys.w||keys.ArrowUp)&&player.grounded){
+   jump();
+   keys[' ']=false;keys.w=false;keys.ArrowUp=false;
+ }
+
+ player.vy+=1450*dt;
+ player.x+=player.vx*dt;
+ player.x=clamp(player.x,0,worldWidth-player.w);
+ player.y+=player.vy*dt;
+ player.grounded=false;
+
+ // Platform collision: resolve from above only.
+ for(const p of platforms){
+   if(player.x+player.w>p.x&&player.x<p.x+p.w&&
+      player.y+player.h>p.y&&player.y+player.h<p.y+Math.max(30,Math.abs(player.vy*dt)+10)&&
+      player.vy>=0){
+     player.y=p.y-player.h;
+     player.vy=0;
+     player.grounded=true;
+     player.jumping=false;
+   }
+ }
+
+ // Falling into a gap returns Bob to the nearest safe ground.
+ if(player.y>H+80){
+   damage();
+   if(state!=='playing')return;
+   player.x=Math.max(30,player.x-100);
+   player.y=300;
+   player.vy=0;
+ }
+
+ // Camera follows Bob.
+ cameraX=clamp(player.x-330,0,worldWidth-W);
+
+ // Coins.
+ for(const c of coins){
+   if(c.got)continue;
+   c.spin+=dt*5;
+   const coinBox={x:c.x-10,y:c.y-10,w:20,h:20};
+   if(rect(player,coinBox)){
+     c.got=true;
+     totalCoins++;
+     levelCoins++;
+     updateHUD();
+     say('+1 coin!');
+   }
+ }
+
+ // Power-ups.
+ for(const p of powerups){
+   if(p.got)continue;
+   p.bob+=dt*4;
+   const box={x:p.x-14,y:p.y-14+Math.sin(p.bob)*5,w:28,h:28};
+   if(rect(player,box)){
+     p.got=true;
+     powerCount++;
+     if(p.type==='heart')lives=Math.min(5,lives+1);
+     if(p.type==='shield')player.invulnerable=4;
+     if(p.type==='blast')player.attackCooldown=0;
+     if(p.type==='speed')player.speed=310;
+     updateHUD();
+     say(p.type.toUpperCase()+' POWER-UP!');
+   }
+ }
+
+ // Enemies.
  for(const e of enemies){
-  if(!e.alive)continue;
-  if(e.type==="fly"){
-   e.x+=Math.sin(frame*.025+e.phase)*.8;
-   e.y=e.baseY+Math.sin(frame*.065+e.phase)*35;
-   if(Math.abs(p.x-e.x)<420)e.x+=Math.sign(p.x-e.x)*.25;
-  }else{
-   e.x+=Math.sin(frame*.035+e.phase)*.5;
-   e.x+=Math.sign(p.x-e.x)*e.speed*.17;
-  }
-  if(e.fire){e.shotTimer--;if(e.shotTimer<=0&&Math.abs(p.x-e.x)<510){fireEnemy(e);e.shotTimer=125+Math.random()*80;}}
-  if(rect(p,e)){
-   const stomp=p.vy>1&&p.y+p.h-e.y<22;
-   if(stomp){p.vy=-9;hitEnemy(e);p.stomp=12;}
-   else hurt(1);
-  }
+   if(!e.alive)continue;
+   e.bob+=dt*5;
+   const dx=player.x-e.x;
+   const dy=player.y-e.y;
+
+   if(e.type==='flyer'){
+     e.x+=Math.sign(dx)*Math.min(Math.abs(dx),e.speed*dt*.7);
+     e.y+=Math.sin(e.bob)*35*dt;
+   }else{
+     e.x+=Math.sign(dx)*e.speed*dt;
+   }
+
+   // Fireball shooters.
+   if(e.type==='shooter'){
+     e.shootTimer-=dt;
+     if(e.shootTimer<=0&&Math.abs(dx)<650){
+       e.shootTimer=Math.max(1.3,2.8-level*.2);
+       enemyShots.push({
+         x:e.x+(dx>0?e.w:0),
+         y:e.y+14,
+         w:19,h:16,
+         vx:Math.sign(dx||1)*(220+level*18),
+         life:3
+       });
+     }
+   }
+
+   if(rect(player,e)){
+     // Jumping on top defeats the dinosaur.
+     const comingDown=player.vy>40;
+     const feet=player.y+player.h;
+     if(comingDown&&feet<e.y+e.h*.48){
+       stompEnemy(e);
+     }else{
+       damage();
+       if(state!=='playing')return;
+     }
+   }
  }
- // Energy blasts.
+
+ // Player energy blasts.
  for(const s of shots){
-  s.x+=s.vx;s.life--;
-  for(const e of enemies){if(e.alive&&Math.abs(s.x-(e.x+e.w/2))<30&&Math.abs(s.y-(e.y+e.h/2))<35){hitEnemy(e);s.life=0;break;}}
-  if(boss&&boss.active&&boss.alive&&s.x>boss.x&&s.x<boss.x+boss.w&&s.y>boss.y&&s.y<boss.y+boss.h){
-   boss.hp-=2;s.life=0;burst(s.x,s.y,"#b8f4ff",10);if(boss.hp<=0)boss.alive=false;
-  }
+   s.x+=s.vx*dt;s.life-=dt;
+   for(const e of enemies){
+     if(e.alive&&rect(s,e)){
+       e.hp--;
+       s.life=0;
+       if(e.hp<=0){
+         e.alive=false;totalCoins+=2;updateHUD();
+         say('Dinosaur defeated!');
+       }else say('Direct hit!');
+       break;
+     }
+   }
+   if(boss&&boss.active&&s.life>0&&rect(s,boss)){
+     boss.hp--;
+     s.life=0;
+     say('T-REX HIT! Keep attacking!');
+     if(boss.hp<=0){
+       boss=null;
+       say('THE T-REX IS DEFEATED!');
+     }
+   }
  }
- shots=shots.filter(s=>s.life>0);
- // Dinosaur fireballs.
+ shots=shots.filter(s=>s.life>0&&s.x>-50&&s.x<worldWidth+50);
+
+ // Enemy fireballs.
  for(const s of enemyShots){
-  s.x+=s.vx;s.y+=s.vy;s.life--;
-  if(Math.hypot(s.x-(p.x+p.w/2),s.y-(p.y+p.h/2))<25){hurt(1);s.life=0;}
+   s.x+=s.vx*dt;s.life-=dt;
+   if(rect(player,s)){
+     s.life=0;damage();
+     if(state!=='playing')return;
+   }
  }
- enemyShots=enemyShots.filter(s=>s.life>0);
- // Pickups.
- for(const item of pickups){
-  if(!item.alive)continue;
-  item.bob+=.08;
-  if(rect(p,{x:item.x-13,y:item.y-13+Math.sin(item.bob)*5,w:26,h:26}))collect(item);
- }
+ enemyShots=enemyShots.filter(s=>s.life>0&&s.x>-50&&s.x<worldWidth+50);
+
  // Final boss.
  if(boss){
-  if(distance>levelLength-1000)boss.active=true;
-  if(boss.active&&boss.alive){
-   boss.step++;
-   boss.y=groundY-boss.h+Math.sin(frame*.035)*12;
-   boss.shotTimer--;
-   if(boss.shotTimer<=0){enemyShots.push({x:boss.x,y:boss.y+55,vx:-5.3,vy:-1.2,life:180,r:15,color:"#ff4d28"});enemyShots.push({x:boss.x,y:boss.y+100,vx:-5,vy:1.1,life:180,r:15,color:"#ff9b35"});boss.shotTimer=85;}
-   if(Math.abs(p.x-boss.x)<boss.w-10&&rect(p,boss)){hurt(2);}
-   if(boss.hp<=0)boss.alive=false;
-   $("bossBar").style.display="block";$("bossLabel").style.display="block";
-   $("bossFill").style.width=Math.max(0,boss.hp/boss.max*100)+"%";
-  }else if(!boss.alive){
-   $("bossBar").style.display="none";$("bossLabel").style.display="none";
-  }
+   if(player.x>worldWidth-950)boss.active=true;
+   if(boss.active){
+     boss.x+=Math.sign(player.x-boss.x)*(65+level*5)*dt;
+     boss.shootTimer-=dt;
+     if(boss.shootTimer<=0){
+       boss.shootTimer=1.6;
+       enemyShots.push({
+         x:boss.x+(player.x>boss.x?boss.w:0),
+         y:boss.y+45,w:27,h:22,
+         vx:Math.sign(player.x-boss.x||1)*280,
+         life:3
+       });
+     }
+     if(rect(player,boss)){
+       damage();
+       if(state!=='playing')return;
+     }
+   }
  }
- // The exit only opens after the boss is defeated in the final level.
- distance=Math.max(distance,p.x-100);
- if(p.y>H+100)hurt(2),p.y=groundY-p.h,p.vy=0;
- if(p.x>=exitX&&(!boss||!boss.alive))nextLevel();
- camera=Math.max(0,Math.min(levelLength-W,p.x-300));
- for(const q of particles){q.x+=q.vx;q.y+=q.vy;q.vy+=.12;q.life--;}
- particles=particles.filter(q=>q.life>0);
- updateHud();
-}
-function rect(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h;}
-function rounded(x,y,w,h,r,color){
- ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
-}
-function drawBackground(){
- const pal=palettes[level];
- const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,pal[0]);sky.addColorStop(1,"#d4e8ad");
- ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
- // distant mountains and volcanoes.
- for(let i=0;i<9;i++){
-  let x=((i*190-camera*.18)%(W+200)+W+200)%(W+200)-100;
-  ctx.fillStyle=pal[1];ctx.beginPath();ctx.moveTo(x,groundY);ctx.lineTo(x+95,180+(i%3)*30);ctx.lineTo(x+210,groundY);ctx.fill();
+
+ // Particles.
+ for(const p of particles){
+   p.x+=p.vx*dt;p.y+=p.vy*dt;
+   p.vy+=280*dt;p.life-=dt;
  }
- // Trees, rocks and prehistoric scenery.
- for(let i=0;i<18;i++){
-  let x=((i*125-camera*.35)%(W+150)+W+150)%(W+150)-60;
-  const h=80+(i*37%90);
-  ctx.fillStyle=pal[2];ctx.fillRect(x,groundY-h*.55,13,h*.55);
-  ctx.fillStyle=i%2?"#34764a":"#4a8950";
-  ctx.beginPath();ctx.arc(x+6,groundY-h*.65,30+(i%3)*8,0,Math.PI*2);ctx.fill();
- }
- // Clouds.
- ctx.fillStyle="#ffffff75";
- for(let i=0;i<6;i++){
-  let x=((i*220-camera*.08)%(W+160)+W+160)%(W+160)-70;
-  ctx.beginPath();ctx.arc(x,75+i%3*32,24,0,Math.PI*2);ctx.arc(x+28,75+i%3*32,32,0,Math.PI*2);ctx.arc(x+58,75+i%3*32,21,0,Math.PI*2);ctx.fill();
+ particles=particles.filter(p=>p.life>0);
+
+ // Exit only appears after all regular enemies and the boss are defeated.
+ const remaining=enemies.some(e=>e.alive);
+ if(player.x>worldWidth-95&&!remaining&&!boss){
+   nextLevel();
+   return;
  }
 }
-function drawGround(){
- const pal=palettes[level];
- ctx.fillStyle=pal[2];ctx.fillRect(0,groundY,W,H-groundY);
- ctx.fillStyle=pal[1];ctx.fillRect(0,groundY,W,15);
- for(let i=0;i<35;i++){
-  const x=((i*43-camera)%(W+50)+W+50)%(W+50);
-  ctx.fillStyle=i%2?"#9fba58":"#6d994a";ctx.fillRect(x,groundY+20+i%4*15,18,5);
- }
-}
-function drawPlatforms(){
- for(const b of platforms){
-  const x=b.x-camera;if(x<-150||x>W+100)continue;
-  rounded(x,b.y,b.w,b.h,7,"#644b34");
-  ctx.fillStyle="#6fa34d";ctx.fillRect(x,b.y,b.w,7);
-  ctx.fillStyle="#9b754a";
-  for(let k=10;k<b.w;k+=24)ctx.fillRect(x+k,b.y+9,7,4);
- }
-}
+
 function drawBob(){
- const p=player,x=p.x-camera,y=p.y;
- if(p.invuln>0&&Math.floor(frame/5)%2===0)return;
- if(p.shield){ctx.strokeStyle="#7deaff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+15,y+28,39,0,Math.PI*2);ctx.stroke();}
- // Bob stays the same stickman scientist.
- ctx.lineCap="round";
- // lab coat
- ctx.fillStyle="#f1f4ed";ctx.fillRect(x+7,y+23,17,29);
- ctx.strokeStyle="#243a32";ctx.lineWidth=3;
- // head
- ctx.fillStyle="#f0c69c";ctx.beginPath();ctx.arc(x+15,y+10,10,0,Math.PI*2);ctx.fill();ctx.stroke();
- // hair and glasses
- ctx.strokeStyle="#47362c";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x+6,y+5);ctx.lineTo(x+23,y+4);ctx.stroke();
- ctx.strokeStyle="#304d57";ctx.lineWidth=2;ctx.strokeRect(x+7,y+9,7,5);ctx.strokeRect(x+16,y+9,7,5);
- // coat outline and tie
- ctx.strokeStyle="#263d36";ctx.lineWidth=2;ctx.strokeRect(x+7,y+23,17,29);
- ctx.fillStyle="#d94f42";ctx.beginPath();ctx.moveTo(x+14,y+24);ctx.lineTo(x+18,y+24);ctx.lineTo(x+16,y+39);ctx.fill();
- // arms
- ctx.strokeStyle="#f0c69c";ctx.lineWidth=4;
- ctx.beginPath();ctx.moveTo(x+7,y+27);ctx.lineTo(x+1,y+39);ctx.moveTo(x+24,y+27);ctx.lineTo(x+30,y+38);ctx.stroke();
- // legs
- ctx.strokeStyle="#303d42";ctx.lineWidth=5;
- ctx.beginPath();ctx.moveTo(x+11,y+52);ctx.lineTo(x+8,y+58);ctx.moveTo(x+20,y+52);ctx.lineTo(x+23,y+58);ctx.stroke();
+ ctx.save();
+ if(player.invulnerable>0&&Math.floor(gameTime*14)%2===0)ctx.globalAlpha=.45;
+ const x=player.x,y=player.y;
+ // Lab coat.
+ ctx.fillStyle='#f2f4ed';
+ ctx.fillRect(x+6,y+18,21,27);
+ ctx.fillStyle='#263d52';
+ ctx.fillRect(x+7,y+41,7,7);ctx.fillRect(x+20,y+41,7,7);
+ // Head.
+ ctx.fillStyle='#e9b88d';
+ ctx.beginPath();ctx.arc(x+16,y+11,11,0,Math.PI*2);ctx.fill();
+ // Hair.
+ ctx.fillStyle='#68432e';
+ ctx.beginPath();ctx.arc(x+16,y+5,10,Math.PI,Math.PI*2);ctx.fill();
+ // Glasses.
+ ctx.strokeStyle='#334b57';ctx.lineWidth=2;
+ ctx.strokeRect(x+8,y+8,7,6);ctx.strokeRect(x+18,y+8,7,6);
+ // Legs animate.
+ const step=player.grounded&&Math.abs(player.vx)>1?Math.sin(player.animation)*5:0;
+ ctx.strokeStyle='#273c4d';ctx.lineWidth=5;
+ ctx.beginPath();
+ ctx.moveTo(x+12,y+44);ctx.lineTo(x+11+step,y+48);
+ ctx.moveTo(x+22,y+44);ctx.lineTo(x+23-step,y+48);
+ ctx.stroke();
+ // Backpack.
+ ctx.fillStyle='#bd7544';ctx.fillRect(x+(player.facing===1?1:25),y+22,7,15);
+ ctx.restore();
 }
+
 function drawDino(e){
- const x=e.x-camera,y=e.y;
- if(x<-100||x>W+100)return;
  ctx.save();
- if(e.type==="fly"){
-  ctx.fillStyle="#6b8b54";
-  ctx.beginPath();ctx.ellipse(x+29,y+18,27,13,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="#557b49";
-  ctx.beginPath();ctx.moveTo(x+18,y+18);ctx.lineTo(x-5,y-10+Math.sin(frame*.2)*8);ctx.lineTo(x+25,y+18);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x+40,y+18);ctx.lineTo(x+68,y-9-Math.sin(frame*.2)*8);ctx.lineTo(x+43,y+18);ctx.fill();
-  ctx.fillStyle="#6b8b54";ctx.beginPath();ctx.moveTo(x+43,y+16);ctx.lineTo(x+65,y+24);ctx.lineTo(x+47,y+29);ctx.fill();
- }else{
-  ctx.fillStyle=e.color;
-  ctx.beginPath();ctx.ellipse(x+27,y+27,26,19,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x+37,y+21);ctx.lineTo(x+51,y+3);ctx.lineTo(x+61,y+12);ctx.lineTo(x+54,y+30);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x+9,y+30);ctx.lineTo(x-10,y+12);ctx.lineTo(x+8,y+38);ctx.fill();
-  ctx.fillStyle="#d8df91";ctx.fillRect(x+49,y+12,5,5);
-  ctx.fillStyle="#1f291a";ctx.fillRect(x+51,y+13,2,3);
-  ctx.fillStyle="#4b673d";ctx.fillRect(x+13,y+40,8,9);ctx.fillRect(x+36,y+40,8,9);
-  if(e.fire){ctx.fillStyle="#f4c16a";ctx.beginPath();ctx.moveTo(x+55,y+25);ctx.lineTo(x+68,y+30);ctx.lineTo(x+55,y+34);ctx.fill();}
+ ctx.translate(e.x+e.w/2,e.y+e.h/2);
+ if(e.vx<0)ctx.scale(-1,1);
+ const colors={dino:'#47864c',flyer:'#8d70bd',shooter:'#b85b42'};
+ ctx.fillStyle=colors[e.type];
+ ctx.beginPath();ctx.ellipse(0,3,e.w*.38,e.h*.35,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(e.w*.25,-e.h*.13,e.h*.27,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.moveTo(-e.w*.3,0);ctx.lineTo(-e.w*.62,-10);ctx.lineTo(-e.w*.34,10);ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(e.w*.32,-e.h*.2,4,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#222';ctx.beginPath();ctx.arc(e.w*.34,-e.h*.2,2,0,Math.PI*2);ctx.fill();
+ if(e.type==='flyer'){
+   ctx.fillStyle='#7055a1';
+   ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(-e.w*.5,-e.h*.8);ctx.lineTo(12,-3);ctx.fill();
  }
- // enemy health indicator
- ctx.fillStyle="#311f1c";ctx.fillRect(x+5,y-10,e.w-10,5);
- ctx.fillStyle="#f2d36e";ctx.fillRect(x+5,y-10,(e.w-10)*e.hp/(e.fire?3:2),5);
+ if(e.type==='shooter'){
+   ctx.fillStyle='#ffb14d';ctx.beginPath();ctx.arc(e.w*.45,3,4,0,Math.PI*2);ctx.fill();
+ }
  ctx.restore();
 }
-function drawPickups(){
- for(const p of pickups){
-  if(!p.alive)continue;
-  const x=p.x-camera,y=p.y+Math.sin(p.bob)*5;
-  if(x<-30||x>W+30)continue;
-  const styles={coin:["🪙","#ffd45b"],shield:["🛡️","#74eaff"],speed:["⚡","#ffe47b"],heart:["❤️","#ff758b"],blast:["💥","#b9f5ff"],double:["🪽","#c59cff"]};
-  ctx.font="25px Arial";ctx.textAlign="center";ctx.fillText(styles[p.type][0],x,y+9);
- }
-}
-function drawShots(){
- for(const s of shots){ctx.fillStyle="#b8f7ff";ctx.shadowColor="#8defff";ctx.shadowBlur=15;ctx.beginPath();ctx.arc(s.x-camera,s.y,8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
- for(const s of enemyShots){ctx.fillStyle=s.color;ctx.shadowColor="#ff4c24";ctx.shadowBlur=14;ctx.beginPath();ctx.arc(s.x-camera,s.y,s.r||9,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}
-}
+
 function drawBoss(){
- if(!boss||!boss.active||!boss.alive)return;
- const x=boss.x-camera,y=boss.y;
- ctx.fillStyle="#6f3d31";
- ctx.beginPath();ctx.ellipse(x+90,y+88,90,60,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(x+115,y+60);ctx.lineTo(x+160,y+15);ctx.lineTo(x+190,y+30);ctx.lineTo(x+175,y+80);ctx.fill();
- ctx.beginPath();ctx.moveTo(x+25,y+80);ctx.lineTo(x-45,y+40);ctx.lineTo(x+12,y+103);ctx.fill();
- ctx.fillStyle="#efbe4e";ctx.beginPath();ctx.arc(x+174,y+38,7,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#271b16";ctx.fillRect(x+180,y+55,10,5);
- ctx.fillStyle="#523128";ctx.fillRect(x+48,y+125,22,25);ctx.fillRect(x+120,y+125,22,25);
- // T-rex spikes
- ctx.fillStyle="#a36a42";
- for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(x+35+i*25,y+40);ctx.lineTo(x+47+i*25,y+16);ctx.lineTo(x+59+i*25,y+43);ctx.fill();}
-}
-function drawExit(){
- const x=exitX-camera;
- if(x<-100||x>W+100)return;
- ctx.fillStyle="#b6f4ff";ctx.shadowColor="#b6f4ff";ctx.shadowBlur=25;
- ctx.beginPath();ctx.ellipse(x,groundY-55,25,55,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
- ctx.fillStyle="#21493b";ctx.font="bold 15px Fredoka";ctx.textAlign="center";ctx.fillText(boss&&!boss.alive?"ESCAPE!":"EXIT",x,groundY+23);
-}
-function drawParticles(){
- for(const q of particles){ctx.globalAlpha=Math.max(0,q.life/35);ctx.fillStyle=q.color;ctx.fillRect(q.x-camera,q.y,5,5);}
- ctx.globalAlpha=1;
-}
-function draw(){
+ if(!boss)return;
  ctx.save();
- if(shake>0){ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);shake*=.85;}
- drawBackground();drawGround();drawPlatforms();drawExit();
- for(const e of enemies)if(e.alive)drawDino(e);
- drawBoss();drawPickups();drawShots();drawBob();drawParticles();
- // World warning
- if(level>=2&&frame%300<100){
-  ctx.fillStyle="#1e302bcc";ctx.font="bold 17px Fredoka";ctx.textAlign="center";
-  ctx.fillText(level>=4?"DANGER! WATCH FOR FIRE!":"WATCH THE SKY! FLYING DINOS!",W/2,145);
- }
+ ctx.fillStyle='#72352c';
+ ctx.beginPath();ctx.ellipse(boss.x+65,boss.y+65,67,48,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#9e4b36';
+ ctx.beginPath();ctx.arc(boss.x+105,boss.y+28,38,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.moveTo(boss.x+75,boss.y+20);ctx.lineTo(boss.x+65,boss.y-3);ctx.lineTo(boss.x+91,boss.y+13);ctx.fill();
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(boss.x+119,boss.y+17,7,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#111';ctx.beginPath();ctx.arc(boss.x+121,boss.y+17,3,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#fff';ctx.fillRect(boss.x+115,boss.y+50,26,7);
+ ctx.fillStyle='#43231f';ctx.fillRect(boss.x+20,boss.y+99,20,15);ctx.fillRect(boss.x+84,boss.y+99,20,15);
  ctx.restore();
+
+ // Boss health bar.
+ ctx.fillStyle='#301d1b';ctx.fillRect(650,15,285,20);
+ ctx.fillStyle='#e64b42';ctx.fillRect(653,18,279*(boss.hp/boss.maxHp),14);
+ ctx.strokeStyle='#fff';ctx.strokeRect(650,15,285,20);
+ ctx.fillStyle='white';ctx.font='15px Fredoka';ctx.textAlign='center';
+ ctx.fillText('T-REX BOSS',792,12);
 }
-function loop(){
- if(state==="playing"){update();draw();}
- else if(state==="paused")draw();
- requestAnimationFrame(loop);
+
+function draw(){
+ const bg=levelColors[level-1];
+ ctx.fillStyle=bg[0];ctx.fillRect(0,0,W,H);
+ // Sky details.
+ ctx.fillStyle='#ffffff55';
+ for(let i=0;i<7;i++){
+   const x=(i*190-cameraX*.18)%(W+100);
+   ctx.beginPath();ctx.ellipse(x,80+(i%3)*35,45,14,0,0,Math.PI*2);ctx.fill();
+ }
+ ctx.save();
+ ctx.translate(-cameraX,0);
+
+ // Mountains and scenery.
+ ctx.fillStyle=bg[1];
+ for(let i=0;i<15;i++){
+   const x=i*210;
+   ctx.beginPath();ctx.moveTo(x,465);ctx.lineTo(x+100,220+(i%3)*40);ctx.lineTo(x+220,465);ctx.fill();
+ }
+ // Platforms and ground.
+ for(const p of platforms){
+   ctx.fillStyle=p.ground?bg[2]:'#74513b';
+   ctx.fillRect(p.x,p.y,p.w,p.h);
+   ctx.fillStyle=p.ground?'#4f944e':'#9c7048';
+   ctx.fillRect(p.x,p.y,p.w,9);
+   if(p.ground){
+     ctx.fillStyle='#5c9e4e';
+     for(let i=0;i<p.w;i+=24){
+       ctx.fillRect(p.x+i,p.y-4,10,5);
+     }
+   }
+ }
+ // Coins.
+ for(const c of coins)if(!c.got){
+   ctx.save();ctx.translate(c.x,c.y);
+   ctx.scale(Math.max(.2,Math.abs(Math.cos(c.spin))),1);
+   ctx.fillStyle='#ffd34e';ctx.beginPath();ctx.arc(0,0,10,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#a66b20';ctx.lineWidth=2;ctx.stroke();
+   ctx.fillStyle='#fff2a6';ctx.font='12px Fredoka';ctx.textAlign='center';ctx.fillText('$',0,4);
+   ctx.restore();
+ }
+ // Power-ups.
+ for(const p of powerups)if(!p.got){
+   const y=p.y+Math.sin(p.bob)*5;
+   const colors={heart:'#f45b75',shield:'#61c9f3',blast:'#ffb83e',speed:'#9a7bdf'};
+   ctx.fillStyle=colors[p.type];
+   ctx.beginPath();ctx.arc(p.x,y,13,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='white';ctx.font='15px sans-serif';ctx.textAlign='center';
+   ctx.fillText({heart:'♥',shield:'🛡',blast:'⚡',speed:'★'}[p.type],p.x,y+5);
+ }
+ // Enemies and their projectiles.
+ enemies.forEach(e=>{if(e.alive)drawDino(e)});
+ if(boss)drawBoss();
+
+ for(const s of shots){
+   ctx.fillStyle='#ffe75b';ctx.beginPath();ctx.ellipse(s.x+8,s.y+6,11,6,0,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x+8,s.y+6,3,0,Math.PI*2);ctx.fill();
+ }
+ for(const s of enemyShots){
+   ctx.fillStyle='#ff713b';ctx.beginPath();ctx.arc(s.x+9,s.y+8,10,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#ffdb75';ctx.beginPath();ctx.arc(s.x+9,s.y+8,5,0,Math.PI*2);ctx.fill();
+ }
+ // Exit.
+ if(!enemies.some(e=>e.alive)&&!boss){
+   ctx.fillStyle='#ffe58c';ctx.fillRect(worldWidth-105,350,55,115);
+   ctx.fillStyle='#5a3c25';ctx.fillRect(worldWidth-94,365,34,100);
+   ctx.fillStyle='#fff';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
+   ctx.fillText('EXIT',worldWidth-77,337);
+ }
+ // Particles.
+ for(const p of particles){
+   ctx.globalAlpha=clamp(p.life,0,1);
+   ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
+ }
+ ctx.globalAlpha=1;
+ drawBob();
+ ctx.restore();
+
+ // Level banner.
+ ctx.fillStyle='#102b27bb';ctx.fillRect(12,12,280,38);
+ ctx.fillStyle='#fff';ctx.font='bold 19px Fredoka';ctx.textAlign='left';
+ ctx.fillText(levelNames[level-1],25,38);
+
+ if(state==='paused'){
+   ctx.fillStyle='#061b17bb';ctx.fillRect(0,0,W,H);
+   ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 48px Fredoka';
+   ctx.fillText('PAUSED',W/2,H/2);
+   ctx.font='19px Fredoka';ctx.fillText('Press ESC to continue',W/2,H/2+38);
+ }
 }
-document.addEventListener("keydown",e=>{
- if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space"].includes(e.code))e.preventDefault();
- keys[e.code]=true;
- if(e.code==="KeyX"&&!e.repeat)blast();
- if(e.code==="Escape"&&!e.repeat){if(state==="playing")pauseGame();else if(state==="paused")resumeGame();}
+
+function loop(now){
+ if(state!=='playing')return;
+ const dt=Math.min(.035,(now-last)/1000||0);
+ last=now;
+ update(dt);
+ if(state==='playing'){
+   draw();
+   raf=requestAnimationFrame(loop);
+ }
+}
+
+function togglePause(){
+ if(state==='playing'){
+   state='paused';
+   cancelAnimationFrame(raf);
+   draw();
+ }else if(state==='paused'){
+   state='playing';
+   last=performance.now();
+   raf=requestAnimationFrame(loop);
+ }
+}
+
+document.addEventListener('keydown',e=>{
+ const k=e.key===' '? ' ':e.key;
+ if(['ArrowLeft','ArrowRight','ArrowUp',' ','ArrowDown'].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k.toLowerCase()==='x')attack();
+ if(k==='Escape')togglePause();
 });
-document.addEventListener("keyup",e=>{keys[e.code]=false;});
-window.addEventListener("blur",()=>{for(const k in keys)keys[k]=false;});
-window.startGame=startGame;window.resumeGame=resumeGame;window.restartGame=restartGame;window.backTitle=backTitle;
-makeLevel(0);state="title";loop();
+document.addEventListener('keyup',e=>{keys[e.key===' '?' ':e.key]=false});
+window.addEventListener('blur',()=>{keys={}});
+
+$('start').onclick=startGame;
+$('pause').onclick=togglePause;
+$('restart').onclick=startGame;
+$('home').onclick=()=>location.href='../../index.html';
+
+buildLevel();
+draw();
+
 })();
 </script>
 </body>
