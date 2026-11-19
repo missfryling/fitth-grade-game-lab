@@ -3,493 +3,386 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GECKOMON | Dolphin Game Lab</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GECKOMON - 3D Gecko Adventure</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--purple:#7652a2;--pink:#ff9fc4;--yellow:#ffe17b;--mint:#9be5c8;--blue:#9edfff;--ink:#49385e}
 *{box-sizing:border-box}
-body{margin:0;background:linear-gradient(135deg,#ffe6c9,#fff2d9,#e6e5ff);font-family:Fredoka,sans-serif;color:var(--ink)}
-button{font:inherit;cursor:pointer;border:0}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 20px}
-.brand{font-weight:700;color:#69488f;font-size:20px}
-.tag{background:#ffe0b8;border-radius:30px;padding:8px 14px;font-size:13px}
-.nav{background:white;color:#65477f;border-radius:22px;padding:10px 15px;box-shadow:0 4px 0 #d9cbe9}
-main{max-width:1120px;margin:auto;padding:4px 16px 25px}
-.heading{text-align:center;margin:4px 0 14px}
-.heading h1{font-size:clamp(28px,4vw,40px);color:#7650a1;margin:3px}
-.heading p{margin:3px;color:#886e9b}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:15px;align-items:start}
-.gamecard{background:white;border:4px solid white;border-radius:22px;padding:10px;box-shadow:0 8px 0 #d9c8e8,0 12px 25px #8b70aa25}
-canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;border-radius:14px;background:#f4d58a}
-.side{display:flex;flex-direction:column;gap:10px}
-.panel{background:#ffffffdf;border:2px solid white;border-radius:17px;padding:12px;box-shadow:0 4px 0 #ddcfea}
-.panel h3{margin:0 0 9px;color:#7653a5;font-size:17px}
-.stat{display:flex;justify-content:space-between;gap:5px;margin:6px 0;font-size:14px}
-.stat strong{color:#684a92}
-.action{width:100%;border-radius:13px;padding:10px;margin-top:7px;font-weight:700;color:#55416e;background:#ffe58a;box-shadow:0 4px 0 #e8c85e}
-.action.pink{background:#ffb6d0;box-shadow:0 4px 0 #ed8eb3}
-.action.mint{background:#a8ecd3;box-shadow:0 4px 0 #72caaa}
-.action.blue{background:#a9e6fa;box-shadow:0 4px 0 #75c6e5}
-.action:active{transform:translateY(3px);box-shadow:none}
-.instructions{font-size:13px;line-height:1.7;color:#725e87}
-.message{background:#fff1bd;padding:10px;border-radius:12px;font-size:13px;min-height:54px;line-height:1.4}
-.footer{text-align:center;padding:18px;color:#886e9e;font-size:13px}
-.overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:16px;background:#38244dcc;backdrop-filter:blur(5px)}
-.dialog{background:linear-gradient(145deg,#fff4fa,#f1eaff);border:5px solid white;border-radius:27px;width:min(490px,100%);text-align:center;padding:25px;box-shadow:0 12px 0 #b99bd2;max-height:90vh;overflow:auto}
-.mascot{font-size:65px;margin:0}
-.dialog h2{font-size:30px;color:#7953a7;margin:7px 0}
-.dialog p{color:#806c96;line-height:1.5}
-.big{background:#ff91b9;color:#633c68;padding:13px 27px;border-radius:30px;font-size:19px;font-weight:700;box-shadow:0 5px 0 #dc719b;margin:6px}
-.big.green{background:#a8e9d3;box-shadow:0 5px 0 #72c6a8}
-.big.yellow{background:#ffe58a;box-shadow:0 5px 0 #e8c85e}
+body{margin:0;background:#10172b;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+button{border:0;border-radius:12px;padding:10px 15px;background:#75f0a7;color:#10251b;font-family:inherit;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
+#hud>*{pointer-events:auto}
+.logo{font-family:Fredoka;font-size:23px;color:#9aff9c;text-shadow:0 0 12px #4aff8c}
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#111d35eF;border:1px solid #6e9d83;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:800}
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:15px}
+#corner{position:absolute;right:12px;bottom:58px;display:flex;flex-direction:column;gap:8px}
+#corner button{background:#ffcf65}
+#controls{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#111d35eF;border:1px solid #6e9d83;border-radius:10px;padding:7px 12px;font-size:11px;color:#d8f4df;white-space:nowrap}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#071020c9;padding:16px}
+.panel{width:min(490px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#244b3a,#14253b);border:2px solid #8effa4;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #50ff9c33}
+.panel h1{font-family:Fredoka;color:#a3ff9e;font-size:clamp(28px,5vw,42px);margin:0 0 8px}
+.panel p{line-height:1.5;color:#e2f7e8}
+.small{font-size:12px;color:#b6d9c4}
+.shoprow{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;background:#142c2b;border:1px solid #4b8a69;padding:10px;border-radius:12px;margin:8px 0}
+.shoprow span{font-size:13px}
+.shoprow button{white-space:nowrap}
 .hidden{display:none!important}
-.shopgrid{display:grid;grid-template-columns:1fr;gap:8px;margin:12px 0}
-.shopitem{background:white;border:2px solid #e7d9f3;border-radius:14px;padding:10px;text-align:left}
-.shopitem button{float:right;background:#a8e9d3;border-radius:12px;padding:7px 12px;font-weight:700}
-.shopitem small{display:block;color:#806c96;margin-top:3px}
-@media(max-width:760px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr}.side .panel:first-child{grid-column:1/-1}}
 </style>
 </head>
 <body>
-<header class="topbar">
- <div class="brand">🐬 DOLPHIN GAME LAB</div>
- <div class="tag">ADAMSON CLASS · ORANGE TEAM</div>
- <button class="nav" onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
-</header>
+<canvas id="game"></canvas>
 
-<main>
- <div class="heading">
-  <h1>🦎 GECKOMON 🦎</h1>
-  <p>Collect geckos, earn coins, unlock powers, and conquer the volcano!</p>
- </div>
- <div class="layout">
-  <section class="gamecard">
-   <canvas id="game" width="800" height="600"></canvas>
-  </section>
-  <aside class="side">
-   <div class="panel">
-    <h3>⭐ Player Stats</h3>
-    <div class="stat"><span>❤️ Health</span><strong id="health">100 / 100</strong></div>
-    <div class="stat"><span>🪙 Coins</span><strong id="coins">0</strong></div>
-    <div class="stat"><span>🦎 Geckos collected</span><strong id="geckos">0</strong></div>
-    <div class="stat"><span>🌎 Level</span><strong id="level">1 / 6</strong></div>
-    <div class="stat"><span>📍 Location</span><strong id="place">Desert</strong></div>
-    <div class="stat"><span>✨ Power</span><strong id="power">Basic</strong></div>
-   </div>
-   <div class="panel">
-    <h3>🎮 Controls</h3>
-    <div class="instructions">
-     <b>W A S D</b> – Move<br>
-     <b>SPACE</b> – Attack nearby gecko<br>
-     <b>E</b> – Interact with golden gecko<br>
-     <b>P</b> – Pause / Resume<br>
-     <b>R</b> – Restart game
-    </div>
-   </div>
-   <div class="panel">
-    <h3>🛍️ Gecko Shop</h3>
-    <button class="action pink" id="shopButton">🛍️ OPEN SHOP</button>
-    <div class="instructions">Buy special powers to deal more damage!</div>
-   </div>
-   <div class="panel">
-    <h3>📜 Adventure Notes</h3>
-    <div class="message" id="message">Welcome to GECKOMON! Explore the desert and collect your first geckos and coins.</div>
-    <button class="action mint" id="nextButton" disabled>🔒 NEXT LEVEL · 100 COINS</button>
-   </div>
-   <div class="panel">
-    <button class="action blue" id="pauseButton">⏸ Pause Game</button>
-    <button class="action" id="restartButton">🔄 Play Again</button>
-    <button class="action pink" onclick="location.href='../../index.html'">🏠 Game Lab Home</button>
-   </div>
-  </aside>
- </div>
-</main>
-<div class="footer">🌊 MAKE SOME WAVES! · Adamson Orange Team · Dolphin Game Lab 🐬</div>
-
-<div class="overlay" id="startScreen">
- <div class="dialog">
-  <div class="mascot">🦎🌵</div>
-  <h2>WELCOME TO GECKOMON!</h2>
-  <p>Explore six amazing worlds! Collect geckos and coins, discover a rare golden gecko, and buy powerful upgrades at the shop.</p>
-  <p><b>Can you make it all the way to the Volcano Boss?</b></p>
-  <button class="big" id="playButton">▶ START ADVENTURE!</button>
-  <p style="font-size:12px">WASD to move · SPACE to attack · Visit the shop for upgrades</p>
- </div>
-</div>
-
-<div class="overlay hidden" id="pauseScreen">
- <div class="dialog">
-  <div class="mascot">⏸️🦎</div><h2>Adventure Paused!</h2>
-  <p>Your coins and progress are safe. Ready to keep exploring?</p>
-  <button class="big green" id="resumeButton">▶ RESUME</button>
-  <button class="big" onclick="location.href='../../index.html'">🏠 GAME LAB HOME</button>
- </div>
-</div>
-
-<div class="overlay hidden" id="shopScreen">
- <div class="dialog">
-  <div class="mascot">🛍️✨</div>
-  <h2>THE GECKOMON SHOP</h2>
-  <p>You have <b id="shopCoins">0</b> coins. Buy a power and use SPACE to attack!</p>
-  <div class="shopgrid">
-   <div class="shopitem"><b>⚡ Thunder Power</b><small>Deals 30 damage · Costs 50 coins</small><button onclick="buyPower('thunder')">BUY</button></div>
-   <div class="shopitem"><b>❄️ Ice Power</b><small>Deals 20 damage · Costs 40 coins</small><button onclick="buyPower('ice')">BUY</button></div>
-   <div class="shopitem"><b>🔥 Fire Power</b><small>Deals 50 damage · Costs 70 coins</small><button onclick="buyPower('fire')">BUY</button></div>
+<div id="hud">
+  <div class="logo">🦎 GECKOMON</div>
+  <div class="stats">
+    <div class="stat" id="level">LEVEL 1</div>
+    <div class="stat" id="world">🏜️ DESERT</div>
+    <div class="stat" id="coins">🪙 0</div>
+    <div class="stat" id="progress">🎯 0 / 85</div>
+    <div class="stat" id="health">❤️ 100</div>
   </div>
-  <p id="shopMessage">Choose your power! Each purchase gives you 3 uses.</p>
-  <button class="big green" id="closeShop">DONE</button>
- </div>
+  <button onclick="openShop()">🛒 SHOP</button>
+  <button onclick="togglePause()">Ⅱ PAUSE</button>
 </div>
 
-<div class="overlay hidden" id="endScreen">
- <div class="dialog">
-  <div class="mascot" id="endMascot">🏆</div>
-  <h2 id="endTitle">Adventure Complete!</h2>
-  <p id="endText">You did it!</p>
-  <button class="big" id="againButton">🔄 PLAY AGAIN</button>
-  <button class="big green" onclick="location.href='../../index.html'">🏠 GAME LAB HOME</button>
- </div>
+<div id="corner">
+  <button onclick="resetGame()">↻ RESET GAME</button>
+  <button onclick="attack()">⚡ ATTACK (SPACE)</button>
+</div>
+
+<div id="controls">MOVE: W A S D or ARROW KEYS &nbsp; • &nbsp; ATTACK: SPACE &nbsp; • &nbsp; COLLECT 85 COINS TO LEVEL UP</div>
+
+<div id="overlay">
+  <div class="panel" id="panel">
+    <h1>🦎 GECKOMON</h1>
+    <p>Welcome to your 3D gecko adventure! Explore different worlds, defeat geckos, collect coins, and buy powerful upgrades.</p>
+    <p><b>Collect 85 coins to unlock each new level!</b></p>
+    <p class="small">WASD or arrow keys to move. Press SPACE to attack. Find the rare GOLD GECKO to restore health!</p>
+    <div class="actions"><button onclick="startGame()">START ADVENTURE!</button></div>
+  </div>
 </div>
 
 <script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
-const W=800,H=600;
-const $=id=>document.getElementById(id);
-const levels=[
- {name:"Desert",sky:"#f5d28b",ground:"#e7b96f",accent:"#a96c43",emoji:"🌵"},
- {name:"Forest",sky:"#b8e4a4",ground:"#75bd7d",accent:"#387b52",emoji:"🌲"},
- {name:"Rainforest",sky:"#9de0b9",ground:"#348e70",accent:"#22624f",emoji:"🌴"},
- {name:"Beach",sky:"#a7e8f4",ground:"#f6dc9b",accent:"#e5a86e",emoji:"🏖️"},
- {name:"Arctic",sky:"#c9efff",ground:"#e8f7ff",accent:"#7fb9d9",emoji:"❄️"},
- {name:"Volcano Boss",sky:"#49364e",ground:"#6a4650",accent:"#f17b48",emoji:"🌋"}
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}
+addEventListener("resize",resize);resize();
+
+const worlds=[
+ {name:"DESERT",emoji:"🏜️",sky:"#f3b66b",floor:"#b87943",wall:"#d99b5d"},
+ {name:"FOREST",emoji:"🌲",sky:"#a8d77e",floor:"#427e45",wall:"#326044"},
+ {name:"RAINFOREST",emoji:"🌴",sky:"#66c8a0",floor:"#23684e",wall:"#174d3c"},
+ {name:"BEACH",emoji:"🏖️",sky:"#70d8ed",floor:"#e6c77a",wall:"#c6a55d"},
+ {name:"ARCTIC",emoji:"❄️",sky:"#a9dafa",floor:"#d8f3f5",wall:"#8ab8d5"},
+ {name:"VOLCANO",emoji:"🌋",sky:"#5d2438",floor:"#412633",wall:"#8c3d35"}
 ];
-let levelIndex=0,player={},coins=0,geckosCollected=0,health=100;
-let enemies=[],mapCoins=[],golden=null,power="basic",charges={thunder:0,ice:0,fire:0};
-let running=false,paused=false,ended=false,shopOpen=false,keys={};
-let attackFlash=0,damageFlash=0,attackCooldown=0,playerHurt=0,lastTime=0;
-let messageTimer=0;
+let running=false,paused=false,raf=0,last=0,frame=0;
+let level=1,totalCoins=0,levelCoins=0,health=100,score=0;
+let player={x:0,z:0};
+let geckos=[],coins=[],effects=[];
+let attackPower=15,attackRange=7,freezePower=0;
+let attackFlash=0,invulnerable=0,spawnTimer=0,coinTimer=0;
+const arena=24;
+const FOV=420;
 
-function say(s){$("message").textContent=s;messageTimer=240;}
-function updateStats(){
- $("health").textContent=health+" / 100";
- $("coins").textContent=coins;
- $("geckos").textContent=geckosCollected;
- $("level").textContent=(levelIndex+1)+" / 6";
- $("place").textContent=levels[levelIndex].name;
- $("power").textContent=power==="basic"?"Basic":power[0].toUpperCase()+power.slice(1)+" ("+charges[power]+")";
- $("shopCoins").textContent=coins;
- $("nextButton").disabled=coins<100;
- $("nextButton").textContent=coins>=100?(levelIndex===5?"🏆 ENTER VOLCANO BOSS":"➡️ NEXT LEVEL · 100 COINS"):"🔒 NEXT LEVEL · 100 COINS";
-}
-
-function spawnLevel(){
- enemies=[];mapCoins=[];golden=null;
- player={x:100,y:300};
- let count=levelIndex===5?1:7;
- for(let i=0;i<count;i++){
-  let isRed=Math.random()<.3;
-  let isGold=Math.random()<1/30;
-  let type=isGold?"gold":(isRed?"red":"green");
-  let x=180+Math.random()*560,y=100+Math.random()*400;
-  enemies.push({x,y,type,hp:isGold?1:(isRed?50:30),max:isGold?1:(isRed?50:30),alive:true,dir:Math.random()<.5?-1:1,boss:levelIndex===5});
- }
- if(levelIndex===5){
-  enemies[0]={x:590,y:290,type:"boss",hp:300,max:300,alive:true,dir:1,boss:true};
- }
- for(let i=0;i<12;i++){
-  mapCoins.push({x:65+Math.random()*670,y:75+Math.random()*450,taken:false,value:5});
- }
- // Gold gecko is a rare extra visitor, separate from enemies.
- if(Math.random()<1/30)golden={x:120+Math.random()*560,y:100+Math.random()*380};
- updateStats();draw();
-}
-function resetGame(){
- levelIndex=0;coins=0;geckosCollected=0;health=100;
- power="basic";charges={thunder:0,ice:0,fire:0};
- running=false;paused=false;ended=false;shopOpen=false;keys={};
- $("startScreen").classList.remove("hidden");
- $("pauseScreen").classList.add("hidden");
- $("shopScreen").classList.add("hidden");
- $("endScreen").classList.add("hidden");
- $("pauseButton").textContent="⏸ Pause Game";
- spawnLevel();say("Welcome to the desert! Find geckos and coins.");
+function currentWorld(){return worlds[(level-1)%worlds.length]}
+function hud(){
+ document.getElementById("level").textContent="LEVEL "+level;
+ document.getElementById("world").textContent=currentWorld().emoji+" "+currentWorld().name;
+ document.getElementById("coins").textContent="🪙 "+totalCoins;
+ document.getElementById("progress").textContent="🎯 "+levelCoins+" / 85";
+ document.getElementById("health").textContent="❤️ "+Math.max(0,Math.ceil(health));
 }
 function startGame(){
- running=true;paused=false;ended=false;
- $("startScreen").classList.add("hidden");
- say("Your GECKOMON adventure begins!");
- lastTime=performance.now();requestAnimationFrame(loop);
+ level=1;totalCoins=0;levelCoins=0;health=100;score=0;
+ attackPower=15;attackRange=7;freezePower=0;
+ player={x:0,z:0};geckos=[];coins=[];effects=[];
+ spawnTimer=0;coinTimer=0;invulnerable=0;
+ for(let i=0;i<5;i++)spawnCoin();
+ for(let i=0;i<3;i++)spawnGecko();
+ running=true;paused=false;
+ document.getElementById("overlay").classList.add("hidden");
+ hud();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
+function resetGame(){startGame()}
 function pauseGame(){
- if(!running||ended||shopOpen)return;
- paused=!paused;keys={};
- $("pauseScreen").classList.toggle("hidden",!paused);
- $("pauseButton").textContent=paused?"▶ Resume Game":"⏸ Pause Game";
- if(!paused){lastTime=performance.now();requestAnimationFrame(loop);}
+ if(!running)return;
+ running=false;paused=true;
+ showPanel("GAME PAUSED","Your adventure is safe. Take a break and come back when you're ready.","RESUME",resumeGame);
 }
-function finish(title,desc,emoji){
- running=false;ended=true;keys={};
- $("endTitle").textContent=title;$("endText").textContent=desc;
- $("endMascot").textContent=emoji;$("endScreen").classList.remove("hidden");
+function resumeGame(){
+ paused=false;running=true;
+ document.getElementById("overlay").classList.add("hidden");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function togglePause(){
+ if(paused){resumeGame();return}
+ if(running)pauseGame();
+}
+function showPanel(title,msg,button,callback){
+ document.getElementById("panel").innerHTML=
+ `<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
+ document.getElementById("panelBtn").onclick=callback;
+ document.getElementById("overlay").classList.remove("hidden");
 }
 function openShop(){
- if(!running||paused||ended)return;
- shopOpen=true;keys={};$("shopCoins").textContent=coins;
- $("shopMessage").textContent="Choose your power! Each purchase gives you 3 uses.";
- $("shopScreen").classList.remove("hidden");
+ if(!running&&!paused)return;
+ const wasRunning=running;
+ running=false;paused=true;
+ document.getElementById("panel").innerHTML=`
+ <h1>🛒 GECKOMON SHOP</h1>
+ <p>You have <b>${totalCoins} coins</b>. Spend coins on stronger attacks!</p>
+ <div class="shoprow"><span>⚡ LIGHTNING ZAP<br>30 damage • 50 coins</span><button onclick="buyPower('lightning')">BUY 50</button></div>
+ <div class="shoprow"><span>❄️ ICE BLAST<br>20 damage + freeze • 40 coins</span><button onclick="buyPower('ice')">BUY 40</button></div>
+ <div class="shoprow"><span>🔥 FIRE BURST<br>50 damage • 70 coins</span><button onclick="buyPower('fire')">BUY 70</button></div>
+ <div class="shoprow"><span>❤️ HEALTH BOOST<br>Restore 30 health • 35 coins</span><button onclick="buyPower('health')">BUY 35</button></div>
+ <div class="actions"><button onclick="closeShop()">BACK TO GAME</button></div>`;
+ document.getElementById("overlay").classList.remove("hidden");
 }
-function closeShop(){
- shopOpen=false;$("shopScreen").classList.add("hidden");
-}
-function buyPower(which){
- const costs={thunder:50,ice:40,fire:70};
- if(coins<costs[which]){
-  $("shopMessage").textContent="Not enough coins yet! Collect more coins around the map.";
+function buyPower(type){
+ const prices={lightning:50,ice:40,fire:70,health:35};
+ if(totalCoins<prices[type]){
+  alert("You need more coins!");
   return;
  }
- coins-=costs[which];charges[which]+=3;power=which;
- $("shopCoins").textContent=coins;updateStats();
- $("shopMessage").textContent="Awesome! You bought "+which+" power. You have "+charges[which]+" uses!";
+ totalCoins-=prices[type];
+ if(type==="lightning"){attackPower=30;freezePower=0}
+ if(type==="ice"){attackPower=20;freezePower=150}
+ if(type==="fire"){attackPower=50;freezePower=0}
+ if(type==="health")health=Math.min(100,health+30);
+ hud();openShop();
 }
-function nextLevel(){
- if(coins<100||!running||paused)return;
- coins-=100;
- if(levelIndex===5)return;
- levelIndex++;
- health=100;geckosCollected=0;
- spawnLevel();
- say("Welcome to the "+levels[levelIndex].name+"! A brand-new adventure begins.");
- updateStats();
+function closeShop(){document.getElementById("overlay").classList.add("hidden");resumeGame()}
+
+const keys={};
+addEventListener("keydown",e=>{
+ let k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k===" "&&!e.repeat)attack();
+ if(k==="escape"&&!e.repeat)togglePause();
+});
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false);if(running)pauseGame()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
+
+function randomSpot(min=5,max=arena-3){
+ let a=Math.random()*Math.PI*2,d=min+Math.random()*(max-min);
+ return {x:Math.cos(a)*d,z:Math.sin(a)*d};
+}
+function spawnGecko(){
+ if(geckos.length>=12)return;
+ let pos=randomSpot(10,arena-3);
+ let roll=Math.random()*30;
+ let type=roll<1?"gold":roll<8?"red":"green";
+ let hp=type==="gold"?30:type==="red"?40+level*9:20+level*5;
+ geckos.push({x:pos.x,z:pos.z,hp,maxHp:hp,type,speed:(type==="red"?0.014:type==="gold"?0.012:0.018)+level*.001,stun:0,hit:0});
+}
+function spawnCoin(){
+ let pos=randomSpot(3,arena-3);
+ coins.push({x:pos.x,z:pos.z,spin:Math.random()*6.28});
+}
+function addCoins(amount){
+ totalCoins+=amount;levelCoins+=amount;score+=amount*10;
+ if(levelCoins>=85)advanceLevel();
+ hud();
+}
+function advanceLevel(){
+ level++;
+ levelCoins=0;
+ health=Math.min(100,health+20);
+ geckos=[];coins=[];effects=[];
+ for(let i=0;i<6;i++)spawnCoin();
+ for(let i=0;i<4;i++)spawnGecko();
+ showPanel("🎉 LEVEL "+level+" UNLOCKED!", "Amazing! You collected 85 coins. Welcome to the "+currentWorld().name+" world. The geckos are getting tougher!", "LET'S GO!",()=>{
+   document.getElementById("overlay").classList.add("hidden");
+   running=true;paused=false;last=performance.now();raf=requestAnimationFrame(loop);
+ });
+ running=false;paused=true;hud();
 }
 function attack(){
- if(!running||paused||ended||shopOpen||attackCooldown>0)return;
- let damage=10;
- if(power!=="basic"&&charges[power]>0){
-  damage={thunder:30,ice:20,fire:50}[power];
-  charges[power]--;
-  say("✨ "+power.toUpperCase()+" POWER ATTACK!");
- }else if(power!=="basic"){
-  power="basic";say("Your special power ran out! Back to basic attacks.");
- }
- attackCooldown=22;attackFlash=12;
- let target=enemies.filter(e=>e.alive).sort((a,b)=>dist(player,a)-dist(player,b))[0];
- if(target&&dist(player,target)<105){
-  target.hp-=damage;
+ if(!running)return;
+ attackFlash=14;
+ let target=null,best=attackRange;
+ geckos.forEach(g=>{
+  let d=Math.hypot(g.x-player.x,g.z-player.z);
+  if(d<best){best=d;target=g}
+ });
+ if(target){
+  target.hp-=attackPower;
+  target.hit=10;
+  if(freezePower>0)target.stun=freezePower;
+  effects.push({x:target.x,z:target.z,life:20,color:attackPower>=50?"#ff743e":freezePower?"#9beaff":"#ffe86a"});
   if(target.hp<=0){
-   target.alive=false;
-   if(target.type==="boss"){
-    coins+=100;geckosCollected++;
-    updateStats();
-    finish("VOLCANO CHAMPION! 🏆","You defeated the Volcano Boss and completed all six GECKOMON worlds!","🌋🏆");
-    return;
-   }
-   geckosCollected++;
-   let reward=target.type==="red"?10:1;
-   coins+=reward;
-   say("You collected a gecko! +"+reward+" coins!");
-   updateStats();
-  }else say("Great hit! "+target.hp+" health left.");
- }else say("No gecko close enough! Move closer to attack.");
-}
-function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
-function takeDamage(amount){
- if(playerHurt>0)return;
- health=Math.max(0,health-amount);playerHurt=65;damageFlash=10;
- updateStats();
- if(health<=0){
-  geckosCollected=0;
-  health=100;
-  spawnLevel();
-  say("Oh no! You ran out of health. Your geckos from this level reset, but your coins and upgrades are safe. Try again!");
-  updateStats();
- }
-}
-function interact(){
- if(!running||paused||ended||shopOpen)return;
- if(golden&&dist(player,golden)<55){
-  golden=null;health=100;
-  say("🌟 GOLDEN GECKO! Your health is completely refilled!");
-  updateStats();
- }else say("Look around for coins and geckos. Visit the shop for special powers!");
-}
-function collectCoins(){
- for(const c of mapCoins){
-  if(!c.taken&&dist(player,c)<25){
-   c.taken=true;coins+=c.value;
-   say("🪙 +"+c.value+" coins!");
-   updateStats();
+   let reward=target.type==="red"?10:target.type==="gold"?5:1;
+   if(target.type==="gold")health=Math.min(100,health+35);
+   addCoins(reward);
+   geckos=geckos.filter(g=>g!==target);
+   effects.push({x:target.x,z:target.z,life:35,color:target.type==="gold"?"#ffe36b":"#8dff9b"});
   }
  }
+ hud();
 }
 function update(dt){
- let dx=0,dy=0;
- if(keys.w)dy--;if(keys.s)dy++;if(keys.a)dx--;if(keys.d)dx++;
- if(dx&&dy){dx*=.707;dy*=.707;}
- player.x=Math.max(22,Math.min(W-22,player.x+dx*3.2*dt));
- player.y=Math.max(55,Math.min(H-25,player.y+dy*3.2*dt));
- collectCoins();
- enemies.forEach(e=>{
-  if(!e.alive)return;
-  if(e.type==="boss"){
-   e.x+=e.dir*.65*dt;
-   if(e.x>690||e.x<510)e.dir*=-1;
-  }else{
-   e.x+=e.dir*.7*dt;
-   if(e.x>760||e.x<100)e.dir*=-1;
-   e.y+=Math.sin(performance.now()/500+e.x)*.12*dt;
+ frame++;
+ const forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
+ const side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
+ const speed=.105*dt;
+ player.z-=forward*speed;
+ player.x+=side*speed;
+ player.x=Math.max(-arena+2,Math.min(arena-2,player.x));
+ player.z=Math.max(-arena+2,Math.min(arena-2,player.z));
+
+ spawnTimer+=dt;coinTimer+=dt;
+ if(spawnTimer>Math.max(35,105-level*4)){spawnGecko();spawnTimer=0}
+ if(coinTimer>95){spawnCoin();coinTimer=0}
+ invulnerable=Math.max(0,invulnerable-dt);
+ attackFlash=Math.max(0,attackFlash-dt);
+
+ geckos.forEach(g=>{
+  if(g.stun>0){g.stun-=dt;return}
+  let dx=player.x-g.x,dz=player.z-g.z,d=Math.hypot(dx,dz)||1;
+  g.x+=dx/d*g.speed*dt;
+  g.z+=dz/d*g.speed*dt;
+  if(d<1.35&&invulnerable<=0){
+   health-=Math.max(3,level*.55);
+   invulnerable=45;
+   g.x-=dx/d*1.5;g.z-=dz/d*1.5;
+   effects.push({x:player.x,z:player.z,life:16,color:"#ff6969"});
+   if(health<=0){health=0;hud();loseGame();return}
   }
-  let contact=dist(player,e)<32;
-  if(contact)takeDamage(e.type==="boss"?15:5);
  });
- if(attackCooldown>0)attackCooldown-=dt;
- if(attackFlash>0)attackFlash-=dt;
- if(playerHurt>0)playerHurt-=dt;
- if(damageFlash>0)damageFlash-=dt;
- if(messageTimer>0)messageTimer-=dt;
+ coins.forEach(c=>{
+  c.spin+=.08*dt;
+  if(Math.hypot(c.x-player.x,c.z-player.z)<1.25){
+   c.taken=true;addCoins(1);
+  }
+ });
+ coins=coins.filter(c=>!c.taken);
+ effects.forEach(e=>e.life-=dt);
+ effects=effects.filter(e=>e.life>0);
+ hud();
 }
-function rounded(x,y,w,h,r,color){
- ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+function loseGame(){
+ running=false;paused=true;
+ showPanel("OH NO! GECKO ATTACK!","Your health ran out! Reset and try again. Your best adventure starts with a fresh run.","PLAY AGAIN",startGame);
+}
+
+// Convert world coordinates into first-person screen coordinates.
+function project(x,z,height=0){
+ const dx=x-player.x,dz=z-player.z;
+ const depth=dz;
+ const side=dx;
+ if(depth<.25)return null;
+ const scale=FOV/depth;
+ return {x:W/2+side*scale,y:H*.47-(height-1.5)*scale,scale,depth};
 }
 function drawBackground(){
- const l=levels[levelIndex];
- ctx.fillStyle=l.sky;ctx.fillRect(0,0,W,H);
- ctx.fillStyle=l.ground;ctx.fillRect(0,55,W,H-55);
- // decorative world details
- for(let i=0;i<16;i++){
-  let x=(i*173+35)%W,y=(i*103+105)%H;
-  if(levelIndex===0){ctx.fillStyle="#b67b4e";ctx.fillRect(x,y,8,35);ctx.fillRect(x-12,y+8,32,7);}
-  else if(levelIndex===1||levelIndex===2){
-   ctx.fillStyle="#42875d";ctx.fillRect(x,y,9,30);
-   ctx.fillStyle="#62a96d";ctx.beginPath();ctx.arc(x+4,y,20,0,Math.PI*2);ctx.fill();
-  }else if(levelIndex===3){
-   ctx.fillStyle="#fff5d5";ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.fill();
-  }else if(levelIndex===4){
-   ctx.fillStyle="#fff";ctx.beginPath();ctx.moveTo(x,y+20);ctx.lineTo(x+15,y-15);ctx.lineTo(x+30,y+20);ctx.fill();
-  }else{
-   ctx.fillStyle="#ed754b";ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.fill();
-  }
+ let w=currentWorld();
+ let sky=ctx.createLinearGradient(0,0,0,H*.58);
+ sky.addColorStop(0,w.sky);sky.addColorStop(1,"#d5e4b9");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H*.58);
+ ctx.fillStyle=w.floor;ctx.fillRect(0,H*.47,W,H*.53);
+ // Perspective floor grid
+ ctx.strokeStyle="#ffffff30";ctx.lineWidth=1;
+ for(let z=2;z<30;z+=2){
+  let y=H*.47+(1.5*FOV/z);
+  if(y<H){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
  }
- rounded(12,10,280,37,12,"#ffffffdd");
- ctx.fillStyle="#58426f";ctx.font="bold 19px Fredoka";
- ctx.fillText(levels[levelIndex].emoji+" "+levels[levelIndex].name,25,36);
- rounded(645,10,142,37,12,"#ffffffdd");
- ctx.fillStyle="#58426f";ctx.font="bold 17px Fredoka";
- ctx.fillText("🛍️ SHOP",676,36);
- ctx.font="bold 14px Fredoka";ctx.fillText("Click shop button ↗",655,64);
-}
-function drawCoins(){
- mapCoins.forEach(c=>{
-  if(c.taken)return;
-  ctx.fillStyle="#ffe05e";ctx.beginPath();ctx.arc(c.x,c.y,11,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle="#c9942d";ctx.lineWidth=3;ctx.stroke();
-  ctx.fillStyle="#986d22";ctx.font="bold 12px Fredoka";ctx.fillText("$",c.x-4,c.y+4);
- });
-}
-function drawGecko(e){
- if(!e.alive)return;
- const colors={green:"#9be36d",red:"#ff6c78",boss:"#a86bce"};
- const c=colors[e.type]||"#9be36d";
- ctx.save();ctx.translate(e.x,e.y);
- // tail
- ctx.strokeStyle=c;ctx.lineWidth=e.type==="boss"?15:9;
- ctx.lineCap="round";ctx.beginPath();ctx.moveTo(-14,4);ctx.quadraticCurveTo(-35,18,-42,2);ctx.stroke();
- // body and head
- ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(0,4,e.type==="boss"?30:19,e.type==="boss"?22:14,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.arc(14,-8,e.type==="boss"?17:12,0,Math.PI*2);ctx.fill();
- // feet
- for(let i=-1;i<=1;i+=2){
-  ctx.beginPath();ctx.arc(i*13,16,5,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(i*25,12,4,0,Math.PI*2);ctx.fill();
+ for(let x=-20;x<=20;x+=2){
+  let a=project(x,-2),b=project(x,30);
+  if(a&&b){ctx.beginPath();ctx.moveTo(a.x,a.y+1.5*a.scale);ctx.lineTo(b.x,b.y+1.5*b.scale);ctx.stroke()}
  }
- ctx.fillStyle="white";ctx.beginPath();ctx.arc(17,-11,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#333";ctx.beginPath();ctx.arc(18,-11,2,0,Math.PI*2);ctx.fill();
- ctx.restore();
- // health bar
- let bw=e.type==="boss"?65:40;
- rounded(e.x-bw/2,e.y-38,bw,7,4,"#ffffff");
- rounded(e.x-bw/2,e.y-38,bw*Math.max(0,e.hp/e.max),7,4,"#ef6580");
- if(e.type==="red")label("RED",e.x-13,e.y-45);
- if(e.type==="boss")label("BOSS",e.x-20,e.y-49);
-}
-function label(s,x,y){ctx.font="bold 12px Fredoka";ctx.fillStyle="#49385e";ctx.fillText(s,x,y);}
-function drawGolden(){
- if(!golden)return;
- ctx.save();ctx.translate(golden.x,golden.y);
- ctx.fillStyle="#ffe45b";ctx.beginPath();ctx.ellipse(0,0,22,16,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.arc(16,-9,12,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#e6b638";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-17,3);ctx.lineTo(-35,-8);ctx.stroke();
- ctx.fillStyle="white";ctx.beginPath();ctx.arc(19,-12,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#46344d";ctx.beginPath();ctx.arc(20,-12,2,0,Math.PI*2);ctx.fill();
- ctx.restore();
- label("GOLDEN! E",golden.x-30,golden.y-28);
-}
-function drawPlayer(){
- let x=player.x,y=player.y;
- if(damageFlash>0)ctx.globalAlpha=.45;
- // stick figure
- ctx.strokeStyle="#48385f";ctx.lineWidth=7;ctx.lineCap="round";
- ctx.beginPath();ctx.arc(x,y-24,12,0,Math.PI*2);ctx.stroke();
- ctx.beginPath();ctx.moveTo(x,y-12);ctx.lineTo(x,y+17);
- ctx.moveTo(x,y-2);ctx.lineTo(x-17,y+8);
- ctx.moveTo(x,y-2);ctx.lineTo(x+17,y+8);
- ctx.moveTo(x,y+17);ctx.lineTo(x-13,y+34);
- ctx.moveTo(x,y+17);ctx.lineTo(x+13,y+34);ctx.stroke();
+ // Far-away scenery silhouettes
+ for(let i=0;i<12;i++){
+  let x=(i*190+frame*.15)% (W+120)-60;
+  let h=35+(i*37%75);
+  ctx.fillStyle=w.wall;
+  ctx.globalAlpha=.65;
+  ctx.fillRect(x,H*.47-h,55,h);
+ }
  ctx.globalAlpha=1;
- if(attackFlash>0){
-  ctx.strokeStyle=power==="fire"?"#ff704b":power==="ice"?"#6edbff":power==="thunder"?"#ffe45b":"#fff";
-  ctx.lineWidth=6;ctx.beginPath();ctx.arc(x,y,75,-.8,.8);ctx.stroke();
+ // Arena boundary
+ ctx.strokeStyle="#ffffff88";ctx.lineWidth=4;
+ ctx.strokeRect(W*.08,H*.52,W*.84,H*.44);
+}
+function drawCoin(c){
+ let p=project(c.x,c.z,.35);
+ if(!p||p.depth>35)return;
+ let r=Math.max(2,Math.min(25,p.scale*.18));
+ ctx.fillStyle="#ffe36b";ctx.beginPath();ctx.ellipse(p.x,p.y,r*.8,r,Math.sin(c.spin)*.4,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle="#fff5b2";ctx.lineWidth=2;ctx.stroke();
+}
+function drawGecko(g){
+ let p=project(g.x,g.z,.3);
+ if(!p||p.depth>35)return;
+ let s=Math.max(.12,Math.min(3,p.scale/100));
+ let body=g.type==="gold"?"#ffd84c":g.type==="red"?"#ff5c62":"#72ec80";
+ let width=30*s,height=22*s;
+ ctx.save();
+ ctx.translate(p.x,p.y);
+ // shadow
+ ctx.fillStyle="#17251e88";ctx.beginPath();ctx.ellipse(0,8*s,19*s,5*s,0,0,Math.PI*2);ctx.fill();
+ // tail
+ ctx.strokeStyle=body;ctx.lineWidth=6*s;ctx.lineCap="round";
+ ctx.beginPath();ctx.moveTo(-width*.3,0);ctx.quadraticCurveTo(-width*.9,-height*.5,-width*1.15,2*s);ctx.stroke();
+ // legs
+ ctx.strokeStyle=body;ctx.lineWidth=5*s;
+ for(let i=0;i<2;i++){
+  let yy=(i===0?-1:1)*7*s;
+  ctx.beginPath();ctx.moveTo(-7*s,yy);ctx.lineTo(-14*s,yy+5*s);ctx.moveTo(7*s,yy);ctx.lineTo(14*s,yy+5*s);ctx.stroke();
  }
+ // body and head
+ ctx.fillStyle=body;ctx.beginPath();ctx.ellipse(0,0,16*s,10*s,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(12*s,-4*s,9*s,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#17231d";
+ ctx.beginPath();ctx.arc(15*s,-7*s,2.5*s,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(9*s,-7*s,2.5*s,0,Math.PI*2);ctx.fill();
+ if(g.type==="gold"){
+  ctx.fillStyle="#fff2a0";ctx.font=`bold ${Math.max(8,10*s)}px Arial`;ctx.textAlign="center";ctx.fillText("★",0,-20*s);
+ }
+ if(g.hit>0){ctx.strokeStyle="#fff";ctx.lineWidth=2*s;ctx.strokeRect(-18*s,-15*s,38*s,29*s);g.hit--}
+ // health bar
+ ctx.fillStyle="#292929";ctx.fillRect(-17*s,-24*s,36*s,4*s);
+ ctx.fillStyle="#83ff8b";ctx.fillRect(-17*s,-24*s,36*s*Math.max(0,g.hp/g.maxHp),4*s);
+ ctx.restore();
 }
 function draw(){
- drawBackground();drawCoins();
- enemies.forEach(drawGecko);drawGolden();drawPlayer();
- // health bar at top
- rounded(315,12,200,22,9,"#ffffffcc");
- rounded(320,17,190,12,6,"#e8c7d8");
- rounded(320,17,190*health/100,12,6,"#ff779b");
- ctx.fillStyle="#49385e";ctx.font="bold 13px Fredoka";ctx.fillText("❤️ "+health,385,29);
- if(damageFlash>0){ctx.fillStyle="#ff4d6650";ctx.fillRect(0,0,W,H);}
+ ctx.clearRect(0,0,W,H);
+ drawBackground();
+ const things=[];
+ coins.forEach(c=>things.push({depth:c.z-player.z,type:"coin",obj:c}));
+ geckos.forEach(g=>things.push({depth:g.z-player.z,type:"gecko",obj:g}));
+ things.sort((a,b)=>b.depth-a.depth);
+ things.forEach(t=>{if(t.type==="coin")drawCoin(t.obj);else drawGecko(t.obj)});
+ // First-person hands and attack effect
+ ctx.fillStyle="#e9a77b";
+ ctx.beginPath();ctx.ellipse(W/2-65,H-30,25,40,-.3,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.ellipse(W/2+65,H-30,25,40,.3,0,Math.PI*2);ctx.fill();
+ if(attackFlash>0){
+  ctx.strokeStyle=attackPower>=50?"#ff8748":freezePower>0?"#a7eeff":"#fff06c";
+  ctx.lineWidth=10;ctx.beginPath();
+  ctx.arc(W/2,H*.74,85,Math.PI*1.12,Math.PI*1.88);ctx.stroke();
+ }
+ if(invulnerable>0&&Math.floor(frame/5)%2===0){
+  ctx.fillStyle="#ff555522";ctx.fillRect(0,0,W,H);
+ }
+ // Aim marker
+ ctx.strokeStyle="#ffffffcc";ctx.lineWidth=2;
+ ctx.beginPath();ctx.moveTo(W/2-8,H*.48);ctx.lineTo(W/2+8,H*.48);ctx.moveTo(W/2,H*.48-8);ctx.lineTo(W/2,H*.48+8);ctx.stroke();
 }
-function loop(now){
- if(!running||paused||ended||shopOpen)return;
- let dt=Math.min((now-lastTime)/16.67,2);lastTime=now;
- update(dt);draw();requestAnimationFrame(loop);
+function loop(t){
+ if(!running)return;
+ let dt=Math.min(2,(t-last)/16.67||1);last=t;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
 }
-function keyDown(e){
- let k=e.key.toLowerCase();
- if(["w","a","s","d"," ","arrowup","arrowdown","arrowleft","arrowright"].includes(k))e.preventDefault();
- if(k==="p"&&!e.repeat){pauseGame();return}
- if(k==="r"&&!e.repeat){resetGame();return}
- if(["w","a","s","d"].includes(k))keys[k]=true;
- if(k===" "&&!e.repeat)attack();
- if(k==="e"&&!e.repeat)interact();
-}
-function keyUp(e){let k=e.key.toLowerCase();if(["w","a","s","d"].includes(k))keys[k]=false}
-function clearKeys(){keys={}}
-window.addEventListener("keydown",keyDown);
-window.addEventListener("keyup",keyUp);
-window.addEventListener("blur",clearKeys);
-document.addEventListener("visibilitychange",()=>{if(document.hidden)clearKeys()});
-canvas.addEventListener("mouseleave",clearKeys);
-canvas.addEventListener("click",e=>{
- const r=canvas.getBoundingClientRect();
- const x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
- if(x>640&&y<65)openShop();
-});
-$("playButton").onclick=startGame;
-$("pauseButton").onclick=pauseGame;
-$("resumeButton").onclick=pauseGame;
-$("restartButton").onclick=resetGame;
-$("againButton").onclick=resetGame;
-$("shopButton").onclick=openShop;
-$("closeShop").onclick=()=>{
- closeShop();
- if(running&&!paused){lastTime=performance.now();requestAnimationFrame(loop)}
-};
-$("nextButton").onclick=nextLevel;
-
-spawnLevel();draw();updateStats();
+draw();
 </script>
 </body>
 </html>
+
