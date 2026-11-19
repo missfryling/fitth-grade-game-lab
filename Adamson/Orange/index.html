@@ -3,511 +3,398 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>GECKOMON - Gecko Quest</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>GECKOMON: The Geckoverse</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101d32;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
+body{margin:0;background:#10172c;color:white;font-family:Fredoka,Arial;overflow:hidden}
 canvas{display:block;width:100vw;height:100vh}
-button{border:0;border-radius:12px;padding:10px 14px;background:#ffe06e;color:#302414;font-family:inherit;font-weight:800;cursor:pointer}
-button:hover{filter:brightness(1.12)}
-#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
-#hud>*{pointer-events:auto}
-.logo{font-family:Fredoka;font-size:23px;color:#baff8a;text-shadow:0 2px 10px #102b20}
-.stats{display:flex;gap:7px;flex-wrap:wrap}
-.stat{background:#13243bed;border:1px solid #7cbf9a;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800}
-#buttons{position:absolute;right:12px;bottom:53px;display:flex;flex-direction:column;gap:7px}
-#buttons button{background:#ffe06e}
-#controls{position:absolute;bottom:9px;left:50%;transform:translateX(-50%);background:#13243bed;border:1px solid #7cbf9a;border-radius:10px;padding:7px 12px;font-size:11px;color:#e5f5e8;white-space:nowrap}
-#message{position:absolute;top:65px;left:50%;transform:translateX(-50%);background:#13243bed;border:1px solid #ffe06e;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;text-align:center;max-width:90vw;pointer-events:none}
-#overlay{position:absolute;inset:0;background:#071525d9;display:flex;align-items:center;justify-content:center;padding:16px}
-.panel{width:min(510px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#315b46,#172b3e);border:2px solid #baff8a;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #8cff9a35}
-.panel h1{font-family:Fredoka;font-size:clamp(30px,5vw,44px);color:#c9ff9c;margin:0 0 8px}
-.panel p{line-height:1.5;color:#e5f5e8}
-.small{font-size:12px;color:#c5e1d0}
-.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
-.secondary{background:#c5a5ff}
+button{font:inherit;font-weight:700;border:0;border-radius:13px;padding:10px 15px;background:#ffdc6a;color:#49334d;cursor:pointer;box-shadow:0 4px 0 #bc9142}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #bc9142}
+button:disabled{opacity:.45;cursor:not-allowed}
+#hud{position:absolute;top:9px;left:9px;right:9px;display:flex;gap:7px;justify-content:space-between;flex-wrap:wrap;pointer-events:none}
+.pill{background:#14233cdd;border:1px solid #9de9b5;border-radius:18px;padding:7px 12px;font-weight:700;font-size:14px}
+#controls{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
+#overlay{position:absolute;inset:0;background:#080d20ed;display:flex;align-items:center;justify-content:center;padding:15px}
+#card{width:min(570px,96vw);max-height:92vh;overflow:auto;text-align:center;background:linear-gradient(145deg,#243d52,#17233c);border:3px solid #9de9b5;border-radius:24px;padding:22px;box-shadow:0 0 32px #6df4ad55}
+h1{font-size:clamp(28px,6vw,44px);color:#aaffc5;margin:5px 0}
+h2{margin:7px 0}
+p{line-height:1.4}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.grid button{min-height:53px}
+.small{font-size:13px;color:#c8e4dc}
 .hidden{display:none!important}
+#notice{position:absolute;top:65px;left:50%;transform:translateX(-50%);background:#fff0a9;color:#49334d;padding:8px 15px;border-radius:15px;font-weight:700;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
-
 <div id="hud">
- <div class="logo">🦎 GECKOMON</div>
- <div class="stats">
-  <div class="stat" id="level">🌎 WORLD 1</div>
-  <div class="stat" id="coins">🪙 0 COINS</div>
-  <div class="stat" id="progress">⭐ 0 / 85</div>
-  <div class="stat" id="health">❤️ 100</div>
-  <div class="stat" id="geckos">🦎 0 DEFEATED</div>
- </div>
- <button onclick="togglePause()">Ⅱ PAUSE</button>
+ <div class="pill" id="worldHud">🌎 Sunny Meadow</div>
+ <div class="pill" id="levelHud">LEVEL 1 / 6</div>
+ <div class="pill" id="coinHud">🪙 0 / 85</div>
+ <div class="pill" id="healthHud">❤️ 100</div>
+ <div class="pill" id="powerHud">✨ Dragon Blast</div>
 </div>
-
-<div id="message">Explore, collect coins, and catch those geckos!</div>
-
-<div id="buttons">
- <button onclick="attack()">⚡ GECKO BLAST (SPACE)</button>
- <button onclick="usePower()">✨ USE POWER (X)</button>
- <button onclick="resetGame()">↻ RESET</button>
+<div id="notice"></div>
+<div id="controls">
+ <button onclick="openShop()">🛍️ SHOP</button>
+ <button onclick="usePower()">💥 Use Power (X)</button>
+ <button onclick="togglePause()">Ⅱ Pause</button>
+ <button onclick="restartGame()">↻ Reset</button>
+ <button onclick="location.href='../../index.html'">⌂ Game Lab</button>
 </div>
-
-<div id="controls">MOVE: WASD / ARROWS &nbsp; • &nbsp; ATTACK: SPACE &nbsp; • &nbsp; POWER: X &nbsp; • &nbsp; ESC: PAUSE</div>
-
 <div id="overlay">
- <div class="panel" id="panel">
-  <h1>🦎 GECKOMON!</h1>
-  <p>Welcome to Gecko Quest! Explore colorful worlds, collect coins, discover different geckos, and battle the geckos that chase you.</p>
-  <p>🟢 Green geckos are common. 🔴 Red geckos are tougher. ✨ Golden lizards are VERY rare and worth extra coins!</p>
-  <p>Collect 85 coins to unlock the next world. There is no maximum coin total—keep collecting!</p>
-  <p class="small">Move with WASD or arrow keys. Press SPACE to blast nearby geckos. Press X to use a power-up.</p>
-  <div class="actions"><button onclick="startGame()">START GECKO QUEST!</button></div>
+ <div id="card">
+  <h1>🦎 GECKOMON</h1>
+  <h2>THE GECKOVERSE</h2>
+  <p>Explore six amazing worlds, collect coins, battle geckos, and become the ultimate Geckomon champion!</p>
+  <div class="grid">
+   <button onclick="startGame()">🚀 START ADVENTURE</button>
+   <button onclick="openShop()">🛍️ VISIT SHOP</button>
+  </div>
+  <p class="small">Move with WASD or arrow keys. Press SPACE to attack. Press X to use your equipped power. Collect 85 coins to unlock the next world!</p>
  </div>
 </div>
-
 <script>
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-let W=innerWidth,H=innerHeight;
-function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;draw()}
-addEventListener("resize",resize);
-
-const keys={};
-addEventListener("keydown",e=>{
- const k=e.key.toLowerCase();
- if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
- keys[k]=true;
- if(k===" "&&!e.repeat)attack();
- if(k==="x"&&!e.repeat)usePower();
- if(k==="escape"&&!e.repeat)togglePause();
-});
-addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
-function clearKeys(){Object.keys(keys).forEach(k=>keys[k]=false)}
-addEventListener("blur",()=>{clearKeys();if(running)pauseGame()});
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ dpr=Math.min(devicePixelRatio||1,2);
+ W=innerWidth;H=innerHeight;
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);draw();
+}
+addEventListener('resize',resize);
 
 const worlds=[
- {name:"SUNNY MEADOW",sky:"#a3e6c1",floor:"#4dba83",dark:"#26845d"},
- {name:"MYSTIC FOREST",sky:"#8bc8a5",floor:"#388c67",dark:"#205a48"},
- {name:"SANDY DESERT",sky:"#f2d18c",floor:"#d4a85f",dark:"#9b6b43"},
- {name:"FROZEN LAKE",sky:"#b9e5f1",floor:"#71b6c7",dark:"#397e9c"},
- {name:"LAVA LAND",sky:"#ed9b76",floor:"#965b51",dark:"#5d3544"},
- {name:"GECKO KINGDOM",sky:"#b5a0e9",floor:"#7664b5",dark:"#453b80"}
+ {name:'Sunny Meadow',bg:'#a9dca1',ground:'#6bb879',accent:'#fff2a1'},
+ {name:'Mystic Forest',bg:'#4e7c71',ground:'#28584d',accent:'#a4f2c3'},
+ {name:'Sandy Desert',bg:'#e6c17b',ground:'#c89552',accent:'#fff0ae'},
+ {name:'Frozen Lake',bg:'#9bd5e8',ground:'#5d9cb8',accent:'#e8ffff'},
+ {name:'Lava Land',bg:'#9e554b',ground:'#60353c',accent:'#ffb36c'},
+ {name:'Gecko Kingdom',bg:'#8a73c9',ground:'#51428e',accent:'#f5d5ff'}
 ];
 
-let running=false,paused=false,level=1;
-let player,geckos,coins,powerups,particles,decorations;
-let totalCoins=0,levelCoins=0,defeated=0,health=100;
-let cameraX=0,cameraY=0;
-let frame=0,last=0,raf=0;
-let attackCooldown=0,invulnerable=0,powerType="none",powerTime=0;
-let messageTimer=0,spawnTimer=0,coinTimer=0;
-let levelTransition=false;
-const WORLD_W=2300,WORLD_H=1500;
-const LEVEL_GOAL=85;
+let running=false,paused=false,level=1,player,geckos=[],coinsOnMap=[],powerups=[],particles=[];
+let totalCoins=0,levelCoins=0,health=100,attackPower=1;
+let shieldCharges=0,blastCharges=0,speedLevel=0,hasShield=false;
+let attackCooldown=0,damageCooldown=0,spawnClock=0,coinClock=0;
+let keys={},lastTime=0,raf=0,shopWasPaused=false;
+let equippedPower='Dragon Blast';
+let messageTimer=0;
 
-function say(msg){
- document.getElementById("message").textContent=msg;
- messageTimer=190;
+function say(t){
+ const n=document.getElementById('notice');
+ n.textContent=t;n.style.opacity=1;
+ clearTimeout(messageTimer);
+ messageTimer=setTimeout(()=>n.style.opacity=0,1700);
 }
+function panel(html){
+ document.getElementById('card').innerHTML=html;
+ document.getElementById('overlay').classList.remove('hidden');
+}
+function hidePanel(){document.getElementById('overlay').classList.add('hidden')}
 function updateHUD(){
- document.getElementById("level").textContent="🌎 WORLD "+level+": "+worlds[level-1].name;
- document.getElementById("coins").textContent="🪙 "+totalCoins+" COINS";
- document.getElementById("progress").textContent="⭐ "+levelCoins+" / "+LEVEL_GOAL;
- document.getElementById("health").textContent="❤️ "+Math.max(0,Math.ceil(health));
- document.getElementById("geckos").textContent="🦎 "+defeated+" DEFEATED";
+ document.getElementById('worldHud').textContent='🌎 '+worlds[level-1].name;
+ document.getElementById('levelHud').textContent='LEVEL '+level+' / 6';
+ document.getElementById('coinHud').textContent='🪙 '+levelCoins+' / 85  (Total '+totalCoins+')';
+ document.getElementById('healthHud').textContent='❤️ '+health;
+ document.getElementById('powerHud').textContent='✨ '+equippedPower;
 }
-function startGame(){
- level=1;totalCoins=0;levelCoins=0;defeated=0;health=100;
- powerType="none";powerTime=0;levelTransition=false;
- buildWorld();
- running=true;paused=false;
- document.getElementById("overlay").classList.add("hidden");
- say("Welcome to Gecko Quest! The geckos are coming!");
- updateHUD();last=performance.now();
- cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
-}
-function resetGame(){startGame()}
-function buildWorld(){
- player={x:WORLD_W/2,y:WORLD_H/2,r:19,speed:3.5};
- geckos=[];coins=[];powerups=[];particles=[];decorations=[];
- cameraX=0;cameraY=0;
- spawnTimer=0;coinTimer=0;
- // Scatter trees, rocks, plants, and world decorations.
- for(let i=0;i<90;i++){
-  decorations.push({
-   x:50+Math.random()*(WORLD_W-100),
-   y:50+Math.random()*(WORLD_H-100),
-   type:i%4
-  });
- }
- // A few geckos start nearby.
- for(let i=0;i<4+level;i++)spawnGecko();
- // Coins are placed around the map at the beginning.
- for(let i=0;i<22;i++)spawnCoin();
- // Power-ups.
- for(let i=0;i<7;i++)spawnPowerup();
- updateHUD();
-}
-function randomPosition(){
+function randomSpot(minDistance=0){
  let x,y,tries=0;
  do{
-  x=70+Math.random()*(WORLD_W-140);
-  y=70+Math.random()*(WORLD_H-140);
+  x=50+Math.random()*(W-100);
+  y=110+Math.random()*(H-210);
   tries++;
- }while(Math.hypot(x-player.x,y-player.y)<230&&tries<20);
- return {x,y};
+ }while(player&&Math.hypot(x-player.x,y-player.y)<minDistance&&tries<30);
+ return{x,y};
 }
+function startGame(){
+ level=1;totalCoins=0;levelCoins=0;
+ health=100;attackPower=1;shieldCharges=0;blastCharges=0;speedLevel=0;hasShield=false;
+ equippedPower='Dragon Blast';
+ beginWorld();
+}
+function beginWorld(){
+ running=true;paused=false;
+ player={x:W/2,y:H*.7,r:17,speed:3.1+speedLevel*.35};
+ geckos=[];coinsOnMap=[];powerups=[];particles=[];
+ spawnClock=0;coinClock=0;attackCooldown=0;damageCooldown=0;
+ for(let i=0;i<7;i++)spawnGecko();
+ for(let i=0;i<18;i++)spawnCoin();
+ hidePanel();updateHUD();
+ cancelAnimationFrame(raf);lastTime=performance.now();
+ raf=requestAnimationFrame(loop);
+}
+function restartGame(){startGame()}
 function spawnGecko(){
- if(geckos.length>=14)return;
- const p=randomPosition();
- // Golden lizards are deliberately very rare.
- let roll=Math.random();
- let type=roll<0.018?"gold":roll<0.19?"red":"green";
- const stats=type==="gold"?{hp:5,speed:1.25,coins:5,size:25}:
- type==="red"?{hp:3,speed:1.05,coins:2,size:22}:
- {hp:2,speed:.85,coins:1,size:19};
+ if(geckos.length>=16||!player)return;
+ let p=randomSpot(210);
+ let r=Math.random();
+ let type=r<.018?'gold':r<.15?'red':'green';
  geckos.push({
-  x:p.x,y:p.y,type,hp:stats.hp,maxHp:stats.hp,
-  speed:stats.speed+level*.08,coins:stats.coins,
-  size:stats.size,flash:0,wobble:Math.random()*7
+  x:p.x,y:p.y,
+  r:type==='gold'?22:type==='red'?19:16,
+  type,
+  hp:type==='gold'?5:type==='red'?3:2,
+  maxHp:type==='gold'?5:type==='red'?3:2,
+  speed:(type==='gold'?.72:type==='red'?.85:.95)+level*.075,
+  wobble:Math.random()*8
  });
 }
 function spawnCoin(){
- if(coins.length>=45)return;
- const p=randomPosition();
- coins.push({x:p.x,y:p.y,taken:false,wobble:Math.random()*7});
+ if(coinsOnMap.length>=48||!player)return;
+ let p=randomSpot(90);
+ coinsOnMap.push({x:p.x,y:p.y,r:10,spin:Math.random()*6});
 }
 function spawnPowerup(){
- if(powerups.length>=10)return;
- const p=randomPosition();
- const type=Math.random()<.5?"shield":"blast";
- powerups.push({x:p.x,y:p.y,type,taken:false});
+ if(powerups.length>=3||!player)return;
+ let p=randomSpot(160);
+ powerups.push({x:p.x,y:p.y,type:Math.random()<.5?'shield':'blast',r:14});
 }
-function attack(){
- if(!running||paused||attackCooldown>0)return;
- attackCooldown=32;
- let hits=0;
- geckos.forEach(g=>{
-  const d=Math.hypot(g.x-player.x,g.y-player.y);
-  if(d<155){
-   g.hp-=1;
-   g.flash=12;
-   hits++;
-   for(let i=0;i<7;i++)particles.push({
-    x:g.x,y:g.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,
-    life:25,color:g.type==="gold"?"#ffe56b":"#aaff9c"
-   });
-   if(g.hp<=0){
-    defeated++;
-    totalCoins+=g.coins;
-    levelCoins+=g.coins;
-    say(g.type==="gold"?"✨ GOLDEN LIZARD DEFEATED! BONUS COINS!":"Gecko defeated! +"+g.coins+" coins!");
-    for(let i=0;i<12;i++)particles.push({
-     x:g.x,y:g.y,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,
-     life:35,color:"#ffe36a"
-    });
-   }
-  }
- });
- geckos=geckos.filter(g=>g.hp>0);
- if(hits===0)say("No gecko close enough! Let them come closer.");
- else if(hits>0&&geckos.length)say("GECKO BLAST! You hit "+hits+" gecko(s)!");
- checkLevelUp();
- updateHUD();
-}
-function usePower(){
- if(!running||paused)return;
- if(powerType==="none"){say("Find a glowing power-up first!");return}
- if(powerType==="shield"){
-  invulnerable=500;
-  say("🛡️ SHIELD ON! Geckos cannot hurt you for a while!");
- }else if(powerType==="blast"){
-  geckos.forEach(g=>g.hp-=2);
-  geckos.forEach(g=>{
-   if(g.hp<=0){defeated++;totalCoins+=g.coins;levelCoins+=g.coins}
-  });
-  geckos=geckos.filter(g=>g.hp>0);
-  say("💥 SUPER BLAST! All nearby geckos took damage!");
-  for(let i=0;i<35;i++)particles.push({
-   x:player.x,y:player.y,vx:(Math.random()-.5)*12,vy:(Math.random()-.5)*12,
-   life:35,color:"#c5a5ff"
-  });
-  checkLevelUp();
+function completeLevel(){
+ if(level>=6){
+  running=false;cancelAnimationFrame(raf);
+  panel('<h1>🏆 GECKOMON CHAMPION!</h1><p>You conquered all six worlds of the Geckoverse!</p><h2>🪙 Total coins: '+totalCoins+'</h2><p>You are the ultimate Geckomon master!</p><button onclick="startGame()">PLAY AGAIN</button> <button onclick="showHome()">HOME</button>');
+  return;
  }
- powerType="none";powerTime=0;updateHUD();
+ running=false;cancelAnimationFrame(raf);
+ panel('<h1>🌟 WORLD '+level+' COMPLETE!</h1><p>You collected 85 coins and cleared '+worlds[level-1].name+'!</p><h2>Next: '+worlds[level].name+'</h2><button onclick="level++;levelCoins=0;beginWorld()">ENTER NEXT WORLD</button> <button onclick="openShop()">SHOP FIRST</button>');
 }
-function collectCoins(){
- coins.forEach(c=>{
-  if(!c.taken&&Math.hypot(c.x-player.x,c.y-player.y)<31){
-   c.taken=true;totalCoins++;levelCoins++;
-   for(let i=0;i<5;i++)particles.push({
-    x:c.x,y:c.y,vx:(Math.random()-.5)*4,vy:-Math.random()*4,
-    life:22,color:"#ffe36a"
-   });
-   say("🪙 COIN COLLECTED! "+totalCoins+" total coins!");
-   checkLevelUp();updateHUD();
-  }
- });
- coins=coins.filter(c=>!c.taken);
+function showHome(){
+ running=false;paused=false;cancelAnimationFrame(raf);
+ panel('<h1>🦎 GECKOMON</h1><h2>THE GECKOVERSE</h2><p>Six worlds are waiting for you!</p><div class="grid"><button onclick="startGame()">START ADVENTURE</button><button onclick="openShop()">VISIT SHOP</button></div>');
 }
-function collectPowerups(){
- powerups.forEach(p=>{
-  if(!p.taken&&Math.hypot(p.x-player.x,p.y-player.y)<34){
-   p.taken=true;powerType=p.type;
-   say(p.type==="shield"?"🛡️ SHIELD FOUND! Press X to activate!":"💥 BLAST POWER FOUND! Press X to activate!");
-   updateHUD();
-  }
- });
- powerups=powerups.filter(p=>!p.taken);
-}
-function checkLevelUp(){
- if(levelCoins>=LEVEL_GOAL&&!levelTransition){
-  levelTransition=true;
-  running=false;paused=true;
-  showPanel("🌟 WORLD COMPLETE!",`You collected ${levelCoins} coins and defeated ${defeated} geckos! Your total coin collection is ${totalCoins}.`,level===6?"CHAMPION!":"NEXT WORLD",()=>{
-   if(level===6){
-    showPanel("🏆 GECKOMON CHAMPION!",`You explored all six worlds and collected ${totalCoins} coins! The Gecko Kingdom celebrates your victory!`,"PLAY AGAIN",startGame);
-    return;
-   }
-   level++;levelCoins=0;health=Math.min(100,health+30);
-   levelTransition=false;
-   buildWorld();running=true;paused=false;
-   document.getElementById("overlay").classList.add("hidden");
-   say("Welcome to "+worlds[level-1].name+"! Stronger geckos are waiting!");
-   last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
-  });
+function openShop(){
+ if(!running&&!player){
+  panel('<h1>🛍️ GECKOMON SHOP</h1><p>Start your adventure to collect coins and purchase upgrades!</p><button onclick="startGame()">START ADVENTURE</button> <button onclick="showHome()">BACK</button>');
+  return;
  }
+ shopWasPaused=paused;
+ paused=true;
+ const stock=[
+  ['⚡ Dragon Blast Upgrade','Increase attack damage by 1','attack',20],
+  ['❤️ Health Potion','Restore 35 health','health',12],
+  ['🛡️ Gecko Shield','Block the next gecko hit','shield',18],
+  ['💥 Mega Blast','Damage every gecko on screen','blast',25],
+  ['🥾 Speed Boots','Move faster permanently','speed',22]
+ ];
+ panel('<h1>🛍️ GECKOMON SHOP</h1><h2>🪙 Your coins: '+totalCoins+'</h2><p>Spend your coins on upgrades and special powers!</p><div class="grid">'+
+ stock.map(s=>'<button onclick="buyItem(\\''+s[2]+'\\','+s[3]+')">'+s[0]+'<br><small>'+s[1]+'</small><br>'+s[3]+' coins</button>').join('')+
+ '</div><p class="small">Current attack: '+attackPower+' · Shield charges: '+shieldCharges+' · Mega Blasts: '+blastCharges+' · Speed upgrades: '+speedLevel+'</p><button onclick="closeShop()">BACK TO GAME</button>');
 }
-function takeDamage(){
- if(invulnerable>0)return;
- health-=12;invulnerable=85;
- say("A gecko caught you! You lost 12 health!");
- player.x=Math.max(40,player.x-45);
- if(health<=0){
-  health=0;running=false;paused=true;
-  showPanel("OH NO! GECKO ATTACK!",`You defeated ${defeated} geckos and collected ${totalCoins} coins. Try again!`,"TRY AGAIN",startGame);
- }
- updateHUD();
+function buyItem(type,cost){
+ if(totalCoins<cost){say('Not enough coins! Collect more in the Geckoverse.');return}
+ totalCoins-=cost;
+ if(type==='attack'){attackPower++;equippedPower='Dragon Blast';say('Dragon Blast upgraded!')}
+ if(type==='health'){health=Math.min(100,health+35);say('Health restored!')}
+ if(type==='shield'){shieldCharges++;say('Gecko Shield added!')}
+ if(type==='blast'){blastCharges++;say('Mega Blast added!')}
+ if(type==='speed'){speedLevel++;if(player)player.speed+=.35;say('Speed Boots upgraded!')}
+ updateHUD();openShop();
 }
-function showPanel(title,msg,button,callback){
- document.getElementById("panel").innerHTML=
- `<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
- document.getElementById("panelBtn").onclick=callback;
- document.getElementById("overlay").classList.remove("hidden");
-}
-function pauseGame(){
- if(!running)return;
- running=false;paused=true;clearKeys();
- showPanel("GAME PAUSED","The geckos are taking a break. Your coins and progress are safe!","RESUME",resumeGame);
-}
-function resumeGame(){
- paused=false;running=true;
- document.getElementById("overlay").classList.add("hidden");
- last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+function closeShop(){
+ paused=shopWasPaused;
+ hidePanel();
+ if(!paused){lastTime=performance.now();raf=requestAnimationFrame(loop)}
 }
 function togglePause(){
- if(paused){resumeGame();return}
- if(running)pauseGame();
+ if(!running)return;
+ paused=!paused;
+ if(paused)panel('<h1>⏸ PAUSED</h1><p>The geckos are taking a break too!</p><button onclick="resumeGame()">RESUME</button> <button onclick="openShop()">VISIT SHOP</button> <button onclick="showHome()">HOME</button>');
+ else resumeGame();
 }
-function update(dt){
- frame++;
- if(messageTimer>0)messageTimer-=dt*60;
- if(attackCooldown>0)attackCooldown-=dt*60;
- if(invulnerable>0)invulnerable-=dt*60;
- if(powerTime>0)powerTime=Math.max(0,powerTime-dt);
- if(powerTime===0&&powerType!=="none")powerType="none";
-
- let dx=0,dy=0;
- if(keys.a||keys.arrowleft)dx--;
- if(keys.d||keys.arrowright)dx++;
- if(keys.w||keys.arrowup)dy--;
- if(keys.s||keys.arrowdown)dy++;
- if(dx&&dy){dx*=.707;dy*=.707}
- player.x+=dx*player.speed*dt*60;
- player.y+=dy*player.speed*dt*60;
- player.x=Math.max(30,Math.min(WORLD_W-30,player.x));
- player.y=Math.max(30,Math.min(WORLD_H-30,player.y));
-
- // Geckos follow the player and get faster in later worlds.
- geckos.forEach(g=>{
-  g.wobble+=dt*5;
-  if(g.flash>0)g.flash-=dt*60;
-  const vx=player.x-g.x,vy=player.y-g.y;
-  const d=Math.hypot(vx,vy)||1;
-  const speed=g.speed*(d>30?1:0);
-  g.x+=(vx/d)*speed*dt*60;
-  g.y+=(vy/d)*speed*dt*60;
-  if(d<g.size+player.r+2)takeDamage();
+function resumeGame(){paused=false;hidePanel();lastTime=performance.now();raf=requestAnimationFrame(loop)}
+function usePower(){
+ if(!running||paused)return;
+ if(equippedPower==='Dragon Blast'){
+  if(attackCooldown>0){say('Your Dragon Blast is recharging!');return}
+  attack();
+ }else if(equippedPower==='Mega Blast'){
+  if(blastCharges<=0){say('Buy a Mega Blast in the shop!');return}
+  blastCharges--;
+  geckos.forEach(g=>{g.hp-=3;particles.push({x:g.x,y:g.y,life:20,color:'#a6faff'})});
+  defeatGeckos();say('MEGA BLAST!');updateHUD();
+ }else if(equippedPower==='Gecko Shield'){
+  if(shieldCharges<=0){say('Buy a Gecko Shield in the shop!');return}
+  shieldCharges--;hasShield=true;say('Shield activated!');updateHUD();
+ }
+}
+function attack(){
+ if(attackCooldown>0)return;
+ attackCooldown=35;
+ let hit=geckos.filter(g=>Math.hypot(g.x-player.x,g.y-player.y)<155);
+ if(!hit.length){say('Move closer to a gecko to attack!');return}
+ hit.forEach(g=>{g.hp-=attackPower;particles.push({x:g.x,y:g.y,life:17,color:'#b7fff0'})});
+ defeatGeckos();say('DRAGON BLAST!');
+}
+function defeatGeckos(){
+ geckos=geckos.filter(g=>{
+  if(g.hp>0)return true;
+  let reward=g.type==='gold'?5:g.type==='red'?2:1;
+  totalCoins+=reward;levelCoins+=reward;
+  particles.push({x:g.x,y:g.y,life:25,color:'#ffe66b'});
+  return false;
  });
- collectCoins();
- collectPowerups();
-
- // Coins and geckos keep spawning throughout the adventure.
- spawnTimer+=dt;
- coinTimer+=dt;
- if(spawnTimer>Math.max(1.2,3.3-level*.25)){
-  spawnTimer=0;spawnGecko();
- }
- if(coinTimer>1.25){
-  coinTimer=0;
-  for(let i=0;i<2;i++)spawnCoin();
- }
- if(frame%500===0)spawnPowerup();
-
- particles.forEach(p=>{p.x+=p.vx*dt*60;p.y+=p.vy*dt*60;p.life-=dt*60});
- particles=particles.filter(p=>p.life>0);
-
- cameraX=Math.max(0,Math.min(WORLD_W-W,player.x-W/2));
- cameraY=Math.max(0,Math.min(WORLD_H-H,player.y-H/2));
+ if(levelCoins>=85)completeLevel();
  updateHUD();
 }
-function drawBackground(){
- const w=worlds[level-1];
- let grad=ctx.createLinearGradient(0,0,0,H);
- grad.addColorStop(0,w.sky);grad.addColorStop(1,w.floor);
- ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
- // Soft 3D-inspired ground tiles.
- for(let y=-80;y<H+100;y+=90){
-  for(let x=-80;x<W+100;x+=120){
-   const xx=x-(cameraX*.35)%120,yy=y-(cameraY*.35)%90;
-   ctx.fillStyle="rgba(255,255,255,.055)";
-   ctx.beginPath();ctx.moveTo(xx,yy+30);ctx.lineTo(xx+60,yy);ctx.lineTo(xx+120,yy+30);ctx.lineTo(xx+60,yy+60);ctx.closePath();ctx.fill();
-  }
+function takeDamage(){
+ if(damageCooldown>0)return;
+ if(hasShield){hasShield=false;say('Your shield protected you!');return}
+ damageCooldown=65;health-=12;
+ say('A gecko bumped you! -12 health');
+ if(health<=0){
+  health=100;levelCoins=Math.max(0,levelCoins-10);
+  player.x=W/2;player.y=H*.7;
+  geckos=[];for(let i=0;i<7;i++)spawnGecko();
+  say('Yumi rescued you! Restarting this world. -10 level coins');
  }
+ updateHUD();
 }
-function drawDecorations(){
- decorations.forEach(d=>{
-  const x=d.x-cameraX,y=d.y-cameraY;
-  if(x<-60||x>W+60||y<-60||y>H+60)return;
-  if(d.type===0){
-   ctx.fillStyle="#79563b";ctx.fillRect(x-5,y-2,10,25);
-   ctx.fillStyle=worlds[level-1].dark;
-   ctx.beginPath();ctx.arc(x,y-9,22,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="rgba(255,255,255,.12)";
-   ctx.beginPath();ctx.arc(x-7,y-16,10,0,Math.PI*2);ctx.fill();
-  }else if(d.type===1){
-   ctx.fillStyle="#ffe49a";ctx.beginPath();ctx.ellipse(x,y,12,5,-.4,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="#f2fff0";ctx.beginPath();ctx.arc(x+6,y-3,4,0,Math.PI*2);ctx.fill();
-  }else if(d.type===2){
-   ctx.fillStyle="#8c766c";ctx.beginPath();ctx.ellipse(x,y,16,11,0,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="#b9aaa0";ctx.beginPath();ctx.ellipse(x-4,y-5,7,4,0,0,Math.PI*2);ctx.fill();
-  }else{
-   ctx.fillStyle="#f5b6cf";
-   ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);ctx.fill();
-   ctx.beginPath();ctx.arc(x+8,y-4,4,0,Math.PI*2);ctx.fill();
+function collectItems(){
+ coinsOnMap.forEach(c=>{
+  if(Math.hypot(c.x-player.x,c.y-player.y)<27&&!c.taken){
+   c.taken=true;totalCoins++;levelCoins++;
+   particles.push({x:c.x,y:c.y,life:14,color:'#ffe66b'});
   }
  });
+ powerups.forEach(p=>{
+  if(Math.hypot(p.x-player.x,p.y-player.y)<29&&!p.taken){
+   p.taken=true;
+   if(p.type==='shield')shieldCharges++;
+   else blastCharges++;
+   say(p.type==='shield'?'🛡️ Shield power-up collected!':'💥 Mega Blast power-up collected!');
+  }
+ });
+ coinsOnMap=coinsOnMap.filter(c=>!c.taken);
+ powerups=powerups.filter(p=>!p.taken);
+ if(levelCoins>=85)completeLevel();
+ updateHUD();
 }
-function drawCoin(c){
- const x=c.x-cameraX,y=c.y-cameraY+Math.sin(frame*.09+c.wobble)*4;
- ctx.save();ctx.shadowColor="#fff17b";ctx.shadowBlur=14;
- ctx.fillStyle="#ffe36a";ctx.beginPath();ctx.ellipse(x,y,9,13,0,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#fff7c5";ctx.lineWidth=2;ctx.stroke();
- ctx.shadowBlur=0;ctx.fillStyle="#936322";ctx.font="bold 11px Arial";ctx.textAlign="center";ctx.fillText("$",x,y+4);
- ctx.restore();
-}
-function drawGecko(g){
- const x=g.x-cameraX,y=g.y-cameraY+Math.sin(g.wobble)*3;
- ctx.save();
- ctx.translate(x,y);
- // Shadow
- ctx.fillStyle="#17392b55";ctx.beginPath();ctx.ellipse(0,g.size*.7,g.size*1.1,8,0,0,Math.PI*2);ctx.fill();
- const color=g.type==="gold"?"#f5c94c":g.type==="red"?"#ed6b66":"#65d88a";
- const dark=g.type==="gold"?"#a97b20":g.type==="red"?"#9c3d48":"#278b5b";
- // Feet
- ctx.fillStyle=dark;
- for(let i=0;i<4;i++){
-  const side=i<2?-1:1;
-  const front=i%2===0?-1:1;
-  ctx.beginPath();ctx.ellipse(side*g.size*.55,front*7+g.size*.3,8,5,side*.3,0,Math.PI*2);ctx.fill();
- }
- // Curled tail
- ctx.strokeStyle=dark;ctx.lineWidth=9;ctx.lineCap="round";
- ctx.beginPath();ctx.moveTo(-g.size*.6,5);ctx.quadraticCurveTo(-g.size*1.35,20,-g.size*1.25,-2);ctx.stroke();
- // Body
- ctx.fillStyle=g.flash>0?"#ffffff":color;
- ctx.beginPath();ctx.ellipse(0,4,g.size*.95,g.size*.67,0,0,Math.PI*2);ctx.fill();
- // Back ridge
- ctx.fillStyle=dark;
- for(let i=-2;i<=2;i++){
-  ctx.beginPath();ctx.moveTo(i*7-3,-g.size*.38);ctx.lineTo(i*7,-g.size*.65);ctx.lineTo(i*7+4,-g.size*.35);ctx.fill();
- }
- // Head
- ctx.fillStyle=color;
- ctx.beginPath();ctx.ellipse(g.size*.62,-g.size*.2,g.size*.55,g.size*.48,.1,0,Math.PI*2);ctx.fill();
- // Eyes
- ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(g.size*.83,-g.size*.3,5,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#182d25";ctx.beginPath();ctx.arc(g.size*.87-1,-g.size*.3,2.3,0,Math.PI*2);ctx.fill();
- // Health bar
- ctx.fillStyle="#382c37";ctx.fillRect(-g.size,-g.size-17,g.size*2,5);
- ctx.fillStyle="#8dff8c";ctx.fillRect(-g.size,-g.size-17,g.size*2*(g.hp/g.maxHp),5);
- if(g.type==="gold"){
-  ctx.fillStyle="#fff5a6";ctx.font="bold 10px Fredoka";ctx.textAlign="center";ctx.fillText("RARE!",0,-g.size-22);
- }
- ctx.restore();
-}
-function drawPlayer(){
- const x=player.x-cameraX,y=player.y-cameraY;
- // Shadow
- ctx.fillStyle="#142d3355";ctx.beginPath();ctx.ellipse(x,y+20,22,9,0,0,Math.PI*2);ctx.fill();
- ctx.save();
- if(invulnerable>0&&Math.floor(frame/5)%2===0)ctx.globalAlpha=.35;
- // Stickman body and head
- ctx.strokeStyle="#202a3c";ctx.lineWidth=6;ctx.lineCap="round";
- ctx.fillStyle="#f5c7a1";
- ctx.beginPath();ctx.arc(x,y-19,10,0,Math.PI*2);ctx.fill();
- ctx.stroke();
- ctx.strokeStyle="#eaf3ff";
- ctx.beginPath();
- ctx.moveTo(x,y-8);ctx.lineTo(x,y+10);
- ctx.moveTo(x,y-2);ctx.lineTo(x-13,y+5);
- ctx.moveTo(x,y-2);ctx.lineTo(x+13,y+5);
- ctx.moveTo(x,y+10);ctx.lineTo(x-10,y+24);
- ctx.moveTo(x,y+10);ctx.lineTo(x+10,y+24);
- ctx.stroke();
- // Backpack
- ctx.fillStyle="#a67af4";ctx.fillRect(x-12,y-6,8,13);
- ctx.restore();
- if(invulnerable>0){
-  ctx.strokeStyle="#a8edff";ctx.lineWidth=3;
-  ctx.beginPath();ctx.ellipse(x,y,36,43,0,0,Math.PI*2);ctx.stroke();
- }
+function update(dt){
+ let dx=0,dy=0;
+ if(keys.w||keys.arrowup)dy--;
+ if(keys.s||keys.arrowdown)dy++;
+ if(keys.a||keys.arrowleft)dx--;
+ if(keys.d||keys.arrowright)dx++;
+ let len=Math.hypot(dx,dy)||1;
+ player.x=clamp(player.x+dx/len*player.speed*dt*60,24,W-24);
+ player.y=clamp(player.y+dy/len*player.speed*dt*60,92,H-45);
+ geckos.forEach(g=>{
+  let x=player.x-g.x,y=player.y-g.y,d=Math.hypot(x,y)||1;
+  g.x+=x/d*g.speed*dt*60;
+  g.y+=y/d*g.speed*dt*60;
+  if(d<g.r+player.r+2)takeDamage();
+ });
+ collectItems();
+ spawnClock+=dt;coinClock+=dt;
+ if(spawnClock>2.3){spawnClock=0;if(geckos.length<14)spawnGecko()}
+ if(coinClock>1.15){coinClock=0;for(let i=0;i<2;i++)spawnCoin()}
+ if(Math.random()<dt*.055)spawnPowerup();
+ if(attackCooldown>0)attackCooldown-=dt*60;
+ if(damageCooldown>0)damageCooldown-=dt*60;
+ particles.forEach(p=>p.life--);particles=particles.filter(p=>p.life>0);
 }
 function draw(){
  ctx.clearRect(0,0,W,H);
- drawBackground();
- drawDecorations();
- coins.forEach(drawCoin);
- powerups.forEach(p=>{
-  const x=p.x-cameraX,y=p.y-cameraY;
-  ctx.save();ctx.shadowBlur=15;ctx.shadowColor=p.type==="shield"?"#8deaff":"#d6a6ff";
-  ctx.fillStyle=p.type==="shield"?"#9aefff":"#d5a6ff";
-  ctx.beginPath();ctx.arc(x,y,15+Math.sin(frame*.08)*2,0,Math.PI*2);ctx.fill();
-  ctx.shadowBlur=0;ctx.font="19px Arial";ctx.textAlign="center";
-  ctx.fillText(p.type==="shield"?"🛡️":"💥",x,y+7);ctx.restore();
- });
- geckos.forEach(drawGecko);
- drawPlayer();
- particles.forEach(p=>{
-  ctx.globalAlpha=Math.max(0,p.life/35);ctx.fillStyle=p.color;
-  ctx.beginPath();ctx.arc(p.x-cameraX,p.y-cameraY,4,0,Math.PI*2);ctx.fill();
- });
+ if(!player){
+  ctx.fillStyle='#14243b';ctx.fillRect(0,0,W,H);return;
+ }
+ let w=worlds[level-1];
+ let grad=ctx.createLinearGradient(0,0,W,H);
+ grad.addColorStop(0,w.bg);grad.addColorStop(1,w.ground);
+ ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ // Background environment
+ for(let i=0;i<25;i++){
+  let x=(i*139)%W,y=105+(i*83)%(H-160);
+  ctx.globalAlpha=.16;ctx.fillStyle=w.accent;
+  ctx.beginPath();ctx.arc(x,y,10+(i%4)*5,0,Math.PI*2);ctx.fill();
+ }
  ctx.globalAlpha=1;
- // Level name
- ctx.textAlign="center";ctx.font="bold 14px Fredoka";
- ctx.fillStyle="#fff";ctx.shadowColor="#1c3b30";ctx.shadowBlur=5;
- ctx.fillText(worlds[level-1].name,W/2,H-65);ctx.shadowBlur=0;
+ // Ground paths
+ ctx.fillStyle=w.ground;ctx.fillRect(0,H*.82,W,H*.18);
+ ctx.fillStyle='#ffffff12';ctx.fillRect(0,H*.82,W,3);
+ // Decorations
+ for(let i=0;i<9;i++){
+  let x=(i*211+50)%W,y=125+(i*91)%(H*.6);
+  ctx.font='28px serif';
+  ctx.fillText(level===5?'🌋':level===3?'🌵':level===4?'❄️':level===6?'🏰':'🌳',x,y);
+ }
+ // Coins
+ coinsOnMap.forEach(c=>{
+  ctx.save();ctx.shadowColor='#ffe66b';ctx.shadowBlur=12;
+  ctx.fillStyle='#ffdc55';ctx.beginPath();ctx.ellipse(c.x,c.y,9,12,0,0,7);ctx.fill();
+  ctx.strokeStyle='#fff4ac';ctx.lineWidth=2;ctx.stroke();ctx.restore();
+ });
+ // Powerups
+ powerups.forEach(p=>{
+  ctx.save();ctx.shadowColor=p.type==='shield'?'#70dfff':'#ff8cff';ctx.shadowBlur=18;
+  ctx.fillStyle=p.type==='shield'?'#67dfff':'#e58cff';
+  ctx.beginPath();ctx.arc(p.x,p.y,14,0,7);ctx.fill();
+  ctx.font='16px serif';ctx.textAlign='center';ctx.fillText(p.type==='shield'?'🛡️':'💥',p.x,p.y+6);ctx.restore();
+ });
+ // Geckos
+ geckos.forEach(g=>{
+  let color=g.type==='gold'?'#ffd84f':g.type==='red'?'#ff6b68':'#69d68e';
+  ctx.save();ctx.shadowColor=color;ctx.shadowBlur=10;
+  ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(g.x,g.y,g.r*1.15,g.r*.85,0,0,7);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(g.x-7,g.y-5,5,0,7);ctx.arc(g.x+7,g.y-5,5,0,7);ctx.fill();
+  ctx.fillStyle='#263a36';ctx.beginPath();ctx.arc(g.x-7,g.y-5,2,0,7);ctx.arc(g.x+7,g.y-5,2,0,7);ctx.fill();
+  ctx.strokeStyle=color;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(g.x-g.r,g.y+4);ctx.quadraticCurveTo(g.x-g.r-13,g.y+17,g.x-g.r-22,g.y+5);ctx.stroke();
+  ctx.font='bold 11px Fredoka';ctx.textAlign='center';ctx.fillStyle='#fff';ctx.fillText('rawr',g.x,g.y+g.r+15);
+  if(g.type==='gold'){ctx.font='bold 10px Fredoka';ctx.fillStyle='#fff3a4';ctx.fillText('RARE!',g.x,g.y-g.r-7)}
+  ctx.fillStyle='#222';ctx.fillRect(g.x-g.r,g.y-g.r-10,g.r*2,4);
+  ctx.fillStyle='#ff7184';ctx.fillRect(g.x-g.r,g.y-g.r-10,g.r*2*(g.hp/g.maxHp),4);
+  ctx.restore();
+ });
+ // Player stickman
+ ctx.save();ctx.translate(player.x,player.y);
+ if(hasShield||shieldCharges>0){
+  ctx.strokeStyle='#7beaff';ctx.lineWidth=3;ctx.shadowColor='#7beaff';ctx.shadowBlur=14;
+  ctx.beginPath();ctx.arc(0,0,29,0,7);ctx.stroke();
+ }
+ ctx.strokeStyle='#242a3b';ctx.lineWidth=6;ctx.lineCap='round';
+ ctx.beginPath();ctx.arc(0,-17,10,0,7);ctx.stroke();
+ ctx.fillStyle='#f8d6b0';ctx.beginPath();ctx.arc(0,-17,9,0,7);ctx.fill();
+ ctx.strokeStyle='#283449';ctx.lineWidth=6;
+ ctx.beginPath();ctx.moveTo(0,-7);ctx.lineTo(0,13);ctx.moveTo(0,0);ctx.lineTo(-12,8);ctx.moveTo(0,0);ctx.lineTo(12,8);ctx.moveTo(0,13);ctx.lineTo(-9,26);ctx.moveTo(0,13);ctx.lineTo(9,26);ctx.stroke();
+ ctx.fillStyle='#fff';ctx.font='bold 11px Fredoka';ctx.textAlign='center';ctx.fillText('STICKMAN',0,43);
+ ctx.restore();
+ // Particles
+ particles.forEach(p=>{ctx.globalAlpha=p.life/25;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,4,0,7);ctx.fill()});
+ ctx.globalAlpha=1;
+ // Small controls reminder
+ ctx.fillStyle='#fff';ctx.font='13px Fredoka';ctx.textAlign='left';
+ ctx.fillText('WASD / ARROWS: MOVE  •  SPACE: ATTACK  •  X: POWER',12,H-17);
+ if(hasShield){ctx.textAlign='right';ctx.fillText('🛡️ SHIELD ACTIVE',W-12,H-17)}
 }
 function loop(t){
- if(!running)return;
- const dt=Math.min(.04,(t-last)/1000||.016);last=t;
- update(dt);draw();
- if(running)raf=requestAnimationFrame(loop);
+ if(!running||paused)return;
+ let dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;
+ update(dt);
+ if(running){draw();raf=requestAnimationFrame(loop)}
 }
+function pressAttack(e){
+ let k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k===' '){if(running&&!paused)attack()}
+ if(k==='x'){if(running&&!paused)usePower()}
+ if(k==='escape')togglePause();
+}
+addEventListener('keydown',pressAttack);
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('blur',()=>keys={});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 resize();
 </script>
 </body>
 </html>
+
