@@ -3,235 +3,410 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ex-Stream Vehicle Racing Simulator</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>EX-STREAM RACING: Las Vegas Showdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#10152b;color:white;font-family:Outfit,Arial,sans-serif}
-button{font-family:inherit;font-weight:800;border:0;border-radius:14px;padding:12px 20px;cursor:pointer;color:#18203a;background:#ffe36e;box-shadow:0 4px 0 #c79c37}
-button:hover{transform:translateY(-2px);filter:brightness(1.08)}
-#top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;background:#20294b}
-#brand{font:700 22px Fredoka;color:#ffe36e}
-#top button{padding:8px 13px;font-size:13px}
-#stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:10px}
-.stat{background:#273354;border:1px solid #46547b;border-radius:12px;padding:7px 13px;font-weight:700}
-#gameWrap{position:relative;width:min(100%,1100px);margin:auto;padding:0 12px}
-canvas{display:block;width:100%;aspect-ratio:16/9;background:#8dd9ff;border:4px solid #53628d;border-radius:18px}
-#overlay{position:absolute;inset:12px;display:flex;align-items:center;justify-content:center;background:#10152bdc;border-radius:15px;padding:18px;text-align:center}
-.panel{max-width:570px;background:#222d50;border:3px solid #ffe36e;border-radius:24px;padding:25px;box-shadow:0 12px 35px #0008}
-h1{font:700 clamp(28px,5vw,48px) Fredoka;color:#ffe36e;margin:0 0 8px}
-h2{font:700 27px Fredoka;color:#ffe36e;margin:0 0 8px}
-p{line-height:1.5}
-.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:15px}
-.small{font-size:13px;color:#d4def9}
-#message{min-height:26px;text-align:center;color:#ffe36e;font-weight:700;padding:7px}
-@media(max-width:600px){#brand{font-size:17px}.stat{font-size:12px;padding:6px 8px}}
+body{margin:0;background:#080b18;color:white;font-family:Fredoka,Arial;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 15px;background:#ffe06b;color:#302744;cursor:pointer;box-shadow:0 4px 0 #b58c35}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 #b58c35}
+#hud{position:absolute;top:9px;left:9px;right:9px;display:flex;gap:7px;flex-wrap:wrap;justify-content:space-between;pointer-events:none}
+.pill{background:#10182cdd;border:1px solid #8bdcff;border-radius:18px;padding:7px 12px;font-size:14px;font-weight:700;text-shadow:0 1px 2px #000}
+#controls{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
+#overlay{position:absolute;inset:0;background:#080b18eF;display:flex;align-items:center;justify-content:center;padding:16px}
+#card{width:min(560px,96vw);max-height:92vh;overflow:auto;text-align:center;background:linear-gradient(145deg,#172b48,#111326);border:2px solid #65d7ff;border-radius:24px;padding:24px;box-shadow:0 0 35px #38caff55}
+h1{font-size:clamp(28px,6vw,44px);color:#ffe06b;margin:4px 0}
+p{line-height:1.45}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.small{font-size:13px;color:#c9d9ec}
+.hidden{display:none!important}
+#notice{position:absolute;top:62px;left:50%;transform:translateX(-50%);background:#fff0a9;color:#302744;padding:8px 15px;border-radius:14px;font-weight:700;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
-<header id="top">
- <div id="brand">🏁 EX-STREAM RACING</div>
- <div class="row" style="margin:0">
-  <button onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
-  <button onclick="pauseGame()" id="pauseBtn">⏸ Pause</button>
-  <button onclick="restart()">↻ Play Again</button>
- </div>
-</header>
-<div id="stats">
- <div class="stat">🏆 Mode: <span id="mode">Ready</span></div>
- <div class="stat">⏱ Time: <span id="time">2:00</span></div>
- <div class="stat">🪙 Coins: <span id="coins">0</span></div>
- <div class="stat">💥 Hits: <span id="hits">0 / 3</span></div>
- <div class="stat">🔥 Win streak: <span id="streak">0</span></div>
- <div class="stat">⭐ Track: <span id="level">1</span></div>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="pill" id="levelHud">🏁 LEVEL 1 / 20</div>
+ <div class="pill" id="lapHud">LAP 1 / 3</div>
+ <div class="pill" id="coinHud">🪙 0 / 100</div>
+ <div class="pill" id="damageHud">💥 DAMAGE 0 / 3</div>
+ <div class="pill" id="speedHud">🚗 0 MPH</div>
 </div>
-<div id="gameWrap">
- <canvas id="game" width="960" height="540"></canvas>
- <div id="overlay">
-  <div class="panel" id="panel">
-   <h1>EX-STREAM VEHICLE RACING</h1>
-   <h2>🌆 LAS VEGAS SHOWDOWN 🌆</h2>
-   <p>Race through a giant Las Vegas stadium! Hit the ramps, fly through loop sections, collect coins, and beat the clock.</p>
-   <p><b>W / S</b> accelerate and brake · <b>A / D</b> steer · <b>SPACE</b> speed boost</p>
-   <p class="small">Three hits cause flat tires. Drive off the track and the race is over!</p>
-   <div class="row">
-    <button onclick="startGame('race')">🏁 START RACE</button>
-    <button onclick="startGame('free')">🚗 FREE ARENA</button>
-   </div>
+<div id="notice"></div>
+<div id="controls">
+ <button onclick="togglePause()">Ⅱ Pause</button>
+ <button onclick="restartLevel()">↻ Restart</button>
+ <button onclick="showHome()">⌂ Game Lab</button>
+</div>
+<div id="overlay">
+ <div id="card">
+  <h1>🏎️ EX-STREAM RACING</h1>
+  <h2>LAS VEGAS SHOWDOWN</h2>
+  <p>Get behind the wheel of your BMW M3-inspired race car. Beat four rival drivers, collect coins, and conquer 20 levels!</p>
+  <div class="grid">
+   <button onclick="startGame()">🏁 START RACING</button>
+   <button onclick="showInstructions()">🎮 HOW TO PLAY</button>
   </div>
+  <p class="small">W / ↑ accelerate · S / ↓ brake · A / D or ← / → steer</p>
+  <p class="small">Complete 3 laps and collect 100 coins to unlock the next level. Three crashes or track falls end your race.</p>
  </div>
 </div>
-<div id="message">Choose Race Mode or Free Arena to get started!</div>
 <script>
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const W=960,H=540;
-let mode='ready',running=false,paused=false,level=1,coins=0,hits=0,streak=0;
-let timeLeft=120,elapsed=0,progress=0,speed=0,playerX=0,boost=0;
-let objects=[],keys={},last=0,record=120,flat=false,carColor='#ffdf54';
-const $=id=>document.getElementById(id);
-function updateHUD(){
- $('mode').textContent=mode==='race'?'Race':mode==='free'?'Free Arena':'Ready';
- $('time').textContent=mode==='free'?'∞':`${Math.floor(timeLeft/60)}:${String(Math.ceil(timeLeft%60)).padStart(2,'0')}`;
- $('coins').textContent=coins;$('hits').textContent=hits+' / 3';
- $('streak').textContent=streak;$('level').textContent=level;
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ dpr=Math.min(devicePixelRatio||1,2);
+ W=innerWidth;H=innerHeight;
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ draw();
 }
-function startGame(which){
- mode=which;running=true;paused=false;timeLeft=120;elapsed=0;progress=0;
- speed=0;playerX=0;hits=0;flat=false;boost=0;objects=[];
- $('overlay').style.display='none';$('pauseBtn').textContent='⏸ Pause';
- for(let i=0;i<24;i++) objects.push(makeObject(i));
- updateHUD();$('message').textContent=which==='race'?'Race on! Finish the two-minute challenge!':'Free Arena: explore, test your car, and practice!';
- last=performance.now();requestAnimationFrame(loop);
+addEventListener('resize',resize);
+
+let running=false,paused=false,level=1;
+let distance=0,lap=0,coins=0,damage=0,speed=0;
+let playerX=0,steering=0,boost=0,jump=0;
+let objects=[],bots=[],particles=[];
+let spawnCursor=0,lastTime=0,raf=0;
+let keys={};
+const LAP_LENGTH=1600;
+const MAX_LEVEL=20;
+const BOT_COLORS=['#ff4d62','#35c8ff','#f4bd39','#a58bff'];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rand=(a,b)=>a+Math.random()*(b-a);
+
+function notice(t){
+ const n=document.getElementById('notice');
+ n.textContent=t;n.style.opacity=1;
+ clearTimeout(notice.timer);
+ notice.timer=setTimeout(()=>n.style.opacity=0,1700);
 }
-function makeObject(i){
- const r=Math.random();
- return {z:0.2+i*0.55,x:(Math.random()*1.5-.75),
- type:r<.32?'coin':r<.48?'boost':r<.61?'slow':r<.77?'ramp':r<.9?'loop':'cone',
- hit:false};
+function showPanel(html){
+ document.getElementById('card').innerHTML=html;
+ document.getElementById('overlay').classList.remove('hidden');
 }
-function restart(){startGame(mode==='free'?'free':'race')}
-function pauseGame(){
+function hidePanel(){document.getElementById('overlay').classList.add('hidden')}
+function showInstructions(){
+ showPanel('<h1>🎮 HOW TO PLAY</h1><p><b>Steer:</b> A / D or left / right arrows.</p><p><b>Accelerate:</b> W or up arrow. <b>Brake:</b> S or down arrow.</p><p>Drive through the coins. Avoid the four rival cars. Stay on the track!</p><p>Each race is three laps. Collect 100 coins to unlock the next level. Reach three crashes and your race is over.</p><button onclick="showHome()">BACK</button>');
+}
+function showHome(){
+ running=false;paused=false;cancelAnimationFrame(raf);
+ showPanel('<h1>🏎️ EX-STREAM RACING</h1><h2>LAS VEGAS SHOWDOWN</h2><p>Twenty levels. Four rivals. One champion.</p><div class="grid"><button onclick="startGame()">START RACING</button><button onclick="showInstructions()">HOW TO PLAY</button></div>');
+}
+function startGame(){
+ level=1;beginLevel();
+}
+function beginLevel(){
+ running=true;paused=false;
+ distance=0;lap=0;coins=0;damage=0;speed=0;
+ playerX=0;steering=0;boost=0;jump=0;
+ objects=[];bots=[];particles=[];
+ spawnCursor=0;
+ for(let i=0;i<4;i++){
+  bots.push({x:[-.62,-.22,.25,.65][i],z:rand(150,750),color:BOT_COLORS[i],speed:rand(.78,1.05),hit:false});
+ }
+ spawnAhead();
+ hidePanel();updateHUD();lastTime=performance.now();
+ cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function restartLevel(){if(running||paused)beginLevel()}
+function togglePause(){
  if(!running)return;
- paused=!paused;$('pauseBtn').textContent=paused?'▶ Resume':'⏸ Pause';
- if(paused){$('message').textContent='Game paused. Your progress is saved.';}
- else{last=performance.now();$('message').textContent='Back to the race!';requestAnimationFrame(loop);}
-}
-function endGame(win,reason){
- running=false;paused=false;
- if(win&&mode==='race'){
-  streak++;level=Math.min(8,level+1);
-  coins+=1000;
-  if(timeLeft>0&&timeLeft<record){coins+=5000;record=timeLeft;reason+=' New time record: +5,000 coins!';}
-  if(streak>=2&&Math.random()<.35){coins+=10000;reason+=' RARE BLUE COIN! +10,000 coins!';}
+ paused=!paused;
+ if(paused){
+  showPanel('<h1>⏸ RACE PAUSED</h1><p>Take a breather, driver!</p><button onclick="resumeGame()">RESUME RACE</button> <button onclick="showHome()">GAME LAB</button>');
+ }else{
+  hidePanel();lastTime=performance.now();raf=requestAnimationFrame(loop);
  }
+}
+function resumeGame(){paused=false;hidePanel();lastTime=performance.now();raf=requestAnimationFrame(loop)}
+function updateHUD(){
+ document.getElementById('levelHud').textContent='🏁 LEVEL '+level+' / 20';
+ document.getElementById('lapHud').textContent='LAP '+Math.min(3,lap+1)+' / 3';
+ document.getElementById('coinHud').textContent='🪙 '+coins+' / 100';
+ document.getElementById('damageHud').textContent='💥 DAMAGE '+damage+' / 3';
+ document.getElementById('speedHud').textContent='🚗 '+Math.round(speed*190)+' MPH';
+}
+function gameOver(reason){
+ running=false;cancelAnimationFrame(raf);
+ showPanel('<h1>💥 RACE OVER!</h1><h2>'+reason+'</h2><p>You reached lap '+Math.min(3,lap+1)+' and collected '+coins+' coins.</p><button onclick="beginLevel()">TRY AGAIN</button> <button onclick="showHome()">GAME LAB</button>');
+}
+function winLevel(){
+ running=false;cancelAnimationFrame(raf);
+ if(level>=MAX_LEVEL){
+  showPanel('<h1>🏆 LAS VEGAS CHAMPION!</h1><p>You conquered all 20 levels, completed every race, and collected the coins!</p><h2>YOU ARE THE EX-STREAM CHAMPION!</h2><button onclick="startGame()">PLAY AGAIN</button> <button onclick="showHome()">GAME LAB</button>');
+ }else{
+  showPanel('<h1>🏁 LEVEL '+level+' COMPLETE!</h1><p>Three laps finished and 100 coins collected!</p><h2>Next up: Level '+(level+1)+'</h2><button onclick="level++;beginLevel()">NEXT LEVEL</button> <button onclick="showHome()">GAME LAB</button>');
+ }
+}
+function crash(reason){
+ damage++;
+ notice(reason+'! Damage '+damage+'/3');
+ particles.push({x:W/2,y:H*.75,life:30,color:'#ffad45'});
+ if(damage>=3){gameOver('Three crashes! Your race is over.');return}
  updateHUD();
- $('overlay').style.display='flex';
- $('panel').innerHTML=`<h1>${win?'🏆 YOU DID IT!':'💥 RACE OVER!'}</h1>
- <h2>${win?'Las Vegas Champion!':'Try another run!'}</h2>
- <p>${reason}</p>
- <p>Coins: <b>${coins.toLocaleString()}</b> · Win streak: <b>${streak}</b> · Next track: <b>${level}</b></p>
- <div class="row"><button onclick="startGame('race')">🏁 Race Again</button><button onclick="startGame('free')">🚗 Free Arena</button></div>`;
- $('message').textContent=win?'Great racing! A harder track is ready.':'You can try again or practice in the Free Arena.';
 }
-function roadPoint(z){
- const y=H-80-z*390;
- const curve=Math.sin((progress*.018+z*3.1)+level*.3)*35;
- const center=W/2+curve;
- const half=95+z*210;
- return {y,center,half};
-}
-function draw(){
- const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#55b9f4');sky.addColorStop(.62,'#d7edff');sky.addColorStop(.63,'#55506f');sky.addColorStop(1,'#20243d');
- ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
- // Las Vegas skyline
- for(let i=0;i<17;i++){
-  let x=i*64-((progress*.12)%64),h=65+(i*37%110);
-  ctx.fillStyle=['#514d78','#71628a','#383e67'][i%3];
-  ctx.fillRect(x,260-h,48,h);
-  for(let yy=270-h;yy<255;yy+=18)for(let xx=x+8;xx<x+42;xx+=13){ctx.fillStyle='#ffe99a';ctx.fillRect(xx,yy,5,7);}
- }
- // Stadium stands and crowd
- ctx.fillStyle='#353858';ctx.fillRect(0,270,W,100);
- for(let row=0;row<4;row++){
-  for(let i=0;i<70;i++){
-   ctx.fillStyle=['#ff5d83','#ffe36e','#5de0c0','#ffffff'][i%4];
-   ctx.fillRect(i*15+((progress*.35)%15),280+row*13,5,6);
+function spawnAhead(){
+ while(spawnCursor<distance+2600){
+  let z=spawnCursor+rand(10,25);
+  let r=Math.random();
+  if(r<.72){
+   objects.push({type:'coin',z,x:rand(-.82,.82),taken:false});
+  }else if(r<.83){
+   objects.push({type:'ramp',z,x:rand(-.5,.5),used:false});
+  }else if(r<.92){
+   objects.push({type:'loop',z,x:rand(-.25,.25),used:false});
+  }else{
+   objects.push({type:'boost',z,x:rand(-.7,.7),used:false});
   }
+  spawnCursor+=rand(23,39);
  }
- ctx.fillStyle='#ffe36e';ctx.font='bold 22px Fredoka';ctx.fillText('LAS VEGAS MOTOR STADIUM',330,305);
- // road perspective
- for(let i=0;i<30;i++){
-  let z=i/30,p=roadPoint(z),p2=roadPoint((i+1)/30);
-  ctx.fillStyle=i%2?'#3c3d4b':'#454655';
-  ctx.beginPath();ctx.moveTo(p.center-p.half,p.y);ctx.lineTo(p.center+p.half,p.y);ctx.lineTo(p2.center+p2.half,p2.y);ctx.lineTo(p2.center-p2.half,p2.y);ctx.fill();
-  ctx.fillStyle='#fff';ctx.fillRect(p.center-p.half,p.y,5,Math.max(2,(1-z)*7));
-  ctx.fillRect(p.center+p.half-5,p.y,5,Math.max(2,(1-z)*7));
- }
- // road stripes
- for(let i=0;i<12;i++){
-  let z=((i/12+(progress*.0018)%1)%1),p=roadPoint(z);
-  ctx.fillStyle='#f8f4d9';ctx.fillRect(p.center-4,p.y,8,Math.max(3,12*(1-z)));
- }
- // ramps and loops scenery
- let rp=roadPoint(.78);
- ctx.fillStyle='#ff9e37';ctx.beginPath();ctx.moveTo(rp.center+rp.half*.48,rp.y);ctx.lineTo(rp.center+rp.half*.48+65,rp.y-50);ctx.lineTo(rp.center+rp.half*.48+85,rp.y);ctx.fill();
- ctx.strokeStyle='#e7d9ff';ctx.lineWidth=12;ctx.beginPath();ctx.ellipse(810,340,65,105,0,Math.PI,Math.PI*2);ctx.stroke();
- ctx.fillStyle='#ffe36e';ctx.font='bold 15px Fredoka';ctx.fillText('360° LOOP',770,455);
- // objects
- objects.forEach(o=>{
-  let z=(o.z-(progress*.0025))%1;if(z<0)z+=1;
-  let p=roadPoint(z),x=p.center+o.x*p.half*.72,s=.25+z*1.1;
-  if(o.type==='coin'){ctx.fillStyle='#ffe45c';ctx.beginPath();ctx.arc(x,p.y,9*s,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fff3ad';ctx.lineWidth=3;ctx.stroke();}
-  if(o.type==='boost'||o.type==='slow'){ctx.fillStyle=o.type==='boost'?'#37f0d0':'#a18bff';ctx.fillRect(x-17*s,p.y-5*s,34*s,10*s);ctx.fillStyle='white';ctx.font=`bold ${12*s}px Arial`;ctx.fillText(o.type==='boost'?'»»':'↓↓',x-10*s,p.y+4*s);}
-  if(o.type==='ramp'){ctx.fillStyle='#ff9a39';ctx.beginPath();ctx.moveTo(x-20*s,p.y+8*s);ctx.lineTo(x+20*s,p.y+8*s);ctx.lineTo(x+12*s,p.y-17*s);ctx.fill();}
-  if(o.type==='loop'){ctx.strokeStyle='#d9b4ff';ctx.lineWidth=5*s;ctx.beginPath();ctx.arc(x,p.y,15*s,0,Math.PI*2);ctx.stroke();}
-  if(o.type==='cone'){ctx.fillStyle='#ff704d';ctx.beginPath();ctx.moveTo(x,p.y-13*s);ctx.lineTo(x-9*s,p.y+8*s);ctx.lineTo(x+9*s,p.y+8*s);ctx.fill();}
- });
- // player car
- const carX=W/2+playerX*230,carY=425;
- ctx.save();ctx.translate(carX,carY);
- if(flat)ctx.scale(1.18,.72);
- ctx.fillStyle='#11172b';ctx.fillRect(-38,10,17,28);ctx.fillRect(21,10,17,28);
- ctx.fillStyle=carColor;ctx.beginPath();ctx.moveTo(-48,18);ctx.lineTo(-35,-15);ctx.lineTo(-20,-32);ctx.lineTo(22,-32);ctx.lineTo(40,-10);ctx.lineTo(48,18);ctx.closePath();ctx.fill();
- ctx.fillStyle='#a8e9ff';ctx.beginPath();ctx.moveTo(-22,-27);ctx.lineTo(19,-27);ctx.lineTo(31,-8);ctx.lineTo(-31,-8);ctx.fill();
- ctx.fillStyle='#f7f7ff';ctx.fillRect(-5,-31,10,5);
- ctx.fillStyle='#ff3939';ctx.fillRect(-38,9,10,6);ctx.fillRect(28,9,10,6);
- ctx.restore();
- if(boost>0){ctx.fillStyle='#6fffea';ctx.beginPath();ctx.moveTo(carX-12,455);ctx.lineTo(carX+12,455);ctx.lineTo(carX,495);ctx.fill();}
- // HUD track progress
- ctx.fillStyle='#10152b';ctx.fillRect(20,20,240,15);ctx.fillStyle='#ffe36e';ctx.fillRect(20,20,240*Math.min(1,progress/1200),15);
- ctx.fillStyle='white';ctx.font='bold 14px Outfit';ctx.fillText(mode==='free'?'FREE DRIVE':'RACE PROGRESS',20,15);
- ctx.fillText('WINS UNLOCK HARDER TRACKS',680,28);
+}
+function roadCurve(z){return Math.sin((z+distance*.35)/420)*.23+Math.sin((z+distance)/1050)*.14}
+function project(z,x){
+ let depth=clamp(1-z/2100,0,1);
+ let perspective=depth*depth;
+ let horizon=H*.36;
+ let y=horizon+perspective*(H*.64);
+ let roadW= W*(.035+perspective*.48);
+ let center=W/2+roadCurve(z)*(W*.32)*perspective;
+ return {x:center+x*roadW,y,roadW,depth,center};
 }
 function update(dt){
- let steer=(keys.a||keys.arrowleft?-1:0)+(keys.d||keys.arrowright?1:0);
- if(keys.w||keys.arrowup)speed+=.65*dt;
- else speed-=.2*dt;
- if(keys.s||keys.arrowdown)speed-=.9*dt;
- speed=Math.max(0,Math.min(flat?3.4:7.5,speed));
- if(keys[' '])boost=Math.max(boost,1.5);
- if(boost>0){speed=Math.min(10,speed+1.1*dt);boost-=dt;}
- if(flat)speed=Math.min(speed,3.4);
- playerX+=steer*dt*(.75+speed*.08);
- if(Math.abs(playerX)>.98){endGame(false,'You drove off the track!');return;}
- progress+=speed*dt*(mode==='race'?1.7:1);
- elapsed+=dt;
- if(mode==='race'){timeLeft-=dt;if(timeLeft<=0){endGame(true,'You completed the two-minute race!');return;}}
- objects.forEach(o=>{
-  if(o.hit)return;
-  let z=(o.z-(progress*.0025))%1;if(z<0)z+=1;
-  if(z<.09&&z>.015&&Math.abs(o.x-playerX*.8)<.22){
-   o.hit=true;
-   if(o.type==='coin'){coins+=100;$('message').textContent='+100 coins!';}
-   if(o.type==='boost'){boost=2.5;$('message').textContent='SPEED BOOST!';}
-   if(o.type==='slow'){speed*=.45;$('message').textContent='Slow-down pad!';}
-   if(o.type==='ramp'){speed=Math.min(10,speed+1.5);$('message').textContent='BIG AIR!';}
-   if(o.type==='loop'){speed=Math.min(10,speed+1);$('message').textContent='360 LOOP!';}
-   if(o.type==='cone'){hits++;$('message').textContent='Crash! '+hits+' of 3 hits.';if(hits>=3){flat=true;$('message').textContent='FLAT TIRES! Your car is slowing down!';}}
+ let acceleration=keys.w||keys.arrowup?1:0;
+ let braking=keys.s||keys.arrowdown?1:0;
+ let left=keys.a||keys.arrowleft?1:0;
+ let right=keys.d||keys.arrowright?1:0;
+ let targetSteer=right-left;
+ steering+=(targetSteer-steering)*Math.min(1,dt*8);
+ if(acceleration)speed=Math.min(1.18,speed+dt*.45);
+ else speed=Math.max(.48,speed-dt*.12);
+ if(braking)speed=Math.max(.24,speed-dt*.9);
+ if(boost>0){speed=Math.min(1.35,speed+dt*.45);boost-=dt}
+ let speedFactor=(.7+speed*.75);
+ playerX+=steering*dt*1.22*speedFactor;
+ playerX=clamp(playerX,-1.25,1.25);
+ distance+=dt*(185+speed*390+level*8);
+ jump=Math.max(0,jump-dt*1.3);
+
+ // Track boundaries: driving beyond the edge causes a fall.
+ if(Math.abs(playerX)>1.02&&speed>.35){
+  if(Math.random()<dt*1.8){
+   crash('You fell off the track');
+   playerX=clamp(playerX,-.92,.92);
   }
+ }
+ spawnAhead();
+
+ // Collectible objects.
+ for(const o of objects){
+  let rel=o.z-distance;
+  if(rel<75&&rel>-24&&!o.used&&o.type==='coin'&&Math.abs(o.x-playerX)<.18){
+   o.taken=true;coins++;particles.push({x:W/2+o.x*W*.25,y:H*.75,life:22,color:'#ffe66b'});
+   if(coins===100)notice('100 COINS! Keep racing to finish your laps!');
+   updateHUD();
+  }
+  if(rel<80&&rel>-20&&!o.used&&(o.type==='ramp'||o.type==='loop')&&Math.abs(o.x-playerX)<.24){
+   o.used=true;
+   if(o.type==='ramp'){jump=1.1;boost=1.3;notice('🚀 BIG RAMP BOOST!')}
+   else{jump=1.5;boost=1.6;notice('🔄 LOOP-THE-LOOP!')}
+  }
+  if(rel<80&&rel>-20&&!o.used&&o.type==='boost'&&Math.abs(o.x-playerX)<.2){
+   o.used=true;boost=2.5;notice('⚡ SPEED BOOST!');
+  }
+ }
+ objects=objects.filter(o=>o.z-distance>-90&&!o.taken);
+
+ // Four rival cars.
+ bots.forEach(b=>{
+  b.z-=dt*(75+b.speed*70+level*3);
+  b.x+=Math.sin((distance+b.z)/240+b.speed)*dt*.13;
+  if(b.z<90&&b.z>-35&&Math.abs(b.x-playerX)<.22&&!b.hit){
+   b.hit=true;crash('Hit by a rival car');
+   playerX=clamp(playerX+(playerX<b.x?-.24:.24),-.9,.9);
+  }
+  if(b.z<-50){b.z=rand(650,1350);b.x=rand(-.85,.85);b.hit=false}
  });
- if(objects.filter(o=>o.hit).length>14){
-  objects=objects.filter(o=>!o.hit);for(let i=0;i<18;i++)objects.push(makeObject(i));
+ // Lap tracking.
+ let newLap=Math.floor(distance/LAP_LENGTH);
+ if(newLap>lap){
+  lap=newLap;notice('🏁 LAP '+Math.min(3,lap)+' COMPLETE!');
+  updateHUD();
+ }
+ if(lap>=3&&coins>=100){winLevel();return}
+ if(lap>=3&&coins<100&&Math.floor(distance/LAP_LENGTH)>3){
+  // Continue around the track to collect the remaining coins.
+  notice('Collect '+(100-coins)+' more coins to unlock the next level!');
+ }
+ particles.forEach(p=>p.life--);particles=particles.filter(p=>p.life>0);
+ updateHUD();
+}
+function drawSky(){
+ let g=ctx.createLinearGradient(0,0,0,H*.6);
+ g.addColorStop(0,'#101a42');g.addColorStop(.65,'#e07887');g.addColorStop(1,'#ffbc83');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // Las Vegas skyline
+ for(let i=0;i<18;i++){
+  let x=i*W/16-W*.04;
+  let bh=55+(i*43%120);
+  ctx.fillStyle=i%3===0?'#27395e':'#172846';
+  ctx.fillRect(x,H*.36-bh,W*.045,bh);
+  for(let yy=H*.36-bh+10;yy<H*.36-8;yy+=13)
+   for(let xx=x+5;xx<x+W*.04;xx+=10){
+    ctx.fillStyle=(i+Math.floor(yy))%3?'#ffe08a':'#70dfff';
+    ctx.fillRect(xx,yy,3,5);
+   }
+ }
+ // stadium grandstands and crowd
+ ctx.fillStyle='#242e4c';ctx.fillRect(0,H*.36,W,H*.17);
+ ctx.fillStyle='#53627b';ctx.fillRect(0,H*.38,W,H*.025);
+ for(let row=0;row<4;row++)for(let i=0;i<Math.ceil(W/8);i++){
+  ctx.fillStyle=['#ff7d83','#ffe17b','#77d9ff','#e9a1ff'][(i+row*3)%4];
+  ctx.fillRect(i*8,H*.405+row*14,4,5);
+ }
+ // Stadium lights
+ for(let x of [W*.08,W*.92]){
+  ctx.fillStyle='#dcecff';ctx.fillRect(x-3,H*.13,6,H*.25);
+  ctx.fillStyle='#fff8c7';ctx.beginPath();ctx.arc(x,H*.13,12,0,7);ctx.fill();
  }
 }
-function loop(now){
- if(!running||paused)return;
- const dt=Math.min(.04,(now-last)/1000||0);last=now;
- update(dt);if(!running)return;
- draw();updateHUD();requestAnimationFrame(loop);
+function drawRoad(){
+ let horizon=H*.36;
+ // ground
+ ctx.fillStyle='#1c583e';ctx.fillRect(0,horizon,W,H-horizon);
+ // road strip from far to near
+ for(let i=0;i<30;i++){
+  let z1=i*75,z2=(i+1)*75;
+  let a=project(z1,0),b=project(z2,0);
+  let curve1=roadCurve(z1),curve2=roadCurve(z2);
+  let w1=a.roadW,w2=b.roadW;
+  let c1=W/2+curve1*W*.32*a.depth,c2=W/2+curve2*W*.32*b.depth;
+  ctx.fillStyle=i%2?'#333945':'#292f3b';
+  ctx.beginPath();ctx.moveTo(c1-w1,a.y);ctx.lineTo(c1+w1,a.y);ctx.lineTo(c2+w2,b.y);ctx.lineTo(c2-w2,b.y);ctx.closePath();ctx.fill();
+  // red and white track edges
+  ctx.strokeStyle=i%2?'#f8f5ef':'#ed4c57';ctx.lineWidth=Math.max(1,3*b.depth);
+  ctx.beginPath();ctx.moveTo(c1-w1,a.y);ctx.lineTo(c2-w2,b.y);ctx.moveTo(c1+w1,a.y);ctx.lineTo(c2+w2,b.y);ctx.stroke();
+ }
+ // lane dashes
+ for(let z=0;z<2000;z+=130){
+  let p=project(z,0);
+  if(p.depth<=0)continue;
+  ctx.strokeStyle='#e8e8d9';ctx.lineWidth=Math.max(1,3*p.depth);
+  ctx.beginPath();ctx.moveTo(p.center,p.y);ctx.lineTo(p.center,p.y+Math.max(2,30*p.depth));ctx.stroke();
+ }
 }
-document.addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();
- if(['w','a','s','d',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){e.preventDefault();keys[k]=true;}
- if(k==='p')pauseGame();
- if(k==='r'&&mode!=='ready')restart();
+function drawObjects(){
+ // Draw far objects first
+ let sorted=objects.slice().sort((a,b)=>b.z-a.z);
+ sorted.forEach(o=>{
+  let rel=o.z-distance;if(rel<0||rel>2100)return;
+  let p=project(rel,o.x),s=clamp(p.depth,0,1);
+  if(o.type==='coin'){
+   ctx.save();ctx.shadowColor='#ffdf56';ctx.shadowBlur=18*s;
+   ctx.fillStyle='#ffdc55';ctx.beginPath();ctx.ellipse(p.x,p.y-18*s,9*s+2,13*s+2,0,0,7);ctx.fill();
+   ctx.strokeStyle='#fff2a5';ctx.lineWidth=2*s;ctx.stroke();ctx.restore();
+  }else if(o.type==='ramp'){
+   let rw=p.roadW*.25;
+   ctx.fillStyle='#64768b';
+   ctx.beginPath();ctx.moveTo(p.x-rw,p.y);ctx.lineTo(p.x+rw,p.y);ctx.lineTo(p.x+rw*.7,p.y-45*s);ctx.lineTo(p.x-rw*.7,p.y-45*s);ctx.closePath();ctx.fill();
+   ctx.fillStyle='#ffe36e';ctx.fillRect(p.x-rw*.65,p.y-39*s,rw*1.3,5*s);
+  }else if(o.type==='loop'){
+   let radius=48*s+5;
+   ctx.strokeStyle='#b6eaff';ctx.lineWidth=11*s+2;
+   ctx.shadowColor='#69dfff';ctx.shadowBlur=16*s;
+   ctx.beginPath();ctx.ellipse(p.x,p.y-65*s,radius*.65,radius,0,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+   ctx.strokeStyle='#64788f';ctx.lineWidth=3*s;ctx.stroke();
+  }else if(o.type==='boost'){
+   ctx.fillStyle='#4ce8ff';ctx.beginPath();ctx.moveTo(p.x-18*s,p.y);ctx.lineTo(p.x,p.y-30*s);ctx.lineTo(p.x+18*s,p.y);ctx.closePath();ctx.fill();
+  }
+ });
+}
+function drawBots(){
+ bots.slice().sort((a,b)=>b.z-a.z).forEach(b=>{
+  if(b.z<0||b.z>2100)return;
+  let p=project(b.z,b.x),s=clamp(p.depth,0,1);
+  let w=48*s+4,h=70*s+5;
+  ctx.save();ctx.translate(p.x,p.y-h*.35);
+  ctx.fillStyle='#080b14';ctx.beginPath();ctx.ellipse(0,h*.32,w*.58,h*.18,0,0,7);ctx.fill();
+  ctx.fillStyle=b.color;ctx.beginPath();ctx.moveTo(-w*.45,h*.3);ctx.lineTo(-w*.38,-h*.2);ctx.lineTo(-w*.23,-h*.45);ctx.lineTo(w*.23,-h*.45);ctx.lineTo(w*.38,-h*.2);ctx.lineTo(w*.45,h*.3);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#8eeaff';ctx.beginPath();ctx.moveTo(-w*.23,-h*.32);ctx.lineTo(w*.23,-h*.32);ctx.lineTo(w*.3,-h*.12);ctx.lineTo(-w*.3,-h*.12);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ff444e';ctx.fillRect(-w*.38,h*.17,w*.2,5*s+2);ctx.fillRect(w*.18,h*.17,w*.2,5*s+2);
+  ctx.fillStyle='#10121a';ctx.fillRect(-w*.52,-h*.03,w*.13,h*.28);ctx.fillRect(w*.39,-h*.03,w*.13,h*.28);
+  ctx.restore();
+ });
+}
+function drawPlayer(){
+ let x=W/2+playerX*W*.28;
+ let y=H*.83-jump*H*.12;
+ let scale=Math.min(W/900,1.25);
+ let w=125*scale,h=185*scale;
+ ctx.save();ctx.translate(x,y);
+ // shadow
+ ctx.fillStyle='#05070d88';ctx.beginPath();ctx.ellipse(0,12,w*.75,20*scale,0,0,7);ctx.fill();
+ // wheels
+ ctx.fillStyle='#090b12';
+ ctx.fillRect(-w*.53,-h*.37,w*.2,h*.27);ctx.fillRect(w*.33,-h*.37,w*.2,h*.27);
+ ctx.fillRect(-w*.53,h*.13,w*.2,h*.27);ctx.fillRect(w*.33,h*.13,w*.2,h*.27);
+ // car body
+ let body=ctx.createLinearGradient(-w/2,0,w/2,0);
+ body.addColorStop(0,'#7b101c');body.addColorStop(.25,'#e52e42');body.addColorStop(.65,'#a81225');body.addColorStop(1,'#4b0d18');
+ ctx.fillStyle=body;
+ ctx.beginPath();ctx.moveTo(-w*.48,h*.35);ctx.lineTo(-w*.43,-h*.12);ctx.lineTo(-w*.29,-h*.42);ctx.lineTo(-w*.2,-h*.53);ctx.lineTo(w*.2,-h*.53);ctx.lineTo(w*.29,-h*.42);ctx.lineTo(w*.43,-h*.12);ctx.lineTo(w*.48,h*.35);ctx.closePath();ctx.fill();
+ // hood lines
+ ctx.strokeStyle='#ff9aa5';ctx.lineWidth=2*scale;
+ ctx.beginPath();ctx.moveTo(-w*.34,-h*.12);ctx.lineTo(-w*.22,-h*.4);ctx.moveTo(w*.34,-h*.12);ctx.lineTo(w*.22,-h*.4);ctx.stroke();
+ // windshield
+ ctx.fillStyle='#152d42';
+ ctx.beginPath();ctx.moveTo(-w*.29,-h*.39);ctx.lineTo(-w*.18,-h*.5);ctx.lineTo(w*.18,-h*.5);ctx.lineTo(w*.29,-h*.39);ctx.lineTo(w*.34,-h*.19);ctx.lineTo(-w*.34,-h*.19);ctx.closePath();ctx.fill();
+ ctx.strokeStyle='#7edcff';ctx.lineWidth=2*scale;ctx.stroke();
+ // roof / rear glass
+ ctx.fillStyle='#203b52';ctx.fillRect(-w*.24,-h*.1,w*.48,h*.18);
+ // grille
+ ctx.fillStyle='#11151d';ctx.fillRect(-w*.2,h*.17,w*.4,h*.12);
+ for(let i=0;i<5;i++){ctx.fillStyle='#9ba8b6';ctx.fillRect(-w*.16+i*w*.065,h*.18,w*.025,h*.1)}
+ // headlights
+ ctx.fillStyle='#e7faff';ctx.fillRect(-w*.4,-h*.04,w*.18,h*.07);ctx.fillRect(w*.22,-h*.04,w*.18,h*.07);
+ // tail lights
+ ctx.fillStyle='#ff304c';ctx.fillRect(-w*.4,h*.28,w*.18,h*.05);ctx.fillRect(w*.22,h*.28,w*.18,h*.05);
+ // spoiler
+ ctx.fillStyle='#1b2029';ctx.fillRect(-w*.43,h*.32,w*.86,5*scale);
+ // windshield reflection
+ ctx.strokeStyle='#8ee7ff';ctx.lineWidth=2*scale;ctx.beginPath();ctx.moveTo(-w*.12,-h*.46);ctx.lineTo(w*.1,-h*.46);ctx.stroke();
+ ctx.restore();
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ drawSky();drawRoad();drawObjects();drawBots();drawPlayer();
+ // motion streaks when fast
+ if(speed>.9){
+  ctx.strokeStyle='#ffffff33';ctx.lineWidth=2;
+  for(let i=0;i<10;i++){let x=(i*131+distance*2)%W;ctx.beginPath();ctx.moveTo(x,H*.55);ctx.lineTo(x-12,H*.7);ctx.stroke()}
+ }
+ // progress bar
+ ctx.fillStyle='#080b18aa';ctx.fillRect(W*.25,H-33,W*.5,8);
+ ctx.fillStyle='#ffe06b';ctx.fillRect(W*.25,H-33,W*.5*clamp(distance/(LAP_LENGTH*3),0,1),8);
+ ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.textAlign='center';ctx.fillText('RACE PROGRESS',W/2,H-39);
+}
+function loop(t){
+ if(!running||paused)return;
+ let dt=Math.min(.04,(t-lastTime)/1000||.016);lastTime=t;
+ update(dt);
+ if(running){draw();raf=requestAnimationFrame(loop)}
+}
+addEventListener('keydown',e=>{
+ let k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k==='escape')togglePause();
 });
-document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={};});
-canvas.addEventListener('click',()=>{if(running&&!paused){hits++;if(hits>=3)flat=true;$('message').textContent='Practice crash! '+hits+' / 3';}});
-draw();updateHUD();
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('blur',()=>keys={});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
+resize();
 </script>
 </body>
 </html>
