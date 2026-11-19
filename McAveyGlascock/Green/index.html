@@ -4,545 +4,582 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SPEED CITY: Endless Spray Run</title>
+<title>Speed City - Pixel Skate Rush</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;900;1000&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#10152c;color:white;font-family:Arial,sans-serif;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh;image-rendering:pixelated}
-#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
-.stat{background:#11182de8;border:2px solid #62f4ef;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:bold;text-shadow:1px 2px #000}
-#bottom{position:absolute;bottom:10px;left:10px;background:#11182de8;border:2px solid #62f4ef;border-radius:10px;padding:9px 12px;font-size:12px;line-height:1.6}
-#notice{position:absolute;top:76px;left:50%;transform:translateX(-50%);background:#fff08a;color:#241d39;padding:10px 16px;border-radius:10px;font-weight:bold;opacity:0;transition:opacity .2s;text-align:center}
-#panel{position:absolute;inset:0;background:#090d20ed;display:flex;align-items:center;justify-content:center;padding:12px}
-#card{width:min(560px,94vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#263d65,#17162e);border:3px solid #62f4ef;border-radius:20px;padding:22px;text-align:center;box-shadow:0 0 35px #00e5ff55}
-h1{font-size:clamp(27px,5vw,42px);color:#72fff1;margin:6px}
-h2{color:#ffdc70}
-p{line-height:1.5}
-button{border:0;border-radius:10px;background:#ffe078;color:#25203b;font-weight:bold;padding:11px 16px;margin:5px;font-size:15px;cursor:pointer}
-button:hover{filter:brightness(1.12)}
-.small{font-size:12px;color:#d1d9f1}
-.hidden{display:none!important}
+body{margin:0;background:#090d20;color:#effaff;font-family:Nunito,Arial,sans-serif;display:grid;place-items:center;min-height:100vh}
+#wrap{width:min(1100px,100vw);padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+h1{font:clamp(16px,3vw,25px) 'Press Start 2P';color:#65f4ff;margin:5px 0}
+.hud{display:flex;gap:7px;flex-wrap:wrap}
+.pill{background:#182545;border:1px solid #3a6388;border-radius:8px;padding:7px 10px;font-weight:900}
+#stage{position:relative;border:3px solid #3c91a8;border-radius:12px;overflow:hidden;box-shadow:0 15px 50px #0009}
+canvas{width:100%;height:auto;display:block;image-rendering:pixelated}
+#panel{position:absolute;inset:0;background:#080d20ee;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center}
+.card{max-width:650px;background:#142341;border:2px solid #54d9e8;border-radius:12px;padding:22px;box-shadow:0 10px 40px #000b}
+.card h2{font:clamp(18px,3vw,28px) 'Press Start 2P';line-height:1.5;color:#73f4ff;margin:0 0 12px}
+.card p{line-height:1.5}
+.btn{background:#f15bb5;color:#fff;border:0;border-radius:7px;padding:11px 16px;font-weight:1000;font-size:15px;margin:5px;cursor:pointer}
+.btn.alt{background:#267d9b}
+.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:8px;margin:12px 0}
+.shopitem{background:#20375a;border:1px solid #54839a;padding:10px;border-radius:8px}
+.small{font-size:13px;color:#c8e6f1}
+#message{text-align:center;min-height:28px;padding:7px;color:#b8efff;font-weight:900}
 </style>
 </head>
 <body>
-<canvas id="game" width="960" height="540"></canvas>
-<div id="hud">
- <div class="stat" id="distance">🏙️ CITY: 0%</div>
- <div class="stat" id="coins">🪙 0</div>
- <div class="stat" id="speed">⚡ SPEED: 0</div>
- <div class="stat" id="paint">🎨 PAINT: 100%</div>
- <div class="stat" id="boss">👾 BOSS: NONE</div>
+<main id="wrap">
+<header>
+<h1>SPEED CITY</h1>
+<div class="hud">
+<div class="pill" id="score">PAINT: 0</div>
+<div class="pill" id="coins">COINS: 0</div>
+<div class="pill" id="level">CITY RUN</div>
+<div class="pill" id="board">BOARD: BASIC</div>
 </div>
-<div id="bottom">A/D or ←/→: Move · SPACE: Jump<br>F: Trick in the air · Hold Z: Spray paint<br>X: Special ability · ESC: Pause</div>
-<div id="notice"></div>
-<div id="panel">
- <div id="card">
-  <h1>⚡ SPEED CITY</h1>
-  <h2>ENDLESS SPRAY RUN!</h2>
-  <p>Race through the neon tech city, paint the buildings, collect coins, and escape the flying robot and helicopter!</p>
-  <p>Look out for giant ramps and surprise boss battles. How much of the city can you paint?</p>
-  <button onclick="startGame()">START RUN</button>
-  <button onclick="showHelp()">HOW TO PLAY</button>
-  <p class="small">Fast action · Endless city · Boss battles · Huge jumps · Spray-paint tricks</p>
- </div>
-</div>
-<script>
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const W=960,H=540;
-let keys={};
-let running=false,paused=false,raf=0,last=0;
-let player,robot,heli;
-let distance=0,coins=0,painted=0,paint=100;
-let speed=450,worldSpeed=450;
-let obstacles=[],ramps=[],coinItems=[],paintMarks=[],particles=[];
-let boss=null,bossTimer=0,bossesDefeated=0;
-let trickCount=0,combo=0,comboTimer=0;
-let ability='none',abilityTime=0,abilityCooldown=0;
-let robotDistance=0,robotPressure=0;
-let paintTimer=0,spawnTimer=0,coinTimer=0;
-let health=3,score=0;
-let jumping=false,jumpY=0,jumpV=0;
-let tricking=false,trickAngle=0;
-let noticeTimer=0,cityColor=0;
-let gameOver=false;
-let frame=0;
+</header>
 
-const palettes=[
- ['#132b53','#13c8d8','#ff55bc','#ffe078'],
- ['#1d2856','#a86bff','#63ffca','#ff6b9e'],
- ['#172b42','#ff7b54','#5ee8ff','#e7ff78'],
- ['#251d4e','#ff5bc8','#7dffdf','#ffe078']
+<div id="stage">
+<canvas id="game" width="960" height="540"></canvas>
+<div id="panel">
+<div class="card">
+<h2>SPEED CITY</h2>
+<p>Race through a neon future city, paint the streets, dodge flying robots, and discover secret routes. Collect coins to unlock new skaters and skateboards!</p>
+<p><b>Controls:</b> A/D or ←/→ move · SPACE / W / ↑ jump · X paint blast · P pause · SHOP between runs</p>
+<button class="btn" id="start">START SKATING</button>
+<button class="btn alt" id="shop">SKATER & BOARD SHOP</button>
+</div>
+</div>
+</div>
+<div id="message">Collect paint cans and coins. Avoid the flying robots!</div>
+</main>
+
+<script>
+(()=>{
+const c=document.getElementById('game');
+const g=c.getContext('2d');
+const panel=document.getElementById('panel');
+const $=id=>document.getElementById(id);
+
+let running=false,paused=false,raf=0,last=0;
+let player,obstacles=[],coins=[],paint=[],robots=[],platforms=[];
+let camera=0,score=0,money=0,hearts=3,speed=5,frame=0,world=0;
+
+let ownedSkaters=['NEON'];
+let ownedBoards=['BASIC'];
+let skater='NEON',board='BASIC';
+
+const skaters=[
+['NEON',0,'Starter skater'],
+['PIXEL',80,'Retro pixel pro'],
+['NOVA',140,'Space city rider'],
+['BOLT',220,'Lightning-fast skater']
 ];
 
-function rand(a,b){return a+Math.random()*(b-a)}
-function ri(n){return Math.floor(Math.random()*n)}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function say(t){
- const el=document.getElementById('notice');
- el.textContent=t;el.style.opacity=1;noticeTimer=2.2;
+const boards=[
+['BASIC',0,'Balanced starter board'],
+['FLAME',70,'Extra speed'],
+['HOLO',130,'Higher jumps'],
+['SHADOW',190,'Longer paint blasts']
+];
+
+const keys={
+left:false,
+right:false,
+jump:false,
+blast:false
+};
+
+function updateHud(){
+$('score').textContent='PAINT: '+score;
+$('coins').textContent='COINS: '+money;
+$('level').textContent='CITY RUN '+(world+1);
+$('board').textContent='BOARD: '+board;
 }
-function showPanel(html){
- document.getElementById('card').innerHTML=html;
- document.getElementById('panel').classList.remove('hidden');
+
+function reset(){
+player={
+x:120,y:350,w:34,h:48,
+vx:0,vy:0,on:false,inv:0,blast:0
+};
+obstacles=[];
+coins=[];
+paint=[];
+robots=[];
+platforms=[];
+camera=0;
+score=0;
+hearts=3;
+speed=5;
+world=0;
+frame=0;
+spawnAhead();
+updateHud();
 }
-function hidePanel(){document.getElementById('panel').classList.add('hidden')}
-function showHelp(){
- showPanel('<h1>HOW TO PLAY</h1><p><b>A/D or arrows:</b> Move left and right.</p><p><b>SPACE:</b> Jump. Ramps give you a huge boost!</p><p><b>F:</b> Perform tricks while airborne to earn bonus coins.</p><p><b>Hold Z:</b> Spray-paint buildings and the city.</p><p><b>X:</b> Use your special ability.</p><p>Avoid obstacles, escape the robot, and defeat bosses when they appear!</p><button onclick="showTitle()">BACK</button>');
-}
-function showTitle(){
- running=false;paused=false;cancelAnimationFrame(raf);
- showPanel('<h1>⚡ SPEED CITY</h1><h2>ENDLESS SPRAY RUN!</h2><p>Ready to paint the whole city?</p><button onclick="startGame()">START RUN</button><button onclick="showHelp()">HOW TO PLAY</button>');
-}
-function startGame(){
- cancelAnimationFrame(raf);
- distance=0;coins=0;painted=0;paint=100;
- speed=450;worldSpeed=450;
- obstacles=[];ramps=[];coinItems=[];paintMarks=[];particles=[];
- boss=null;bossTimer=700;bossesDefeated=0;
- trickCount=0;combo=0;comboTimer=0;
- ability='none';abilityTime=0;abilityCooldown=0;
- robotDistance=0;robotPressure=0;
- paintTimer=0;spawnTimer=0;coinTimer=0;
- health=3;score=0;
- jumping=false;jumpY=0;jumpV=0;tricking=false;trickAngle=0;
- gameOver=false;cityColor=0;
- player={x:210,y:380,vy:0,air:false,invincible:0,anim:0};
- robot={x:35,y:240,phase:0};
- heli={x:760,y:85,phase:0};
- running=true;paused=false;hidePanel();
- updateHUD();last=performance.now();raf=requestAnimationFrame(loop);
- say('GO! PAINT THE CITY!');
-}
-function updateHUD(){
- document.getElementById('distance').textContent='🏙️ CITY: '+Math.min(100,Math.floor(painted/10))+'%';
- document.getElementById('coins').textContent='🪙 '+coins;
- document.getElementById('speed').textContent='⚡ SPEED: '+Math.floor(speed/10);
- document.getElementById('paint').textContent='🎨 PAINT: '+Math.floor(paint)+'%';
- document.getElementById('boss').textContent=boss?'👾 BOSS: '+boss.hp+' HP':'👾 BOSS: NONE';
-}
-function spawnObstacle(){
- let type=Math.random();
- if(type<.55){
-  obstacles.push({x:W+50,y:395,w:rand(35,55),h:rand(35,75),type:'barrier',color:['#f55d83','#f5d76a','#6ee7f3'][ri(3)]});
- }else if(type<.8){
-  obstacles.push({x:W+50,y:390,w:45,h:50,type:'drone',phase:rand(0,6)});
- }else{
-  obstacles.push({x:W+50,y:405,w:65,h:30,type:'crate',color:'#ab71f2'});
- }
-}
-function spawnRamp(){
- ramps.push({x:W+80,y:420,w:110,h:48,used:false});
-}
-function spawnCoins(){
- let x=W+50;
- let count=5+ri(4);
- for(let i=0;i<count;i++){
-  coinItems.push({x:x+i*30,y:rand(290,360),got:false,phase:rand(0,6)});
- }
-}
-function spray(){
- if(paint<=0)return;
- paint=Math.max(0,paint-.12);
- paintTimer+=.02;
- if(paintTimer>.11){
-  paintTimer=0;
-  const c=palettes[cityColor%palettes.length][ri(4)];
-  for(let i=0;i<3;i++){
-   particles.push({x:player.x+rand(10,45),y:player.y-20+jumpY+rand(-12,12),vx:rand(30,100),vy:rand(-70,70),life:rand(.3,.7),color:c,size:rand(3,8)});
-  }
-  if(Math.random()<.08){
-   painted=Math.min(1000,painted+1);
-   paintMarks.push({x:rand(0,W),y:rand(90,280),color:c,life:10});
-  }
- }
-}
-function jump(){
- if(!player.air){
-  player.vy=-720;player.air=true;jumping=true;jumpY=0;
- }
-}
-function doTrick(){
- if(!player.air){say('Jump first, then press F for a trick!');return}
- if(tricking)return;
- tricking=true;trickAngle=0;trickCount++;
- combo++;comboTimer=2;
- coins+=2+Math.min(combo,8);
- score+=100*combo;
- say('🔥 TRICK! +'+(2+Math.min(combo,8))+' COINS!');
-}
-function useAbility(){
- if(abilityCooldown>0){say('Special ability recharging!');return}
- if(ability==='none'){
-  say('Find a special ability power-up first!');return;
- }
- if(ability==='paintstorm'){
-  painted=Math.min(1000,painted+45);
-  paint=Math.min(100,paint+25);
-  for(let i=0;i<50;i++)particles.push({x:rand(0,W),y:rand(80,400),vx:rand(-100,100),vy:rand(-100,100),life:1,color:palettes[cityColor%4][ri(4)],size:rand(4,10)});
-  say('🌈 PAINT STORM! THE CITY IS COLORFUL!');
- }else if(ability==='boost'){
-  speed=850;abilityTime=4;say('⚡ TURBO BOOST!');
- }else if(ability==='shield'){
-  player.invincible=6;say('🛡️ NEON SHIELD ACTIVATED!');
- }
- abilityCooldown=12;updateHUD();
-}
-function spawnPowerup(){
- obstacles.push({x:W+80,y:rand(280,360),w:25,h:25,type:'power',power:['paintstorm','boost','shield'][ri(3)]});
-}
-function startBoss(){
- if(boss)return;
- boss={x:W+80,y:230,hp:12,max:12,phase:0,shotTimer:1,flash:0};
- bossTimer=850;
- say('🚨 BOSS INCOMING! SPRAY IT!');
-}
-function damageBoss(){
- if(!boss)return;
- boss.hp--;boss.flash=.15;
- score+=150;
- for(let i=0;i<8;i++)particles.push({x:boss.x,y:boss.y,vx:rand(-100,100),vy:rand(-100,100),life:.4,color:'#ffdc70',size:5});
- if(boss.hp<=0){
-  boss=null;bossesDefeated++;coins+=20;score+=1000;
-  ability=['paintstorm','boost','shield'][ri(3)];
-  say('🏆 BOSS DEFEATED! +20 COINS! SPECIAL ABILITY FOUND!');
- }
- updateHUD();
-}
-function hit(){
- if(player.invincible>0)return;
- health--;player.invincible=1.5;robotPressure+=70;
- say('OUCH! WATCH OUT!');
- if(health<=0)endGame();
- updateHUD();
-}
-function endGame(){
- running=false;gameOver=true;cancelAnimationFrame(raf);
- showPanel('<h1>🏁 RUN OVER!</h1><h2>YOU PAINTED '+Math.floor(painted/10)+'% OF THE CITY!</h2><p>Distance: '+Math.floor(distance)+' m</p><p>Coins: '+coins+' · Tricks: '+trickCount+' · Bosses defeated: '+bossesDefeated+'</p><button onclick="startGame()">PLAY AGAIN</button><button onclick="showTitle()">HOME</button>');
-}
-function update(dt){
- frame++;
- speed=Math.min(780,450+distance*.025);
- worldSpeed=speed;
- distance+=speed*dt*.045;
- if(comboTimer>0)comboTimer-=dt;else combo=0;
- if(abilityCooldown>0)abilityCooldown-=dt;
- if(abilityTime>0){abilityTime-=dt;if(abilityTime<=0)speed=450+distance*.025}
- if(player.invincible>0)player.invincible-=dt;
- player.anim+=dt*12;
- if(keys.a||keys.arrowleft)player.x-=330*dt;
- if(keys.d||keys.arrowright)player.x+=330*dt;
- player.x=clamp(player.x,90,490);
- // Jump physics
- if(player.air){
-  player.vy+=1500*dt;
-  jumpY+=player.vy*dt;
-  if(jumpY>=0){jumpY=0;player.vy=0;player.air=false;jumping=false;tricking=false}
- }
- if(keys.z&&paint>0)spray();
- // Robot always pursues from behind.
- robot.phase+=dt*3;
- robot.x=35+Math.sin(robot.phase)*12;
- robot.y=245+Math.sin(robot.phase*1.6)*30;
- robotDistance+=dt*(boss?10:4);
- if(robotDistance>20){robotDistance=0;robotPressure+=1}
- if(robotPressure>100){robotPressure=0;hit()}
- // Helicopter tracks the player overhead.
- heli.phase+=dt*1.5;
- heli.x=player.x+100+Math.sin(heli.phase)*90;
- heli.y=85+Math.sin(heli.phase*2)*15;
- // Spawn objects
- spawnTimer+=dt;
- if(spawnTimer>Math.max(.55,1.25-distance*.00002)){spawnTimer=0;spawnObstacle()}
- coinTimer+=dt;
- if(coinTimer>1.5){coinTimer=0;spawnCoins()}
- if(Math.random()<dt*.16)spawnRamp();
- if(Math.random()<dt*.045)spawnPowerup();
- bossTimer-=dt*speed*.05;
- if(bossTimer<=0&&!boss)startBoss();
- // Move world objects
- const move=speed*dt;
- obstacles.forEach(o=>o.x-=move);
- ramps.forEach(o=>o.x-=move);
- coinItems.forEach(o=>{o.x-=move;o.phase+=dt*4});
- paintMarks.forEach(o=>o.life-=dt);
- obstacles=obstacles.filter(o=>o.x>-100);
- ramps=ramps.filter(o=>o.x>-150);
- coinItems=coinItems.filter(o=>o.x>-50&&!o.got);
- paintMarks=paintMarks.filter(o=>o.life>0);
- // Obstacles, powerups and collision
- obstacles.forEach(o=>{
-  if(o.type==='power'){
-   if(Math.abs(o.x-player.x)<35&&Math.abs(o.y-(player.y+jumpY))<40){
-    ability=o.power;coins+=3;o.x=-100;
-    say('SPECIAL ABILITY: '+ability.toUpperCase()+'!');updateHUD();
-   }
-   return;
-  }
-  if(Math.abs(o.x-player.x)<30&&Math.abs((o.y+o.h/2)-(player.y+jumpY))<40&&!player.air){
-   o.x=-100;hit();
-  }
- });
- // Coins
- coinItems.forEach(o=>{
-  if(!o.got&&Math.abs(o.x-player.x)<24&&Math.abs(o.y-(player.y+jumpY))<28){
-   o.got=true;coins++;score+=20;
-  }
- });
- // Ramps launch the player high into the air.
- ramps.forEach(r=>{
-  if(!r.used&&r.x<player.x+25&&r.x+r.w>player.x-20&&Math.abs(player.x-r.x)<45){
-   r.used=true;
-   player.vy=-1050;player.air=true;jumpY=0;
-   say('🚀 MEGA RAMP JUMP!');
-  }
- });
- // Boss moves toward the player and fires energy pulses.
- if(boss){
-  boss.phase+=dt*2;
-  boss.x-=speed*.25*dt;
-  boss.y=230+Math.sin(boss.phase)*65;
-  boss.shotTimer-=dt;
-  if(boss.shotTimer<=0){
-   boss.shotTimer=1.6;
-   obstacles.push({x:boss.x-20,y:boss.y+60,w:24,h:24,type:'bossShot',color:'#ff4e9a'});
-  }
-  if(boss.flash>0)boss.flash-=dt;
-  if(Math.abs(boss.x-player.x)<45&&Math.abs(boss.y-(player.y+jumpY))<55){
-   damageBoss();boss.x+=45;
-  }
- }
- obstacles.forEach(o=>{
-  if(o.type==='bossShot'&&Math.abs(o.x-player.x)<25&&Math.abs(o.y-(player.y+jumpY))<30){
-   o.x=-100;hit();
-  }
- });
- // Robot can be sprayed to push it back.
- if(keys.z&&Math.random()<dt*2&&robotPressure>0)robotPressure=Math.max(0,robotPressure-1.4);
- // City progress: spray marks build toward 100%.
- painted=Math.min(1000,painted);
- updateHUD();
- if(distance>0&&Math.floor(distance)%500===0&&cityColor!==Math.floor(distance/500)%4)cityColor=Math.floor(distance/500)%4;
-}
-function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))}
-function drawBackground(){
- const pal=palettes[cityColor%4];
- let grad=ctx.createLinearGradient(0,0,0,H);
- grad.addColorStop(0,pal[0]);grad.addColorStop(1,'#11182e');
- ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
- // Stars and distant skyline
- for(let i=0;i<60;i++){
-  let x=(i*173-distance*.25)%W;if(x<0)x+=W;
-  rect(x,(i*79)%170,2,2,'#b6edff');
- }
- // City skyline
- for(let i=0;i<15;i++){
-  let x=(i*95-distance*.45)%1200;if(x<-90)x+=1200;
-  let h=100+(i*37)%110;
-  rect(x,310-h,65,h,pal[1]);
-  rect(x+8,320-h,6,h-15,pal[2]);
-  for(let y=320-h+15;y<300;y+=19)for(let wx=x+13;wx<x+58;wx+=17)rect(wx,y,7,9,'#ffe78a');
-  rect(x+22,300-h,20,10,pal[3]);
- }
- // Street
- rect(0,390,W,150,'#242b42');
- rect(0,390,W,8,'#68728a');
- rect(0,468,W,5,'#ffe36c');
- for(let i=0;i<15;i++){
-  let x=(i*100-distance)%1100;if(x<-30)x+=1100;
-  rect(x,450,50,5,'#fff0a0');
- }
-}
-function drawBuildingPaint(){
- paintMarks.forEach(o=>{
-  ctx.globalAlpha=Math.min(1,o.life);
-  rect(o.x,o.y,rand(8,20),rand(8,20),o.color);
-  ctx.globalAlpha=1;
- });
-}
-function drawPlayer(){
- let x=player.x,y=player.y+jumpY;
- // shadow gets smaller in the air
- let shadow=clamp(1+jumpY/900,.25,1);
- ctx.globalAlpha=shadow;
- rect(player.x-22,player.y+12,45,7,'#0b1025');
- ctx.globalAlpha=1;
- // Skateboard
- rect(x-25,y+11,50,7,'#202a48');
- rect(x-20,y+18,8,4,'#ffdc70');rect(x+12,y+18,8,4,'#ffdc70');
- // legs
- let walk=Math.sin(player.anim)*4;
- rect(x-12+walk,y-3,9,17,'#20243e');
- rect(x+4-walk,y-3,9,17,'#20243e');
- // body
- rect(x-16,y-35,32,34,'#ff58b8');
- rect(x-12,y-31,24,23,'#ff9bd9');
- // head
- rect(x-13,y-58,26,24,'#d99b78');
- rect(x-16,y-65,32,12,'#4b2a48');
- rect(x-15,y-57,5,13,'#4b2a48');
- rect(x+10,y-57,5,13,'#4b2a48');
- rect(x-7,y-49,4,4,'#241c37');rect(x+4,y-49,4,4,'#241c37');
- rect(x-3,y-42,7,2,'#8c365d');
- // spray can
- rect(x+17,y-31,9,18,'#61f3e9');
- rect(x+19,y-35,5,4,'#d6fffb');
- if(keys.z&&paint>0){
-  for(let i=0;i<5;i++)rect(x+30+Math.random()*25,y-30+Math.random()*25,4,4,palettes[cityColor%4][ri(4)]);
- }
- if(player.invincible>0&&frame%8<4)ctx.globalAlpha=.4;
- ctx.globalAlpha=1;
-}
-function drawRobot(){
- let x=robot.x,y=robot.y;
- // robot body
- rect(x-30,y-25,60,48,'#687a9b');
- rect(x-22,y-37,44,17,'#8b9bb7');
- rect(x-20,y-16,40,20,'#9eacc7');
- rect(x-15,y-10,10,8,'#ff426d');
- rect(x+6,y-10,10,8,'#ff426d');
- rect(x-35,y+19,14,9,'#53647f');
- rect(x+21,y+19,14,9,'#53647f');
- rect(x-42,y-7,12,24,'#455776');
- rect(x+30,y-7,12,24,'#455776');
- rect(x-15,y+24,30,7,'#f04c91');
- rect(x-8,y-42,16,6,'#ff4e8a');
- // laser
- rect(x+25,y+5,60,3,'#ff4e8a');
- rect(x+75,y+2,10,9,'#ff4e8a');
-}
-function drawHeli(){
- let x=heli.x,y=heli.y;
- rect(x-25,y-9,50,18,'#7f9bb4');
- rect(x+15,y-5,27,7,'#9bc8e3');
- rect(x-18,y-5,18,10,'#17294b');
- rect(x-4,y-22,8,15,'#8ca8c7');
- rect(x-45,y-25,90,4,'#d4e9ff');
- rect(x-4,y+8,8,22,'#53677d');
- rect(x-22,y+28,45,3,'#b3d7ee');
- rect(x+38,y-2,5,5,'#ff6a83');
-}
-function drawObstacles(){
- obstacles.forEach(o=>{
-  if(o.type==='barrier'){
-   rect(o.x,o.y,o.w,o.h,o.color);
-   rect(o.x+5,o.y+8,o.w-10,7,'#fff1b4');
-   rect(o.x+5,o.y+25,o.w-10,7,'#fff1b4');
-  }else if(o.type==='drone'){
-   rect(o.x,o.y,o.w,o.h,'#6c87b5');
-   rect(o.x+7,o.y+10,o.w-14,10,'#ff548d');
-   rect(o.x-10,o.y+3,10,4,'#d2f8ff');
-   rect(o.x+o.w,o.y+3,10,4,'#d2f8ff');
-  }else if(o.type==='crate'){
-   rect(o.x,o.y,o.w,o.h,o.color);
-   rect(o.x+7,o.y+7,o.w-14,o.h-14,'#e3b0ff');
-  }else if(o.type==='power'){
-   let c=o.power==='boost'?'#ffe078':o.power==='shield'?'#63f6ed':'#ff66d1';
-   rect(o.x,o.y,o.w,o.h,c);
-   rect(o.x+6,o.y+6,o.w-12,o.h-12,'#fff');
-   rect(o.x+10,o.y+10,5,5,c);
-  }else if(o.type==='bossShot'){
-   rect(o.x,o.y,o.w,o.h,'#ff3f9b');
-   rect(o.x+5,o.y+5,o.w-10,o.h-10,'#ffd7f0');
-  }
- });
-}
-function drawRamps(){
- ramps.forEach(r=>{
-  ctx.fillStyle='#ffcf69';
-  ctx.beginPath();ctx.moveTo(r.x,r.y+r.h);ctx.lineTo(r.x+r.w,r.y+r.h);ctx.lineTo(r.x+r.w,r.y-20);ctx.closePath();ctx.fill();
-  rect(r.x+12,r.y+8,r.w-20,5,'#fff3ad');
-  rect(r.x+28,r.y+23,r.w-40,5,'#ff6cb8');
-  rect(r.x+10,r.y+r.h-7,r.w-15,5,'#9c6cf5');
- });
-}
-function drawCoins(){
- coinItems.forEach(o=>{
-  if(o.got)return;
-  let bob=Math.sin(o.phase)*4;
-  rect(o.x-8,o.y-9+bob,16,18,'#ffcf51');
-  rect(o.x-5,o.y-6+bob,10,12,'#fff0a1');
-  rect(o.x-2,o.y-4+bob,4,8,'#ffb93c');
- });
-}
-function drawBoss(){
- if(!boss)return;
- let x=boss.x,y=boss.y;
- let flash=boss.flash>0?'#ffffff':'#a34de0';
- rect(x-45,y-30,90,65,flash);
- rect(x-35,y-42,70,15,'#c37af5');
- rect(x-25,y-55,50,15,'#d89bff');
- rect(x-25,y-8,15,13,'#fff');
- rect(x+10,y-8,15,13,'#fff');
- rect(x-20,y-4,6,8,'#20163c');
- rect(x+15,y-4,6,8,'#20163c');
- rect(x-12,y+15,25,5,'#4a1d65');
- rect(x-42,y-65,84,7,'#28223e');
- rect(x-40,y-63,80*(boss.hp/boss.max),3,'#ff577e');
- label('BOSS!',x,y-75);
-}
-function label(t,x,y){
- ctx.font='bold 15px Arial';ctx.textAlign='center';
- ctx.fillStyle='#10152a';ctx.fillText(t,x+2,y+2);
- ctx.fillStyle='#fff';ctx.fillText(t,x,y);
-}
-function drawParticles(dt){
- particles.forEach(p=>{
-  p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
-  rect(p.x,p.y,p.size,p.size,p.color);
- });
- particles=particles.filter(p=>p.life>0);
-}
-function draw(){
- drawBackground();
- drawBuildingPaint();
- drawRamps();
- drawCoins();
- drawObstacles();
- if(boss)drawBoss();
- drawHeli();
- drawRobot();
- drawPlayer();
- drawParticles(1/60);
- // City progress bar
- rect(15,510,220,12,'#1b203c');
- rect(17,512,216*(Math.min(1000,painted)/1000),8,'#ff66cb');
- ctx.font='12px Arial';ctx.textAlign='left';ctx.fillStyle='white';
- ctx.fillText('CITY PAINTED',16,503);
- // Health
- for(let i=0;i<3;i++){
-  ctx.fillStyle=i<health?'#ff658c':'#55566e';
-  ctx.fillText('♥',850+i*30,510);
- }
-}
-function loop(t){
- if(!running||paused)return;
- let dt=Math.min(.035,(t-last)/1000||.016);last=t;
- if(noticeTimer>0){noticeTimer-=dt;if(noticeTimer<=0)document.getElementById('notice').style.opacity=0}
- update(dt);draw();
- raf=requestAnimationFrame(loop);
-}
-function pauseGame(){
- if(!running||paused)return;
- paused=true;cancelAnimationFrame(raf);
- showPanel('<h1>⏸ PAUSED</h1><p>Catch your breath, spray painter!</p><button onclick="resumeGame()">RESUME</button><button onclick="showTitle()">HOME</button>');
-}
-function resumeGame(){
- paused=false;hidePanel();last=performance.now();raf=requestAnimationFrame(loop);
-}
-addEventListener('keydown',e=>{
- let k=e.key.toLowerCase();
- if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k))e.preventDefault();
- keys[k]=true;
- if(k===' '&&!e.repeat)jump();
- if(k==='f'&&!e.repeat)doTrick();
- if(k==='x'&&!e.repeat)useAbility();
- if(k==='escape'&&!e.repeat)pauseGame();
+
+function spawnAhead(){
+let x=Math.max(900,camera+1800);
+while(x<camera+2400){
+let r=Math.random();
+
+if(r<.42){
+obstacles.push({
+x,y:414,w:30+Math.random()*25,
+h:35+Math.random()*30
 });
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-addEventListener('blur',()=>keys={});
-addEventListener('resize',()=>{});
-showTitle();
+}else if(r<.7){
+robots.push({
+x,y:245+Math.random()*90,
+w:38,h:28,phase:Math.random()*6
+});
+}else{
+platforms.push({
+x,y:310-Math.random()*70,w:130,h:15
+});
+}
+
+for(let j=0;j<3;j++){
+if(Math.random()<.65){
+coins.push({
+x:x+j*28,y:300-Math.random()*100,
+r:9,got:false
+});
+}
+}
+
+if(Math.random()<.7){
+paint.push({
+x:x+90,y:365-Math.random()*85,got:false
+});
+}
+
+x+=180+Math.random()*130;
+}
+}
+
+function start(){
+if(running)return;
+reset();
+running=true;
+paused=false;
+panel.style.display='none';
+$('message').textContent='GO! Paint the city and stay ahead of the robots.';
+last=performance.now();
+cancelAnimationFrame(raf);
+raf=requestAnimationFrame(loop);
+}
+
+function drawCity(){
+g.fillStyle='#101a3b';
+g.fillRect(0,0,960,540);
+
+for(let i=0;i<18;i++){
+let x=((i*95-camera*.22)%1100+1100)%1100-70;
+let h=130+(i*47%170);
+g.fillStyle=i%2?'#1a315a':'#20264e';
+g.fillRect(x,410-h,65,h);
+
+for(let yy=430-h;yy<400;yy+=25){
+for(let xx=x+10;xx<x+60;xx+=20){
+g.fillStyle=(i+xx+yy)%3?'#42c9dc':'#f15bb5';
+g.fillRect(xx,yy,7,10);
+}
+}
+}
+
+g.fillStyle='#293754';
+g.fillRect(0,440,960,100);
+g.fillStyle='#3e6e85';
+for(let x=0;x<960;x+=60){
+g.fillRect(x,442,35,4);
+}
+}
+
+function draw(){
+drawCity();
+g.save();
+g.translate(-camera,0);
+
+platforms.forEach(p=>{
+g.fillStyle='#56dce7';
+g.fillRect(p.x,p.y,p.w,p.h);
+g.fillStyle='#d6ffff';
+g.fillRect(p.x,p.y,p.w,4);
+});
+
+obstacles.forEach(o=>{
+g.fillStyle='#e44e91';
+g.fillRect(o.x,o.y,o.w,o.h);
+g.fillStyle='#ffc0e1';
+g.fillRect(o.x+5,o.y+5,o.w-10,5);
+});
+
+coins.forEach(o=>{
+if(!o.got){
+g.fillStyle='#ffd34f';
+g.fillRect(o.x-7,o.y-9,14,18);
+g.fillStyle='#fff0a0';
+g.fillRect(o.x-2,o.y-6,4,12);
+}
+});
+
+paint.forEach(o=>{
+if(!o.got){
+g.fillStyle='#65ffbd';
+g.fillRect(o.x-8,o.y-10,16,20);
+g.fillStyle='#163c43';
+g.fillRect(o.x-3,o.y-5,6,10);
+}
+});
+
+robots.forEach(o=>{
+g.fillStyle='#a4a9c7';
+g.fillRect(o.x,o.y,o.w,o.h);
+g.fillStyle='#ff496f';
+g.fillRect(o.x+8,o.y+9,7,6);
+g.fillRect(o.x+24,o.y+9,7,6);
+g.fillStyle='#576b94';
+g.fillRect(o.x-8,o.y+5,8,5);
+g.fillRect(o.x+o.w,o.y+5,8,5);
+});
+
+if(player.blast>0){
+g.strokeStyle='#71f9ff';
+g.lineWidth=5;
+g.beginPath();
+g.arc(player.x+17,player.y+25,60-player.blast*2,0,Math.PI*2);
+g.stroke();
+}
+
+// Skateboard
+g.fillStyle='#101326';
+g.fillRect(player.x,player.y+player.h-4,player.w,9);
+
+// Skater colors change with character
+g.fillStyle=skater==='PIXEL'?'#ffcb4b':
+skater==='NOVA'?'#9d8cff':
+skater==='BOLT'?'#ff704e':'#5cf3ff';
+
+g.fillRect(player.x+5,player.y+5,24,29);
+
+// Head
+g.fillStyle='#ffe1bd';
+g.fillRect(player.x+9,player.y-8,17,16);
+
+// Face
+g.fillStyle='#15213c';
+g.fillRect(player.x+12,player.y-3,3,3);
+g.fillRect(player.x+21,player.y-3,3,3);
+
+// Board detail
+g.fillStyle='#f15bb5';
+g.fillRect(player.x+2,player.y+34,30,5);
+
+g.restore();
+
+g.fillStyle='#fff';
+g.font='bold 18px Nunito';
+g.fillText('♥ '.repeat(hearts),20,30);
+g.fillText('SPEED '+Math.round(speed*10),820,30);
+}
+
+function hit(a,b){
+return a.x<b.x+b.w&&
+a.x+a.w>b.x&&
+a.y<b.y+b.h&&
+a.y+a.h>b.y;
+}
+
+function damage(){
+if(player.inv>0)return;
+hearts--;
+player.inv=100;
+player.vx=-2;
+
+if(hearts<=0){
+running=false;
+show(
+'RUN OVER',
+`You painted ${score} street tiles and collected ${money} coins.`,
+`<button class="btn" data-act="again">PLAY AGAIN</button>
+<button class="btn alt" data-act="shop">SHOP</button>`
+);
+}
+}
+
+function update(){
+frame++;
+
+// Smooth movement
+let accel=board==='FLAME'?.75:.58;
+
+player.vx+=(keys.right?accel:keys.left?-accel:0);
+player.vx*=.94;
+player.vx=Math.max(-4,Math.min(8,player.vx));
+
+if(keys.jump&&player.on){
+player.vy=board==='HOLO'?-14:-12;
+player.on=false;
+}
+
+player.vy+=.62;
+player.x+=player.vx;
+player.y+=player.vy;
+player.on=false;
+
+// Ground
+if(player.y+player.h>=440){
+player.y=440-player.h;
+player.vy=0;
+player.on=true;
+}
+
+// Platforms
+platforms.forEach(p=>{
+if(player.vy>=0&&
+player.x+player.w>p.x&&
+player.x<p.x+p.w&&
+player.y+player.h>=p.y&&
+player.y+player.h<p.y+22){
+player.y=p.y-player.h;
+player.vy=0;
+player.on=true;
+}
+});
+
+// Falling
+if(player.y>560){
+damage();
+player.y=300;
+player.vy=0;
+}
+
+camera=Math.max(0,player.x-240);
+spawnAhead();
+
+// Obstacles
+obstacles.forEach(o=>{
+if(hit(player,o))damage();
+});
+
+// Coins
+coins.forEach(o=>{
+if(!o.got&&hit(player,{
+x:o.x-8,y:o.y-9,w:16,h:18
+})){
+o.got=true;
+money+=5;
+}
+});
+
+// Paint
+paint.forEach(o=>{
+if(!o.got&&hit(player,{
+x:o.x-9,y:o.y-10,w:18,h:20
+})){
+o.got=true;
+score++;
+}
+});
+
+// Flying robots
+robots.forEach(o=>{
+o.y+=Math.sin(frame*.06+o.phase)*.8;
+if(hit(player,o))damage();
+});
+
+// Paint blast
+if(player.blast>0){
+player.blast--;
+robots=robots.filter(r=>
+Math.hypot(r.x-player.x,r.y-player.y)>120
+);
+}
+
+if(player.inv>0)player.inv--;
+
+if(keys.blast){
+player.blast=board==='SHADOW'?45:28;
+keys.blast=false;
+robots=robots.filter(r=>
+Math.hypot(r.x-player.x,r.y-player.y)>150
+);
+}
+
+// Gradually increase challenge
+if(player.x>world*2200+2100){
+world++;
+speed=Math.min(9,speed+.35);
+player.x+=120;
+obstacles=obstacles.filter(o=>o.x>camera-100);
+updateHud();
+}
+
+player.x+=speed*.45;
+updateHud();
+}
+
+function loop(t){
+if(!running||paused)return;
+last=t;
+update();
+draw();
+raf=requestAnimationFrame(loop);
+}
+
+function show(title,body,buttons){
+panel.style.display='flex';
+panel.innerHTML=`
+<div class="card">
+<h2>${title}</h2>
+<p>${body}</p>
+${buttons}
+</div>`;
+}
+
+function shop(){
+running=false;
+paused=false;
+
+let html='<div class="shopgrid">';
+
+skaters.forEach(s=>{
+let own=ownedSkaters.includes(s[0]);
+html+=`
+<div class="shopitem">
+<b>${s[0]}</b>
+<p class="small">${s[2]}</p>
+<button class="btn ${own?'alt':''}" data-buy="s:${s[0]}">
+${own?(skater===s[0]?'EQUIPPED':'SELECT'):'BUY '+s[1]}
+</button>
+</div>`;
+});
+
+boards.forEach(b=>{
+let own=ownedBoards.includes(b[0]);
+html+=`
+<div class="shopitem">
+<b>${b[0]} BOARD</b>
+<p class="small">${b[2]}</p>
+<button class="btn ${own?'alt':''}" data-buy="b:${b[0]}">
+${own?(board===b[0]?'EQUIPPED':'SELECT'):'BUY '+b[1]}
+</button>
+</div>`;
+});
+
+html+='</div>';
+
+show(
+'SKATER SHOP',
+`Coins: ${money}<p class="small">Unlock new riders and boards. Purchases stay unlocked during this game session.</p>`,
+html+`
+<button class="btn" data-act="back">BACK</button>
+<button class="btn alt" data-act="again">START SKATING</button>`
+);
+}
+
+panel.addEventListener('click',e=>{
+let b=e.target.dataset.buy;
+let a=e.target.dataset.act;
+
+if(b){
+let [type,name]=b.split(':');
+let arr=type==='s'?skaters:boards;
+let owned=type==='s'?ownedSkaters:ownedBoards;
+let item=arr.find(x=>x[0]===name);
+
+if(owned.includes(name)){
+if(type==='s')skater=name;
+else board=name;
+}else if(money>=item[1]){
+money-=item[1];
+owned.push(name);
+if(type==='s')skater=name;
+else board=name;
+}else{
+$('message').textContent='Not enough coins yet. Keep skating!';
+}
+
+updateHud();
+shop();
+return;
+}
+
+if(a==='again')start();
+if(a==='shop')shop();
+
+if(a==='back'){
+panel.style.display='none';
+if(running){
+paused=false;
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}else{
+show(
+'SPEED CITY',
+'Ready to skate?',
+`<button class="btn" data-act="again">START SKATING</button>
+<button class="btn alt" data-act="shop">SHOP</button>`
+);
+}
+}
+});
+
+$('start').addEventListener('click',start);
+$('shop').addEventListener('click',shop);
+
+// Keyboard controls
+window.addEventListener('keydown',e=>{
+let k=e.key.toLowerCase();
+
+if(['arrowleft','arrowright','arrowup',' '].includes(k)){
+e.preventDefault();
+}
+
+if(k==='arrowleft'||k==='a')keys.left=true;
+if(k==='arrowright'||k==='d')keys.right=true;
+if(k===' '||k==='arrowup'||k==='w')keys.jump=true;
+
+if(k==='x'&&!e.repeat){
+keys.blast=true;
+}
+
+if(k==='p'&&running){
+paused=!paused;
+
+if(paused){
+show(
+'PAUSED',
+'Take a breather, skater.',
+`<button class="btn" data-act="back">RESUME</button>
+<button class="btn alt" data-act="shop">SHOP</button>`
+);
+}else{
+panel.style.display='none';
+last=performance.now();
+raf=requestAnimationFrame(loop);
+}
+}
+});
+
+window.addEventListener('keyup',e=>{
+let k=e.key.toLowerCase();
+if(k==='arrowleft'||k==='a')keys.left=false;
+if(k==='arrowright'||k==='d')keys.right=false;
+if(k===' '||k==='arrowup'||k==='w')keys.jump=false;
+});
+
+window.addEventListener('blur',()=>{
+keys.left=false;
+keys.right=false;
+keys.jump=false;
+keys.blast=false;
+});
+
+reset();
+draw();
+})();
 </script>
 </body>
 </html>
