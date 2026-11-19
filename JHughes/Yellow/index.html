@@ -2,29 +2,443 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JHughes - Yellow Team | AI Game Lab</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Outfit', sans-serif; background: #fffbea; }
-    h1, h2 { font-family: 'Fredoka', sans-serif; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Land of the Lost</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#171323;color:white;font-family:Outfit,Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh}
+button{border:0;border-radius:12px;padding:10px 15px;background:#ffca67;color:#38200e;font-family:inherit;font-weight:800;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
+#hud>*{pointer-events:auto}
+.logo{font-family:Fredoka;font-size:22px;color:#ffbd69;text-shadow:0 0 12px #ff6a30}
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#211b35ed;border:1px solid #98705c;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:800}
+#buttons{position:absolute;right:12px;bottom:55px;display:flex;flex-direction:column;gap:7px}
+#buttons button{background:#ffbd69}
+#controls{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:#211b35ed;border:1px solid #98705c;border-radius:10px;padding:7px 12px;font-size:11px;color:#ffe9cf;white-space:nowrap}
+#message{position:absolute;top:66px;left:50%;transform:translateX(-50%);background:#211b35ed;border:1px solid #ffbd69;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;text-align:center;max-width:90vw;pointer-events:none}
+#overlay{position:absolute;inset:0;background:#100c1dcc;display:flex;align-items:center;justify-content:center;padding:16px}
+.panel{width:min(500px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#51302e,#211a32);border:2px solid #ffbd69;border-radius:22px;padding:25px;text-align:center;box-shadow:0 0 35px #ff762d35}
+.panel h1{font-family:Fredoka;font-size:clamp(28px,5vw,43px);color:#ffc477;margin:0 0 8px}
+.panel p{line-height:1.5;color:#ffead8}
+.small{font-size:12px;color:#e6c7b0}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.secondary{background:#c69bff;color:#291b40}
+.hidden{display:none!important}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
-  <main class="max-w-2xl w-full text-center bg-white rounded-3xl shadow-xl p-10 border-4 border-yellow-300">
-    <div class="text-6xl mb-4">🎮</div>
-    <p class="text-sm font-bold uppercase tracking-widest text-yellow-600">JHughes Class Arcade</p>
-    <h1 class="text-5xl font-bold text-slate-800 mt-3">Yellow Team</h1>
-    <p class="text-xl text-slate-600 mt-4">Welcome to our game!</p>
-    <div class="bg-yellow-100 rounded-2xl p-6 mt-8">
-      <p class="text-lg font-semibold text-slate-800">🚧 Game coming soon!</p>
-      <p class="text-slate-600 mt-2">Our team is busy creating something awesome.</p>
-    </div>
-    <a href="../../index.html" class="inline-block mt-8 bg-slate-800 text-white font-bold px-6 py-3 rounded-full hover:bg-slate-700">
-      ← Back to the Game Lab
-    </a>
-  </main>
+<body>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="logo">🌋 THE LAND OF THE LOST</div>
+  <div class="stats">
+    <div class="stat" id="level">LEVEL 1 / 4</div>
+    <div class="stat" id="coins">🪙 0 / 0</div>
+    <div class="stat" id="hearts">❤️❤️❤️❤️❤️</div>
+    <div class="stat" id="boss">👹 BOSS: WAITING</div>
+  </div>
+  <button onclick="togglePause()">Ⅱ PAUSE</button>
+</div>
+
+<div id="message">Collect every coin. Find secret doors. Defeat the boss!</div>
+
+<div id="buttons">
+  <button onclick="specialDash()">⚡ DASH (X)</button>
+  <button onclick="attack()">⚔️ ATTACK (Z)</button>
+  <button onclick="resetGame()">↻ RESET</button>
+</div>
+
+<div id="controls">MOVE: A / D or ← / → &nbsp; • &nbsp; JUMP: SPACE / W / ↑ &nbsp; • &nbsp; SECRET DOORS: E</div>
+
+<div id="overlay">
+  <div class="panel" id="panel">
+    <h1>🌋 THE LAND OF THE LOST</h1>
+    <p>Help the stickman explore a mysterious volcano world! Climb rocky platforms, find secret doors, collect every coin, and defeat the bosses.</p>
+    <p>🪙 Every coin counts! You must collect ALL the coins in a level before you can leave.</p>
+    <p>⚡ Use your special dash to escape danger and reach tricky places.</p>
+    <p class="small">WASD or arrow keys to move. SPACE to jump. Z to attack. X to dash. E to search for secret doors.</p>
+    <div class="actions"><button onclick="startGame()">ENTER THE VOLCANO!</button></div>
+  </div>
+</div>
+
+<script>
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+let W=innerWidth,H=innerHeight;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;draw()}
+addEventListener("resize",resize);
+
+const keys={};
+addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ keys[k]=true;
+ if((k===" "||k==="w"||k==="arrowup")&&!e.repeat)jump();
+ if(k==="z"&&!e.repeat)attack();
+ if(k==="x"&&!e.repeat)specialDash();
+ if(k==="e"&&!e.repeat)searchDoor();
+ if(k==="escape"&&!e.repeat)togglePause();
+});
+addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false);if(running)pauseGame()});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running)pauseGame()});
+
+const levelNames=["Volcano Valley","Lava Caverns","The Lost Temple","Dragon's Peak"];
+const levelColors=[
+ {sky:"#e77c55",ground:"#633d36",glow:"#ffbd65"},
+ {sky:"#9d5361",ground:"#432c40",glow:"#ff7654"},
+ {sky:"#79516e",ground:"#3a2c4c",glow:"#d9a1ff"},
+ {sky:"#5b3852",ground:"#34283d",glow:"#ffb65c"}
+];
+
+let running=false,paused=false,level=1,hearts=5;
+let player,platforms,coins,doors,hazards,particles,boss;
+let camera=0,worldWidth=2500,ground=0;
+let totalCoins=0,levelCoins=0,levelCoinTotal=0;
+let facing=1,frame=0,last=0,raf=0;
+let attackCooldown=0,dashCooldown=0,invulnerable=0;
+let messageTimer=0,doorMessage="";
+let bossDefeated=false,exitOpen=false;
+
+function say(msg){
+ document.getElementById("message").textContent=msg;
+ messageTimer=180;
+}
+function hud(){
+ document.getElementById("level").textContent=`LEVEL ${level} / 4`;
+ document.getElementById("coins").textContent=`🪙 ${levelCoins} / ${levelCoinTotal}`;
+ document.getElementById("hearts").textContent="❤️".repeat(hearts)+"🖤".repeat(5-hearts);
+ document.getElementById("boss").textContent=bossDefeated?"🏆 BOSS: DEFEATED": "👹 BOSS: "+(boss?"ACTIVE":"WAITING");
+}
+function startGame(){
+ level=1;hearts=5;totalCoins=0;levelCoins=0;
+ buildLevel();
+ running=true;paused=false;
+ document.getElementById("overlay").classList.add("hidden");
+ say("Welcome! Find every coin and defeat the boss!");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function resetGame(){startGame()}
+function buildLevel(){
+ ground=H-100;
+ worldWidth=2400+level*150;
+ camera=0;levelCoins=0;
+ bossDefeated=false;exitOpen=false;
+ player={x:70,y:ground-48,w:30,h:46,vx:0,vy:0,onGround:false};
+ platforms=[{x:0,y:ground,w:worldWidth,h:150}];
+ coins=[];doors=[];hazards=[];particles=[];
+ const gap=145;
+ for(let i=0;i<13+level;i++){
+  let x=230+i*gap;
+  let y=ground-105-(i%3)*65;
+  platforms.push({x,y,w:100+(i%3)*15,h:17});
+  if(i%2===0)coins.push({x:x+48,y:y-28,taken:false});
+ }
+ // Ground coins and climbing trails.
+ for(let i=0;i<10;i++){
+  coins.push({x:150+i*210,y:ground-32-(i%2)*15,taken:false});
+ }
+ // Secret doors hide extra coins.
+ const doorXs=[430,980,1530,2050];
+ doorXs.forEach((x,i)=>{
+  doors.push({x,y:ground-52,opened:false,revealed:false,coins:2+Math.min(2,level-1)});
+ });
+ // Lava pits and spikes.
+ for(let i=0;i<7+level;i++){
+  let x=330+i*275;
+  hazards.push({x,y:ground-17,w:55,h:17,type:i%2?"spikes":"lava"});
+ }
+ levelCoinTotal=coins.length+doors.reduce((s,d)=>s+d.coins,0);
+ // Boss at the end of the level.
+ boss={x:worldWidth-180,y:ground-78,w:66,h:70,hp:5+level*2,maxHp:5+level*2,dir:-1,attackTimer:0,active:false};
+ hud();
+}
+function jump(){
+ if(!running||paused)return;
+ if(player.onGround){player.vy=-12.5;player.onGround=false}
+}
+function specialDash(){
+ if(!running||paused||dashCooldown>0)return;
+ player.vx=facing*13;
+ player.vy=Math.min(player.vy,-1);
+ dashCooldown=95;
+ invulnerable=Math.max(invulnerable,18);
+ for(let i=0;i<8;i++)particles.push({x:player.x-camera,y:player.y+22,vx:-facing*Math.random()*4,vy:(Math.random()-.5)*3,life:25,color:"#ffcf68"});
+ say("⚡ SUPER DASH!");
+}
+function attack(){
+ if(!running||paused||attackCooldown>0)return;
+ attackCooldown=32;
+ let hit=false;
+ if(boss&&boss.active&&!bossDefeated){
+  let distance=Math.abs((player.x+player.w/2)-boss.x);
+  if(distance<105&&Math.abs(player.y-boss.y)<95){
+   boss.hp--;hit=true;
+   for(let i=0;i<12;i++)particles.push({x:boss.x-camera,y:boss.y+25,vx:(Math.random()-.5)*6,vy:(Math.random()-.5)*6,life:30,color:"#ffb65c"});
+   say("💥 BOOM! You hit the boss!");
+   if(boss.hp<=0)defeatBoss();
+  }
+ }
+ if(!hit)say("Swing! Get closer to the boss to hit it.");
+}
+function searchDoor(){
+ if(!running||paused)return;
+ let door=doors.find(d=>Math.abs(player.x-d.x)<65&&Math.abs(player.y-d.y)<95);
+ if(!door){say("No secret door nearby. Keep exploring!");return}
+ if(!door.revealed){
+  door.revealed=true;
+  say("✨ SECRET DOOR FOUND! Press E again to open it.");
+ }else if(!door.opened){
+  door.opened=true;
+  for(let i=0;i<door.coins;i++){
+   coins.push({x:door.x+(i-door.coins/2)*25,y:ground-60-Math.abs(i-1)*12,taken:false,secret:true});
+  }
+  levelCoinTotal+=door.coins;
+  secretsFound++;
+  say("🚪 SECRET ROOM OPEN! Hidden coins discovered!");
+  hud();
+ }else{
+  say("This secret room has already been explored!");
+ }
+}
+let secretsFound=0;
+function defeatBoss(){
+ bossDefeated=true;
+ boss.active=false;
+ say("🏆 BOSS DEFEATED! Now collect every remaining coin!");
+ hud();
+ checkLevelComplete();
+}
+function checkLevelComplete(){
+ if(levelCoins>=levelCoinTotal&&bossDefeated){
+  exitOpen=true;
+  running=false;paused=true;
+  if(level>=4){
+   showPanel("🏆 VOLCANO CHAMPION!","You defeated every boss, found the secret doors, and collected every coin in all four levels. The Land of the Lost is yours!", "PLAY AGAIN",startGame);
+  }else{
+   showPanel("🌟 LEVEL COMPLETE!",`Amazing! You collected all ${levelCoinTotal} coins and defeated the boss in ${levelNames[level-1]}!`, "NEXT LEVEL",()=>{
+    level++;buildLevel();running=true;paused=false;
+    document.getElementById("overlay").classList.add("hidden");
+    say("Welcome to "+levelNames[level-1]+"! The challenge is harder!");
+    last=performance.now();raf=requestAnimationFrame(loop);
+   });
+  }
+ }
+}
+function showPanel(title,msg,button,callback){
+ document.getElementById("panel").innerHTML=`<h1>${title}</h1><p>${msg}</p><div class="actions"><button id="panelBtn">${button}</button></div>`;
+ document.getElementById("panelBtn").onclick=callback;
+ document.getElementById("overlay").classList.remove("hidden");
+}
+function pauseGame(){
+ if(!running)return;
+ running=false;paused=true;
+ showPanel("GAME PAUSED","The volcano adventure is on hold. Your progress is safe!","RESUME",resumeGame);
+}
+function resumeGame(){
+ paused=false;running=true;
+ document.getElementById("overlay").classList.add("hidden");
+ last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function togglePause(){
+ if(paused){resumeGame();return}
+ if(running)pauseGame();
+}
+function loseHeart(reason){
+ if(invulnerable>0)return;
+ hearts--;invulnerable=90;
+ player.vy=-7;player.vx=-facing*4;
+ say(reason+" You lost a heart!");
+ hud();
+ if(hearts<=0){
+  running=false;paused=true;
+  showPanel("GAME OVER!","The volcano was too dangerous! Try again and collect those coins.","TRY AGAIN",startGame);
+ }
+}
+function collectCoins(){
+ coins.forEach(c=>{
+  if(!c.taken&&Math.abs(player.x+player.w/2-c.x)<25&&Math.abs(player.y+player.h/2-c.y)<30){
+   c.taken=true;levelCoins++;totalCoins++;
+   for(let i=0;i<5;i++)particles.push({x:c.x-camera,y:c.y,vx:(Math.random()-.5)*4,vy:-Math.random()*4,life:25,color:"#ffe36a"});
+   say("🪙 Coin collected!");
+   hud();checkLevelComplete();
+  }
+ });
+}
+function update(dt){
+ frame++;
+ if(messageTimer>0)messageTimer-=dt;
+ if(attackCooldown>0)attackCooldown-=dt;
+ if(dashCooldown>0)dashCooldown-=dt;
+ if(invulnerable>0)invulnerable-=dt;
+ const left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
+ if(left){player.vx=Math.max(player.vx-.65*dt,-5.3);facing=-1}
+ else if(right){player.vx=Math.min(player.vx+.65*dt,5.3);facing=1}
+ else player.vx*=Math.pow(.78,dt);
+ player.x+=player.vx*dt;
+ player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
+ let oldY=player.y;
+ player.vy+=.58*dt;
+ player.y+=player.vy*dt;
+ player.onGround=false;
+ // Platform landing.
+ for(const p of platforms){
+  if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
+   player.y=p.y-player.h;player.vy=0;player.onGround=true;
+  }
+ }
+ if(player.y>H+100){loseHeart("You fell into the lava!");player.y=ground-player.h;player.vy=0}
+ // Hazard collisions.
+ hazards.forEach(h=>{
+  if(player.x+player.w>h.x&&player.x<h.x+h.w&&player.y+player.h>h.y-8){
+   loseHeart(h.type==="lava"?"The lava burned you!":"You landed on spikes!");
+  }
+ });
+ collectCoins();
+ // Boss activates when the player reaches its arena.
+ if(boss&&!bossDefeated&&player.x>boss.x-470){
+  boss.active=true;
+  boss.attackTimer+=dt;
+  boss.x+=boss.dir*(.7+level*.12)*dt;
+  if(boss.x<worldWidth-330)boss.dir=1;
+  if(boss.x>worldWidth-100)boss.dir=-1;
+  if(boss.attackTimer>100){
+   boss.attackTimer=0;
+   particles.push({x:boss.x-camera,y:boss.y+25,vx:-facing*5,vy:-1,life:75,color:"#ff653d",fireball:true});
+  }
+  if(Math.abs(player.x-boss.x)<65&&Math.abs(player.y-boss.y)<70)loseHeart("The boss bumped into you!");
+ }
+ // Boss fireballs.
+ particles.forEach(q=>{
+  q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;
+  if(q.fireball&&Math.abs(q.x-(player.x+player.w/2))<18&&Math.abs(q.y-(player.y+20))<25){
+   q.life=0;loseHeart("A boss fireball hit you!");
+  }
+ });
+ particles=particles.filter(q=>q.life>0);
+ camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.35));
+ hud();
+}
+function drawBackground(){
+ const c=levelColors[level-1];
+ let sky=ctx.createLinearGradient(0,0,0,H);
+ sky.addColorStop(0,c.sky);sky.addColorStop(1,"#271b32");
+ ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+ // Distant volcanoes
+ for(let i=0;i<7;i++){
+  let x=(i*270-camera*.22)%(W+280);if(x< -250)x+=W+280;
+  ctx.fillStyle="#493344";
+  ctx.beginPath();ctx.moveTo(x-100,ground-100);ctx.lineTo(x+50,ground-310-(i%3)*35);ctx.lineTo(x+200,ground-100);ctx.fill();
+  ctx.fillStyle="#ffb36b";
+  ctx.beginPath();ctx.moveTo(x+20,ground-270);ctx.lineTo(x+50,ground-310-(i%3)*35);ctx.lineTo(x+80,ground-270);ctx.fill();
+ }
+ // Lava glow
+ ctx.fillStyle="#f05a38";ctx.fillRect(0,ground+70,W,H-ground-70);
+ for(let i=0;i<12;i++){
+  let x=(i*125+frame*.7)%(W+60);
+  ctx.fillStyle="#ffb65c";ctx.beginPath();ctx.ellipse(x,ground+95+Math.sin(frame*.04+i)*9,25,7,0,0,Math.PI*2);ctx.fill();
+ }
+}
+function draw(){
+ ctx.clearRect(0,0,W,H);drawBackground();
+ platforms.forEach(p=>{
+  let x=p.x-camera;if(x+p.w<0||x>W)return;
+  ctx.fillStyle="#684b4c";ctx.fillRect(x,p.y,p.w,p.h);
+  ctx.fillStyle="#aa7561";ctx.fillRect(x,p.y,p.w,5);
+  ctx.fillStyle="#433342";ctx.fillRect(x+5,p.y+8,p.w-10,5);
+ });
+ // Coins
+ coins.forEach(c=>{
+  if(c.taken)return;
+  let x=c.x-camera;
+  if(x<-20||x>W+20)return;
+  ctx.fillStyle="#ffe36a";ctx.beginPath();ctx.arc(x,c.y,10,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#fff3b0";ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle="#946b22";ctx.font="bold 12px Arial";ctx.textAlign="center";ctx.fillText("$",x,c.y+4);
+ });
+ // Secret doors
+ doors.forEach(d=>{
+  let x=d.x-camera;if(x<-30||x>W+30)return;
+  ctx.fillStyle=d.opened?"#493b50":d.revealed?"#ffcc67":"#8c6b66";
+  ctx.fillRect(x-14,d.y-32,28,42);
+  if(d.revealed&&!d.opened){
+   ctx.fillStyle="#fff2ba";ctx.fillRect(x-9,d.y-27,18,32);
+  }
+  ctx.fillStyle="#ffe7a2";ctx.beginPath();ctx.arc(x+7,d.y-10,2,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#fff";ctx.font="10px Arial";ctx.textAlign="center";
+  ctx.fillText(d.revealed?"SECRET":"?",x,d.y-38);
+ });
+ // Hazards
+ hazards.forEach(h=>{
+  let x=h.x-camera;
+  if(x<-60||x>W+60)return;
+  if(h.type==="lava"){
+   ctx.fillStyle="#ff603d";ctx.fillRect(x,h.y,h.w,h.h);
+   ctx.fillStyle="#ffca68";ctx.fillRect(x+8,h.y+5,h.w-16,5);
+  }else{
+   ctx.fillStyle="#ded3d4";
+   for(let i=0;i<4;i++){
+    ctx.beginPath();ctx.moveTo(x+i*15,h.y+17);ctx.lineTo(x+i*15+8,h.y-1);ctx.lineTo(x+i*15+16,h.y+17);ctx.fill();
+   }
+  }
+ });
+ // Boss
+ if(boss&&!bossDefeated){
+  let x=boss.x-camera;
+  if(x>-120&&x<W+120){
+   ctx.fillStyle="#8d4054";ctx.fillRect(x-30,boss.y,65,70);
+   ctx.fillStyle="#ff8658";ctx.beginPath();ctx.arc(x+3,boss.y-18,28,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle="#ffeb87";ctx.fillRect(x-10,boss.y-25,8,8);ctx.fillRect(x+10,boss.y-25,8,8);
+   ctx.fillStyle="#34202e";ctx.fillRect(x-20,boss.y-45,48,6);
+   ctx.fillStyle="#ff6c56";ctx.fillRect(x-20,boss.y-45,48*(boss.hp/boss.maxHp),6);
+   ctx.fillStyle="#fff";ctx.font="bold 13px Fredoka";ctx.textAlign="center";
+   ctx.fillText(level===4?"VOLCANO DRAGON":"VOLCANO BOSS",x,boss.y-55);
+  }
+ }
+ // Particles and fireballs
+ particles.forEach(q=>{
+  ctx.globalAlpha=Math.min(1,q.life/20);
+  ctx.fillStyle=q.color;
+  ctx.beginPath();ctx.arc(q.x-camera,q.y,q.fireball?10:4,0,Math.PI*2);ctx.fill();
+ });
+ ctx.globalAlpha=1;
+ // Player stickman
+ let x=player.x-camera,y=player.y;
+ ctx.save();
+ if(invulnerable>0&&Math.floor(frame/5)%2===0)ctx.globalAlpha=.35;
+ ctx.strokeStyle="#f8eee5";ctx.lineWidth=5;ctx.lineCap="round";
+ ctx.beginPath();ctx.arc(x+15,y+9,9,0,Math.PI*2);ctx.stroke();
+ ctx.beginPath();
+ ctx.moveTo(x+15,y+18);ctx.lineTo(x+15,y+33);
+ ctx.moveTo(x+15,y+23);ctx.lineTo(x+4,y+29);
+ ctx.moveTo(x+15,y+23);ctx.lineTo(x+26,y+29);
+ ctx.moveTo(x+15,y+33);ctx.lineTo(x+6,y+46);
+ ctx.moveTo(x+15,y+33);ctx.lineTo(x+25,y+46);
+ ctx.stroke();
+ ctx.restore();
+ // Finish gate
+ let fx=worldWidth-camera-65;
+ if(fx>-40&&fx<W+40){
+  ctx.fillStyle=exitOpen?"#8cff9b":"#6e5064";
+  ctx.fillRect(fx,ground-100,12,100);
+  ctx.fillRect(fx+50,ground-100,12,100);
+  ctx.fillRect(fx,ground-100,62,12);
+  ctx.font="bold 12px Fredoka";ctx.textAlign="center";ctx.fillStyle="#fff";
+  ctx.fillText(exitOpen?"EXIT OPEN":"LOCKED",fx+31,ground-113);
+ }
+}
+function loop(t){
+ if(!running)return;
+ let dt=Math.min(2,(t-last)/16.67||1);last=t;
+ update(dt);draw();
+ if(running)raf=requestAnimationFrame(loop);
+}
+resize();
+</script>
 </body>
 </html>
