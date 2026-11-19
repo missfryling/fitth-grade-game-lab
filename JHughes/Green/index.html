@@ -4,431 +4,597 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mouse Trap: Billy Bob's Big Cheese Chase</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Mouse Trap: Billy Bob's Escape</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#18251d;color:white;font-family:Fredoka,Arial,sans-serif;overflow:hidden}
-canvas{display:block;width:min(100vw,1200px);height:auto;max-height:100vh;aspect-ratio:16/9;margin:auto;border:3px solid #a8d58d;border-radius:12px;background:#d5e8ba}
-#hud{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:min(95vw,1120px);display:flex;justify-content:space-between;gap:6px;z-index:2;pointer-events:none;font-size:clamp(11px,1.8vw,18px)}
-.h{background:#172b20df;border:2px solid #c3e99c;border-radius:11px;padding:7px 10px;text-shadow:1px 2px #000}
-#overlay{position:fixed;inset:0;background:#07130edb;display:flex;align-items:center;justify-content:center;padding:14px;z-index:5}
-.panel{width:min(92vw,610px);max-height:92vh;overflow:auto;text-align:center;padding:24px;border:3px solid #c4ed9c;border-radius:22px;background:linear-gradient(145deg,#386b48,#1c392c);box-shadow:0 12px 50px #0009}
-h1{font-size:clamp(30px,6vw,50px);line-height:1.02;color:#e0ffb8;margin:8px 0;text-shadow:3px 4px #23452d}
-p{line-height:1.45}
-button{font:700 17px Fredoka,Arial;border:0;border-radius:12px;padding:12px 20px;margin:6px;background:#d4f29c;color:#24452c;cursor:pointer;box-shadow:0 4px #82a95d}
-button.secondary{background:#ffd77f;color:#503b16;box-shadow:0 4px #b18b42}
-.small{font-size:14px;color:#e1f2d7}
-#modeButtons{display:flex;justify-content:center;flex-wrap:wrap}
+body{margin:0;background:#171d20;color:#f5eee0;font-family:Fredoka,Arial,sans-serif}
+#wrap{max-width:1100px;margin:auto;padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+h1{margin:0;font-size:clamp(22px,4vw,33px);color:#f4d89a}
+#hud{display:flex;gap:7px;flex-wrap:wrap}
+.pill{background:#303a3c;border:1px solid #657174;border-radius:18px;padding:7px 11px;font-size:14px}
+#stage{position:relative;border:4px solid #687579;border-radius:14px;overflow:hidden;background:#333b3c}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/10}
+#overlay{position:absolute;inset:0;background:#101719e8;display:flex;align-items:center;justify-content:center;padding:16px;text-align:center}
+.panel{max-width:590px;width:100%;background:#293436;border:2px solid #a18e6b;border-radius:18px;padding:23px}
+.panel h2{color:#f4d89a;font-size:32px;margin:0 0 10px}
+.panel p{line-height:1.5;color:#eee8dc}
+button{font:600 15px Fredoka;border:0;border-radius:10px;padding:9px 14px;background:#d7b66f;color:#28251e;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+#bottom{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:9px}
+#message{color:#f4d89a;min-height:22px;font-size:14px}
+.small{font-size:13px;color:#c8d0ce}
 </style>
 </head>
 <body>
+<div id="wrap">
+<header>
+<h1>🐭 MOUSE TRAP: BILLY BOB'S ESCAPE</h1>
 <div id="hud">
- <div class="h" id="levelHud">LEVEL 1/17</div>
- <div class="h" id="cheeseHud">🧀 0/5</div>
- <div class="h" id="totalHud">TOTAL 0</div>
- <div class="h" id="outfitHud">👕 ORIGINAL</div>
- <div class="h" id="catHud">🐈 CAT: 1</div>
+<span class="pill" id="level">Level 1 / 6</span>
+<span class="pill" id="lives">❤️❤️❤️❤️❤️</span>
+<span class="pill" id="cheese">🧀 0 / 5</span>
+<span class="pill" id="score">⭐ 0</span>
 </div>
-<canvas id="game" width="960" height="540"></canvas>
-<div id="overlay"><div class="panel" id="panel">
- <div style="font-size:55px">🐭🧀🐈</div>
- <h1>MOUSE TRAP!</h1>
- <h2>Billy Bob's Big Cheese Chase</h2>
- <p>Help Billy Bob the rat collect cheese, explore secret doors, and escape the giant cat through 17 exciting levels!</p>
- <p><b>Choose your difficulty:</b></p>
- <div id="modeButtons">
-  <button onclick="startGame('easy')">🌟 EASY MODE</button>
-  <button class="secondary" onclick="startGame('hard')">🔥 HARD MODE</button>
- </div>
- <p class="small">Move with WASD or arrow keys. Get close to a vent to automatically enter its mini-game. Collect 5 cheeses to unlock each exit!</p>
-</div></div>
+</header>
+<div id="stage">
+<canvas id="game" width="960" height="600"></canvas>
+<div id="overlay">
+<div class="panel" id="panel">
+<h2>🐭 Mouse Trap</h2>
+<p>You are Billy Bob, a little mouse trapped inside a kitchen. A hungry house cat is on the loose!</p>
+<p>Collect all five pieces of cheese, find the exit, and survive six increasingly difficult kitchen levels.</p>
+<p><b>WASD / Arrow keys:</b> Move<br>
+<b>SPACE:</b> Quick dash<br>
+<b>E:</b> Enter vents and secret passages<br>
+<b>P:</b> Pause</p>
+<p class="small">You have five lives. Hide in vents, avoid the cat, and don't get caught!</p>
+<button id="start">START ESCAPE</button>
+</div>
+</div>
+</div>
+<div id="bottom">
+<div id="message">Stay quiet. The cat is somewhere nearby...</div>
+<div>
+<button id="pause">⏸ Pause</button>
+<button id="restart">↻ Restart</button>
+<button id="home">🏠 Game Lab</button>
+</div>
+</div>
+</div>
+
 <script>
 (()=>{
-"use strict";
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+'use strict';
+
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const W=960,H=600;
 const $=id=>document.getElementById(id);
-const W=960,H=540;
-const keys={};
+
+let state='title';
+let keys={};
+let player,cat,walls,cheeses,vents,doors,exit,decor;
+let level=1,lives=5,totalCheese=0,levelCheese=0;
+let cameraX=0,cameraY=0;
+let dashTime=0,dashCooldown=0;
+let invulnerable=0,catAlert=0;
+let messageTimer=0,last=0,raf=0;
+let levelChanging=false;
+let noise=0;
+
+const TILE=48;
+const cols=20,rows=12;
 const levelNames=[
- "The Big Kitchen","Bathroom Break","Backyard Playground",
- "The Laundry Room","Grandma's Pantry","The School Cafeteria",
- "The Toy Room","The Garden Maze","The Garage",
- "The Picnic Park","The Spooky Basement","The Bakery",
- "The Swimming Pool","The Attic Adventure","The Giant Kitchen",
- "The Secret Cheese Factory","The Final Cat Chase"
+'The Family Kitchen',
+'The Pantry',
+'The Laundry Room',
+'The Dining Room',
+'The Basement',
+'The Cat's Territory'
 ];
-const places=[
- {bg:"#e8d8a9",floor:"#c4ad79",accent:"#9d754a",name:"KITCHEN"},
- {bg:"#c9e5e9",floor:"#8bbcc2",accent:"#4e929b",name:"BATHROOM"},
- {bg:"#b7dc9c",floor:"#75ad68",accent:"#447e49",name:"PLAYGROUND"},
- {bg:"#d9d5c8",floor:"#a8a398",accent:"#77746c",name:"LAUNDRY"},
- {bg:"#efd5a4",floor:"#d3ad75",accent:"#a97845",name:"PANTRY"},
- {bg:"#c8dfeb",floor:"#8eb5c8",accent:"#527f9d",name:"CAFETERIA"},
- {bg:"#e9c9e5",floor:"#c79cc6",accent:"#966c9a",name:"TOY ROOM"},
- {bg:"#b9dca2",floor:"#7aa76b",accent:"#497c48",name:"GARDEN"},
- {bg:"#b9c3c8",floor:"#858e93",accent:"#555f66",name:"GARAGE"},
- {bg:"#b7d7a0",floor:"#83b17c",accent:"#4e8050",name:"PICNIC PARK"},
- {bg:"#a99cb4",floor:"#71677e",accent:"#51455e",name:"BASEMENT"},
- {bg:"#f2d4a2",floor:"#d6a66b",accent:"#aa7546",name:"BAKERY"},
- {bg:"#b6dfe4",floor:"#78b8c4",accent:"#458d9b",name:"POOL ROOM"},
- {bg:"#c7b6a0",floor:"#9e8970",accent:"#725d4a",name:"ATTIC"},
- {bg:"#f1d2a1",floor:"#c79a63",accent:"#94643d",name:"GIANT KITCHEN"},
- {bg:"#c6b0df",floor:"#9476b8",accent:"#664b91",name:"CHEESE FACTORY"},
- {bg:"#f2b5a0",floor:"#b96d5a",accent:"#793b37",name:"FINAL CHASE"}
-];
-const outfits=[
- {name:"ORIGINAL",shirt:"#e6e6dc",hat:"#8b6546",scarf:"#d4a44e"},
- {name:"CHEF",shirt:"#fff9e9",hat:"#ffffff",scarf:"#e64d45"},
- {name:"SUPER RAT",shirt:"#48a9ed",hat:"#eacb42",scarf:"#e74b58"},
- {name:"SPORTY",shirt:"#e9a53e",hat:"#3b4c82",scarf:"#f4e7ad"},
- {name:"GARDEN",shirt:"#68a95c",hat:"#a9d17b",scarf:"#f2d77b"},
- {name:"SPACE",shirt:"#554d9a",hat:"#b7c5ff",scarf:"#f1a9df"}
-];
-let state="title",mode="easy",level=0,player=null,cat=null;
-let camera=0,totalCheese=0,levelCheese=0,cheeses=[],walls=[],decor=[],particles=[];
-let vent=null,secret=null,exit=null,frame=0,superTimer=0,catSpeed=1;
-let mini=null,returnPosition=null,catPause=0;
-const goal=5;
-function newPlayer(){return{x:85,y:260,r:17,speed:3.25,inv:0,face:1,anim:0,super:false};}
-function startGame(chosen){
- mode=chosen;totalCheese=0;levelCheese=0;levelSetup(0);
- state="playing";$("overlay").style.display="none";
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rand=(a,b)=>a+Math.random()*(b-a);
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+
+function say(text){
+ $('message').textContent=text;
+ messageTimer=3;
 }
-function levelSetup(n){
- level=n;frame=0;camera=0;levelCheese=0;particles=[];cheeses=[];decor=[];walls=[];
- player=newPlayer();superTimer=0;catPause=0;
- const difficulty=mode==="hard"?1.2:1;
- catSpeed=(1.05+n*.105)*difficulty;
- cat={x:850,y:260,r:24+n*1.3,speed:catSpeed,phase:0};
- // Scatter cheese around the room.
- for(let i=0;i<9;i++){
-  cheeses.push({x:180+(i%3)*270+Math.random()*90,y:125+Math.floor(i/3)*130+Math.random()*35,alive:true,rainbow:i===7&&Math.random()<.75});
+
+function updateHUD(){
+ $('level').textContent='Level '+level+' / 6';
+ $('lives').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(5-Math.max(0,lives));
+ $('cheese').textContent='🧀 '+levelCheese+' / 5';
+ $('score').textContent='⭐ '+totalCheese;
+}
+
+// Build a fresh room for every level.
+function buildLevel(){
+ levelChanging=true;
+ walls=[];
+ cheeses=[];
+ vents=[];
+ doors=[];
+ decor=[];
+ levelCheese=0;
+ cameraX=0;cameraY=0;
+ dashTime=0;dashCooldown=0;
+ catAlert=0;
+
+ player={x:85,y:85,r:12,speed:155,angle:0};
+ cat={
+   x:850,y:500,r:22,
+   speed:level===1?75:85+level*9,
+   patrolX:850,patrolY:500,
+   alert:false,
+   search:0,
+   cooldown:0,
+   facing:Math.PI
+ };
+
+ // Outer walls.
+ for(let x=0;x<cols;x++){
+   walls.push({x:x*TILE,y:0,w:TILE,h:TILE});
+   walls.push({x:x*TILE,y:(rows-1)*TILE,w:TILE,h:TILE});
  }
- // Make one guaranteed rainbow cheese every few levels.
- if(n%3===2)cheeses[8].rainbow=true;
- // Kitchen furniture / room decorations.
- for(let i=0;i<8;i++){
-  const x=150+(i%4)*220+Math.random()*60;
-  const y=100+Math.floor(i/4)*270;
-  decor.push({x,y,w:65+Math.random()*55,h:38+Math.random()*28,type:i%4});
+ for(let y=1;y<rows-1;y++){
+   walls.push({x:0,y:y*TILE,w:TILE,h:TILE});
+   walls.push({x:(cols-1)*TILE,y:y*TILE,w:TILE,h:TILE});
  }
- // Vents are always present and automatically activate on approach.
- vent={x:475,y:485,used:false};
- // Secret door gives bonus cheese when discovered.
- secret={x:850,y:105,used:false};
- exit={x:910,y:270};
- updateHud();
+
+ // Kitchen furniture and counters.
+ const furniture=[
+   [3,2,3,1],[8,2,2,1],[13,2,3,1],
+   [3,5,2,1],[8,5,3,1],[14,5,2,1],
+   [4,8,3,1],[10,8,2,1],[15,8,2,1]
+ ];
+ furniture.forEach(([x,y,w,h])=>{
+   // Leave some furniture gaps in later levels.
+   if(Math.random()<Math.min(.28,(level-1)*.045))return;
+   walls.push({x:x*TILE,y:y*TILE,w:w*TILE,h:h*TILE});
+   decor.push({x:x*TILE,y:y*TILE,w:w*TILE,h:h*TILE,type:'counter'});
+ });
+
+ // Extra obstacles in higher levels.
+ for(let i=0;i<level+2;i++){
+   const x=Math.floor(rand(2,17)),y=Math.floor(rand(2,9));
+   if(x<4&&y<4)continue;
+   walls.push({x:x*TILE,y:y*TILE,w:TILE,h:TILE});
+   decor.push({x:x*TILE,y:y*TILE,w:TILE,h:TILE,type:'cabinet'});
+ }
+
+ // Cheese placed in accessible areas.
+ const cheeseSpots=[
+   [2,3],[6,4],[11,3],[17,4],[7,9],
+   [16,8],[3,9],[11,10],[17,7],[5,6]
+ ];
+ const shuffled=cheeseSpots.sort(()=>Math.random()-.5);
+ for(let i=0;i<5;i++){
+   const spot=shuffled[i];
+   cheeses.push({x:spot[0]*TILE+24,y:spot[1]*TILE+24,got:false});
+ }
+
+ // Vent entrances and exits. Entering one transports Billy Bob.
+ vents=[
+   {x:2*TILE+24,y:10*TILE+24,target:1},
+   {x:17*TILE+24,y:1*TILE+24,target:0},
+   {x:10*TILE+24,y:10*TILE+24,target:3},
+   {x:17*TILE+24,y:7*TILE+24,target:2}
+ ];
+
+ // Secret passage is hidden until Billy Bob gets close.
+ doors=[
+   {x:9*TILE+24,y:4*TILE+24,open:false},
+   {x:12*TILE+24,y:9*TILE+24,open:false}
+ ];
+
+ exit={x:18*TILE+24,y:10*TILE+24};
+ cat.x=17*TILE+24;cat.y=10*TILE+24;
+ cat.patrolX=cat.x;cat.patrolY=cat.y;
+ player.x=85;player.y=85;
+
+ levelChanging=false;
+ updateHUD();
+ say(levelNames[level-1]+': Find five pieces of cheese!');
 }
-function outfitIndex(){return Math.min(outfits.length-1,Math.floor(totalCheese/5));}
-function updateHud(){
- $("levelHud").textContent=`LEVEL ${level+1}/17 · ${levelNames[level]}`;
- $("cheeseHud").textContent=`🧀 ${levelCheese}/${goal}`;
- $("totalHud").textContent=`TOTAL ${totalCheese}`;
- $("outfitHud").textContent=`👕 ${outfits[outfitIndex()].name}`;
- $("catHud").textContent=`🐈 CAT: ${level+1}`;
+
+function startGame(){
+ cancelAnimationFrame(raf);
+ level=1;lives=5;totalCheese=0;
+ state='playing';
+ buildLevel();
+ $('overlay').style.display='none';
+ last=performance.now();
+ raf=requestAnimationFrame(loop);
 }
-function showPanel(title,body,buttons){
- $("overlay").style.display="flex";
- $("panel").innerHTML=`<h1>${title}</h1><p>${body}</p>${buttons}`;
+
+function wallAt(x,y,r){
+ if(x-r<18||y-r<18||x+r>W-18||y+r>H-18)return true;
+ for(const w of walls){
+   if(x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h)return true;
+ }
+ for(const d of doors){
+   if(!d.open&&Math.hypot(x-d.x,y-d.y)<25)return true;
+ }
+ return false;
 }
-function pauseGame(){
- if(state!=="playing")return;
- state="paused";
- showPanel("PAUSED","Billy Bob is hiding. Take a break!",'<button onclick="resumeGame()">RESUME</button><button class="secondary" onclick="restartGame()">RESTART</button>');
+
+function move(obj,dx,dy,r){
+ if(!wallAt(obj.x+dx,obj.y,r))obj.x+=dx;
+ if(!wallAt(obj.x,obj.y+dy,r))obj.y+=dy;
 }
-function resumeGame(){state="playing";$("overlay").style.display="none";}
-function restartGame(){startGame(mode);}
-function menu(){
- state="title";
- showPanel("MOUSE TRAP!","Choose your difficulty and help Billy Bob collect cheese!",'<button onclick="startGame(\'easy\')">🌟 EASY MODE</button><button class="secondary" onclick="startGame(\'hard\')">🔥 HARD MODE</button>');
+
+function nearestVent(){
+ let best=null,bestD=Infinity;
+ vents.forEach((v,i)=>{
+   const d=Math.hypot(player.x-v.x,player.y-v.y);
+   if(d<bestD){bestD=d;best={vent:v,index:i}}
+ });
+ return bestD<38?best:null;
 }
-function gameOver(){
- state="over";
- showPanel("THE CAT GOT BILLY BOB!","You reached Level "+(level+1)+" and collected "+totalCheese+" cheeses. Give it another try!",'<button onclick="restartGame()">TRY AGAIN</button><button class="secondary" onclick="menu()">MAIN MENU</button>');
+
+function useVent(){
+ const found=nearestVent();
+ if(!found){say('Find a vent opening first!');return}
+ const target=vents[found.vent.target];
+ player.x=target.x;
+ player.y=target.y;
+ cat.search=0;
+ cat.alert=false;
+ say('Through the vent! You escaped the cat!');
+ noise=0;
 }
+
+function useSecretDoor(){
+ let near=null;
+ for(const d of doors){
+   if(Math.hypot(player.x-d.x,player.y-d.y)<38){near=d;break}
+ }
+ if(near){
+   near.open=true;
+   say('Secret passage discovered!');
+ }else{
+   say('Look for a hidden passage in the kitchen!');
+ }
+}
+
+function dash(){
+ if(dashCooldown>0)return;
+ dashTime=.22;
+ dashCooldown=2.5;
+ noise=1;
+ say('Quick dash!');
+}
+
+function caught(){
+ if(invulnerable>0||state!=='playing')return;
+ lives--;
+ invulnerable=2;
+ cat.alert=false;
+ cat.search=0;
+ player.x=85;player.y=85;
+ updateHUD();
+ say('The cat caught Billy Bob! You lost a life!');
+ if(lives<=0){
+   state='over';
+   showEnd(false);
+ }
+}
+
 function nextLevel(){
- if(level<16){
-  levelSetup(level+1);state="playing";
+ if(levelChanging||state!=='playing')return;
+ if(level>=6){
+   state='won';
+   showEnd(true);
+   return;
+ }
+ level++;
+ buildLevel();
+ invulnerable=2;
+ say('You escaped! Welcome to '+levelNames[level-1]+'!');
+}
+
+function showEnd(won){
+ $('overlay').style.display='flex';
+ $('panel').innerHTML=won?
+ `<h2>🏆 Billy Bob Escaped!</h2>
+ <p>You collected the cheese, outsmarted the cat, and escaped all six rooms!</p>
+ <p style="font-size:50px">🐭 🧀 🏠</p>
+ <p><b>THE GREAT MOUSE ESCAPE!</b></p>
+ <p>Total cheese collected: ${totalCheese}</p>
+ <button id="again">PLAY AGAIN</button>`:
+ `<h2>🐱 Caught!</h2>
+ <p>Billy Bob ran out of lives. The cat wins this time!</p>
+ <p>Try again and use the vents to escape.</p>
+ <button id="again">TRY AGAIN</button>`;
+ $('again').onclick=startGame;
+}
+
+function update(dt){
+ if(state!=='playing')return;
+
+ if(messageTimer>0){
+   messageTimer-=dt;
+   if(messageTimer<=0)$('message').textContent='Collect the cheese and avoid the cat!';
+ }
+
+ dashCooldown=Math.max(0,dashCooldown-dt);
+ dashTime=Math.max(0,dashTime-dt);
+ invulnerable=Math.max(0,invulnerable-dt);
+
+ let dx=0,dy=0;
+ if(keys.w||keys.ArrowUp)dy--;
+ if(keys.s||keys.ArrowDown)dy++;
+ if(keys.a||keys.ArrowLeft)dx--;
+ if(keys.d||keys.ArrowRight)dx++;
+
+ const len=Math.hypot(dx,dy)||1;
+ const speed=player.speed*(dashTime>0?2.7:1);
+ if(dx||dy){
+   player.angle=Math.atan2(dy,dx);
+   noise=Math.max(noise,.2);
  }else{
-  state="won";
-  showPanel("BILLY BOB WINS! 🧀","You escaped all 17 levels! You collected "+totalCheese+" cheeses and earned the ultimate cheese champion title!",'<button onclick="restartGame()">PLAY AGAIN</button><button class="secondary" onclick="menu()">MAIN MENU</button>');
+   noise=Math.max(0,noise-dt*.5);
  }
-}
-function burst(x,y,color,count=9){
- for(let i=0;i<count;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5-1,life:28,color});
-}
-function addCheese(item){
- item.alive=false;levelCheese++;totalCheese++;
- if(item.rainbow){
-  superTimer=650;player.super=true;
-  burst(item.x,item.y,"#ff70d2",25);
-  burst(item.x,item.y,"#ffe66d",20);
- }else burst(item.x,item.y,"#ffda63",10);
- // Every five total cheeses unlocks the next outfit.
- updateHud();
- if(levelCheese>=goal)exit.open=true;
-}
-function collectSecret(){
- if(secret.used)return;
- secret.used=true;levelCheese+=2;totalCheese+=2;
- burst(secret.x,secret.y,"#d7a6ff",20);
- if(levelCheese>=goal)exit.open=true;
- updateHud();
-}
-function startVent(){
- if(vent.used)return;
- vent.used=true;returnPosition={x:player.x,y:player.y};
- mini={x:90,y:90,crumbs:[{x:790,y:90},{x:790,y:390},{x:190,y:390}],got:0,timer:1000};
- state="vent";
- showPanel("VENT MINI-GAME!","Billy Bob scurries into the vent! Collect all 3 cheese crumbs before the timer runs out. Use the arrow keys or WASD.",'<button onclick="beginVent()">ENTER THE VENT!</button>');
-}
-function beginVent(){
- state="mini";$("overlay").style.display="none";
-}
-function finishVent(success){
- if(success){totalCheese++;levelCheese++;burst(player.x,player.y,"#ffe16b",18);if(levelCheese>=goal)exit.open=true;}
- // Return Billy Bob to the room.
- player.x=returnPosition.x;player.y=returnPosition.y;
- mini=null;state="playing";updateHud();
-}
-function updateMini(){
- if(!mini)return;
- mini.timer--;
- const speed=4;
- if(keys.ArrowLeft||keys.KeyA)mini.x-=speed;
- if(keys.ArrowRight||keys.KeyD)mini.x+=speed;
- if(keys.ArrowUp||keys.KeyW)mini.y-=speed;
- if(keys.ArrowDown||keys.KeyS)mini.y+=speed;
- mini.x=Math.max(28,Math.min(932,mini.x));mini.y=Math.max(80,Math.min(445,mini.y));
- const crumb=mini.crumbs[mini.got];
- if(crumb&&Math.hypot(mini.x-crumb.x,mini.y-crumb.y)<27){mini.got++;burst(crumb.x,crumb.y,"#ffe16b",9);}
- if(mini.got>=3)finishVent(true);
- else if(mini.timer<=0)finishVent(false);
-}
-function update(){
- if(state==="mini"){updateMini();return;}
- if(state!=="playing")return;
- frame++;
- const p=player;
- if(p.inv>0)p.inv--;
- if(superTimer>0){superTimer--;if(!superTimer)p.super=false;}
- const L=keys.ArrowLeft||keys.KeyA,R=keys.ArrowRight||keys.KeyD;
- const U=keys.ArrowUp||keys.KeyW,D=keys.ArrowDown||keys.KeyS;
- let dx=(R?1:0)-(L?1:0),dy=(D?1:0)-(U?1:0);
- if(dx||dy){const len=Math.hypot(dx,dy);dx/=len;dy/=len;}
- p.x+=dx*p.speed;p.y+=dy*p.speed;
- p.x=Math.max(30,Math.min(930,p.x));p.y=Math.max(95,Math.min(485,p.y));
- if(dx)p.face=dx;
- if(dx||dy)p.anim+=.23;
- // Cat chases Billy Bob. It grows and speeds up every level.
- if(catPause>0)catPause--;
- else{
-  const angle=Math.atan2(p.y-cat.y,p.x-cat.x);
-  cat.x+=Math.cos(angle)*cat.speed*(p.super?.55:1);
-  cat.y+=Math.sin(angle)*cat.speed*(p.super?.55:1);
+
+ move(player,dx/len*speed*dt,dy/len*speed*dt,player.r);
+
+ // Collect cheese.
+ for(const c of cheeses){
+   if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<25){
+     c.got=true;levelCheese++;totalCheese++;
+     updateHUD();
+     say('Cheese collected! 🧀');
+   }
  }
- cat.phase+=.08;
- // Contact with cat.
- const dist=Math.hypot(p.x-cat.x,p.y-cat.y);
- if(dist<p.r+cat.r-3){
-  if(p.super){cat.x-=Math.cos(Math.atan2(p.y-cat.y,p.x-cat.x))*45;catPause=55;burst(cat.x,cat.y,"#fff36d",15);}
-  else if(p.inv<=0){p.inv=85;cat.x-=Math.cos(Math.atan2(p.y-cat.y,p.x-cat.x))*60;catPause=35;burst(p.x,p.y,"#ff8b8b",12);if(mode==="hard")gameOver();}
+
+ // Reveal secret passages when nearby.
+ for(const d of doors){
+   if(!d.open&&Math.hypot(player.x-d.x,player.y-d.y)<35){
+     say('You found a hidden door! Press E!');
+   }
  }
- // Pick up cheese.
- for(const item of cheeses){
-  if(!item.alive)continue;
-  if(Math.hypot(p.x-item.x,p.y-item.y)<p.r+item.r+3)addCheese(item);
- }
- // Secret door.
- if(!secret.used&&Math.hypot(p.x-secret.x,p.y-secret.y)<40)collectSecret();
- // Vent automatically starts when Billy Bob reaches it.
- if(!vent.used&&Math.hypot(p.x-vent.x,p.y-vent.y)<38)startVent();
+
  // Exit.
- if(exit.open&&Math.hypot(p.x-exit.x,p.y-exit.y)<42)nextLevel();
- for(const q of particles){q.x+=q.vx;q.y+=q.vy;q.life--;}
- particles=particles.filter(q=>q.life>0);
- updateHud();
-}
-function drawRoom(){
- const place=places[level];
- ctx.fillStyle=place.bg;ctx.fillRect(0,0,W,H);
- ctx.fillStyle=place.floor;ctx.fillRect(0,75,W,H-75);
- // Floor tile pattern.
- ctx.strokeStyle="#ffffff36";ctx.lineWidth=2;
- for(let x=0;x<W;x+=80){ctx.beginPath();ctx.moveTo(x,75);ctx.lineTo(x,H);ctx.stroke();}
- for(let y=75;y<H;y+=70){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
- // Room label.
- ctx.fillStyle="#24392b";ctx.font="bold 22px Fredoka";ctx.textAlign="center";ctx.fillText(place.name,W/2,52);
- // Furniture and obstacles are decorative, not blocking.
- for(const d of decor){
-  ctx.fillStyle=place.accent;
-  if(d.type===0){
-   roundRect(d.x,d.y,d.w,d.h,8,place.accent);
-   ctx.fillStyle="#fff2";ctx.fillRect(d.x+8,d.y+7,d.w-16,7);
-  }else if(d.type===1){
-   ctx.fillRect(d.x,d.y,d.w,d.h);
-   ctx.fillStyle="#e8d5a9";ctx.fillRect(d.x+8,d.y+8,d.w-16,8);
-  }else if(d.type===2){
-   ctx.beginPath();ctx.arc(d.x+d.w/2,d.y+d.h/2,25,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="#fff5";ctx.beginPath();ctx.arc(d.x+d.w/2-7,d.y+d.h/2-5,6,0,Math.PI*2);ctx.fill();
-  }else{
-   ctx.fillRect(d.x,d.y,d.w,d.h);
-   ctx.fillStyle="#fff5";ctx.fillRect(d.x+5,d.y+5,d.w-10,5);
-  }
+ if(Math.hypot(player.x-exit.x,player.y-exit.y)<30){
+   if(levelCheese>=5){
+     nextLevel();
+     return;
+   }else{
+     if(Math.random()<.02)say('You need '+(5-levelCheese)+' more pieces of cheese!');
+   }
  }
- // Decorative windows.
- ctx.fillStyle="#a9d9e6";ctx.fillRect(35,88,105,62);
- ctx.strokeStyle="#ffffff";ctx.lineWidth=5;ctx.strokeRect(35,88,105,62);
- ctx.beginPath();ctx.moveTo(87,88);ctx.lineTo(87,150);ctx.moveTo(35,119);ctx.lineTo(140,119);ctx.stroke();
-}
-function roundRect(x,y,w,h,r,color){
- ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
-}
-function drawCheese(){
- for(const item of cheeses){
-  if(!item.alive)continue;
-  const bob=Math.sin(frame*.08+item.x)*3;
-  if(item.rainbow){
-   const g=ctx.createLinearGradient(item.x-13,item.y-12,item.x+13,item.y+12);
-   g.addColorStop(0,"#ff4e85");g.addColorStop(.25,"#ffd34d");g.addColorStop(.5,"#5ce4a3");g.addColorStop(.75,"#55aaff");g.addColorStop(1,"#b56bff");
-   ctx.fillStyle=g;ctx.beginPath();ctx.arc(item.x,item.y+bob,17,0,Math.PI*2);ctx.fill();
-   ctx.font="19px Arial";ctx.textAlign="center";ctx.fillText("🌈",item.x,item.y+bob+7);
-  }else{
-   ctx.fillStyle="#ffd34f";ctx.beginPath();ctx.moveTo(item.x-14,item.y+11+bob);ctx.lineTo(item.x-11,item.y-12+bob);ctx.lineTo(item.x+15,item.y-6+bob);ctx.lineTo(item.x+11,item.y+11+bob);ctx.closePath();ctx.fill();
-   ctx.fillStyle="#b77b2a";ctx.beginPath();ctx.arc(item.x-4,item.y+bob,3,0,Math.PI*2);ctx.arc(item.x+6,item.y-5+bob,2.5,0,Math.PI*2);ctx.fill();
-  }
- }
-}
-function drawVent(){
- if(vent.used)return;
- roundRect(vent.x-37,vent.y-17,74,34,8,"#39434a");
- ctx.strokeStyle="#aab5bb";ctx.lineWidth=4;ctx.strokeRect(vent.x-37,vent.y-17,74,34);
- ctx.strokeStyle="#7c8b92";ctx.lineWidth=3;
- for(let x=vent.x-25;x<vent.x+30;x+=12){ctx.beginPath();ctx.moveTo(x,vent.y-12);ctx.lineTo(x,vent.y+12);ctx.stroke();}
- ctx.fillStyle="#17251c";ctx.font="13px Fredoka";ctx.textAlign="center";ctx.fillText("VENT",vent.x,vent.y-25);
-}
-function drawSecret(){
- if(secret.used)return;
- roundRect(secret.x-23,secret.y-31,46,62,8,"#7144a0");
- ctx.strokeStyle="#d9b5ff";ctx.lineWidth=4;ctx.strokeRect(secret.x-23,secret.y-31,46,62);
- ctx.fillStyle="#ffe18b";ctx.beginPath();ctx.arc(secret.x+11,secret.y,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#3c2a50";ctx.font="12px Fredoka";ctx.textAlign="center";ctx.fillText("SECRET",secret.x,secret.y-39);
-}
-function drawExit(){
- if(!exit.open){
-  roundRect(exit.x-25,exit.y-42,50,84,8,"#7b4938");
-  ctx.fillStyle="#e8c07a";ctx.beginPath();ctx.arc(exit.x+12,exit.y,4,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="#fff";ctx.font="12px Fredoka";ctx.textAlign="center";ctx.fillText("NEED 5",exit.x,exit.y-52);
+
+ // Cat vision and chase.
+ const d=dist(player,cat);
+ const vision=level===1?210:245+level*12;
+ const angle=Math.atan2(player.y-cat.y,player.x-cat.x);
+ let angleDiff=Math.atan2(Math.sin(angle-cat.facing),Math.cos(angle-cat.facing));
+ const sees=Math.abs(angleDiff)<1.2&&d<vision;
+
+ if(sees||d<65||noise>.8){
+   cat.alert=true;
+   cat.search=3.5;
+   cat.facing=angle;
  }else{
-  ctx.shadowColor="#baffd0";ctx.shadowBlur=24;ctx.fillStyle="#9affbd";
-  ctx.beginPath();ctx.ellipse(exit.x,exit.y,25,43,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
-  ctx.fillStyle="#24452c";ctx.font="bold 13px Fredoka";ctx.textAlign="center";ctx.fillText("EXIT",exit.x,exit.y+5);
+   cat.search-=dt;
+   if(cat.search<=0)cat.alert=false;
+ }
+
+ if(cat.alert){
+   const vx=(player.x-cat.x)/(d||1);
+   const vy=(player.y-cat.y)/(d||1);
+   move(cat,vx*cat.speed*dt,vy*cat.speed*dt,cat.r);
+   cat.facing=Math.atan2(vy,vx);
+ }else{
+   // Patrol movement.
+   const patrolDist=Math.hypot(cat.patrolX-cat.x,cat.patrolY-cat.y);
+   if(patrolDist<10){
+     cat.patrolX=rand(100,W-100);
+     cat.patrolY=rand(100,H-100);
+   }else{
+     move(cat,(cat.patrolX-cat.x)/(patrolDist||1)*cat.speed*.35*dt,
+       (cat.patrolY-cat.y)/(patrolDist||1)*cat.speed*.35*dt,cat.r);
+   }
+ }
+
+ if(d<player.r+cat.r-3)caught();
+}
+
+function drawFloor(){
+ ctx.fillStyle='#77736b';ctx.fillRect(0,0,W,H);
+ // Realistic-looking floor tiles.
+ for(let y=0;y<H;y+=TILE){
+   for(let x=0;x<W;x+=TILE){
+     ctx.fillStyle=((x/TILE+y/TILE)%2===0)?'#858077':'#79766e';
+     ctx.fillRect(x,y,TILE,TILE);
+     ctx.strokeStyle='#625f59';ctx.lineWidth=1;
+     ctx.strokeRect(x,y,TILE,TILE);
+   }
  }
 }
+
+function drawCounter(w){
+ ctx.fillStyle='#252b2c';ctx.fillRect(w.x+5,w.y+7,w.w,w.h);
+ ctx.fillStyle='#b7aa94';ctx.fillRect(w.x,w.y,w.w,w.h-5);
+ ctx.fillStyle='#d3c6ae';ctx.fillRect(w.x+4,w.y+4,w.w-8,7);
+ ctx.strokeStyle='#5a5147';ctx.strokeRect(w.x,w.y,w.w,w.h-5);
+}
+
+function drawDecor(){
+ for(const d of decor){
+   if(d.type==='counter')drawCounter(d);
+   else{
+     ctx.fillStyle='#3b4141';ctx.fillRect(d.x,d.y,d.w,d.h);
+     ctx.fillStyle='#777c79';ctx.fillRect(d.x+3,d.y+3,d.w-6,5);
+   }
+ }
+}
+
+function drawVent(v){
+ ctx.fillStyle='#292f30';
+ ctx.beginPath();ctx.ellipse(v.x,v.y,23,16,0,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#b6b9b4';ctx.lineWidth=3;ctx.stroke();
+ ctx.strokeStyle='#777f7d';ctx.lineWidth=2;
+ for(let i=-2;i<=2;i++){
+   ctx.beginPath();ctx.moveTo(v.x-16,v.y+i*5);ctx.lineTo(v.x+16,v.y+i*5);ctx.stroke();
+ }
+}
+
+function drawCheese(c){
+ ctx.save();ctx.translate(c.x,c.y);
+ ctx.fillStyle='#e6b84d';
+ ctx.beginPath();ctx.moveTo(-12,9);ctx.lineTo(12,9);ctx.lineTo(10,-8);ctx.lineTo(-7,-10);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#bd8a31';
+ ctx.beginPath();ctx.arc(-3,0,3,0,Math.PI*2);ctx.arc(5,5,2,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+}
+
 function drawCat(){
- const x=cat.x,y=cat.y,r=cat.r;
- ctx.save();
- ctx.translate(x,y);
- // Tail
- ctx.strokeStyle="#604a42";ctx.lineWidth=Math.max(5,r*.22);ctx.lineCap="round";
- ctx.beginPath();ctx.moveTo(-r*.65,r*.25);ctx.quadraticCurveTo(-r*1.5,-r*.7,-r*1.3,-r*1.2);ctx.stroke();
- // Ears
- ctx.fillStyle="#78625a";
- ctx.beginPath();ctx.moveTo(-r*.75,-r*.4);ctx.lineTo(-r*.8,-r*1.25);ctx.lineTo(-r*.15,-r*.85);ctx.fill();
- ctx.beginPath();ctx.moveTo(r*.25,-r*.85);ctx.lineTo(r*.85,-r*1.3);ctx.lineTo(r*.8,-r*.35);ctx.fill();
- // Head/body
- ctx.fillStyle="#8e786d";ctx.beginPath();ctx.ellipse(0,0,r,r*.82,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#d4b5a5";ctx.beginPath();ctx.ellipse(0,r*.28,r*.55,r*.35,0,0,Math.PI*2);ctx.fill();
- // Eyes
- ctx.fillStyle="#e6e65b";ctx.beginPath();ctx.ellipse(-r*.32,-r*.12,r*.13,r*.2,0,0,Math.PI*2);ctx.ellipse(r*.32,-r*.12,r*.13,r*.2,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#211d1a";ctx.fillRect(-r*.34,-r*.2,3,9);ctx.fillRect(r*.3,-r*.2,3,9);
- ctx.fillStyle="#f3b0a7";ctx.beginPath();ctx.arc(0,r*.22,4,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#43342e";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,r*.26);ctx.lineTo(-5,r*.39);ctx.moveTo(0,r*.26);ctx.lineTo(5,r*.39);ctx.stroke();
+ ctx.save();ctx.translate(cat.x,cat.y);
+ ctx.rotate(cat.facing);
+ ctx.fillStyle='#777c7d';
+ ctx.beginPath();ctx.ellipse(0,0,25,18,0,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.arc(18,-2,15,0,Math.PI*2);ctx.fill();
+ ctx.beginPath();ctx.moveTo(8,-12);ctx.lineTo(9,-28);ctx.lineTo(21,-13);ctx.fill();
+ ctx.beginPath();ctx.moveTo(23,-12);ctx.lineTo(32,-25);ctx.lineTo(34,-7);ctx.fill();
+ ctx.strokeStyle='#555b5b';ctx.lineWidth=5;
+ ctx.beginPath();ctx.moveTo(-20,2);ctx.quadraticCurveTo(-42,-8,-37,-24);ctx.stroke();
+ ctx.fillStyle='#d7bd75';
+ ctx.beginPath();ctx.arc(23,-6,3,0,Math.PI*2);ctx.arc(13,-6,3,0,Math.PI*2);ctx.fill();
+ ctx.restore();
+
+ if(cat.alert){
+   ctx.fillStyle='#d94b42';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
+   ctx.fillText('!',cat.x,cat.y-35);
+ }
+}
+
+function drawMouse(){
+ ctx.save();ctx.translate(player.x,player.y);
+ ctx.rotate(player.angle);
+ if(invulnerable>0&&Math.floor(performance.now()/100)%2===0)ctx.globalAlpha=.4;
+ ctx.fillStyle='#887d72';
+ ctx.beginPath();ctx.ellipse(0,0,15,10,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#b69a91';
+ ctx.beginPath();ctx.arc(10,-8,7,0,Math.PI*2);ctx.arc(10,8,7,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#9a8980';
+ ctx.beginPath();ctx.arc(12,0,9,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#181919';
+ ctx.beginPath();ctx.arc(17,-3,2,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#b69a91';ctx.lineWidth=3;
+ ctx.beginPath();ctx.moveTo(-12,0);ctx.quadraticCurveTo(-27,-10,-29,2);ctx.stroke();
  ctx.restore();
 }
-function drawBilly(){
- const p=player,x=p.x,y=p.y;
- if(p.inv>0&&Math.floor(frame/5)%2===0)return;
- const outfit=outfits[outfitIndex()];
- ctx.save();ctx.translate(x,y);
- if(p.super){
-  ctx.strokeStyle="#ffe66d";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,28,0,Math.PI*2);ctx.stroke();
- }
- // Body
- ctx.fillStyle=outfit.shirt;ctx.beginPath();ctx.ellipse(0,2,12,15,0,0,Math.PI*2);ctx.fill();
- // Head
- ctx.fillStyle="#b8a18a";ctx.beginPath();ctx.arc(0,-15,13,0,Math.PI*2);ctx.fill();
- // Ears
- ctx.beginPath();ctx.arc(-10,-25,6,0,Math.PI*2);ctx.arc(10,-25,6,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#f0b4a9";ctx.beginPath();ctx.arc(-10,-25,3,0,Math.PI*2);ctx.arc(10,-25,3,0,Math.PI*2);ctx.fill();
- // Outfit hat
- ctx.fillStyle=outfit.hat;ctx.fillRect(-12,-29,24,6);ctx.fillRect(-7,-37,14,9);
- // Eyes and nose
- ctx.fillStyle="#201b18";ctx.beginPath();ctx.arc(-4,-17,2,0,Math.PI*2);ctx.arc(4,-17,2,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#f2a8a0";ctx.beginPath();ctx.arc(0,-11,3,0,Math.PI*2);ctx.fill();
- // Scarf / superhero cape
- ctx.fillStyle=outfit.scarf;ctx.fillRect(-8,-3,16,5);
- if(p.super){
-  ctx.fillStyle="#f34e69";ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(-25,15+Math.sin(frame*.2)*4);ctx.lineTo(-8,10);ctx.fill();
-  ctx.fillStyle="#ffe66d";ctx.font="bold 12px Fredoka";ctx.textAlign="center";ctx.fillText("S",0,7);
- }
- // Animated feet
- const swing=Math.sin(p.anim)*6;
- ctx.strokeStyle="#51433a";ctx.lineWidth=4;ctx.lineCap="round";
- ctx.beginPath();ctx.moveTo(-5,14);ctx.lineTo(-7+swing,23);ctx.moveTo(5,14);ctx.lineTo(7-swing,23);ctx.stroke();
- ctx.restore();
-}
-function drawMini(){
- ctx.fillStyle="#26313b";ctx.fillRect(0,0,W,H);
- ctx.fillStyle="#71838b";ctx.fillRect(25,75,910,390);
- ctx.strokeStyle="#b7c4c9";ctx.lineWidth=9;ctx.strokeRect(25,75,910,390);
- // Vent grates
- ctx.strokeStyle="#52646c";ctx.lineWidth=4;
- for(let x=60;x<920;x+=80){ctx.beginPath();ctx.moveTo(x,85);ctx.lineTo(x,455);ctx.stroke();}
- for(let y=130;y<455;y+=80){ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(925,y);ctx.stroke();}
- ctx.fillStyle="#fff";ctx.font="bold 24px Fredoka";ctx.textAlign="center";ctx.fillText("VENT MAZE!",W/2,43);
- ctx.font="17px Fredoka";ctx.fillText(`CHEESE CRUMBS: ${mini.got}/3`,W/2,505);
- ctx.fillStyle="#ffd46b";ctx.fillText("TIME: "+Math.max(0,Math.ceil(mini.timer/60)),W/2,530);
- for(let i=mini.got;i<3;i++){
-  const q=mini.crumbs[i];ctx.font="25px Arial";ctx.fillText("🧀",q.x,q.y+9);
- }
- // Billy Bob in the vent
- ctx.fillStyle="#b8a18a";ctx.beginPath();ctx.arc(mini.x,mini.y,13,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#e6e6dc";ctx.beginPath();ctx.ellipse(mini.x,mini.y+14,11,13,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#241d18";ctx.fillRect(mini.x-5,mini.y-3,3,3);ctx.fillRect(mini.x+3,mini.y-3,3,3);
-}
-function drawParticles(){
- for(const q of particles){ctx.globalAlpha=Math.max(0,q.life/28);ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,5,5);}
- ctx.globalAlpha=1;
-}
+
 function draw(){
- if(state==="mini"){drawMini();return;}
- drawRoom();drawCheese();drawVent();drawSecret();drawExit();drawCat();drawBilly();drawParticles();
- if(levelCheese>=goal){
-  ctx.fillStyle="#203c2a";ctx.font="bold 18px Fredoka";ctx.textAlign="center";ctx.fillText("EXIT UNLOCKED! FIND THE DOOR!",W/2,115);
+ drawFloor();
+ drawDecor();
+
+ // Exit.
+ ctx.fillStyle=levelCheese>=5?'#5e9a67':'#4a4943';
+ ctx.fillRect(exit.x-19,exit.y-24,38,48);
+ ctx.strokeStyle='#d2c8a9';ctx.lineWidth=3;ctx.strokeRect(exit.x-19,exit.y-24,38,48);
+ ctx.fillStyle='#e8dfc5';ctx.font='12px Fredoka';ctx.textAlign='center';
+ ctx.fillText('EXIT',exit.x,exit.y-32);
+
+ // Vents.
+ vents.forEach(drawVent);
+
+ // Secret doors.
+ doors.forEach(d=>{
+   if(d.open){
+     ctx.fillStyle='#353c3b';ctx.fillRect(d.x-17,d.y-18,34,36);
+   }else{
+     ctx.fillStyle='#544c40';ctx.fillRect(d.x-17,d.y-18,34,36);
+     ctx.strokeStyle='#a38b5e';ctx.strokeRect(d.x-17,d.y-18,34,36);
+   }
+ });
+
+ // Cheese.
+ cheeses.forEach(c=>{if(!c.got)drawCheese(c)});
+
+ // Player and cat.
+ drawCat();
+ drawMouse();
+
+ // Cat sight indicator.
+ if(cat.alert){
+   ctx.strokeStyle='rgba(190,54,48,.35)';
+   ctx.lineWidth=2;
+   ctx.beginPath();ctx.moveTo(cat.x,cat.y);
+   ctx.lineTo(cat.x+Math.cos(cat.facing-1.2)*230,cat.y+Math.sin(cat.facing-1.2)*230);
+   ctx.lineTo(cat.x+Math.cos(cat.facing+1.2)*230,cat.y+Math.sin(cat.facing+1.2)*230);
+   ctx.closePath();ctx.fillStyle='rgba(190,54,48,.09)';ctx.fill();
  }
- if(player.super){
-  ctx.fillStyle="#8c3f9c";ctx.font="bold 17px Fredoka";ctx.textAlign="center";ctx.fillText("SUPER BILLY BOB! CAT CAN'T CATCH YOU!",W/2,145);
+
+ // Low-light vignette.
+ const g=ctx.createRadialGradient(W/2,H/2,130,W/2,H/2,560);
+ g.addColorStop(0,'rgba(0,0,0,0)');
+ g.addColorStop(1,'rgba(0,0,0,.35)');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+ // Room title.
+ ctx.fillStyle='#171d20cc';ctx.fillRect(12,12,260,34);
+ ctx.fillStyle='#f3e4c5';ctx.font='bold 17px Fredoka';ctx.textAlign='left';
+ ctx.fillText(levelNames[level-1],24,35);
+
+ if(state==='paused'){
+   ctx.fillStyle='#101719bb';ctx.fillRect(0,0,W,H);
+   ctx.fillStyle='white';ctx.textAlign='center';ctx.font='bold 45px Fredoka';
+   ctx.fillText('PAUSED',W/2,H/2);
+   ctx.font='18px Fredoka';ctx.fillText('Press P to continue',W/2,H/2+34);
  }
 }
-function loop(){
- if(state==="playing"||state==="mini"){update();draw();}
- else if(state==="paused")draw();
- requestAnimationFrame(loop);
-}
-document.addEventListener("keydown",e=>{
- if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space"].includes(e.code))e.preventDefault();
- keys[e.code]=true;
- if(e.code==="Escape"&&!e.repeat){
-  if(state==="playing")pauseGame();
-  else if(state==="paused")resumeGame();
+
+function loop(now){
+ if(state!=='playing')return;
+ const dt=Math.min(.035,(now-last)/1000||0);
+ last=now;
+ update(dt);
+ if(state==='playing'){
+   draw();
+   raf=requestAnimationFrame(loop);
  }
+}
+
+function togglePause(){
+ if(state==='playing'){
+   state='paused';
+   cancelAnimationFrame(raf);
+   draw();
+ }else if(state==='paused'){
+   state='playing';
+   last=performance.now();
+   raf=requestAnimationFrame(loop);
+ }
+}
+
+document.addEventListener('keydown',e=>{
+ const k=e.key===' '?' ':e.key;
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(k.toLowerCase()==='e'&&state==='playing'){
+   if(nearestVent())useVent();
+   else useSecretDoor();
+ }
+ if(k===' '&&state==='playing')dash();
+ if(k.toLowerCase()==='p')togglePause();
 });
-document.addEventListener("keyup",e=>keys[e.code]=false);
-window.addEventListener("blur",()=>{for(const k in keys)keys[k]=false;});
-window.startGame=startGame;window.resumeGame=resumeGame;window.restartGame=restartGame;window.menu=menu;window.beginVent=beginVent;
-levelSetup(0);state="title";loop();
+document.addEventListener('keyup',e=>{
+ keys[e.key===' '?' ':e.key]=false;
+});
+window.addEventListener('blur',()=>keys={});
+
+$('start').onclick=startGame;
+$('pause').onclick=togglePause;
+$('restart').onclick=startGame;
+$('home').onclick=()=>location.href='../../index.html';
+
+buildLevel();
+draw();
 })();
 </script>
 </body>
