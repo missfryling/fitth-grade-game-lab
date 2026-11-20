@@ -4,259 +4,416 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Land of the Lost - Mango Man</title>
+<title>The Land of the Lost - Mango's Volcano Adventure</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#241b12;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
-#game{width:min(1000px,98vw);padding:12px;background:#49351f;border:3px solid #dba64b;border-radius:18px;box-shadow:0 15px 45px #0009}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px 10px}
-h1{margin:0;color:#ffdc80;font-size:clamp(20px,3vw,30px)}
-.stats{display:flex;gap:8px;flex-wrap:wrap}
-.stat{background:#251b12;padding:7px 11px;border-radius:10px}
-canvas{display:block;width:100%;height:auto;border:3px solid #c18a3e;border-radius:12px;background:#8b6337}
-#message{text-align:center;min-height:26px;padding:8px;color:#ffe8b1}
-#bar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-button{font:600 15px Fredoka;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:#ffdc80;color:#40270c}
-button:hover{filter:brightness(1.1);transform:translateY(-1px)}
-#overlay{position:fixed;inset:0;background:#100b07df;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
-.panel{max-width:540px;width:100%;background:#594021;border:3px solid #ffdc80;border-radius:20px;padding:25px;text-align:center;box-shadow:0 15px 50px #000b}
-.panel h2{color:#ffdc80;font-size:30px;margin:0 0 8px}
-.panel p{line-height:1.5;color:#fff0ce}
-.controls{font-size:14px;color:#ffe4a7}
+body{margin:0;overflow:hidden;background:#251b24;color:white;font-family:Outfit,Arial}
+canvas{display:block;width:100vw;height:100vh}
+#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
+.pill{background:#211a27e8;border:2px solid #ffffff40;border-radius:13px;padding:8px 12px;font-size:14px;font-weight:700}
+#controls{position:fixed;right:10px;bottom:10px;display:flex;gap:7px}
+button{font-family:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 14px;background:#ffd34e;color:#30220b;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+#overlay{position:fixed;inset:0;background:#100c19dc;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
+.panel{width:min(560px,95vw);background:#fff7e7;color:#29251e;border:5px solid #e5a94b;border-radius:24px;padding:24px;text-align:center;box-shadow:0 12px 45px #0009}
+.panel h1{font:700 clamp(30px,5vw,46px) Fredoka;color:#a94e2c;margin:5px}
+.panel h2{font:700 25px Fredoka}
+.panel p{line-height:1.5}
+.panel button{font-size:19px;padding:13px 25px}
+.small{font-size:13px;color:#665d50}
+.hidden{display:none!important}
+#hint{position:fixed;left:12px;bottom:13px;background:#211a27dc;padding:8px 12px;border-radius:10px;font-size:13px;pointer-events:none}
 </style>
 </head>
 <body>
-<div id="game">
-<header>
-<h1>🥭 THE LAND OF THE LOST</h1>
-<div class="stats">
-<div class="stat" id="level">Level 1 / 10</div>
-<div class="stat" id="health">❤️❤️❤️❤️❤️</div>
-<div class="stat" id="coins">🪙 0</div>
-<div class="stat" id="boss">👹 No Boss</div>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="pill">🥭 Mango</div>
+ <div class="pill" id="levelHud">Level 1 / 10</div>
+ <div class="pill" id="healthHud">❤️❤️❤️❤️❤️</div>
+ <div class="pill" id="coinHud">🪙 0</div>
+ <div class="pill" id="jumpHud">🦘 Jumps: 3</div>
+ <div class="pill" id="abilityHud">💥 Blast: READY</div>
 </div>
-</header>
-<canvas id="c" width="960" height="600"></canvas>
-<div id="message">Climb to the top! Watch out for the mango monsters!</div>
-<div id="bar">
-<button id="pause">⏸ Pause</button>
-<button id="blast">🥭 Mango Blast (X)</button>
-<button id="restart">↻ Restart Level</button>
-<button onclick="location.href='../../index.html'">🏠 Game Lab</button>
-</div>
-<div class="controls">Move: Arrow Keys / WASD · Jump: Space / Up · Climb: Up / Down near ladders · Special: X</div>
+<div id="hint">WASD / Arrows: Move & Climb · Space: Triple Jump · X: Mango Blast · E: Secret Doors</div>
+<div id="controls">
+ <button id="pauseBtn">⏸ Pause</button>
+ <button id="restartBtn">↻ Restart</button>
 </div>
 <div id="overlay">
-<div class="panel" id="panel">
-<h2>🥭 THE LAND OF THE LOST</h2>
-<p>You are the Mango Man! Climb the mysterious tower, collect coins, dodge mango monsters, and find the boss at the very top!</p>
-<p><b>Move:</b> Arrow keys or WASD<br><b>Jump:</b> Spacebar<br><b>Climb:</b> Up and Down near ladders<br><b>Mango Blast:</b> X</p>
-<button id="start">START ADVENTURE!</button>
+ <div class="panel" id="startPanel">
+  <h1>🥭 The Land of the Lost</h1>
+  <h2>Volcano Adventure!</h2>
+  <p>Help Mango climb through 10 dangerous levels, defeat enemies, collect coins, discover secret doors, and defeat the Strawberry Boss!</p>
+  <p><b>NEW:</b> Mango can jump THREE times in a row and climb ladders all the way to the top!</p>
+  <p class="small">Move: WASD or arrow keys · Jump: Space · Mango Blast: X · Secret Doors: E · Climb: Up / Down near ladders</p>
+  <button id="startBtn">🌋 Start Climbing!</button>
+ </div>
+ <div class="panel hidden" id="pausePanel">
+  <h1>⏸ Adventure Paused</h1>
+  <p>Mango is taking a break!</p>
+  <button id="resumeBtn">▶ Keep Climbing</button>
+ </div>
+ <div class="panel hidden" id="messagePanel">
+  <h1 id="messageTitle">Level Complete!</h1>
+  <p id="messageText"></p>
+  <button id="continueBtn">Next Level</button>
+ </div>
+ <div class="panel hidden" id="endPanel">
+  <h1 id="endTitle">🏆 You Did It!</h1>
+  <p id="endText"></p>
+  <button id="againBtn">Play Again</button>
+ </div>
 </div>
-</div>
+
 <script>
 (()=>{
-const c=document.getElementById('c'),ctx=c.getContext('2d');
-const W=960,H=600,$=id=>document.getElementById(id);
-const gravity=.48;
-let keys={},player={},platforms=[],ladders=[],monsters=[],coins=[],powerups=[],shots=[],particles=[],level=1,lives=5,score=0;
-let running=false,paused=false,last=0,raf=0,blastCooldown=0,invuln=0,cameraY=0,boss=null,door=null,worldHeight=1300,levelName='';
-const names=['Mango Meadow','The Sticky Jungle','Banana Rock Cliffs','The Forgotten Temple','The Juicy Caves','Monster Mountain','The Mango Mines','The Lost Kingdom','The Giant Mango Tower','The Final Summit'];
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize);resize();
+
+const keys={};
+const TOTAL=10;
+let scene='start',running=false,paused=false,level=1;
+let player,platforms,ladders,enemies,coins,powers,doors,hazards,boss;
+let score=0,health=5,blastCD=0,invuln=0,cameraY=0;
+let worldH=1600,groundY=0,last=0,doorMessage=0;
+let levelMessage=false;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
-function msg(t){$('message').textContent=t}
-function ui(){
-$('level').textContent=`Level ${level} / 10`;
-$('health').textContent='❤️'.repeat(lives)+'🖤'.repeat(5-lives);
-$('coins').textContent='🪙 '+score;
-$('boss').textContent=boss?'👹 '+boss.hp+' HP':'👹 No Boss';
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const levelNames=['Mango Mountain','Lava Landing','Rocky Ridge','Fire Falls','Crumbling Caverns','Ashen Heights','Magma Maze','Dino Volcano','Strawberry Summit','The Final Volcano'];
+
+function showPanel(id){
+ ['startPanel','pausePanel','messagePanel','endPanel'].forEach(p=>$(p).classList.toggle('hidden',p!==id));
+ $('overlay').classList.remove('hidden');
 }
-function makeLevel(){
-levelName=names[level-1];
-worldHeight=1300+level*90;
-platforms=[];ladders=[];monsters=[];coins=[];powerups=[];shots=[];particles=[];
-boss=null;blastCooldown=0;cameraY=0;
-player={x:80,y:worldHeight-100,vx:0,vy:0,w:30,h:38,onGround:false,climbing:false,face:1,speed:3.1,jumps:0};
-platforms.push({x:0,y:worldHeight-30,w:W,h:30});
-let count=10+level;
-let gap=(worldHeight-200)/(count+1);
-for(let i=0;i<count;i++){
-let y=worldHeight-150-i*gap;
-let x=(i%2===0)?rand(40,410):rand(480,770);
-platforms.push({x,y,w:rand(150,250),h:17});
-if(i%2===0)ladders.push({x:x+Math.min(70,platforms[platforms.length-1].w/2),y:y+10,h:gap+35});
-if(i%3===0)coins.push({x:x+rand(30,120),y:y-28,got:false});
-if(i%4===1)powerups.push({x:x+rand(35,100),y:y-30,type:Math.floor(Math.random()*3),got:false});
-if(i>1&&i%2===1)monsters.push({x:x+rand(25,Math.max(35,platforms[platforms.length-1].w-25)),y:y-34,platform:platforms[platforms.length-1],dir:Math.random()<.5?-1:1,hp:1+Math.floor(level/5),stun:0});
+function hideOverlay(){$('overlay').classList.add('hidden')}
+function updateHud(){
+ $('levelHud').textContent='🌋 Level '+level+' / '+TOTAL+' — '+levelNames[level-1];
+ $('healthHud').textContent='❤️'.repeat(Math.max(0,health))+'🖤'.repeat(5-Math.max(0,health));
+ $('coinHud').textContent='🪙 '+score;
+ $('jumpHud').textContent='🦘 Jumps: '+player.jumpsLeft;
+ $('abilityHud').textContent=blastCD>0?'💥 Blast: '+blastCD.toFixed(1)+'s':'💥 Blast: READY';
 }
-platforms.push({x:340,y:90,w:280,h:20});
-door={x:455,y:45};
-if(level===10){
-boss={x:480,y:55,hp:18,max:18,dir:1,stun:0,attackTimer:1.5};
+function startGame(){
+ level=1;score=0;health=5;blastCD=0;levelMessage=false;
+ setupLevel();running=true;paused=false;scene='playing';hideOverlay();last=performance.now();
 }
-ui();msg(`${levelName}: Climb to the top!`);
-}
-function start(){
-level=1;lives=5;score=0;makeLevel();running=true;paused=false;
-$('overlay').style.display='none';last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
-}
-function panel(title,body,button,fn){
-$('overlay').style.display='flex';
-$('panel').innerHTML=`<h2>${title}</h2><p>${body}</p><button id="panelBtn">${button}</button>`;
-$('panelBtn').onclick=fn;
-}
-function hit(){
-if(invuln>0)return;
-lives--;invuln=1.5;ui();msg('A mango monster got you! You lost a heart!');
-if(lives<=0){running=false;panel('🥭 Adventure Over!','The mango monsters caught Mango Man. Give it another try!','TRY AGAIN',start)}
-}
-function blast(){
-if(!running||paused||blastCooldown>0)return;
-blastCooldown=5;
-let count=0;
-monsters.forEach(m=>{
-if(Math.hypot(m.x-player.x,m.y-player.y)<245){m.hp-=2;m.stun=1;count++;if(m.hp<=0){m.dead=true;score+=10}}
-});
-if(boss&&Math.hypot(boss.x-player.x,boss.y-player.y)<330){boss.hp-=3;boss.stun=1;count++;if(boss.hp<=0)boss.dead=true}
-for(let i=0;i<12;i++)particles.push({x:player.x,y:player.y,vx:rand(-5,5),vy:rand(-5,5),life:.5});
-monsters=monsters.filter(m=>!m.dead);
-msg(count?'🥭 MANGO BLAST! Monsters hit!':'🥭 Mango Blast! Nothing close enough.');
-ui();
+function setupLevel(){
+ worldH=1600+level*35;groundY=worldH-55;cameraY=0;
+ player={x:W*.5-15,y:groundY-48,w:32,h:43,vx:0,vy:0,onGround:false,jumpsLeft:3,climbing:false,face:1};
+ platforms=[];ladders=[];enemies=[];coins=[];powers=[];doors=[];hazards=[];boss=null;
+ // Bottom starting platform.
+ platforms.push({x:W*.5-160,y:groundY,w:320,h:25});
+ // Ten climbing tiers. Each ladder connects one platform to the next.
+ const tierCount=7;
+ for(let i=0;i<tierCount;i++){
+  const y=groundY-190*(i+1);
+  const center=W*.5+Math.sin(i*1.5)*W*.17;
+  const width=210+(i%2)*35;
+  platforms.push({x:center-width/2,y,w:width,h:20});
+  const ladderX=center;
+  ladders.push({x:ladderX-12,y:y+12,w:24,h:190});
+  // Side platforms create alternate routes and places for collectibles.
+  const side=i%2===0?center-190:center+145;
+  platforms.push({x:side,y:y+65,w:115,h:17});
+  if(i%2===1)platforms.push({x:side-100,y:y+125,w:100,h:16});
+  if(i>0){
+   enemies.push({x:side+35,y:y-37,w:34,h:34,hp:1+Math.floor(level/4),speed:45+level*4,dir:i%2?1:-1,stun:0});
+  }
+  for(let c=0;c<3;c++){
+   coins.push({x:center-55+c*55,y:y-45,got:false});
+  }
+  if(i%2===0){
+   powers.push({x:side+45,y:y+30,type:i%4===0?'heart':i%4===2?'speed':'shield',got:false});
+  }
+ }
+ // Additional hazards near platforms.
+ for(let i=0;i<5+level;i++){
+  const y=groundY-150-i*155;
+  hazards.push({x:rand(45,W-65),y,w:32,h:27});
+ }
+ // Secret doors on different tiers.
+ for(let i=0;i<4;i++){
+  const tier=1+i*2;
+  const p=platforms[1+tier*3];
+  if(p)doors.push({x:p.x+p.w-32,y:p.y-45,used:false});
+ }
+ // Level 10 boss guards the summit.
+ if(level===TOTAL){
+  boss={x:W*.5-55,y:groundY-190*7-105,w:110,h:95,hp:30,maxHp:30,dir:1,attack:2,flash:0};
+  enemies=[];
+ }
+ updateHud();
 }
 function jump(){
-if(player.climbing){player.climbing=false;player.vy=-8;return}
-if(player.onGround){player.vy=-10;player.onGround=false;player.jumps=1}
-else if(player.jumps<2){player.vy=-9;player.jumps++}
+ if(!running||paused||scene!=='playing'||player.climbing)return;
+ if(player.jumpsLeft>0){
+  player.vy=player.jumpsLeft===3?-560:player.jumpsLeft===2?-520:-475;
+  player.jumpsLeft--;player.onGround=false;
+ }
+}
+function nearLadder(){
+ return ladders.find(l=>player.x+player.w>l.x-18&&player.x<l.x+l.w+18&&player.y+player.h>l.y&&player.y<l.y+l.h+25);
+}
+function nearDoor(){
+ return doors.find(d=>!d.used&&Math.abs(player.x-d.x)<55&&Math.abs(player.y-d.y)<65);
+}
+function blast(){
+ if(!running||paused||blastCD>0)return;
+ blastCD=5;
+ enemies.forEach(e=>{if(Math.abs(e.x-player.x)<220)e.hp-=2});
+ if(boss&&Math.abs(boss.x-player.x)<260){boss.hp-=4;boss.flash=.2}
+}
+function takeHit(){
+ if(invuln>0)return;
+ health--;invuln=1.6;
+ player.vy=-180;player.jumpsLeft=3;
+ if(health<=0){
+  running=false;scene='end';
+  $('endTitle').textContent='🥭 Oh no!';
+  $('endText').textContent='Mango ran out of hearts on Level '+level+'. Try again and climb to the summit!';
+  showPanel('endPanel');
+ }
+ updateHud();
+}
+function completeLevel(){
+ if(levelMessage)return;
+ if(level===TOTAL){
+  running=false;scene='end';
+  $('endTitle').textContent='🏆 Strawberry Boss Defeated!';
+  $('endText').textContent='Mango climbed all 10 levels, defeated the Strawberry Boss, and escaped the volcano! Final coins: '+score;
+  showPanel('endPanel');return;
+ }
+ running=false;levelMessage=true;
+ $('messageTitle').textContent='🎉 Level '+level+' Complete!';
+ $('messageText').textContent='You climbed to the top of '+levelNames[level-1]+'! Get ready for '+levelNames[level]+'!';
+ showPanel('messagePanel');
+}
+function nextLevel(){
+ levelMessage=false;level++;setupLevel();running=true;paused=false;scene='playing';hideOverlay();last=performance.now();
+}
+function movePlayer(dt){
+ let dx=0;
+ if(keys.ArrowLeft||keys.a)dx--;
+ if(keys.ArrowRight||keys.d)dx++;
+ player.vx=dx*245;
+ if(dx)player.face=dx;
+ const ladder=nearLadder();
+ const up=keys.ArrowUp||keys.w;
+ const down=keys.ArrowDown||keys.s;
+ if(ladder&&(up||down)){
+  player.climbing=true;player.vy=0;
+  player.x+=(ladder.x+ladder.w/2-(player.x+player.w/2))*Math.min(1,dt*12);
+  player.y+=(up?-205:205)*dt;
+  player.y=clamp(player.y,ladder.y-player.h,ladder.y+ladder.h-player.h);
+  player.onGround=false;
+ }else{
+  player.climbing=false;
+  player.x=clamp(player.x+player.vx*dt,0,W-player.w);
+  player.vy+=1250*dt;
+  const oldY=player.y;
+  player.y+=player.vy*dt;
+  player.onGround=false;
+  platforms.forEach(p=>{
+   if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
+    player.y=p.y-player.h;player.vy=0;player.onGround=true;player.jumpsLeft=3;
+   }
+  });
+ }
+ // Land on the bottom floor.
+ if(player.y+player.h>groundY&&player.vy>=0){
+  player.y=groundY-player.h;player.vy=0;player.onGround=true;player.jumpsLeft=3;
+ }
 }
 function update(dt){
-if(!running||paused)return;
-invuln=Math.max(0,invuln-dt);blastCooldown=Math.max(0,blastCooldown-dt);
-let oldY=player.y;
-let dx=0;
-if(keys.ArrowLeft||keys.a)dx--;
-if(keys.ArrowRight||keys.d)dx++;
-player.vx=dx*player.speed;
-if(dx)player.face=Math.sign(dx);
-let ladder=ladders.find(l=>player.x>l.x-20&&player.x<l.x+20&&player.y+player.h>l.y&&player.y<l.y+l.h);
-if(ladder&&(keys.ArrowUp||keys.w||keys.ArrowDown||keys.s)){
-player.climbing=true;player.vy=0;
-if(keys.ArrowUp||keys.w)player.y-=3.2;
-if(keys.ArrowDown||keys.s)player.y+=3.2;
-}else player.climbing=false;
-player.x=Math.max(5,Math.min(W-player.w-5,player.x+player.vx*60*dt));
-if(!player.climbing){
-player.vy+=gravity*60*dt;
-player.y+=player.vy*60*dt;
-player.onGround=false;
-platforms.forEach(p=>{
-if(player.vy>=0&&oldY+player.h<=p.y+5&&player.y+player.h>=p.y&&player.x+player.w>p.x&&player.x<p.x+p.w){
-player.y=p.y-player.h;player.vy=0;player.onGround=true;player.jumps=0;
+ if(scene!=='playing'||!running||paused)return;
+ blastCD=Math.max(0,blastCD-dt);invuln=Math.max(0,invuln-dt);
+ doorMessage=Math.max(0,doorMessage-dt);
+ movePlayer(dt);
+ if(player.y>worldH+150){takeHit();player.y=groundY-player.h}
+ coins.forEach(c=>{
+  if(!c.got&&Math.abs(player.x+player.w/2-c.x)<27&&Math.abs(player.y+player.h/2-c.y)<30){c.got=true;score+=5}
+ });
+ powers.forEach(p=>{
+  if(!p.got&&Math.abs(player.x-p.x)<35&&Math.abs(player.y-p.y)<45){
+   p.got=true;
+   if(p.type==='heart')health=Math.min(5,health+1);
+   if(p.type==='speed')player.vx*=1.3;
+   if(p.type==='shield')invuln=5;
+  }
+ });
+ enemies.forEach(e=>{
+  if(e.hp<=0)return;
+  if(e.stun>0)e.stun-=dt;
+  else{
+   e.x+=e.dir*e.speed*dt;
+   if(e.x<20||e.x>W-50)e.dir*=-1;
+   if(Math.abs(player.x-e.x)<45&&Math.abs(player.y-e.y)<42)takeHit();
+  }
+ });
+ enemies=enemies.filter(e=>e.hp>0);
+ hazards.forEach(h=>{
+  if(player.x+player.w>h.x&&player.x<h.x+h.w&&player.y+player.h>h.y&&player.y<h.y+h.h)takeHit();
+ });
+ if(boss){
+  boss.flash=Math.max(0,boss.flash-dt);
+  boss.x+=boss.dir*75*dt;
+  if(boss.x<W*.5-140||boss.x>W*.5+35)boss.dir*=-1;
+  boss.attack-=dt;
+  if(boss.attack<=0){
+   boss.attack=2.2;
+   hazards.push({x:boss.x+boss.w/2,y:boss.y+boss.h-15,w:35,h:30,bossFire:true,life:3});
+  }
+  if(Math.abs(player.x-boss.x)<95&&Math.abs(player.y-boss.y)<90)takeHit();
+  if(boss.hp<=0)boss=null;
+ }
+ hazards.forEach(h=>{
+  if(h.bossFire){h.x-=70*dt;h.life-=dt;if(h.life<=0)h.remove=true}
+  if(player.x+player.w>h.x&&player.x<h.x+h.w&&player.y+player.h>h.y&&player.y<h.y+h.h)takeHit();
+ });
+ hazards=hazards.filter(h=>!h.remove);
+ if(player.climbing&&keys.ArrowUp||player.climbing&&keys.w){
+  // Keep climbing movement responsive at the top of the ladder.
+ }
+ const door=nearDoor();
+ if(door&&keys.e){
+  door.used=true;score+=25;player.jumpsLeft=3;invuln=1;
+  player.y=Math.max(80,player.y-95);doorMessage=2;
+ }
+ // Camera follows Mango upward and downward.
+ cameraY=clamp(player.y-H*.48,0,worldH-H);
+ // The summit exit is at the top right. Boss must be defeated first.
+ const topY=groundY-190*7;
+ if(player.y<topY+65&&player.x>W-145&&(!boss)){
+  completeLevel();
+ }
+ updateHud();
 }
-});
-}
-if(player.y>worldHeight+80){hit();player.x=70;player.y=worldHeight-100;player.vy=0}
-coins.forEach(o=>{if(!o.got&&Math.hypot(player.x+15-o.x,player.y+15-o.y)<27){o.got=true;score+=5;msg('🪙 Coin collected! +5');ui()}});
-powerups.forEach(p=>{
-if(!p.got&&Math.hypot(player.x+15-p.x,player.y+15-p.y)<28){
-p.got=true;
-if(p.type===0){lives=Math.min(5,lives+1);msg('❤️ Extra heart!')}
-if(p.type===1){player.speed=4.3;setTimeout(()=>player.speed=3.1,6000);msg('💨 Speed boost!')}
-if(p.type===2){score+=25;msg('⭐ Bonus points! +25')}
-ui();
-}});
-monsters.forEach(m=>{
-m.stun=Math.max(0,m.stun-dt);
-if(m.stun<=0){
-m.x+=m.dir*m.platform.w*.45*dt;
-if(m.x<m.platform.x+12){m.x=m.platform.x+12;m.dir=1}
-if(m.x>m.platform.x+m.platform.w-12){m.x=m.platform.x+m.platform.w-12;m.dir=-1}
-if(Math.abs(player.x-m.x)<150&&Math.abs(player.y-m.y)<110)m.dir=Math.sign(player.x-m.x)||m.dir;
-}
-if(Math.abs(player.x-m.x)<27&&Math.abs(player.y-m.y)<35)hit();
-});
-if(boss){
-boss.stun=Math.max(0,boss.stun-dt);
-if(boss.stun<=0){
-boss.x+=boss.dir*(1.0+level*.08)*60*dt;
-if(boss.x>760)boss.dir=-1;if(boss.x<200)boss.dir=1;
-boss.attackTimer-=dt;
-if(boss.attackTimer<=0){
-shots.push({x:boss.x,y:boss.y+20,vx:Math.sign(player.x-boss.x)*2.4,vy:2.5});
-boss.attackTimer=1.8;
-}
-}
-if(Math.abs(player.x-boss.x)<45&&Math.abs(player.y-boss.y)<50)hit();
-if(boss.dead){boss=null;score+=100;ui();msg('🏆 THE MANGO BOSS IS DEFEATED!');}
-}
-shots.forEach(s=>{s.x+=s.vx*60*dt;s.y+=s.vy*60*dt;if(Math.hypot(player.x+15-s.x,player.y+15-s.y)<22){s.dead=true;hit()}});
-shots=shots.filter(s=>!s.dead&&s.y<worldHeight+100);
-if(player.y<75&&(!boss||boss.hp<=0)){
-if(level===10){running=false;panel('🏆 MANGO MAN WINS!','You climbed all 10 levels and defeated the giant Mango Boss! The Land of the Lost is saved!','PLAY AGAIN',start);return}
-running=false;
-panel('✨ LEVEL COMPLETE!','You reached the top! Get ready for the next climbing challenge.','NEXT LEVEL',()=>{level++;makeLevel();running=true;$('overlay').style.display='none';last=performance.now();raf=requestAnimationFrame(loop)});
-return;
-}
-cameraY=Math.max(0,Math.min(worldHeight-H,player.y-H/2));
-particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=dt});
-particles=particles.filter(p=>p.life>0);
-ui();
+function drawBackground(){
+ const g=ctx.createLinearGradient(0,0,0,H);
+ g.addColorStop(0,level>=4?'#4d3444':'#ed9b61');
+ g.addColorStop(.65,level>=4?'#78433c':'#c76d43');
+ g.addColorStop(1,'#2d2633');
+ ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ // Distant volcano
+ ctx.fillStyle='#50323a';ctx.beginPath();ctx.moveTo(0,H*.55);ctx.lineTo(W*.23,H*.13);ctx.lineTo(W*.45,H*.55);ctx.fill();
+ ctx.fillStyle='#703c37';ctx.beginPath();ctx.moveTo(W*.45,H*.55);ctx.lineTo(W*.7,H*.08);ctx.lineTo(W,H*.55);ctx.fill();
+ ctx.fillStyle='#ff9d43';ctx.beginPath();ctx.arc(W*.7,H*.08,12,0,Math.PI*2);ctx.fill();
 }
 function draw(){
-let grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#f4b94f');grad.addColorStop(1,'#744326');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
-ctx.save();ctx.translate(0,-cameraY);
-ctx.fillStyle='#6c4529';ctx.fillRect(0,0,W,worldHeight);
-for(let i=0;i<22;i++){ctx.fillStyle=i%2?'#83552e':'#9a6636';ctx.fillRect((i*137)%W,100+i*60,40,8)}
-ctx.font='22px Arial';ctx.fillText('🥭',30,worldHeight-70);ctx.fillText('🌴',850,worldHeight-70);
-platforms.forEach(p=>{
-ctx.fillStyle='#56391e';ctx.fillRect(p.x,p.y,p.w,p.h);
-ctx.fillStyle='#9c6b37';ctx.fillRect(p.x,p.y,p.w,6);
-ctx.fillStyle='#c08b47';for(let x=p.x+10;x<p.x+p.w-5;x+=35)ctx.fillRect(x,p.y+7,12,5);
-});
-ladders.forEach(l=>{
-ctx.strokeStyle='#d6a45b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(l.x-10,l.y);ctx.lineTo(l.x-10,l.y+l.h);ctx.moveTo(l.x+10,l.y);ctx.lineTo(l.x+10,l.y+l.h);ctx.stroke();
-ctx.lineWidth=4;for(let y=l.y;y<l.y+l.h;y+=23){ctx.beginPath();ctx.moveTo(l.x-10,y);ctx.lineTo(l.x+10,y);ctx.stroke()}
-});
-coins.forEach(o=>{if(!o.got){ctx.font='25px Arial';ctx.fillText('🪙',o.x-12,o.y+8)}});
-powerups.forEach(p=>{if(!p.got){ctx.font='27px Arial';ctx.fillText(['❤️','💨','⭐'][p.type],p.x-13,p.y+9)}});
-monsters.forEach(m=>{ctx.font='33px Arial';ctx.fillText('🥭',m.x-17,m.y+12);ctx.font='18px Arial';ctx.fillText('👹',m.x-9,m.y-12)});
-shots.forEach(s=>{ctx.font='24px Arial';ctx.fillText('🔥',s.x-12,s.y+8)});
-if(boss){
-ctx.font='65px Arial';ctx.fillText('👹',boss.x-33,boss.y+25);
-ctx.fillStyle='#291414';ctx.fillRect(310,10,340,16);ctx.fillStyle='#ef4141';ctx.fillRect(310,10,340*(boss.hp/boss.max),16);
-ctx.strokeStyle='#fff';ctx.strokeRect(310,10,340,16);ctx.fillStyle='#fff';ctx.font='14px Fredoka';ctx.textAlign='center';ctx.fillText('MANGO BOSS',480,43);ctx.textAlign='left';
+ ctx.clearRect(0,0,W,H);drawBackground();
+ if(scene!=='playing'&&scene!=='end')return;
+ ctx.save();ctx.translate(0,-cameraY);
+ // Volcanic floor
+ ctx.fillStyle='#403039';ctx.fillRect(0,groundY,W,worldH-groundY);
+ ctx.fillStyle='#e66a36';ctx.fillRect(0,groundY,W,7);
+ // Platforms
+ platforms.forEach(p=>{
+  ctx.fillStyle='#59444a';ctx.fillRect(p.x,p.y,p.w,p.h);
+  ctx.fillStyle='#db8a54';ctx.fillRect(p.x,p.y,p.w,5);
+  for(let x=p.x+15;x<p.x+p.w-8;x+=35){
+   ctx.fillStyle='#8a6452';ctx.fillRect(x,p.y+8,15,5);
+  }
+ });
+ // Ladders
+ ladders.forEach(l=>{
+  ctx.fillStyle='#9b673d';ctx.fillRect(l.x,l.y,l.w,l.h);
+  ctx.fillStyle='#e0b06b';ctx.fillRect(l.x,l.y,5,l.h);ctx.fillRect(l.x+l.w-5,l.y,5,l.h);
+  for(let y=l.y+12;y<l.y+l.h;y+=22){ctx.fillRect(l.x,y,l.w,5)}
+ });
+ // Secret doors
+ doors.forEach(d=>{
+  if(d.used)return;
+  ctx.fillStyle='#6e3d76';ctx.fillRect(d.x,d.y,32,44);
+  ctx.fillStyle='#f3d66a';ctx.font='22px Arial';ctx.fillText('🚪',d.x-2,d.y+32);
+ });
+ // Hazards
+ hazards.forEach(h=>{
+  ctx.font='27px Arial';ctx.fillText(h.bossFire?'🔥':'🌋',h.x-4,h.y+25);
+ });
+ // Coins and powerups
+ coins.forEach(c=>{if(!c.got){ctx.font='24px Arial';ctx.fillText('🪙',c.x-12,c.y+9)}});
+ powers.forEach(p=>{
+  if(p.got)return;
+  ctx.font='27px Arial';ctx.fillText(p.type==='heart'?'❤️':p.type==='speed'?'⚡':'🛡️',p.x-13,p.y+10);
+ });
+ // Enemies
+ enemies.forEach(e=>{
+  ctx.font='35px Arial';ctx.fillText('👾',e.x,e.y+32);
+  if(e.hp>1){ctx.fillStyle='#211b22';ctx.fillRect(e.x,e.y-8,34,5);ctx.fillStyle='#f34b45';ctx.fillRect(e.x,e.y-8,34*e.hp/(1+Math.floor(level/4)),5)}
+ });
+ // Strawberry boss
+ if(boss){
+  ctx.font='90px Arial';ctx.fillText('🍓',boss.x-5,boss.y+82);
+  ctx.fillStyle='#241c25';ctx.fillRect(boss.x-4,boss.y-24,boss.w+12,13);
+  ctx.fillStyle='#e53c4c';ctx.fillRect(boss.x-4,boss.y-24,(boss.w+12)*Math.max(0,boss.hp/boss.maxHp),13);
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(boss.x-4,boss.y-24,boss.w+12,13);
+  ctx.fillStyle='#fff';ctx.font='bold 14px Outfit';ctx.fillText('STRAWBERRY BOSS',boss.x-22,boss.y-32);
+ }
+ // Mango
+ if(invuln>0&&Math.floor(performance.now()/100)%2===0)ctx.globalAlpha=.4;
+ ctx.font='39px Arial';ctx.fillText('🥭',player.x-5,player.y+35);ctx.globalAlpha=1;
+ // Summit exit
+ const summit=groundY-190*7;
+ ctx.font='37px Arial';ctx.fillText('🚪',W-75,summit+12);
+ ctx.fillStyle='#fff';ctx.font='bold 13px Outfit';ctx.fillText('TOP EXIT',W-92,summit+30);
+ ctx.restore();
+ if(doorMessage>0){
+  ctx.fillStyle='#fff';ctx.font='bold 18px Outfit';ctx.fillText('✨ Secret door bonus!',W/2-90,100);
+ }
+ ctx.fillStyle='#fff';ctx.font='bold 14px Outfit';
+ ctx.fillText(boss?'Defeat the Strawberry Boss, then reach the top exit!':'Climb to the top and find the exit! ⬆',15,H-45);
 }
-ctx.font='43px Arial';ctx.fillText('🥭',player.x-7,player.y+31);
-ctx.font='14px Fredoka';ctx.fillStyle='#fff';ctx.fillText('MANGO MAN',player.x-24,player.y-9);
-particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle='#ffdc80';ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
-ctx.restore();
-ctx.fillStyle='#27190eaa';ctx.fillRect(0,0,W,40);
-ctx.fillStyle='#ffe5a5';ctx.font='17px Fredoka';ctx.fillText(levelName,18,26);
-ctx.fillText('Climb toward the top!',W-190,26);
+function loop(now){
+ const dt=Math.min(.04,(now-last)/1000||0);last=now;
+ update(dt);draw();requestAnimationFrame(loop);
 }
-function loop(t){let dt=Math.min(.032,(t-last)/1000||0);last=t;update(dt);draw();if(running)raf=requestAnimationFrame(loop)}
-function togglePause(){
-if(!running)return;
-paused=!paused;
-if(paused)panel('⏸ Adventure Paused','Mango Man is taking a break!','RESUME',()=>{$('overlay').style.display='none';paused=false;last=performance.now();raf=requestAnimationFrame(loop)});
-else $('overlay').style.display='none';
+requestAnimationFrame(loop);
+function pauseGame(){
+ if(!running||scene!=='playing')return;
+ running=false;paused=true;showPanel('pausePanel');
 }
-window.addEventListener('keydown',e=>{
-if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
-keys[e.key]=true;
-if((e.key===' '||e.key==='ArrowUp'||e.key==='w')&&!e.repeat)jump();
-if(e.key==='x'||e.key==='X')blast();
-if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
+function resumeGame(){
+ if(!paused)return;
+ paused=false;running=true;hideOverlay();last=performance.now();
+}
+addEventListener('keydown',e=>{
+ const k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+ keys[k]=true;
+ if(k===' '||k==='Spacebar')jump();
+ if(k==='x')blast();
+ if(k==='e'){
+  const d=nearDoor();
+  if(d&&!d.used){d.used=true;score+=25;invuln=1;player.jumpsLeft=3;doorMessage=2}
+ }
+ if(k==='p'||k==='Escape'){
+  if(running)pauseGame();else if(paused)resumeGame();
+ }
 });
-window.addEventListener('keyup',e=>keys[e.key]=false);
-window.addEventListener('blur',()=>keys={});
-$('start').onclick=start;
-$('pause').onclick=togglePause;
-$('blast').onclick=blast;
-$('restart').onclick=()=>{if(running){makeLevel();paused=false}};
-makeLevel();draw();
+addEventListener('keyup',e=>{
+ const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;
+});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const k in keys)keys[k]=false});
+$('startBtn').addEventListener('click',startGame);
+$('pauseBtn').addEventListener('click',()=>{if(running)pauseGame();else if(paused)resumeGame()});
+$('resumeBtn').addEventListener('click',resumeGame);
+$('continueBtn').addEventListener('click',nextLevel);
+$('againBtn').addEventListener('click',startGame);
+$('restartBtn').addEventListener('click',()=>{if(confirm('Restart the adventure from Level 1?'))startGame()});
 })();
 </script>
 </body>
 </html>
-
-
