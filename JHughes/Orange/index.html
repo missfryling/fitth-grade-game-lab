@@ -4,318 +4,332 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Is the Door? Space Maze</title>
+<title>Where Is the Door? - Space Escape</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#050817;color:white;font-family:'Fredoka',sans-serif;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh}
-#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;pointer-events:none}
-.pill{background:#111a38eF;border:2px solid #6478d5;border-radius:12px;padding:8px 13px;font-size:15px;font-weight:600}
-#controls{position:fixed;bottom:10px;left:10px;background:#0c1433eF;padding:8px 12px;border-radius:10px;font-size:13px}
-#overlay{position:fixed;inset:0;background:#030716ed;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
-.panel{width:min(540px,95vw);background:linear-gradient(145deg,#242b62,#11152e);border:3px solid #8c9cff;border-radius:22px;padding:27px;text-align:center;box-shadow:0 15px 60px #000}
-h1{font-size:clamp(30px,6vw,46px);color:#a9d8ff;margin:0 0 8px;text-shadow:3px 3px #34266d}
-p{font-size:17px;line-height:1.5}
-button{font-family:inherit;font-weight:700;font-size:18px;border:0;border-radius:12px;padding:13px 24px;margin:7px;background:#9ee9ff;color:#111b3d;cursor:pointer;box-shadow:0 4px #4686b6}
-button:hover{filter:brightness(1.12);transform:translateY(-2px)}
-.small{font-size:13px;color:#c5d3ff}
+body{margin:0;background:#090d25;color:white;font-family:Fredoka,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#game{width:min(100%,1000px);padding:12px}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+h1{margin:0;color:#a9d9ff;font-size:clamp(21px,4vw,34px);text-shadow:2px 2px #39216a}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{background:#252e5b;border:2px solid #7387dc;border-radius:11px;padding:6px 10px;font-weight:600}
+#stage{position:relative;border:5px solid #8ca8ff;border-radius:16px;overflow:hidden;background:#090d25}
+canvas{display:block;width:100%;height:auto}
+#overlay{position:absolute;inset:0;background:#070a20eF;display:flex;align-items:center;justify-content:center;padding:14px;text-align:center}
+.panel{width:min(560px,100%);background:#202a58;border:3px solid #9bbaff;border-radius:20px;padding:22px;box-shadow:0 8px 25px #0009}
+.panel h2{color:#ffe58a;margin:0 0 10px;font-size:30px}
+.panel p{line-height:1.5}
+button{font-family:inherit;font-size:17px;font-weight:700;border:0;border-radius:12px;padding:10px 17px;margin:4px;background:#ffda69;color:#392b0b;cursor:pointer;box-shadow:0 4px #b8892d}
+button:hover{filter:brightness(1.1)}
+#message{text-align:center;min-height:27px;padding:7px;color:#ffe58a;font-weight:600}
+.controls{text-align:center;color:#cbd8ff;font-size:14px}
+#buttons{text-align:center;margin-top:6px}
+#bossbar{height:9px;background:#3a2548;border-radius:10px;overflow:hidden;margin:4px 0 8px;display:none}
+#bossfill{height:100%;width:100%;background:#ff5579;transition:width .15s}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="hud">
- <div class="pill" id="levelHud">🌌 LEVEL 1</div>
- <div class="pill" id="coinHud">🪙 0</div>
- <div class="pill" id="powerHud">⚡ 0</div>
- <div class="pill" id="doorHud">🚪 FIND THE DOOR</div>
+<div id="game">
+<header>
+<h1>🚀 WHERE IS THE DOOR?</h1>
+<div class="stats">
+<div class="stat">🌌 Level <span id="level">1</span>/5</div>
+<div class="stat">🪙 <span id="coins">0</span></div>
+<div class="stat">❤️ <span id="lives">5</span></div>
+<div class="stat">⚡ <span id="power">READY</span></div>
 </div>
-<div id="controls">Move: WASD / Arrow Keys | Power-up: X | Trapdoors teleport automatically | Pause: P</div>
+</header>
+<div id="bossbar"><div id="bossfill"></div></div>
+<div id="stage">
+<canvas id="canvas" width="900" height="600"></canvas>
 <div id="overlay">
- <div class="panel">
-  <h1>🚀 WHERE IS THE DOOR?</h1>
-  <p><b>SPACE MAZE ADVENTURE</b></p>
-  <p>Kayla is lost in a mysterious space maze! Explore glowing corridors, collect coins, find secret doors, and discover the exit.</p>
-  <p class="small">Watch out for trapdoors! They can teleport you to a completely different part of the maze.</p>
-  <button id="startButton" type="button">START MISSION</button>
- </div>
+<div class="panel">
+<h2>🚀 Where Is the Door?</h2>
+<p>Welcome to space, Lilien! Find the REAL secret door hidden in each strange space maze.</p>
+<p>Watch out for trick doors, confusing traps, space creatures, and falling asteroids!</p>
+<p>Collect coins and power-ups. Use your special space blast to protect yourself. Defeat the giant asteroid boss at the end!</p>
+<p><b>Move:</b> Arrow keys or WASD<br><b>Special blast:</b> SPACE</p>
+<button id="start">START SPACE ADVENTURE!</button>
+</div>
+</div>
+</div>
+<div id="message">Find the secret door!</div>
+<div class="controls">Move: Arrow Keys / WASD &nbsp; • &nbsp; Special Blast: SPACE &nbsp; • &nbsp; Pause: P</div>
+<div id="buttons">
+<button id="pause">⏸ Pause</button>
+<button id="restart">↻ Restart</button>
+<button onclick="location.href='../../index.html'">🏠 Game Lab</button>
+</div>
 </div>
 <script>
 (()=>{
-'use strict';
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const overlay=document.getElementById('overlay');
-const levelHud=document.getElementById('levelHud');
-const coinHud=document.getElementById('coinHud');
-const powerHud=document.getElementById('powerHud');
-const doorHud=document.getElementById('doorHud');
-
-const W=960,H=540,T=40,C=24,R=13;
-let dpr=1;
-function resize(){
- dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=W*dpr;canvas.height=H*dpr;
- canvas.style.width='100vw';canvas.style.height='100vh';
- ctx.setTransform(dpr,0,0,dpr,0,0);
+const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+const W=900,H=600,T=60,C=15,R=10,$=id=>document.getElementById(id);
+const levelNames=['Moon Maze','Alien Confusion','The Floating Ruins','Asteroid Alley','The Final Showdown'];
+let state='menu',keys={},level=0,coins=0,lives=5,last=0;
+let player={x:90,y:90,r:17,speed:225};
+let walls=[],coinItems=[],powerups=[],traps=[],fakeDoors=[],door={x:810,y:510};
+let rocks=[],boss=null,shots=[],blastCooldown=0,invincible=0,flash=0;
+let stars=[];
+for(let i=0;i<130;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2+0.5,a:Math.random()});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function hud(){
+ $('level').textContent=level+1;
+ $('coins').textContent=coins;
+ $('lives').textContent=lives;
+ $('power').textContent=blastCooldown>0?blastCooldown.toFixed(1)+'s':'READY';
+ $('bossbar').style.display=boss?'block':'none';
+ if(boss)$('bossfill').style.width=(boss.hp/boss.maxHp*100)+'%';
 }
-resize();addEventListener('resize',resize);
-
-const names=['Moon Base Maze','Saturn Station','Asteroid Hallways','Neptune Labyrinth','Galaxy Gate','The Final Portal'];
-let level=0,coins=0,powerups=0,map=[],player,exit,trapdoors=[],secretDoors=[],pickups=[],stars=[];
-let running=false,keys={},last=0,raf=0,invincible=0,boost=0,shield=0,abilityCooldown=0;
-let message='',messageTime=0;
-let discovered=0;
-
-function updateHUD(){
- levelHud.textContent='🌌 '+names[level]+' — '+(level+1)+'/6';
- coinHud.textContent='🪙 '+coins;
- powerHud.textContent='⚡ '+powerups;
- doorHud.textContent=discovered?'✨ DOOR FOUND':'🚪 FIND THE DOOR';
+function say(t){$('message').textContent=t}
+function makeLevel(){
+ player.x=90;player.y=90;
+ walls=[];coinItems=[];powerups=[];traps=[];fakeDoors=[];rocks=[];shots=[];
+ boss=null;blastCooldown=0;invincible=1.5;flash=0;
+ // Maze walls: every level has a different arrangement.
+ const patterns=[
+ [[2,1,1,5],[4,0,1,4],[6,2,1,6],[8,0,1,5],[10,3,1,6],[12,0,1,5],[3,7,4,1],[8,7,4,1]],
+ [[1,3,4,1],[3,0,1,3],[5,2,1,6],[7,0,1,4],[9,3,1,6],[11,0,1,4],[12,6,2,1],[2,8,4,1]],
+ [[2,0,1,4],[4,2,1,6],[6,0,1,4],[8,3,1,6],[10,0,1,4],[12,3,1,6],[1,7,3,1],[6,7,3,1]],
+ [[1,2,3,1],[3,0,1,5],[5,3,1,6],[7,0,1,4],[9,3,1,6],[11,0,1,5],[12,7,2,1],[1,8,3,1]],
+ [[2,0,1,5],[4,2,1,7],[6,0,1,5],[8,2,1,7],[10,0,1,5],[12,2,1,7],[1,7,3,1],[6,7,3,1]]
+ ];
+ // Border walls.
+ for(let x=0;x<C;x++){addWall(x,0);addWall(x,R-1)}
+ for(let y=0;y<R;y++){addWall(0,y);addWall(C-1,y)}
+ patterns[level].forEach(p=>{for(let x=p[0];x<p[0]+p[2];x++)for(let y=p[1];y<p[1]+p[3];y++)addWall(x,y)});
+ // Clear player start and actual exit route.
+ walls=walls.filter(w=>!(w.x<180&&w.y<150));
+ walls=walls.filter(w=>!(w.x>740&&w.y>440));
+ // Coins placed in reachable corridors.
+ const coinSpots=[[210,90],[330,150],[450,90],[570,210],[750,150],[210,330],[390,390],[570,450],[750,330],[330,510],[510,510]];
+ coinSpots.forEach((p,i)=>coinItems.push({x:p[0],y:p[1],got:false}));
+ // Power-ups.
+ powerups=[{x:450,y:270,type:'❤️',used:false},{x:690,y:510,type:'⚡',used:false}];
+ // Tricky traps.
+ for(let i=0;i<5+level;i++){
+  let x=rand(190,700),y=rand(160,480);
+  if(!blocked(x,y,22))traps.push({x,y,active:true,phase:Math.random()*6});
+ }
+ // Fake doors that confuse the explorer.
+ fakeDoors=[{x:750,y:90},{x:90,y:510},{x:450,y:510}];
+ door={x:810,y:510};
+ if(level===4){
+  boss={x:740,y:300,r:58,hp:14,maxHp:14,speed:75,attack:0};
+ }
+ hud();
 }
-function showPanel(title,desc,button,action,extra=''){
- running=false;cancelAnimationFrame(raf);
- overlay.innerHTML='';
- const panel=document.createElement('div');panel.className='panel';
- const h=document.createElement('h1');h.textContent=title;
- const p=document.createElement('p');p.textContent=desc;
- const b=document.createElement('button');b.textContent=button;b.onclick=action;b.type='button';
- panel.append(h,p);
- if(extra){const s=document.createElement('p');s.className='small';s.textContent=extra;panel.appendChild(s)}
- panel.appendChild(b);overlay.appendChild(panel);overlay.style.display='flex';
-}
-function say(t){message=t;messageTime=130}
-
-function buildLevel(){
- map=Array.from({length:R},(_,y)=>Array.from({length:C},(_,x)=>
-  x===0||y===0||x===C-1||y===R-1?1:0));
- // Build maze corridors with alternating openings.
- for(let y=2;y<R-2;y+=2){
-  const gap=2+((y*3+level*2)%(C-5));
-  for(let x=2;x<C-2;x++)if(x!==gap&&x!==gap+1)map[y][x]=1;
- }
- for(let x=4;x<C-3;x+=5){
-  const gap=2+((x*2+level)%(R-5));
-  for(let y=2;y<R-2;y++)if(y!==gap&&y!==gap+1)map[y][x]=1;
- }
- // Ensure a continuous route down the left and across the bottom.
- for(let y=1;y<R-1;y++)map[y][2]=0;
- for(let x=2;x<C-1;x++)map[R-3][x]=0;
- for(let x=1;x<=3;x++)for(let y=1;y<=3;y++)map[y][x]=0;
- for(let x=C-5;x<C-1;x++)for(let y=R-5;y<R-1;y++)map[y][x]=0;
-
- player={x:1.5*T,y:1.5*T,r:13,speed:1.75};
- exit={x:(C-2.5)*T,y:(R-2.5)*T};
- trapdoors=[];secretDoors=[];pickups=[];discovered=0;
- invincible=0;boost=0;shield=0;abilityCooldown=0;
-
- // Teleport trapdoor pairs, on open floor
- const trapSpots=[[3.5,4.5],[19.5,2.5],[7.5,9.5],[17.5,9.5]];
- for(let i=0;i<trapSpots.length;i++){
-  const [x,y]=trapSpots[i];
-  trapdoors.push({x:x*T,y:y*T,to:(i%2===0?i+1:i-1),cooldown:0});
- }
- // Secret doors
- [[8.5,3.5],[14.5,7.5]].forEach(([x,y])=>secretDoors.push({x:x*T,y:y*T,used:false}));
- // Coins
- for(let i=0;i<13;i++){
-  let x,y,tries=0;
-  do{x=(2+Math.floor(Math.random()*(C-4))+.5)*T;y=(2+Math.floor(Math.random()*(R-4))+.5)*T;tries++}
-  while((blocked(x,y,8)||Math.hypot(x-player.x,y-player.y)<65)&&tries<100);
-  pickups.push({x,y,type:'coin',taken:false});
- }
- const types=['speed','shield','power'];
- for(let i=0;i<3;i++){
-  let x,y,tries=0;
-  do{x=(2+Math.floor(Math.random()*(C-4))+.5)*T;y=(2+Math.floor(Math.random()*(R-4))+.5)*T;tries++}
-  while((blocked(x,y,8)||Math.hypot(x-player.x,y-player.y)<100)&&tries<100);
-  pickups.push({x,y,type:types[i],taken:false});
- }
- updateHUD();
-}
-function wallAt(x,y){
- const tx=Math.floor(x/T),ty=Math.floor(y/T);
- return !map[ty]||map[ty][tx]!==0;
-}
+function rand(a,b){return Math.random()*(b-a)+a}
+function addWall(x,y){walls.push({x:x*T,y:y*T,w:T,h:T})}
 function blocked(x,y,r){
- return wallAt(x-r,y-r)||wallAt(x+r,y-r)||wallAt(x-r,y+r)||wallAt(x+r,y+r);
+ return walls.some(w=>x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h);
 }
-function move(dx,dy){
- if(!blocked(player.x+dx,player.y,player.r))player.x+=dx;
- if(!blocked(player.x,player.y+dy,player.r))player.y+=dy;
+function move(dx,dy,dt){
+ let nx=clamp(player.x+dx*player.speed*dt,24,W-24);
+ let ny=clamp(player.y+dy*player.speed*dt,24,H-24);
+ if(!blocked(nx,player.y,player.r))player.x=nx;
+ if(!blocked(player.x,ny,player.r))player.y=ny;
 }
-function startGame(){
- level=0;coins=0;powerups=0;buildLevel();
- overlay.style.display='none';running=true;last=performance.now();raf=requestAnimationFrame(loop);
+function showPanel(title,desc,button,action){
+ $('overlay').style.display='flex';
+ $('overlay').innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button id="panelButton">'+button+'</button></div>';
+ $('panelButton').onclick=action;
+}
+function start(){
+ level=0;coins=0;lives=5;makeLevel();
+ state='playing';$('overlay').style.display='none';last=performance.now();
+ say('Explore the maze! Find the REAL secret door!');
+}
+$('start').onclick=start;
+$('restart').onclick=start;
+$('pause').onclick=()=>{
+ if(state==='playing'){
+  state='paused';
+  showPanel('⏸ Space Adventure Paused','Take a break, space explorer!','RESUME',()=>{state='playing';$('overlay').style.display='none';last=performance.now()});
+ }
+};
+function finish(won){
+ state=won?'won':'over';
+ showPanel(won?'🌟 SPACE HERO!':'💥 GAME OVER',
+ won?'Lilien defeated the asteroid boss and escaped the space maze! Final coins: '+coins:
+ 'The space adventure is over. Try again and watch out for the traps!',
+ 'PLAY AGAIN',start);
 }
 function nextLevel(){
- level++;
- if(level>=6){
-  showPanel('🏆 MISSION COMPLETE!','Kayla found the final door and escaped the space maze! You collected '+coins+' coins.','PLAY AGAIN',startGame,'You are a space explorer!');
-  return;
- }
- buildLevel();say('Welcome to '+names[level]+'!');
+ if(level===4){finish(true);return}
+ level++;makeLevel();
+ say('🚀 '+levelNames[level]+'! Find the next secret door!');
 }
-function useAbility(){
- if(!running||abilityCooldown>0||powerups<=0)return;
- powerups--;shield=240;abilityCooldown=300;updateHUD();
- say('ENERGY SHIELD ACTIVATED!');
+function blast(){
+ if(blastCooldown>0)return;
+ blastCooldown=5;flash=.35;
+ // Push nearby enemies/asteroids away and damage the boss.
+ if(boss&&Math.hypot(player.x-boss.x,player.y-boss.y)<300){
+  boss.hp-=3;
+  say('⚡ SPACE BLAST HIT THE BOSS!');
+  if(boss.hp<=0){boss=null;say('💥 THE ASTEROID BOSS IS DEFEATED!');setTimeout(()=>{if(state==='playing')finish(true)},900)}
+ }
+ rocks=rocks.filter(r=>Math.hypot(player.x-r.x,player.y-r.y)>150);
+ say('✨ SPACE BLAST!');
 }
-function useSecretDoor(){
- let found=null;
- for(const d of secretDoors){
-  if(!d.used&&Math.hypot(player.x-d.x,player.y-d.y)<45){found=d;break}
- }
- if(!found){say('Get closer to a secret door!');return}
- found.used=true;
- const options=[];
- for(let y=1;y<R-1;y++)for(let x=1;x<C-1;x++){
-  if(!wallAt((x+.5)*T,(y+.5)*T))options.push({x:(x+.5)*T,y:(y+.5)*T});
- }
- if(options.length){
-  const spot=options[Math.floor(Math.random()*options.length)];
-  player.x=spot.x;player.y=spot.y;
- }
- say('SECRET DOOR! You found a shortcut!');
+function loseLife(){
+ if(invincible>0)return;
+ lives--;invincible=2;hud();
+ say('💥 Ouch! You hit a space trap!');
+ if(lives<=0)finish(false);
 }
 function update(dt){
- const step=Math.min(dt/16.67,2);
- let dx=0,dy=0;
- if(keys.ArrowLeft||keys.a||keys.A)dx--;
- if(keys.ArrowRight||keys.d||keys.D)dx++;
- if(keys.ArrowUp||keys.w||keys.W)dy--;
- if(keys.ArrowDown||keys.s||keys.S)dy++;
- if(dx&&dy){dx*=.707;dy*=.707}
- const speed=player.speed+(boost>0?1.2:0);
- move(dx*speed*step,dy*speed*step);
- if(boost>0)boost-=step;
- if(shield>0)shield-=step;
- if(abilityCooldown>0)abilityCooldown-=step;
- if(invincible>0)invincible-=step;
- for(const t of trapdoors){
-  if(t.cooldown>0)t.cooldown-=step;
-  if(t.cooldown<=0&&Math.hypot(player.x-t.x,player.y-t.y)<22){
-   const target=trapdoors[t.to];
-   player.x=target.x;player.y=target.y;
-   t.cooldown=120;target.cooldown=120;invincible=55;
-   say('⚡ TRAPDOOR! TELEPORTING!');
+ if(state!=='playing')return;
+ blastCooldown=Math.max(0,blastCooldown-dt);
+ invincible=Math.max(0,invincible-dt);
+ flash=Math.max(0,flash-dt);
+ let dx=(keys.arrowright||keys.d?1:0)-(keys.arrowleft||keys.a?1:0);
+ let dy=(keys.arrowdown||keys.s?1:0)-(keys.arrowup||keys.w?1:0);
+ let m=Math.hypot(dx,dy)||1;
+ move(dx/m,dy/m,dt);
+ // Coins.
+ coinItems.forEach(c=>{
+  if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<28){
+   c.got=true;coins+=5;hud();say('🪙 +5 SPACE COINS!');
+  }
+ });
+ // Power-ups.
+ powerups.forEach(p=>{
+  if(!p.used&&Math.hypot(player.x-p.x,player.y-p.y)<30){
+   p.used=true;
+   if(p.type==='❤️'){lives=Math.min(5,lives+1);say('❤️ EXTRA LIFE!')}
+   else{blastCooldown=0;say('⚡ SPECIAL BLAST RECHARGED!')}
+   hud();
+  }
+ });
+ // Traps trigger when touched.
+ traps.forEach(t=>{
+  t.phase+=dt;
+  if(t.active&&Math.hypot(player.x-t.x,player.y-t.y)<27){
+   t.active=false;loseLife();
+  }
+ });
+ // Fake doors give a silly surprise, not a level change.
+ fakeDoors.forEach(d=>{
+  if(Math.hypot(player.x-d.x,player.y-d.y)<30){
+   say('🤔 FAKE DOOR! Keep searching for the REAL one!');
+   player.x=clamp(player.x+(player.x<450?55:-55),30,W-30);
+  }
+ });
+ // Real door only works after collecting enough coins.
+ const nearDoor=Math.hypot(player.x-door.x,player.y-door.y)<38;
+ if(nearDoor){
+  if(level<4){
+   if(coins>=10){say('🚪 SECRET DOOR FOUND! Entering next level!');nextLevel()}
+   else say('🔒 SECRET DOOR! Collect at least 10 coins to unlock it!');
   }
  }
- for(const p of pickups){
-  if(p.taken)continue;
-  if(Math.hypot(player.x-p.x,player.y-p.y)<23){
-   p.taken=true;
-   if(p.type==='coin'){coins++;say('+1 SPACE COIN!')}
-   if(p.type==='speed'){boost=450;say('SPEED BOOST!')}
-   if(p.type==='shield'){shield=450;say('SHIELD POWER-UP!')}
-   if(p.type==='power'){powerups+=2;say('TWO ENERGY CHARGES!')}
-   updateHUD();
+ // Boss fight.
+ if(boss){
+  let a=Math.atan2(player.y-boss.y,player.x-boss.x);
+  let d=Math.hypot(player.x-boss.x,player.y-boss.y);
+  if(d>105){boss.x+=Math.cos(a)*boss.speed*dt;boss.y+=Math.sin(a)*boss.speed*dt}
+  boss.x=clamp(boss.x,100,800);boss.y=clamp(boss.y,100,500);
+  boss.attack-=dt;
+  if(boss.attack<=0){
+   boss.attack=1.25;
+   let angle=Math.atan2(player.y-boss.y,player.x-boss.x);
+   rocks.push({x:boss.x,y:boss.y,vx:Math.cos(angle)*230,vy:Math.sin(angle)*230,r:17});
   }
+  if(d<boss.r+player.r&&invincible<=0)loseLife();
+  // On final level, the secret door is behind the boss.
+  if(!boss&&nearDoor)finish(true);
  }
- if(Math.hypot(player.x-exit.x,player.y-exit.y)<27){
-  nextLevel();return;
- }
- if(messageTime>0)messageTime-=step;
+ rocks.forEach(r=>{r.x+=r.vx*dt;r.y+=r.vy*dt});
+ rocks=rocks.filter(r=>r.x>-30&&r.x<W+30&&r.y>-30&&r.y<H+30);
+ rocks.forEach(r=>{
+  if(Math.hypot(player.x-r.x,player.y-r.y)<r.r+player.r){
+   r.x=-1000;loseLife();
+  }
+ });
+ hud();
 }
 function draw(){
  ctx.clearRect(0,0,W,H);
- ctx.fillStyle='#070b20';ctx.fillRect(0,0,W,H);
- // Stars
- for(let i=0;i<95;i++){
-  const x=(i*137+31)%W,y=(i*83+19)%H;
-  ctx.fillStyle=i%4===0?'#9feaff':'#ffffff';
-  ctx.globalAlpha=.35+(i%5)*.12;
-  ctx.fillRect(x,y,i%7===0?3:2,i%7===0?3:2);
- }
- ctx.globalAlpha=1;
- // Planets in distant space
- ctx.fillStyle='#4c3c9d';ctx.beginPath();ctx.arc(830,105,48,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#a88cff';ctx.lineWidth=7;ctx.beginPath();ctx.ellipse(830,105,68,18,-.25,0,Math.PI*2);ctx.stroke();
- // Maze
- for(let y=0;y<R;y++)for(let x=0;x<C;x++){
-  const px=x*T,py=y*T;
-  if(map[y][x]){
-   ctx.fillStyle='#20295c';ctx.fillRect(px,py,T,T);
-   ctx.fillStyle='#5267b4';ctx.fillRect(px,py,T,4);
-   ctx.fillStyle='#101638';ctx.fillRect(px+T-4,py,4,T);
-   ctx.strokeStyle='#758cff';ctx.lineWidth=1;ctx.strokeRect(px+2,py+2,T-4,T-4);
-  }else{
-   ctx.fillStyle=(x+y)%2?'#111a3a':'#141e40';ctx.fillRect(px,py,T,T);
-  }
- }
- // Trapdoors
- for(const t of trapdoors){
-  ctx.fillStyle='#080b19';ctx.beginPath();ctx.ellipse(t.x,t.y,17,12,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#e477ff';ctx.lineWidth=3;ctx.stroke();
-  ctx.fillStyle='#eabaff';ctx.font='bold 13px Fredoka';ctx.textAlign='center';ctx.fillText('⇄',t.x,t.y+5);
- }
- // Secret doors
- for(const d of secretDoors){
-  if(d.used)continue;
-  ctx.fillStyle='#873fc2';ctx.fillRect(d.x-13,d.y-18,26,36);
-  ctx.strokeStyle='#e7b7ff';ctx.lineWidth=3;ctx.strokeRect(d.x-13,d.y-18,26,36);
-  ctx.fillStyle='white';ctx.beginPath();ctx.arc(d.x+7,d.y,2,0,Math.PI*2);ctx.fill();
- }
- // Pickups
- for(const p of pickups){
-  if(p.taken)continue;
-  const color={coin:'#ffd84f',speed:'#ff9c57',shield:'#65e7ff',power:'#c09aff'}[p.type];
-  ctx.fillStyle=color;ctx.beginPath();ctx.arc(p.x,p.y,p.type==='coin'?9:12,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.stroke();
-  ctx.fillStyle='#15203c';ctx.font='bold 14px Fredoka';ctx.textAlign='center';
-  if(p.type!=='coin')ctx.fillText(p.type==='speed'?'⚡':p.type==='shield'?'S':'✦',p.x,p.y+5);
- }
- // Exit
- ctx.fillStyle='#1d9a72';ctx.fillRect(exit.x-15,exit.y-22,30,44);
- ctx.strokeStyle='#a7ffe1';ctx.lineWidth=3;ctx.strokeRect(exit.x-15,exit.y-22,30,44);
- ctx.fillStyle='white';ctx.font='bold 12px Fredoka';ctx.textAlign='center';ctx.fillText('EXIT',exit.x,exit.y-29);
- // Character Kayla - visible, large, with a space suit
- if(shield>0){
-  ctx.strokeStyle='#6ceaff';ctx.lineWidth=4;
-  ctx.beginPath();ctx.arc(player.x,player.y,24,0,Math.PI*2);ctx.stroke();
- }
- ctx.fillStyle='#f4c8a1';ctx.beginPath();ctx.arc(player.x,player.y-7,10,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#dceaff';ctx.fillRect(player.x-11,player.y+2,22,18);
- ctx.fillStyle='#526fd1';ctx.fillRect(player.x-9,player.y+4,18,11);
- ctx.fillStyle='#b8f2ff';ctx.beginPath();ctx.ellipse(player.x,player.y-8,8,6,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#ffdf76';ctx.fillRect(player.x-8,player.y+17,6,6);ctx.fillRect(player.x+2,player.y+17,6,6);
- ctx.fillStyle='white';ctx.font='bold 12px Fredoka';ctx.textAlign='center';ctx.fillText('KAYLA',player.x,player.y-25);
- // Small locator glow around character
- const glow=ctx.createRadialGradient(player.x,player.y,5,player.x,player.y,75);
- glow.addColorStop(0,'#8feaff25');glow.addColorStop(1,'#8feaff00');
- ctx.fillStyle=glow;ctx.beginPath();ctx.arc(player.x,player.y,75,0,Math.PI*2);ctx.fill();
- if(messageTime>0){
-  ctx.fillStyle='#080e28eF';ctx.fillRect(W/2-210,12,420,38);
-  ctx.fillStyle='white';ctx.font='bold 18px Fredoka';ctx.textAlign='center';ctx.fillText(message,W/2,37);
- }
- ctx.fillStyle='#ffffff';ctx.font='bold 14px Fredoka';ctx.textAlign='center';
- ctx.fillText('Find the glowing green EXIT door!',W/2,H-12);
-}
-function loop(t){
- if(!running)return;
- const dt=Math.min(t-last,40);last=t;
- update(dt);draw();
- if(running)raf=requestAnimationFrame(loop);
-}
-function pauseGame(){
- if(!running)return;
- showPanel('⏸ MISSION PAUSED','Take a break, space explorer. Your progress is safe.','RESUME',()=>{
-  overlay.style.display='none';running=true;last=performance.now();raf=requestAnimationFrame(loop);
+ ctx.fillStyle='#090d25';ctx.fillRect(0,0,W,H);
+ // Space background.
+ stars.forEach(s=>{
+  ctx.globalAlpha=.35+s.a*.65;ctx.fillStyle='#fff';
+  ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
  });
+ ctx.globalAlpha=1;
+ // Nebula glow.
+ let grad=ctx.createRadialGradient(450,300,30,450,300,480);
+ grad.addColorStop(0,'#29245c55');grad.addColorStop(1,'#090d2500');
+ ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ // Maze walls.
+ walls.forEach(w=>{
+  let g=ctx.createLinearGradient(w.x,w.y,w.x+w.w,w.y+w.h);
+  g.addColorStop(0,'#5268a9');g.addColorStop(1,'#202d61');
+  ctx.fillStyle=g;ctx.fillRect(w.x,w.y,w.w,w.h);
+  ctx.strokeStyle='#93b7ff';ctx.lineWidth=2;ctx.strokeRect(w.x+2,w.y+2,w.w-4,w.h-4);
+ });
+ // Coins.
+ coinItems.forEach(c=>{if(!c.got){
+  ctx.fillStyle='#ffdc50';ctx.beginPath();ctx.arc(c.x,c.y,12,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#fff3ad';ctx.lineWidth=3;ctx.stroke();
+  ctx.fillStyle='#754700';ctx.font='bold 13px Fredoka';ctx.textAlign='center';ctx.fillText('$',c.x,c.y+5);
+ }});
+ // Power-ups.
+ powerups.forEach(p=>{if(!p.used)emoji(p.type,p.x,p.y,31)});
+ // Traps.
+ traps.forEach(t=>{if(t.active)emoji('🕳️',t.x,t.y,33)});
+ // Fake doors.
+ fakeDoors.forEach(d=>{
+  ctx.fillStyle='#7e397c';ctx.fillRect(d.x-20,d.y-29,40,58);
+  ctx.strokeStyle='#e59aff';ctx.lineWidth=3;ctx.strokeRect(d.x-20,d.y-29,40,58);
+  emoji('🚪',d.x,d.y,30);
+  emoji('❓',d.x,d.y-34,18);
+ });
+ // Real secret door.
+ ctx.save();ctx.shadowColor='#55ffb0';ctx.shadowBlur=25;
+ ctx.fillStyle='#167b70';ctx.fillRect(door.x-23,door.y-34,46,68);
+ ctx.restore();
+ ctx.strokeStyle='#8effd7';ctx.lineWidth=4;ctx.strokeRect(door.x-23,door.y-34,46,68);
+ emoji('🚪',door.x,door.y,34);
+ emoji('✨',door.x,door.y-42,20);
+ // Boss.
+ if(boss){
+  emoji('☄️',boss.x,boss.y,boss.r*2);
+  ctx.fillStyle='#fff';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
+  ctx.fillText('ASTEROID BOSS',boss.x,boss.y-75);
+ }
+ // Thrown asteroids.
+ rocks.forEach(r=>emoji('🪨',r.x,r.y,32));
+ // Player.
+ if(invincible<=0||Math.floor(performance.now()/100)%2===0)emoji('👩‍🚀',player.x,player.y,43);
+ if(flash>0){
+  ctx.fillStyle='#9cefff33';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#aaffff';ctx.lineWidth=6;ctx.beginPath();ctx.arc(player.x,player.y,140*(1-flash/.35)+20,0,Math.PI*2);ctx.stroke();
+ }
+ // Level title.
+ ctx.fillStyle='#fff';ctx.font='bold 18px Fredoka';ctx.textAlign='left';
+ ctx.fillText(levelNames[level],20,28);
+ ctx.font='13px Fredoka';ctx.fillText(level===4?'DEFEAT THE BOSS!':'FIND THE REAL SECRET DOOR',20,49);
+}
+function emoji(e,x,y,size=32){
+ ctx.font=size+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e,x,y);
 }
 window.addEventListener('keydown',e=>{
- const k=e.key;
- if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))e.preventDefault();
- keys[k]=true;
- if((k==='x'||k==='X')&&running)useAbility();
- if((k==='e'||k==='E')&&running)useSecretDoor();
- if((k==='p'||k==='P')&&running)pauseGame();
+ let k=e.key.toLowerCase();keys[k]=true;
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ if(k===' '&&!e.repeat&&state==='playing')blast();
+ if(k==='p'&&state==='playing')$('pause').click();
 });
-window.addEventListener('keyup',e=>keys[e.key]=false);
+window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
-document.getElementById('startButton').addEventListener('click',startGame);
-buildLevel();draw();
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')$('pause').click()});
+function loop(now){
+ let dt=Math.min(.04,(now-last)/1000||0);last=now;
+ update(dt);draw();requestAnimationFrame(loop);
+}
+makeLevel();requestAnimationFrame(loop);
 })();
 </script>
 </body>
