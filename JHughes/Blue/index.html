@@ -4,212 +4,359 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Find the Reindeer - Santa's Night Forest</title>
+<title>Find the Reindeer - Santa's Forest Adventure</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
-*{box-sizing:border-box}body{margin:0;background:#071321;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
-#game{width:min(1000px,98vw);padding:12px;background:#12283a;border:3px solid #567b94;border-radius:18px;box-shadow:0 15px 45px #0009}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px 10px}
-h1{margin:0;color:#d9f1ff;font-size:clamp(20px,3vw,29px);text-shadow:2px 2px #173b58}
-.stats{display:flex;gap:8px;flex-wrap:wrap}.stat{background:#071725;padding:7px 11px;border-radius:10px}
-canvas{display:block;width:100%;height:auto;border:3px solid #57758a;border-radius:12px;background:#071321}
-#message{text-align:center;min-height:26px;padding:8px;color:#d9efff}
-#bar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-button{font:600 15px Fredoka;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:#d9efff;color:#10283a}
-button:hover{filter:brightness(1.1);transform:translateY(-1px)}
-#overlay{position:fixed;inset:0;background:#020812df;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
-.panel{max-width:530px;width:100%;background:#17364b;border:3px solid #9ddcff;border-radius:20px;padding:25px;text-align:center;box-shadow:0 15px 50px #000b}
-.panel h2{color:#d9f1ff;font-size:30px;margin:0 0 8px}.panel p{line-height:1.5;color:#e5f4ff}
-a{color:#bce8ff}
+*{box-sizing:border-box}
+body{margin:0;overflow:hidden;background:#102b30;color:white;font-family:Outfit,Arial}
+canvas{display:block;width:100vw;height:100vh}
+#hud{position:fixed;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
+.pill{background:#10212be8;border:2px solid #ffffff45;border-radius:14px;padding:8px 12px;font-weight:700;font-size:14px}
+#controls{position:fixed;right:12px;bottom:12px;display:flex;gap:8px}
+button{font-family:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 15px;background:#ffd34e;color:#30220b;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+#overlay{position:fixed;inset:0;background:#07151bdc;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
+.panel{width:min(550px,95vw);background:#fff8e7;color:#29251e;border:5px solid #d8b34d;border-radius:24px;padding:24px;text-align:center;box-shadow:0 12px 45px #0008}
+.panel h1{font:700 clamp(30px,5vw,46px) Fredoka;color:#28734c;margin:5px}
+.panel h2{font:700 25px Fredoka}
+.panel p{line-height:1.5}
+.panel button{font-size:19px;padding:13px 25px}
+.small{font-size:13px;color:#665d50}
+.hidden{display:none!important}
+#cooldowns{position:fixed;left:12px;bottom:12px;display:flex;gap:8px;pointer-events:none}
 </style>
 </head>
 <body>
-<div id="game">
-<header>
-<h1>🎅 FIND THE REINDEER</h1>
-<div class="stats">
-<div class="stat" id="found">🦌 0 / 8</div>
-<div class="stat" id="lives">❤️❤️❤️❤️</div>
-<div class="stat" id="coins">🪙 0</div>
-<div class="stat" id="power">❄️ Ready</div>
+<canvas id="game"></canvas>
+<div id="hud">
+ <div class="pill">🎅 Santa</div>
+ <div class="pill" id="found">🦌 Reindeer: 0 / 8</div>
+ <div class="pill" id="hearts">❤️❤️❤️❤️❤️</div>
+ <div class="pill" id="clock">☀️ Daytime</div>
+ <div class="pill" id="score">⭐ 0</div>
 </div>
-</header>
-<canvas id="c" width="960" height="600"></canvas>
-<div id="message">Find all 8 reindeer and bring them back to Santa's sleigh!</div>
-<div id="bar">
-<button id="pause">⏸ Pause</button><button id="special">❄️ Snow Freeze (Space)</button><button id="restart">↻ Restart</button><button onclick="location.href='../../index.html'">🏠 Back to Game Lab</button>
+<div id="cooldowns">
+ <div class="pill" id="freezeHud">❄️ Snow Freeze: READY</div>
+ <div class="pill" id="powerHud">✨ Power-up: None</div>
 </div>
+<div id="controls">
+ <button id="pauseBtn">⏸ Pause</button>
+ <button id="restartBtn">↻ Restart</button>
 </div>
 <div id="overlay">
-<div class="panel" id="panel">
-<h2>🌙 Santa's Nighttime Search</h2>
-<p>The reindeer are lost in a huge, dark forest! Use Santa's flashlight to explore, avoid the forest animals, and rescue all 8 reindeer.</p>
-<p><b>Move:</b> Arrow keys or WASD<br><b>Special ability:</b> Spacebar freezes nearby animals for a few seconds.<br>Bring every reindeer back to the sleigh!</p>
-<button id="start">START SEARCH</button>
-</div>
+ <div class="panel" id="startPanel">
+  <h1>🎅 Find the Reindeer!</h1>
+  <h2>Santa's Forest Adventure</h2>
+  <p>Santa's reindeer are lost in a magical forest! Explore the woods, find all 8 reindeer, and bring them safely back to the sleigh.</p>
+  <p>Watch out for wolves, bears, and foxes. They only chase Santa when he gets close!</p>
+  <p class="small">Move: WASD or arrow keys · Snow Freeze: Space · Collect hearts and power-ups!</p>
+  <button id="startBtn">🎄 Start Adventure!</button>
+ </div>
+ <div class="panel hidden" id="pausePanel">
+  <h1>⏸ Adventure Paused</h1>
+  <p>The forest is waiting for you!</p>
+  <button id="resumeBtn">▶ Continue</button>
+ </div>
+ <div class="panel hidden" id="endPanel">
+  <h1 id="endTitle">🎉 Merry Christmas!</h1>
+  <p id="endText"></p>
+  <button id="againBtn">Play Again</button>
+ </div>
 </div>
 <script>
 (()=>{
-const c=document.getElementById('c'),ctx=c.getContext('2d'),W=960,H=600;
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-const world={w:2600,h:1900};
-let keys={},player={},trees=[],animals=[],reindeer=[],coins=[],powerups=[],found=0,lives=4,score=0,freeze=0,cooldown=0,running=false,paused=false,last=0,cam={x:0,y:0},invuln=0,raf=0,sleigh={x:130,y:150};
-const rand=(a,b)=>a+Math.random()*(b-a);
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize);resize();
+
+const keys={};
+let running=false,paused=false,ended=false;
+let player,reindeer,enemies,trees,powerups;
+let hearts=5,score=0,found=0,freezeCD=0,freezeTime=0;
+let speedTime=0,shieldTime=0,invuln=0,dayClock=0,last=0;
+const WORLD_W=2100,WORLD_H=1450;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function message(t){$('message').textContent=t}
-function ui(){
-$('found').textContent=`🦌 ${found} / 8`;
-$('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(4-lives);
-$('coins').textContent='🪙 '+score;
-$('power').textContent=cooldown>0?'❄️ '+Math.ceil(cooldown)+'s':'❄️ Ready';
+const rand=(a,b)=>a+Math.random()*(b-a);
+let camera={x:0,y:0};
+const DAY_LENGTH=100; // seconds for one complete day/night cycle
+
+function panel(id){
+ ['startPanel','pausePanel','endPanel'].forEach(p=>$(p).classList.toggle('hidden',p!==id));
+ $('overlay').classList.remove('hidden');
 }
-function makeWorld(){
-trees=[];animals=[];reindeer=[];coins=[];powerups=[];found=0;lives=4;score=0;freeze=0;cooldown=0;invuln=0;
-player={x:180,y:230,r:15,speed:2.65,dir:0};
-sleigh={x:130,y:150};
-for(let i=0;i<170;i++){
-let x=rand(100,world.w-100),y=rand(100,world.h-100);
-if(Math.hypot(x-sleigh.x,y-sleigh.y)>160)trees.push({x,y,r:rand(22,34),type:Math.random()});
+function hideOverlay(){$('overlay').classList.add('hidden')}
+function updateHud(){
+ $('found').textContent='🦌 Reindeer: '+found+' / 8';
+ $('hearts').textContent='❤️'.repeat(Math.max(0,hearts))+'🖤'.repeat(5-Math.max(0,hearts));
+ $('score').textContent='⭐ '+score;
+ const phase=getPhase();
+ $('clock').textContent=phase.icon+' '+phase.name;
+ $('freezeHud').textContent=freezeCD>0?'❄️ Freeze: '+freezeCD.toFixed(1)+'s':'❄️ Snow Freeze: READY';
+ let p=shieldTime>0?'🛡️ Shield':speedTime>0?'⚡ Speed boost':'None';
+ $('powerHud').textContent='✨ Power-up: '+p;
 }
-for(let i=0;i<8;i++){
-let x=rand(300,world.w-180),y=rand(250,world.h-160);
-reindeer.push({x,y,found:false,phase:rand(0,6)});
+function getPhase(){
+ const t=(dayClock%DAY_LENGTH)/DAY_LENGTH;
+ if(t<.25)return {name:'Daytime',icon:'☀️',light:0};
+ if(t<.36)return {name:'Sunset',icon:'🌇',light:(t-.25)/.11*.48};
+ if(t<.68)return {name:'Nighttime',icon:'🌙',light:.48};
+ if(t<.79)return {name:'Sunrise',icon:'🌅',light:.48*(1-(t-.68)/.11)};
+ return {name:'Daytime',icon:'☀️',light:0};
 }
-const kinds=['🐺','🦊','🐻','🐺','🦊','🐻','🦊'];
-for(let i=0;i<kinds.length;i++){
-animals.push({x:rand(400,world.w-200),y:rand(300,world.h-200),kind:kinds[i],speed:rand(.72,.98),alert:false,phase:rand(0,6),frozen:0});
+function startGame(){
+ running=true;paused=false;ended=false;
+ hearts=5;score=0;found=0;freezeCD=0;freezeTime=0;
+ speedTime=0;shieldTime=0;invuln=1.5;dayClock=0;
+ player={x:120,y:WORLD_H-170,r:19,speed:215,face:1};
+ camera={x:0,y:0};
+ makeForest();hideOverlay();updateHud();last=performance.now();
 }
-for(let i=0;i<55;i++)coins.push({x:rand(100,world.w-100),y:rand(100,world.h-100),got:false});
-for(let i=0;i<12;i++)powerups.push({x:rand(180,world.w-150),y:rand(180,world.h-150),type:i%3,got:false});
-cam.x=0;cam.y=0;ui();message('The forest is dark! Santa’s flashlight will light the way.');
+function makeForest(){
+ trees=[];reindeer=[];enemies=[];powerups=[];
+ // Create solid trees with open travel corridors.
+ for(let i=0;i<125;i++){
+  let x=rand(90,WORLD_W-90),y=rand(90,WORLD_H-90);
+  if(Math.hypot(x-player.x,y-player.y)<160)continue;
+  if(Math.abs(x-WORLD_W/2)<115&&Math.abs(y-WORLD_H/2)<100)continue;
+  trees.push({x,y,r:rand(22,34),type:Math.floor(rand(0,3))});
+ }
+ const deerSpots=[
+  [350,270],[730,210],[1170,320],[1640,230],
+  [440,790],[920,970],[1480,1050],[1850,770]
+ ];
+ deerSpots.forEach((p,i)=>reindeer.push({x:p[0],y:p[1],found:false,id:i}));
+ const animalTypes=['🐺','🐻','🦊','🐺','🦊','🐻','🐺','🦊'];
+ for(let i=0;i<animalTypes.length;i++){
+  let x=rand(350,WORLD_W-200),y=rand(180,WORLD_H-200);
+  enemies.push({x,y,r:22,type:animalTypes[i],speed:rand(47,66),chasing:false,stun:0,dir:1});
+ }
+ for(let i=0;i<15;i++){
+  powerups.push({x:rand(180,WORLD_W-180),y:rand(150,WORLD_H-150),type:['heart','speed','shield'][i%3],got:false});
+ }
 }
-function blocked(x,y,r){
-if(x<r||y<r||x>world.w-r||y>world.h-r)return true;
-return trees.some(t=>Math.hypot(x-t.x,y-t.y)<r+t.r*.65);
+function collidesTree(x,y,r){
+ return trees.some(t=>Math.hypot(x-t.x,y-t.y)<r+t.r*.72);
 }
-function move(e,dx,dy,r){
-if(!blocked(e.x+dx,e.y,r))e.x+=dx;
-if(!blocked(e.x,e.y+dy,r))e.y+=dy;
+function movePlayer(dx,dy,dt){
+ const length=Math.hypot(dx,dy)||1;
+ dx=dx/length;dy=dy/length;
+ const speed=player.speed*(speedTime>0?1.5:1);
+ const nx=clamp(player.x+dx*speed*dt,25,WORLD_W-25);
+ if(!collidesTree(nx,player.y,player.r))player.x=nx;
+ const ny=clamp(player.y+dy*speed*dt,25,WORLD_H-25);
+ if(!collidesTree(player.x,ny,player.r))player.y=ny;
+ if(dx)player.face=dx;
+}
+function freezeAttack(){
+ if(!running||paused||freezeCD>0)return;
+ freezeTime=3.5;freezeCD=10;
 }
 function hit(){
-if(invuln>0)return;
-lives--;invuln=1.5;ui();message('An animal caught Santa! You lost a heart!');
-if(lives<=0){running=false;panel('Oh no! Santa needs help!','The forest animals caught Santa. Try again and use your flashlight to spot them!','TRY AGAIN',start)}
+ if(invuln>0||shieldTime>0)return;
+ hearts--;invuln=1.7;
+ updateHud();
+ if(hearts<=0){
+  running=false;ended=true;
+  $('endTitle').textContent='🐾 Oh no!';
+  $('endText').textContent='Santa ran out of hearts! You found '+found+' of the 8 reindeer. Try again!';
+  panel('endPanel');
+ }
 }
-function panel(title,body,button,fn){
-$('overlay').style.display='flex';$('panel').innerHTML=`<h2>${title}</h2><p>${body}</p><button id="panelBtn">${button}</button>`;$('panelBtn').onclick=fn;
-}
-function start(){
-makeWorld();$('overlay').style.display='none';running=true;paused=false;last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
-}
-function special(){
-if(!running||paused||cooldown>0)return;
-freeze=3.5;cooldown=10;
-animals.forEach(a=>{if(dist(a,player)<390)a.frozen=3.5});
-message('❄️ Snow blast! Nearby animals are frozen!');
-ui();
+function getReindeer(){
+ reindeer.forEach(d=>{
+  if(!d.found&&dist(player,d)<38){
+   d.found=true;found++;score+=100;
+   updateHud();
+  }
+ });
 }
 function update(dt){
-if(!running||paused)return;
-invuln=Math.max(0,invuln-dt);freeze=Math.max(0,freeze-dt);cooldown=Math.max(0,cooldown-dt);
-let dx=0,dy=0;
-if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;
-if(keys.ArrowUp||keys.w)dy--;if(keys.ArrowDown||keys.s)dy++;
-if(dx&&dy){dx*=.707;dy*=.707}
-if(dx||dy)player.dir=Math.atan2(dy,dx);
-move(player,dx*player.speed*60*dt,dy*player.speed*60*dt,player.r);
-reindeer.forEach(r=>{
-if(!r.found&&dist(player,r)<34){r.found=true;found++;score+=10;message('🦌 You found a reindeer! It will follow Santa.');}
-if(r.found){r.x+=(player.x-r.x)*Math.min(1,dt*2.1);r.y+=(player.y-r.y)*Math.min(1,dt*2.1)}
-});
-coins.forEach(o=>{if(!o.got&&dist(player,o)<25){o.got=true;score+=5;message('🪙 Snow coin collected! +5');}});
-powerups.forEach(p=>{
-if(!p.got&&dist(player,p)<28){p.got=true;
-if(p.type===0){lives=Math.min(4,lives+1);message('❤️ Extra heart!')}
-if(p.type===1){freeze=5;animals.forEach(a=>a.frozen=5);message('❄️ Freeze power-up!')}
-if(p.type===2){player.speed=3.5;setTimeout(()=>player.speed=2.65,5000);message('💨 Speed boost!')}
-}});
-animals.forEach(a=>{
-a.frozen=Math.max(0,a.frozen-dt);
-let d=dist(a,player);
-if(!a.alert&&d<285){a.alert=true;message(`${a.kind} spotted Santa! Run away!`)}
-if(a.alert&&d>455)a.alert=false;
-if(a.alert&&a.frozen<=0){
-let vx=(player.x-a.x)/(d||1),vy=(player.y-a.y)/(d||1);
-move(a,vx*a.speed*60*dt,vy*a.speed*60*dt,17);
-}else if(!a.alert){
-a.phase+=dt;
-let nx=Math.sin(a.phase)*.28,ny=Math.cos(a.phase*.8)*.28;
-move(a,nx*60*dt,ny*60*dt,17);
-}
-if(d<27&&a.frozen<=0)hit();
-});
-if(found===8&&dist(player,sleigh)<65){
-running=false;panel('🎉 ALL REINDEER FOUND!','Amazing work! Santa found all 8 reindeer and brought them safely back to the sleigh!','PLAY AGAIN',start);
-}
-cam.x=Math.max(0,Math.min(world.w-W,player.x-W/2));
-cam.y=Math.max(0,Math.min(world.h-H,player.y-H/2));
-ui();
+ if(!running||paused||ended)return;
+ dayClock+=dt;
+ freezeCD=Math.max(0,freezeCD-dt);
+ freezeTime=Math.max(0,freezeTime-dt);
+ speedTime=Math.max(0,speedTime-dt);
+ shieldTime=Math.max(0,shieldTime-dt);
+ invuln=Math.max(0,invuln-dt);
+ let dx=0,dy=0;
+ if(keys.ArrowLeft||keys.a)dx--;
+ if(keys.ArrowRight||keys.d)dx++;
+ if(keys.ArrowUp||keys.w)dy--;
+ if(keys.ArrowDown||keys.s)dy++;
+ if(dx||dy)movePlayer(dx,dy,dt);
+ getReindeer();
+ powerups.forEach(p=>{
+  if(!p.got&&dist(player,p)<32){
+   p.got=true;
+   if(p.type==='heart')hearts=Math.min(5,hearts+1);
+   if(p.type==='speed')speedTime=8;
+   if(p.type==='shield')shieldTime=7;
+   score+=25;updateHud();
+  }
+ });
+ enemies.forEach(e=>{
+  const d=dist(player,e);
+  if(e.stun>0){e.stun-=dt;return}
+  if(!e.chasing&&d<285)e.chasing=true;
+  if(e.chasing&&d>455)e.chasing=false;
+  if(e.chasing&&d>1){
+   const nx=e.x+(player.x-e.x)/d*e.speed*dt;
+   const ny=e.y+(player.y-e.y)/d*e.speed*dt;
+   if(!collidesTree(nx,e.y,e.r))e.x=nx;
+   if(!collidesTree(e.x,ny,e.r))e.y=ny;
+   e.dir=player.x>e.x?1:-1;
+  }else{
+   e.x+=Math.sin(performance.now()/900+e.y)*12*dt;
+  }
+  if(d<e.r+player.r+2)hit();
+ });
+ camera.x=clamp(player.x-W*.48,0,WORLD_W-W);
+ camera.y=clamp(player.y-H*.48,0,WORLD_H-H);
+ updateHud();
+ if(found===8&&dist(player,{x:WORLD_W/2,y:WORLD_H/2})<85){
+  running=false;ended=true;
+  $('endTitle').textContent='🎅 Merry Christmas!';
+  $('endText').textContent='Santa found all 8 reindeer and brought them safely back to the sleigh! Final score: '+score+' ⭐';
+  panel('endPanel');
+ }
 }
 function drawTree(t){
-let x=t.x-cam.x,y=t.y-cam.y;
-ctx.fillStyle='#35291f';ctx.fillRect(x-6,y+4,12,25);
-ctx.fillStyle='#102e2b';ctx.beginPath();ctx.moveTo(x,y-t.r*1.7);ctx.lineTo(x-t.r*1.1,y+t.r*.7);ctx.lineTo(x+t.r*1.1,y+t.r*.7);ctx.closePath();ctx.fill();
-ctx.fillStyle='#1b493b';ctx.beginPath();ctx.moveTo(x,y-t.r*1.2);ctx.lineTo(x-t.r*.85,y+t.r*.9);ctx.lineTo(x+t.r*.85,y+t.r*.9);ctx.closePath();ctx.fill();
-ctx.fillStyle='#d8f5ff';ctx.beginPath();ctx.arc(x-t.r*.25,y-t.r*.35,3,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle='#503b2b';ctx.fillRect(t.x-7,t.y+4,14,28);
+ ctx.fillStyle=t.type===0?'#245b3d':t.type===1?'#306c43':'#1e5138';
+ ctx.beginPath();ctx.moveTo(t.x,t.y-t.r*1.7);ctx.lineTo(t.x-t.r,t.y+t.r*.6);ctx.lineTo(t.x+t.r,t.y+t.r*.6);ctx.closePath();ctx.fill();
+ ctx.beginPath();ctx.moveTo(t.x,t.y-t.r*.8);ctx.lineTo(t.x-t.r*.8,t.y+t.r);ctx.lineTo(t.x+t.r*.8,t.y+t.r);ctx.closePath();ctx.fill();
+ ctx.fillStyle='#e9f7f1';
+ ctx.beginPath();ctx.arc(t.x-7,t.y-t.r*.8,4,0,Math.PI*2);ctx.fill();
 }
 function draw(){
-ctx.fillStyle='#091827';ctx.fillRect(0,0,W,H);
-ctx.save();ctx.translate(-cam.x,-cam.y);
-ctx.fillStyle='#132b34';ctx.fillRect(0,0,world.w,world.h);
-ctx.strokeStyle='#25404a';ctx.lineWidth=2;
-for(let x=0;x<world.w;x+=100){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,world.h);ctx.stroke()}
-for(let y=0;y<world.h;y+=100){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(world.w,y);ctx.stroke()}
-coins.forEach(o=>{if(!o.got){ctx.font='22px Arial';ctx.fillText('🪙',o.x-10,o.y+8)}});
-powerups.forEach(p=>{if(!p.got){ctx.font='26px Arial';ctx.fillText(['❤️','❄️','💨'][p.type],p.x-12,p.y+9)}});
-reindeer.forEach(r=>{if(!r.found){ctx.font='31px Arial';ctx.fillText('🦌',r.x-16,r.y+11)}else{ctx.font='25px Arial';ctx.fillText('🦌',r.x-12,r.y+8)}});
-animals.forEach(a=>{ctx.font='35px Arial';ctx.fillText(a.frozen>0?'🧊':a.kind,a.x-18,a.y+12);if(a.alert&&a.frozen<=0){ctx.font='17px Arial';ctx.fillText('❗',a.x-8,a.y-22)}});
-trees.forEach(drawTree);
-ctx.font='50px Arial';ctx.fillText('🛷',sleigh.x-25,sleigh.y+18);
-ctx.font='38px Arial';ctx.globalAlpha=invuln>0&&Math.floor(performance.now()/100)%2===0?.4:1;ctx.fillText('🎅',player.x-18,player.y+13);ctx.globalAlpha=1;
-ctx.restore();
-// Night overlay with a soft flashlight beam centered on Santa.
-ctx.fillStyle='rgba(0,5,18,0.88)';ctx.fillRect(0,0,W,H);
-const px=player.x-cam.x,py=player.y-cam.y;
-ctx.save();ctx.globalCompositeOperation='destination-out';
-let glow=ctx.createRadialGradient(px,py,35,px,py,245);
-glow.addColorStop(0,'rgba(0,0,0,1)');glow.addColorStop(.62,'rgba(0,0,0,.9)');glow.addColorStop(1,'rgba(0,0,0,0)');
-ctx.fillStyle=glow;ctx.beginPath();ctx.arc(px,py,245,0,Math.PI*2);ctx.fill();
-ctx.translate(px,py);ctx.rotate(player.dir);
-let beam=ctx.createRadialGradient(0,0,20,0,0,410);
-beam.addColorStop(0,'rgba(0,0,0,.95)');beam.addColorStop(1,'rgba(0,0,0,0)');
-ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,410,-.48,.48);ctx.closePath();ctx.fill();
-ctx.restore();
-ctx.fillStyle='#e9f6ff';ctx.font='15px Fredoka';ctx.fillText('🌙 NIGHT FOREST',18,27);
-ctx.fillStyle='#c4eaff';ctx.fillText('Flashlight: ON',18,49);
-if(freeze>0){ctx.fillStyle='#a9eaff';ctx.fillText('❄️ FROZEN: '+freeze.toFixed(1)+'s',W-155,27)}
+ ctx.clearRect(0,0,W,H);
+ // Base forest
+ const phase=getPhase();
+ const base=ctx.createLinearGradient(0,0,0,H);
+ base.addColorStop(0,'#63936a');base.addColorStop(1,'#355b3d');
+ ctx.fillStyle=base;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.translate(-camera.x,-camera.y);
+ // Forest floor
+ ctx.fillStyle='#426b45';ctx.fillRect(0,0,WORLD_W,WORLD_H);
+ for(let i=0;i<150;i++){
+  let x=(i*173)%WORLD_W,y=(i*257)%WORLD_H;
+  ctx.fillStyle=i%2?'#557d4b':'#4d7547';
+  ctx.beginPath();ctx.arc(x,y,3+(i%4),0,Math.PI*2);ctx.fill();
+ }
+ // Sleigh home base
+ ctx.fillStyle='#f0dca5';ctx.beginPath();ctx.arc(WORLD_W/2,WORLD_H/2,75,0,Math.PI*2);ctx.fill();
+ ctx.font='58px Arial';ctx.fillText('🛷',WORLD_W/2-30,WORLD_H/2+18);
+ ctx.fillStyle='#fff';ctx.font='bold 15px Outfit';ctx.fillText(found===8?'SLEIGH - RETURN HERE':'SANTA’S SLEIGH',WORLD_W/2-70,WORLD_H/2+90);
+ trees.forEach(drawTree);
+ reindeer.forEach(d=>{
+  if(!d.found){ctx.font='38px Arial';ctx.fillText('🦌',d.x-19,d.y+14)}
+ });
+ powerups.forEach(p=>{
+  if(p.got)return;
+  ctx.font='29px Arial';
+  ctx.fillText(p.type==='heart'?'❤️':p.type==='speed'?'⚡':'🛡️',p.x-14,p.y+10);
+ });
+ enemies.forEach(e=>{
+  ctx.font='38px Arial';ctx.fillText(e.type,e.x-20,e.y+13);
+  if(e.chasing){
+   ctx.fillStyle='#ffdf86';ctx.font='bold 12px Outfit';ctx.fillText('!',e.x-3,e.y-25);
+  }
+ });
+ // Santa
+ if(invuln>0&&Math.floor(performance.now()/100)%2===0)ctx.globalAlpha=.4;
+ ctx.font='43px Arial';ctx.fillText('🎅',player.x-22,player.y+16);ctx.globalAlpha=1;
+ ctx.restore();
+
+ // Day/night tint over the whole scene.
+ if(phase.light>0){
+  ctx.fillStyle='rgba(5,12,48,'+(phase.light*.82)+')';
+  ctx.fillRect(0,0,W,H);
+ }
+ // Flashlight: bright white circular beam plus forward beam at night.
+ if(phase.light>.18){
+  ctx.save();
+  ctx.globalCompositeOperation='destination-out';
+  const px=player.x-camera.x,py=player.y-camera.y;
+  const radius=phase.light>.4?255:225;
+  const glow=ctx.createRadialGradient(px,py,15,px,py,radius);
+  glow.addColorStop(0,'rgba(0,0,0,1)');
+  glow.addColorStop(.72,'rgba(0,0,0,.96)');
+  glow.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=glow;ctx.beginPath();ctx.arc(px,py,radius,0,Math.PI*2);ctx.fill();
+  // Forward-facing flashlight beam.
+  const angle=player.face>0?0:Math.PI;
+  ctx.translate(px,py);ctx.rotate(angle);
+  const beam=ctx.createRadialGradient(0,0,12,155,0,285);
+  beam.addColorStop(0,'rgba(0,0,0,1)');
+  beam.addColorStop(.7,'rgba(0,0,0,.95)');
+  beam.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=beam;ctx.beginPath();ctx.moveTo(0,0);ctx.arc(0,0,285,-.46,.46);ctx.closePath();ctx.fill();
+  ctx.restore();
+  // White beam edge glow makes the flashlight visibly bright.
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  const px=player.x-camera.x,py=player.y-camera.y;
+  const white=ctx.createRadialGradient(px,py,10,px,py,180);
+  white.addColorStop(0,'rgba(255,255,255,.23)');
+  white.addColorStop(.5,'rgba(255,255,255,.11)');
+  white.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=white;ctx.beginPath();ctx.arc(px,py,180,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+ }
+ // Time-of-day sun/moon indicator.
+ const t=(dayClock%DAY_LENGTH)/DAY_LENGTH;
+ ctx.font='30px Arial';
+ if(t<.25)ctx.fillText('☀️',W-55,75);
+ else if(t<.79)ctx.fillText('🌙',W-55,75);
+ else ctx.fillText('🌅',W-55,75);
+ if(freezeTime>0){
+  ctx.fillStyle='rgba(130,230,255,.16)';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#fff';ctx.font='bold 16px Outfit';ctx.fillText('❄️ SNOW FREEZE!',W/2-65,95);
+ }
+ ctx.fillStyle='#fff';ctx.font='bold 14px Outfit';
+ ctx.fillText(found===8?'All reindeer found! Return to the sleigh!':'Find all 8 reindeer!',15,H-25);
 }
-function loop(t){let dt=Math.min(.032,(t-last)/1000||0);last=t;update(dt);draw();raf=requestAnimationFrame(loop)}
-function togglePause(){
-if(!running)return;
-paused=!paused;
-if(paused)panel('⏸ Game Paused','Santa is taking a short break. The reindeer will wait!','RESUME',()=>{$('overlay').style.display='none';paused=false});
-else $('overlay').style.display='none';
+function loop(now){
+ const dt=Math.min(.04,(now-last)/1000||0);last=now;
+ update(dt);draw();requestAnimationFrame(loop);
 }
-window.addEventListener('keydown',e=>{
-if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
-keys[e.key]=true;
-if(e.key===' '&&!e.repeat)special();
-if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
+requestAnimationFrame(loop);
+function pauseGame(){
+ if(!running||ended)return;
+ running=false;paused=true;panel('pausePanel');
+}
+function resumeGame(){
+ if(!paused||ended)return;
+ paused=false;running=true;hideOverlay();last=performance.now();
+}
+addEventListener('keydown',e=>{
+ const k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+ keys[k]=true;
+ if(k===' '||k==='Spacebar')freezeAttack();
+ if(k==='p'||k==='Escape'){if(running)pauseGame();else if(paused)resumeGame()}
 });
-window.addEventListener('keyup',e=>keys[e.key]=false);
-window.addEventListener('blur',()=>keys={});
-$('start').onclick=start;
-$('pause').onclick=togglePause;
-$('special').onclick=special;
-$('restart').onclick=()=>{if(running)start()};
-makeWorld();draw();
+addEventListener('keyup',e=>{
+ const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;
+});
+addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const k in keys)keys[k]=false});
+$('startBtn').addEventListener('click',startGame);
+$('pauseBtn').addEventListener('click',()=>{if(running)pauseGame();else if(paused)resumeGame()});
+$('resumeBtn').addEventListener('click',resumeGame);
+$('restartBtn').addEventListener('click',()=>{if(confirm('Restart Santa’s adventure?'))startGame()});
+$('againBtn').addEventListener('click',startGame);
 })();
 </script>
 </body>
 </html>
+
