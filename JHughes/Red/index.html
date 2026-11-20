@@ -3,31 +3,27 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jurassic Dream Escape</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#14251f;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center}
-#game{width:min(100%,950px);padding:12px}
-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:9px}
-h1{margin:0;color:#b8f18d;font-size:clamp(21px,4vw,30px)}
-.stats{display:flex;gap:6px;flex-wrap:wrap}
-.stat{background:#29483a;border:2px solid #64866a;padding:7px 10px;border-radius:12px;font-weight:bold}
-#stage{position:relative;background:#18372c;border:5px solid #668c62;border-radius:16px;overflow:hidden}
-canvas{display:block;width:100%;height:auto}
-#overlay{position:absolute;inset:0;background:#10251feF;display:flex;align-items:center;justify-content:center;padding:12px;z-index:5}
-#overlay.hidden{display:none}
-.panel{background:#f2e9c9;color:#394536;border:5px solid #b4db85;border-radius:22px;padding:20px;text-align:center;width:min(460px,96%);max-height:95%;overflow:auto}
-.panel h2{font-size:29px;color:#537c3d;margin:0 0 10px}
-.panel p{line-height:1.45}
-button{font-family:inherit;font-weight:bold;border:0;border-radius:12px;padding:10px 15px;margin:4px;background:#ffcf6a;color:#493521;cursor:pointer;box-shadow:0 4px #ad7d39;font-size:15px}
-button:active{transform:translateY(2px);box-shadow:0 2px #ad7d39}
-.green{background:#b7efaa;color:#315b35;box-shadow:0 4px #68965e}
-.purple{background:#c7b0ff;color:#39245e;box-shadow:0 4px #8064ba}
-#controls{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;margin-top:10px}
-#help{text-align:center;color:#d2e8c8;font-size:13px;margin-top:8px}
-#message{text-align:center;color:#ffe6a0;min-height:22px;margin-top:7px}
+body{margin:0;background:#111b20;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#game{width:min(1000px,98vw);padding:12px;background:#24363b;border:3px solid #79918b;border-radius:18px;box-shadow:0 15px 45px #0009}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px 10px}
+h1{margin:0;color:#e7d69d;font-size:clamp(20px,3vw,30px)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:#142327;padding:7px 11px;border-radius:10px}
+canvas{display:block;width:100%;height:auto;border:3px solid #71877b;border-radius:12px;background:#293d36}
+#message{text-align:center;min-height:26px;padding:8px;color:#e6e5c7}
+#bar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+button{font:600 15px Fredoka;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:#e7d69d;color:#2c3427}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+#overlay{position:fixed;inset:0;background:#050b0ddf;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
+.panel{max-width:560px;width:100%;background:#304b49;border:3px solid #e7d69d;border-radius:20px;padding:25px;text-align:center;box-shadow:0 15px 50px #000b}
+.panel h2{color:#f4dda0;font-size:30px;margin:0 0 8px}
+.panel p{line-height:1.5;color:#f0f0df}
+.controls{font-size:14px;color:#e8e1c1}
 </style>
 </head>
 <body>
@@ -35,331 +31,307 @@ button:active{transform:translateY(2px);box-shadow:0 2px #ad7d39}
 <header>
 <h1>🦖 JURASSIC DREAM ESCAPE</h1>
 <div class="stats">
-<div class="stat">🌴 Level <span id="level">1</span>/6</div>
-<div class="stat">🪙 <span id="coins">0</span></div>
-<div class="stat">❤️ <span id="lives">5</span></div>
-<div class="stat">👾 Laser <span id="ammo">∞</span></div>
+<div class="stat" id="level">Level 1 / 6</div>
+<div class="stat" id="health">❤️❤️❤️</div>
+<div class="stat" id="timer">⏱ 2:00</div>
+<div class="stat" id="coins">🪙 0</div>
 </div>
 </header>
-<div id="stage">
-<canvas id="c" width="900" height="540"></canvas>
+<canvas id="c" width="960" height="600"></canvas>
+<div id="message">Bob is getting ready for bed...</div>
+<div id="bar">
+<button id="pause">⏸ Pause</button>
+<button id="laser">⚡ Laser (10s cooldown)</button>
+<button id="special">🌟 Special Ability</button>
+<button id="restart">↻ Restart</button>
+<button onclick="location.href='../../index.html'">🏠 Game Lab</button>
+</div>
+<div class="controls">Move: ← → or A/D · Jump: Space / ↑ / W · Laser: X · Special: Z · Pause: P</div>
+</div>
 <div id="overlay">
 <div class="panel" id="panel">
-<h2>🦖 JURASSIC DREAM ESCAPE!</h2>
-<p>Help Bob the scientist escape the dinosaur age!</p>
-<p>Blast dinosaurs with your laser, collect coins, grab power-ups, and survive the T-Rex boss!</p>
-<p>⬅️ ➡️ Move · SPACE / ↑ Jump · X Shoot laser · Z Special blast</p>
-<button class="green" id="start">START ADVENTURE!</button>
+<h2>🌙 Before the Dream...</h2>
+<p>Bob is getting ready for bed. But tonight, his dreams are about to get WILD!</p>
+<p>Watch Bob fall asleep and enter a world filled with dinosaurs. Can he escape the dream?</p>
+<button id="start">WATCH THE STORY</button>
 </div>
 </div>
-</div>
-<div id="controls">
-<button id="pause" class="purple">⏸ PAUSE</button>
-<button id="restart">↻ RESTART LEVEL</button>
-<button id="shoot" class="green">🔫 LASER</button>
-<button id="special">💥 SPECIAL</button>
-<button id="home">🏡 GAME LAB</button>
-</div>
-<div id="message">Bob needs your help! Watch out for dinosaurs!</div>
-<div id="help">Move: ← → / A D · Jump: SPACE / ↑ / W · Laser: X · Special: Z</div>
-</div>
-
 <script>
 (()=>{
-"use strict";
-const $=id=>document.getElementById(id);
-const canvas=$("c"),ctx=canvas.getContext("2d");
-const W=900,H=540,GROUND=445;
-const names=["The Lost Jungle","Dino Valley","The Volcano Trail","The Ancient Swamp","T-Rex Territory","The Final Escape"];
-let level=1,lives=5,coins=0,state="title",paused=false;
-let player,lasers=[],dinosaurs=[],pickups=[],boss=null;
-let keys={},last=0,camera=0,worldWidth=2400;
-let specialReady=true,invincible=0,levelMessage="";
-let scenery=[],particles=[];
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=960,H=600,$=id=>document.getElementById(id);
+const levelNames=['The Lost Jungle','Dino Valley','The Volcano Trail','The Ancient Swamp','T-Rex Territory','The Final Escape'];
+let keys={},player={},platforms=[],dinosaurs=[],coins=[],powerups=[],lasers=[],particles=[],level=1,lives=3,score=0;
+let running=false,paused=false,last=0,raf=0,timeLeft=120,laserCooldown=0,specialCooldown=0,invuln=0,cameraX=0,worldWidth=2200,boss=null,exit=null,scene='intro',storyTimer=0;
 const rand=(a,b)=>a+Math.random()*(b-a);
-function say(t){$("message").textContent=t}
-function stats(){
- $("level").textContent=level;$("coins").textContent=coins;
- $("lives").textContent=lives;
+function msg(t){$('message').textContent=t}
+function ui(){
+$('level').textContent=`Level ${level} / 6`;
+$('health').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
+$('timer').textContent='⏱ '+Math.floor(timeLeft/60)+':'+String(Math.ceil(timeLeft%60)).padStart(2,'0');
+$('coins').textContent='🪙 '+score;
+$('laser').textContent=laserCooldown>0?'⚡ Laser: '+laserCooldown.toFixed(1)+'s':'⚡ Laser READY';
 }
-function showPanel(title,body,buttons){
- const p=$("panel");p.innerHTML="";
- const h=document.createElement("h2");h.textContent=title;p.append(h);
- const text=document.createElement("p");text.textContent=body;p.append(text);
- buttons.forEach(b=>{
-  const btn=document.createElement("button");btn.textContent=b.text;
-  btn.className=b.cls||"";btn.addEventListener("click",b.fn);p.append(btn);
- });
- $("overlay").classList.remove("hidden");
+function beginDream(){
+$('overlay').style.display='none';
+scene='sleep';
+storyTimer=0;
+msg('Bob is getting sleepy...');
+last=performance.now();
+cancelAnimationFrame(raf);
+raf=requestAnimationFrame(loop);
 }
-function hidePanel(){$("overlay").classList.add("hidden")}
-function startGame(){level=1;lives=5;coins=0;setupLevel();state="playing";paused=false;hidePanel();say("Bob! Your adventure begins!");}
-$("start").addEventListener("click",startGame);
-function setupLevel(){
- worldWidth=2400+level*130;
- player={x:100,y:GROUND-54,vx:0,vy:0,w:34,h:48,grounded:true,face:1};
- lasers=[];dinosaurs=[];pickups=[];particles=[];
- camera=0;invincible=1.5;specialReady=true;
- boss=null;
- const count=5+level*2;
- for(let i=0;i<count;i++){
-  const x=430+i*(worldWidth-750)/count;
-  dinosaurs.push({
-   x,y:GROUND-43,w:48,h:42,
-   vx:rand(.45,1.0)*(level%2?1:-1),
-   hp:level>=4?2:1,alive:true,
-   minX:x-65,maxX:x+65
-  });
- }
- for(let i=0;i<15;i++){
-  pickups.push({x:300+i*135,y:GROUND-80-(i%3)*50,type:i%5===0?"power":"coin",got:false});
- }
- if(level===6){
-  dinosaurs=dinosaurs.slice(0,5);
-  boss={x:worldWidth-260,y:GROUND-135,w:150,h:135,hp:12,maxHp:12,vx:0,hitTimer:0};
- }
- stats();
+function enterDream(){
+scene='playing';
+level=1;lives=3;score=0;
+makeLevel();
+running=true;paused=false;
+msg('BOB HAS ENTERED THE DREAM! Escape the dinosaurs!');
 }
-function restartLevel(){if(state==="title")return startGame();setupLevel();state="playing";paused=false;hidePanel();say("Level restarted!");}
-$("restart").addEventListener("click",restartLevel);
-$("home").addEventListener("click",()=>location.href="../../index.html");
-$("pause").addEventListener("click",()=>{if(state==="playing")paused=!paused;});
-function shoot(){
- if(state!=="playing"||paused)return;
- const x=player.x+(player.face>0?player.w:0);
- lasers.push({x,y:player.y+19,vx:player.face*590,life:1.6,hit:false});
- say("ZAP! LASER BLAST!");
+function makeLevel(){
+worldWidth=2200+level*180;
+platforms=[];dinosaurs=[];coins=[];powerups=[];lasers=[];particles=[];boss=null;
+cameraX=0;timeLeft=120;laserCooldown=0;specialCooldown=0;invuln=1.2;
+player={x:70,y:450,vx:0,vy:0,w:32,h:45,onGround:false,face:1,speed:3.3,jumps:0};
+platforms.push({x:0,y:540,w:worldWidth,h:60,type:'ground'});
+for(let i=0;i<24+level*2;i++){
+let x=220+i*78,y=430-(i%4)*65+(Math.floor(i/4)%2)*28;
+let width=rand(105,165);
+platforms.push({x,y,w:width,h:20,type:i%4===0?'rock':'grass'});
 }
-$("shoot").addEventListener("click",shoot);
+for(let i=0;i<10+level;i++){
+let p=platforms[1+Math.floor(rand(0,platforms.length-2))];
+coins.push({x:p.x+rand(20,p.w-20),y:p.y-28,got:false});
+}
+for(let i=0;i<5;i++){
+let p=platforms[2+i*4];
+if(p)powerups.push({x:p.x+p.w/2,y:p.y-30,type:i%3,got:false});
+}
+for(let i=0;i<5+level;i++){
+let p=platforms[2+Math.floor(rand(0,platforms.length-3))];
+dinosaurs.push({x:p.x+30,y:p.y-35,min:p.x+8,max:p.x+p.w-8,dir:Math.random()<.5?-1:1,hp:level>3?2:1,speed:rand(.55,.9)+level*.06,stun:0});
+}
+exit={x:worldWidth-100,y:465};
+if(level===6){
+boss={x:worldWidth-300,y:405,w:140,h:110,hp:36,max:36,dir:1,stun:0,attack:1.4};
+}
+ui();
+msg(levelNames[level-1]+': Find the exit and escape!');
+}
+function panel(title,body,button,fn){
+$('overlay').style.display='flex';
+$('panel').innerHTML=`<h2>${title}</h2><p>${body}</p><button id="panelBtn">${button}</button>`;
+$('panelBtn').onclick=fn;
+}
+function hit(){
+if(invuln>0)return;
+lives--;invuln=1.5;ui();
+if(lives<=0){
+running=false;
+panel('💤 Bob is still dreaming!','The dinosaurs caught Bob! He ran out of lives. Try again and escape the dream!','TRY AGAIN',restartAll);
+}else{
+player.x=Math.max(60,player.x-110);player.y=300;player.vy=0;
+msg('Ouch! Bob lost a heart. Be careful!');
+}
+}
+function restartAll(){scene='playing';running=true;paused=false;level=1;lives=3;score=0;makeLevel();$('overlay').style.display='none';last=performance.now();raf=requestAnimationFrame(loop)}
+function fireLaser(){
+if(!running||paused||laserCooldown>0)return;
+laserCooldown=10;
+lasers.push({x:player.x+(player.face>0?player.w:0),y:player.y+20,vx:player.face*10,life:1.3});
+msg('⚡ LASER FIRED! Cooldown: 10 seconds');
+}
 function special(){
- if(state!=="playing"||paused||!specialReady)return;
- specialReady=false;
- const blastX=player.x+player.w/2;
- dinosaurs.forEach(d=>{if(d.alive&&Math.abs(d.x-blastX)<230)d.hp-=2;});
- if(boss&&Math.abs(boss.x-blastX)<270)boss.hp-=3;
- for(let i=0;i<22;i++)particles.push({x:blastX,y:player.y+20,vx:rand(-200,200),vy:rand(-180,180),life:.55});
- say("💥 MEGA SCIENTIST BLAST!");
- setTimeout(()=>{specialReady=true;},5000);
+if(!running||paused||specialCooldown>0)return;
+specialCooldown=8;
+dinosaurs.forEach(d=>{
+if(Math.abs(d.x-player.x)<260&&Math.abs(d.y-player.y)<160){d.hp-=2;d.stun=1.5;if(d.hp<=0)d.dead=true;score+=5}
+});
+if(boss&&Math.abs(boss.x-player.x)<350){boss.hp-=5;boss.stun=1.2}
+for(let i=0;i<18;i++)particles.push({x:player.x,y:player.y,vx:rand(-5,5),vy:rand(-5,5),life:.65});
+dinosaurs=dinosaurs.filter(d=>!d.dead);
+msg('🌟 SPECIAL DREAM BLAST!');
+ui();
 }
-$("special").addEventListener("click",special);
 function jump(){
- if(state==="playing"&&!paused&&player.grounded){
-  player.vy=-490;player.grounded=false;
- }
-}
-function damage(){
- if(invincible>0)return;
- lives--;invincible=1.8;stats();
- if(lives<=0){
-  state="gameover";
-  showPanel("🦖 CAUGHT BY A DINO!","Bob needs another chance! Try the level again.",[
-   {text:"TRY AGAIN",cls:"green",fn:restartLevel},
-   {text:"START OVER",fn:startGame}
-  ]);
- }else{
-  player.x=Math.max(100,player.x-110);player.y=GROUND-player.h;
-  player.vx=0;player.vy=0;
-  say("Ouch! Bob lost a heart. Keep going!");
- }
-}
-function completeLevel(){
- state="complete";
- showPanel("🎉 LEVEL COMPLETE!","Bob escaped "+names[level-1]+"! Ready for the next adventure?",[
-  {text:level===6?"YOU WIN!":"NEXT LEVEL ➜",cls:"green",fn:()=>{
-   if(level===6){
-    state="won";
-    showPanel("🏆 DREAM ESCAPED!","Bob defeated the T-Rex and escaped the dinosaur age! Great job, scientist!",[
-     {text:"PLAY AGAIN",cls:"green",fn:startGame}
-    ]);
-   }else{
-    level++;setupLevel();state="playing";hidePanel();say("Welcome to "+names[level-1]+"!");
-   }
-  }}
- ]);
-}
-function rectHit(a,b){
- return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+if(player.onGround){player.vy=-10.5;player.onGround=false;player.jumps=1}
+else if(player.jumps<2){player.vy=-9.2;player.jumps++}
 }
 function update(dt){
- if(state!=="playing"||paused)return;
- invincible=Math.max(0,invincible-dt);
- let move=0;
- if(keys.ArrowLeft||keys.a)move--;
- if(keys.ArrowRight||keys.d)move++;
- player.vx=move*245;
- if(move)player.face=move>0?1:-1;
- player.x+=player.vx*dt;
- player.x=Math.max(0,Math.min(worldWidth-player.w,player.x));
- player.vy+=1050*dt;
- player.y+=player.vy*dt;
- if(player.y+player.h>=GROUND){player.y=GROUND-player.h;player.vy=0;player.grounded=true;}
- // Laser projectiles travel across the world, with robust hit detection.
- lasers.forEach(l=>{
-  l.x+=l.vx*dt;l.life-=dt;
-  if(l.life<=0||l.x<0||l.x>worldWidth)l.hit=true;
-  dinosaurs.forEach(d=>{
-   if(d.alive&&!l.hit&&l.x>d.x-12&&l.x<d.x+d.w+12&&l.y>d.y-12&&l.y<d.y+d.h+12){
-    d.hp--;l.hit=true;
-    if(d.hp<=0){d.alive=false;coins+=5;stats();say("DINO DEFEATED! +5 COINS!");}
-    else say("Direct hit! One more blast!");
-   }
-  });
-  if(boss&&!l.hit&&l.x>boss.x-12&&l.x<boss.x+boss.w+12&&l.y>boss.y-12&&l.y<boss.y+boss.h+12){
-   l.hit=true;boss.hp=Math.max(0,boss.hp-1);boss.hitTimer=.16;
-   say("T-REX HIT! Keep firing!");
-  }
- });
- lasers=lasers.filter(l=>!l.hit&&l.life>0);
- // Dinosaurs patrol a bounded area and reverse before reaching their edges.
- dinosaurs.forEach(d=>{
-  if(!d.alive)return;
-  d.x+=d.vx*60*dt;
-  if(d.x<d.minX){d.x=d.minX;d.vx=Math.abs(d.vx);}
-  if(d.x>d.maxX){d.x=d.maxX;d.vx=-Math.abs(d.vx);}
-  if(rectHit(player,d))damage();
- });
- if(boss){
-  boss.hitTimer=Math.max(0,boss.hitTimer-dt);
-  // T-Rex follows Bob, but is clamped to the level boundaries.
-  const target=player.x+160;
-  const difference=target-boss.x;
-  boss.x+=Math.max(-85,Math.min(85,difference))*dt;
-  boss.x=Math.max(80,Math.min(worldWidth-boss.w-15,boss.x));
-  // Boss stays on the ground and never leaves the canvas vertically.
-  boss.y=GROUND-boss.h;
-  if(rectHit(player,boss))damage();
-  if(boss.hp<=0){boss=null;completeLevel();return;}
- }
- pickups.forEach(p=>{
-  if(p.got)return;
-  if(Math.abs(player.x+player.w/2-p.x)<24&&Math.abs(player.y+player.h/2-p.y)<32){
-   p.got=true;
-   if(p.type==="coin"){coins+=1;say("+1 COIN!");}
-   else{lives=Math.min(5,lives+1);say("POWER-UP! +1 HEART!");}
-   stats();
-  }
- });
- particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt});
- particles=particles.filter(p=>p.life>0);
- camera=Math.max(0,Math.min(worldWidth-W,player.x-W*.36));
- if(player.x>worldWidth-100&&!boss)completeLevel();
- if(level===6&&boss===null&&player.x>worldWidth-100)completeLevel();
+if(scene==='sleep'){
+storyTimer+=dt;
+if(storyTimer>6){enterDream()}
+return;
 }
-function drawBob(x,y){
- ctx.save();ctx.translate(x,y);
- // scientist body
- ctx.fillStyle="#f6f2e7";ctx.fillRect(7,15,22,28);
- ctx.fillStyle="#315fbb";ctx.fillRect(8,32,8,15);ctx.fillRect(21,32,8,15);
- ctx.fillStyle="#f1c39b";ctx.beginPath();ctx.arc(18,9,12,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#3d3028";ctx.fillRect(8,0,19,5);
- ctx.fillStyle="#333";ctx.fillRect(12,8,4,3);ctx.fillRect(21,8,4,3);
- ctx.fillStyle="#fff";ctx.fillRect(9,18,18,4);
- ctx.restore();
+if(!running||paused)return;
+timeLeft-=dt;
+if(timeLeft<=0){
+timeLeft=0;
+lives--;ui();
+if(lives<=0){running=false;panel('⏰ TIME IS UP!','Bob ran out of time and lives. Try again!','TRY AGAIN',restartAll);return}
+makeLevel();msg('Time ran out! Bob lost a heart and restarted the level.');return;
 }
-function drawDino(d){
- ctx.save();ctx.translate(d.x,d.y);
- ctx.fillStyle="#65b957";
- ctx.beginPath();ctx.ellipse(24,25,24,17,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.ellipse(36,8,16,12,-.25,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(5,30);ctx.lineTo(-12,42);ctx.lineTo(12,37);ctx.closePath();ctx.fill();
- ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(42,6,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#222";ctx.beginPath();ctx.arc(43,6,2,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#285c2e";ctx.fillRect(10,36,7,7);ctx.fillRect(30,36,7,7);
- ctx.restore();
+laserCooldown=Math.max(0,laserCooldown-dt);
+specialCooldown=Math.max(0,specialCooldown-dt);
+invuln=Math.max(0,invuln-dt);
+let dx=0;if(keys.ArrowLeft||keys.a)dx--;if(keys.ArrowRight||keys.d)dx++;
+player.vx=dx*player.speed;
+if(dx)player.face=Math.sign(dx);
+let oldBottom=player.y+player.h;
+player.x=Math.max(0,Math.min(worldWidth-player.w,player.x+player.vx*60*dt));
+player.vy+=.48*60*dt;player.y+=player.vy*60*dt;player.onGround=false;
+platforms.forEach(p=>{
+if(player.vy>=0&&oldBottom<=p.y+7&&player.y+player.h>=p.y&&player.x+player.w>p.x&&player.x<p.x+p.w){
+player.y=p.y-player.h;player.vy=0;player.onGround=true;player.jumps=0;
 }
-function drawBoss(){
- if(!boss)return;
- ctx.save();ctx.translate(boss.x,boss.y);
- ctx.fillStyle="#327f42";
- ctx.beginPath();ctx.ellipse(76,79,73,54,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.ellipse(107,22,48,35,-.2,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(27,85);ctx.lineTo(-18,118);ctx.lineTo(48,108);ctx.closePath();ctx.fill();
- ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(132,14,10,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#111";ctx.beginPath();ctx.arc(135,14,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#f9e9a0";
- for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(110+i*10,47);ctx.lineTo(115+i*10,59);ctx.lineTo(120+i*10,47);ctx.fill();}
- ctx.fillStyle="#214b2b";ctx.fillRect(42,117,23,15);ctx.fillRect(100,117,23,15);
- ctx.restore();
- // Boss health bar
- ctx.fillStyle="#391d1d";ctx.fillRect(235,15,430,20);
- ctx.fillStyle="#ff5a49";ctx.fillRect(235,15,430*(boss.hp/boss.maxHp),20);
- ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.strokeRect(235,15,430,20);
- ctx.fillStyle="#fff";ctx.font="bold 15px Fredoka";ctx.textAlign="center";
- ctx.fillText("T-REX HEALTH",450,50);
+});
+if(player.y>H+cameraX+300){hit();player.y=300;player.vy=0}
+coins.forEach(o=>{if(!o.got&&Math.hypot(player.x+16-o.x,player.y+20-o.y)<30){o.got=true;score+=5;msg('🪙 Coin collected! +5');ui()}});
+powerups.forEach(p=>{
+if(!p.got&&Math.hypot(player.x+16-p.x,player.y+20-p.y)<32){
+p.got=true;
+if(p.type===0){lives=Math.min(3,lives+1);msg('❤️ Extra heart!')}
+if(p.type===1){player.speed=4.5;setTimeout(()=>player.speed=3.3,6000);msg('💨 Speed boost!')}
+if(p.type===2){score+=20;msg('⭐ Bonus coins! +20')}
+ui();
+}});
+dinosaurs.forEach(d=>{
+d.stun=Math.max(0,d.stun-dt);
+if(d.stun<=0){
+d.x+=d.dir*d.speed*60*dt;
+if(d.x<d.min){d.x=d.min;d.dir=1}
+if(d.x>d.max){d.x=d.max;d.dir=-1}
+if(Math.abs(player.x-d.x)<170&&Math.abs(player.y-d.y)<120)d.dir=Math.sign(player.x-d.x)||d.dir;
+}
+if(Math.abs(player.x-d.x)<30&&Math.abs(player.y-d.y)<42)hit();
+});
+dinosaurs=dinosaurs.filter(d=>!d.dead);
+lasers.forEach(l=>{
+l.x+=l.vx*60*dt;l.life-=dt;
+dinosaurs.forEach(d=>{
+if(!d.dead&&Math.abs(l.x-d.x)<25&&Math.abs(l.y-d.y)<35){
+d.hp--;d.stun=.4;l.life=0;if(d.hp<=0){d.dead=true;score+=10}
+}
+});
+if(boss&&Math.abs(l.x-(boss.x+boss.w/2))<boss.w/2+8&&Math.abs(l.y-(boss.y+boss.h/2))<boss.h/2){
+boss.hp-=1;l.life=0;boss.stun=.2;
+}
+});
+lasers=lasers.filter(l=>l.life>0&&l.x>0&&l.x<worldWidth);
+if(boss){
+boss.stun=Math.max(0,boss.stun-dt);
+if(boss.stun<=0){
+boss.x+=boss.dir*(1.15+level*.06)*60*dt;
+if(boss.x>worldWidth-170)boss.dir=-1;
+if(boss.x<worldWidth-520)boss.dir=1;
+boss.attack-=dt;
+if(boss.attack<=0){
+let dir=Math.sign(player.x-boss.x)||-1;
+lasers.push({x:boss.x+boss.w/2,y:boss.y+65,vx:dir*4,life:2,enemy:true});
+boss.attack=1.8;
+}
+}
+if(Math.abs(player.x-(boss.x+boss.w/2))<75&&Math.abs(player.y-(boss.y+boss.h/2))<85)hit();
+if(boss.hp<=0){boss=null;score+=100;msg('🦖 THE T-REX IS DEFEATED! Find the exit!');ui()}
+}
+lasers.forEach(l=>{
+if(l.enemy&&Math.abs(player.x-l.x)<25&&Math.abs(player.y+20-l.y)<25){l.life=0;hit()}
+});
+lasers=lasers.filter(l=>l.life>0);
+if(player.x>exit.x&&player.y+player.h>exit.y-65&&(!boss||boss.hp<=0)){
+if(level>=6){
+running=false;panel('🏆 DREAM ESCAPED!','Bob defeated the T-Rex and escaped the dinosaur dream! He wakes up safe in his bed.','PLAY AGAIN',restartAll);return;
+}
+running=false;
+panel('✨ LEVEL COMPLETE!','Bob made it through '+levelNames[level-1]+'! Get ready for the next part of the dream.','NEXT LEVEL',()=>{level++;makeLevel();running=true;$('overlay').style.display='none';last=performance.now();raf=requestAnimationFrame(loop)});
+return;
+}
+cameraX=Math.max(0,Math.min(worldWidth-W,player.x-W/2));
+particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=dt});
+particles=particles.filter(p=>p.life>0);
+ui();
+}
+function drawIntro(){
+let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#18243d');g.addColorStop(1,'#283c50');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ctx.fillStyle='#fff2bb';ctx.beginPath();ctx.arc(800,100,48,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#243247';ctx.beginPath();ctx.arc(780,80,48,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#1a2532';ctx.fillRect(0,440,W,160);
+ctx.fillStyle='#674a3d';ctx.fillRect(130,330,700,115);
+ctx.fillStyle='#9b7461';ctx.fillRect(115,315,730,22);
+ctx.fillStyle='#e7c8a5';ctx.fillRect(220,270,500,75);
+ctx.fillStyle='#fff';ctx.fillRect(250,280,420,55);
+ctx.font='70px Arial';ctx.fillText('😴',435,340);
+ctx.fillStyle='#fff';ctx.font='25px Fredoka';ctx.textAlign='center';
+if(storyTimer<1.5)ctx.fillText('BOB IS GETTING READY FOR BED...',480,100);
+else if(storyTimer<3.5)ctx.fillText('GOOD NIGHT, BOB!',480,100);
+else ctx.fillText('🌙 SWEET DREAMS... OR ARE THEY? 🌙',480,100);
+ctx.font='20px Fredoka';ctx.fillText('Somewhere in Bob’s imagination...',480,535);
+ctx.textAlign='left';
 }
 function draw(){
- ctx.clearRect(0,0,W,H);
- ctx.save();ctx.translate(-camera,0);
- // background
- const grad=ctx.createLinearGradient(0,0,0,H);
- grad.addColorStop(0,"#77b9c1");grad.addColorStop(1,"#c5d58b");
- ctx.fillStyle=grad;ctx.fillRect(camera,0,WORLD_SAFE(),H);
- // distant mountains
- for(let i=0;i<Math.ceil(worldWidth/250)+2;i++){
-  const x=i*250;
-  ctx.fillStyle="#6c9c75";ctx.beginPath();ctx.moveTo(x,GROUND);ctx.lineTo(x+115,170+(i%3)*30);ctx.lineTo(x+260,GROUND);ctx.fill();
-  ctx.fillStyle="#315d40";ctx.fillRect(x+20,GROUND-115,18,115);
-  ctx.beginPath();ctx.moveTo(x-5,GROUND-100);ctx.lineTo(x+29,GROUND-180);ctx.lineTo(x+65,GROUND-100);ctx.fill();
- }
- // floor
- ctx.fillStyle="#67482d";ctx.fillRect(camera,GROUND,W,H-GROUND);
- ctx.fillStyle="#69a84d";ctx.fillRect(camera,GROUND,W,14);
- // platforms and level markers
- for(let x=200;x<worldWidth;x+=380){
-  ctx.fillStyle="#805c39";ctx.fillRect(x,GROUND-12,95,12);
-  ctx.fillStyle="#f5df9a";ctx.fillRect(x+12,GROUND-12,8,12);
- }
- // collectibles
- pickups.forEach(p=>{
-  if(p.got)return;
-  ctx.font="25px Arial";ctx.textAlign="center";
-  ctx.fillText(p.type==="coin"?"🪙":"💚",p.x,p.y);
- });
- // dinosaurs
- dinosaurs.forEach(d=>{if(d.alive)drawDino(d)});
- drawBoss();
- // lasers
- lasers.forEach(l=>{
-  ctx.fillStyle="#fff59b";ctx.fillRect(l.x-12,l.y-3,24,6);
-  ctx.fillStyle="#ff4b4b";ctx.fillRect(l.x-8,l.y-1,16,2);
- });
- particles.forEach(p=>{
-  ctx.fillStyle="#ffe45c";ctx.globalAlpha=Math.max(0,p.life/.55);
-  ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
- });
- if(invincible<=0||Math.floor(performance.now()/100)%2===0)drawBob(player.x,player.y);
- // finish marker
- ctx.fillStyle="#fff";ctx.fillRect(worldWidth-70,GROUND-110,8,110);
- ctx.fillStyle="#ffdf55";ctx.font="bold 20px Fredoka";ctx.textAlign="center";
- ctx.fillText(boss?"DEFEAT THE T-REX!":"ESCAPE!",worldWidth-110,GROUND-130);
- ctx.restore();
- ctx.fillStyle="#163c2c";ctx.font="bold 18px Fredoka";ctx.textAlign="left";
- ctx.fillText(names[level-1],18,28);
- if(paused){
-  ctx.fillStyle="#10251fbb";ctx.fillRect(0,0,W,H);
-  ctx.fillStyle="white";ctx.font="bold 48px Fredoka";ctx.textAlign="center";
-  ctx.fillText("PAUSED",W/2,H/2);
- }
-}
-function WORLD_SAFE(){return Math.max(W,worldWidth-camera)}
-function frame(t){
- const dt=Math.min(.035,(t-last)/1000||0);last=t;
- update(dt);draw();requestAnimationFrame(frame);
-}
-window.addEventListener("keydown",e=>{
- const k=e.key.toLowerCase();
- if(["arrowleft","arrowright","arrowup"," ","arrowdown"].includes(k))e.preventDefault();
- keys[e.key]=true;keys[k]=true;
- if((k===" "||k==="arrowup"||k==="w")&&!e.repeat)jump();
- if(k==="x"&&!e.repeat)shoot();
- if(k==="z"&&!e.repeat)special();
- if(k==="escape"&&state==="playing")paused=!paused;
+if(scene==='sleep'){drawIntro();return}
+let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#6d9b9b');g.addColorStop(.5,'#486d50');g.addColorStop(1,'#243b2b');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ctx.save();ctx.translate(-cameraX,0);
+ctx.fillStyle='#293e2d';
+for(let i=0;i<worldWidth;i+=160){ctx.fillRect(i,0,15,540);ctx.fillRect(i+35,110,45,12);ctx.fillRect(i-10,235,55,13)}
+ctx.fillStyle='#273a25';ctx.fillRect(0,540,worldWidth,60);
+platforms.forEach(p=>{
+ctx.fillStyle=p.type==='rock'?'#776d58':'#554e38';ctx.fillRect(p.x,p.y,p.w,p.h);
+ctx.fillStyle=p.type==='rock'?'#a49a7d':'#78904b';ctx.fillRect(p.x,p.y,p.w,6);
+ctx.fillStyle='#425735';for(let x=p.x+8;x<p.x+p.w;x+=30)ctx.fillRect(x,p.y+6,10,4);
 });
-window.addEventListener("keyup",e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
-window.addEventListener("blur",()=>keys={});
-document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
-setupLevel();
-requestAnimationFrame(frame);
+coins.forEach(o=>{if(!o.got){ctx.font='24px Arial';ctx.fillText('🪙',o.x-12,o.y+8)}});
+powerups.forEach(p=>{if(!p.got){ctx.font='26px Arial';ctx.fillText(['❤️','💨','⭐'][p.type],p.x-13,p.y+9)}});
+dinosaurs.forEach(d=>{
+ctx.font='35px Arial';ctx.fillText('🦖',d.x-18,d.y+12);
+});
+lasers.forEach(l=>{ctx.fillStyle=l.enemy?'#ff7a3c':'#63efff';ctx.shadowBlur=12;ctx.shadowColor=ctx.fillStyle;ctx.fillRect(l.x-12,l.y-3,24,6);ctx.shadowBlur=0});
+if(boss){
+ctx.font='100px Arial';ctx.fillText('🦖',boss.x,boss.y+90);
+let bx=boss.x+boss.w/2-65,by=boss.y-22;
+ctx.fillStyle='#281414';ctx.fillRect(bx,by,130,12);
+ctx.fillStyle='#e33c31';ctx.fillRect(bx,by,130*Math.max(0,boss.hp/boss.max),12);
+ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(bx,by,130,12);
+ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.textAlign='center';ctx.fillText('T-REX HEALTH',boss.x+boss.w/2,by-5);ctx.textAlign='left';
+}
+ctx.font='48px Arial';ctx.fillText('🚪',exit.x,exit.y+10);
+ctx.font='16px Fredoka';ctx.fillStyle='#fff';ctx.fillText('ESCAPE',exit.x-12,exit.y+32);
+ctx.font='40px Arial';ctx.fillText('🧑‍🔬',player.x-3,player.y+37);
+if(invuln>0&&Math.floor(performance.now()/100)%2===0){ctx.fillStyle='#fff6';ctx.beginPath();ctx.arc(player.x+16,player.y+20,28,0,Math.PI*2);ctx.fill()}
+particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle='#b5f5ff';ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
+ctx.restore();
+ctx.fillStyle='#17231fbb';ctx.fillRect(0,0,W,38);
+ctx.fillStyle='#f3e3b1';ctx.font='17px Fredoka';ctx.fillText(levelNames[level-1],18,25);
+ctx.fillText('Laser: '+(laserCooldown>0?laserCooldown.toFixed(1)+'s':'READY'),W-170,25);
+if(boss){ctx.fillStyle='#f6d5a5';ctx.font='14px Fredoka';ctx.fillText('T-REX BOSS BATTLE',W/2-65,57)}
+}
+function loop(t){
+let dt=Math.min(.032,(t-last)/1000||0);last=t;
+update(dt);draw();
+if(running||scene==='sleep')raf=requestAnimationFrame(loop);
+}
+function togglePause(){
+if(!running)return;
+paused=!paused;
+if(paused)panel('⏸ Dream Paused','Bob is taking a break from the dinosaurs!','RESUME',()=>{$('overlay').style.display='none';paused=false;last=performance.now();raf=requestAnimationFrame(loop)});
+else $('overlay').style.display='none';
+}
+window.addEventListener('keydown',e=>{
+if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+keys[e.key]=true;
+if((e.key===' '||e.key==='ArrowUp'||e.key==='w')&&!e.repeat&&scene==='playing')jump();
+if((e.key==='x'||e.key==='X')&&!e.repeat)fireLaser();
+if((e.key==='z'||e.key==='Z')&&!e.repeat)special();
+if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
+});
+window.addEventListener('keyup',e=>keys[e.key]=false);
+window.addEventListener('blur',()=>keys={});
+$('start').onclick=beginDream;
+$('pause').onclick=togglePause;
+$('laser').onclick=fireLaser;
+$('special').onclick=special;
+$('restart').onclick=()=>{if(running)makeLevel()};
+drawIntro();
 })();
 </script>
 </body>
