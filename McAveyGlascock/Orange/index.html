@@ -3,351 +3,509 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>75 Nights in the Spooky Forest</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#100d1c;color:white;font-family:'Fredoka',sans-serif;overflow:hidden}
-#gameWrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#30213e,#100d1c)}
-#game{position:relative;width:min(100vw,960px);aspect-ratio:16/9;max-height:100vh;overflow:hidden;border:4px solid #76509b;border-radius:14px;box-shadow:0 0 35px #000}
-canvas{width:100%;height:100%;display:block;background:#17162b}
-#hud{position:absolute;top:10px;left:12px;right:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
-.pill{background:#171329dd;border:2px solid #7955a2;border-radius:20px;padding:6px 12px;font-size:14px;text-shadow:1px 2px #000}
-#buttons{position:absolute;right:12px;top:58px;display:flex;gap:7px}
-button{font-family:inherit;font-weight:700;border:0;border-radius:12px;padding:9px 14px;color:white;background:#7145a1;cursor:pointer;box-shadow:0 3px 0 #39234f}
-button:hover{filter:brightness(1.2)}
-button:active{transform:translateY(2px);box-shadow:0 1px 0 #39234f}
-#panel{position:absolute;inset:0;background:#100d1ceF;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px}
-#panelCard{width:min(90%,560px);max-height:90%;overflow:auto;background:linear-gradient(145deg,#342449,#171329);border:3px solid #a77ad1;border-radius:22px;padding:22px;box-shadow:0 0 30px #000}
-h1{font-size:clamp(26px,5vw,44px);margin:4px 0 10px;color:#f0c8ff;text-shadow:3px 3px #4a2867}
-h2{color:#e6c5ff;margin:5px}
-p{line-height:1.5;color:#e9dff2}
-.panelButtons{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-.big{font-size:18px;padding:12px 22px;background:#8a50bd}
-.smallNote{font-size:13px;color:#cbb9dc}
-.shopGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:15px 0}
-.skin{background:#241b35;border:1px solid #7955a2;border-radius:12px;padding:10px}
-.skin button{margin-top:6px;padding:7px 10px}
+body{margin:0;overflow:hidden;background:#100d20;color:white;font-family:Fredoka,Arial,sans-serif}
+canvas{display:block;width:100vw;height:100vh}
+#hud{position:absolute;top:9px;left:10px;right:10px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
+.panel{background:#171326eF;border:2px solid #9a78c5;border-radius:13px;padding:8px 12px;font-size:14px;box-shadow:0 3px 12px #0006}
+#buttons{display:flex;gap:5px;pointer-events:auto}
+button{font-family:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 11px;cursor:pointer;background:#e7d7ff;color:#291b42}
+button:hover{filter:brightness(1.12)}
+#overlay{position:absolute;inset:0;background:#090713e8;display:flex;align-items:center;justify-content:center;padding:16px}
+#dialog{width:min(570px,96vw);max-height:92vh;overflow:auto;background:#211a32;border:4px solid #a77be0;border-radius:24px;padding:25px;text-align:center;box-shadow:0 12px 45px #0009}
+#dialog h1{font-size:clamp(29px,5vw,46px);color:#e2b5ff;margin:0 0 10px}
+#dialog p{font-size:17px;line-height:1.45}
+#dialog button{background:#f5bd50;color:#38230b;font-size:18px;padding:12px 22px;margin:5px}
+.small{font-size:13px!important;color:#c8b8db}
 .hidden{display:none!important}
-@media(max-width:600px){.pill{font-size:11px;padding:4px 8px}#buttons{top:52px}button{padding:7px 10px}}
+#bossbar{position:absolute;top:83px;left:50%;transform:translateX(-50%);width:min(340px,75vw);display:none;text-align:center}
+#bossbar .track{height:15px;background:#39263e;border:2px solid #fff;border-radius:10px;overflow:hidden}
+#bossfill{height:100%;width:100%;background:#ef4d73}
+#bossname{font-size:14px;text-shadow:1px 2px #000}
 </style>
 </head>
 <body>
-<div id="gameWrap">
-<div id="game">
-<canvas id="c" width="960" height="540"></canvas>
+<canvas id="game"></canvas>
 <div id="hud">
- <div class="pill" id="levelHud">🌙 Night 1 / 75</div>
- <div class="pill" id="lifeHud">❤️❤️❤️❤️❤️</div>
- <div class="pill" id="coinHud">🪙 0</div>
- <div class="pill" id="bossHud">👹 Boss: 100%</div>
-</div>
-<div id="buttons">
- <button id="pauseBtn">Ⅱ Pause</button>
- <button id="shopBtn">🛍 Shop</button>
-</div>
-<div id="panel">
- <div id="panelCard">
-  <h1>🌲 75 Nights in the Spooky Forest</h1>
-  <p>Survive 75 spooky levels! Fight ghosts, vampire bats, and a powerful boss every night. Collect coins, find secret doors, and unlock cool skins!</p>
-  <p><b>CONTROLS</b><br>Move: A / D or ← / → &nbsp; Jump: SPACE / W / ↑<br>Sword: X &nbsp; Shield: C &nbsp; Secret door: E</p>
-  <div class="panelButtons">
-   <button class="big" id="startBtn">⚔️ START ADVENTURE</button>
-   <button id="titleShopBtn">🛍 Skin Shop</button>
-  </div>
-  <p class="smallNote">You have 5 lives. Defeat each boss to unlock the next night!</p>
+ <div class="panel" id="stats">🌙 SPOOKY FOREST</div>
+ <div id="buttons">
+  <button id="shopBtn">🛍️ Shop</button>
+  <button id="pauseBtn">⏸ Pause</button>
+  <button id="restartBtn">↻ Restart</button>
+  <button id="homeBtn">🏠 Game Lab</button>
  </div>
 </div>
+<div id="bossbar">
+ <div id="bossname">BOSS</div>
+ <div class="track"><div id="bossfill"></div></div>
 </div>
+<div id="overlay">
+ <div id="dialog">
+  <h1>🌙 75 Nights in the Spooky Forest</h1>
+  <p>Explore 80 spooky levels! Fight ghosts, dodge vampire bats, discover secret doors, collect coins, and defeat 16 powerful bosses!</p>
+  <p><b>A / D</b> or arrows: Move<br><b>W / SPACE / ↑</b>: Jump<br><b>H</b>: Sword attack<br><b>J</b>: Shield protection<br><b>E</b>: Secret door</p>
+  <p class="small">You start with 5 lives. Your shield protects you briefly and then needs time to recharge. Defeat each boss to unlock the exit!</p>
+  <button id="startBtn">ENTER THE FOREST!</button>
+ </div>
 </div>
 <script>
 (()=>{
-"use strict";
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-const W=960,H=540,GROUND=466,WORLD=2600;
-const $=id=>document.getElementById(id);
-const keys={};
-let running=false,paused=false,raf=0,last=0;
-let level=1,lives=5,coins=0,camera=0,player,boss,enemies=[],platforms=[],spikes=[],loot=[],particles=[];
-let attackTimer=0,shieldTimer=0,invuln=0,doorUsed=false,levelMessage=0;
-let selectedSkin=0;
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay'),dialog=document.getElementById('dialog');
+const stats=document.getElementById('stats'),bossbar=document.getElementById('bossbar');
+const bossfill=document.getElementById('bossfill'),bossname=document.getElementById('bossname');
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+ W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ canvas.style.width=W+'px';canvas.style.height=H+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize);resize();
+
+const TOTAL=80,MAXLIVES=5;
 const skins=[
- {name:'Forest Hero',emoji:'🧝',cost:0},
- {name:'Pumpkin Knight',emoji:'🎃',cost:30},
- {name:'Ghost Hunter',emoji:'👻',cost:60},
- {name:'Vampire Slayer',emoji:'🧛',cost:90},
- {name:'Moon Wizard',emoji:'🧙',cost:130},
- {name:'Golden Hero',emoji:'👑',cost:180}
+ {name:'Forest Hero',emoji:'🧙',cost:0},
+ {name:'Pumpkin Knight',emoji:'🎃',cost:40},
+ {name:'Ghost Hunter',emoji:'👻',cost:75},
+ {name:'Vampire Slayer',emoji:'🧛',cost:110},
+ {name:'Moon Wizard',emoji:'🧝',cost:150},
+ {name:'Golden Hero',emoji:'🦸',cost:220}
 ];
-let owned=[true,false,false,false,false,false];
-function resetPlayer(){player={x:70,y:GROUND-48,w:30,h:46,vx:0,vy:0,onGround:false,face:1};}
-function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+const bossTypes=[
+ {name:'Forest Demon',emoji:'👹'},
+ {name:'Giant Skeleton',emoji:'💀'},
+ {name:'Wicked Witch',emoji:'🧙‍♀️'},
+ {name:'Vampire Lord',emoji:'🧛'},
+ {name:'Haunted Tree',emoji:'🌳'},
+ {name:'Ghost King',emoji:'👻'},
+ {name:'Shadow Beast',emoji:'🐺'},
+ {name:'Spider Queen',emoji:'🕷️'},
+ {name:'Pumpkin Monster',emoji:'🎃'},
+ {name:'Dark Knight',emoji:'🛡️'},
+ {name:'Cursed Dragon',emoji:'🐉'}
+];
+const themes=[
+ {name:'Whispering Woods',sky:'#182d35',ground:'#315c42',platform:'#64834c',tree:'🌲'},
+ {name:'Moonlit Graveyard',sky:'#252344',ground:'#49445e',platform:'#82728e',tree:'🪦'},
+ {name:'Witch’s Hollow',sky:'#34203e',ground:'#533b56',platform:'#8d6c8e',tree:'🧙'},
+ {name:'Haunted Swamp',sky:'#163a36',ground:'#315e4b',platform:'#6b8961',tree:'🍄'},
+ {name:'Pumpkin Patch',sky:'#442c32',ground:'#75452e',platform:'#b37a3d',tree:'🎃'},
+ {name:'Frozen Shadows',sky:'#263d59',ground:'#52758c',platform:'#a5c8d9',tree:'❄️'},
+ {name:'Shadow Castle',sky:'#21172f',ground:'#42304e',platform:'#80628d',tree:'🏰'},
+ {name:'Dragon’s Lair',sky:'#391c26',ground:'#632f30',platform:'#a65a45',tree:'🔥'}
+];
+let level=1,lives=5,coins=0,score=0,scene='title',paused=false;
+let player,platforms=[],hazards=[],enemies=[],items=[],projectiles=[],particles=[],doors=[];
+let boss=null,camera=0,groundY=0,worldWidth=0;
+let keys={},lastTime=0,jumpWasDown=false;
+let shieldActive=0,shieldCooldown=0,attackCooldown=0,invulnerable=0;
+let selectedSkin=0,unlockedSkins=[0],message='',messageTimer=0;
+let doorNear=null,levelSeed=0,attackFlash=0;
+
+function rand(n){let v=Math.sin(n*127.1+level*311.7+levelSeed)*43758.5453;return v-Math.floor(v);}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function showPanel(title,html,buttons){
- running=false;paused=false;
- $('panel').classList.remove('hidden');
- $('panelCard').innerHTML=`<h1>${title}</h1>${html}<div class="panelButtons">${buttons}</div>`;
+function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function say(s){message=s;messageTimer=1.6;}
+function show(title,body,button,action){
+ dialog.innerHTML='<h1>'+title+'</h1><p>'+body+'</p><button id="dialogAction">'+button+'</button>';
+ overlay.classList.remove('hidden');
+ document.getElementById('dialogAction').onclick=action;
 }
-function hidePanel(){$('panel').classList.add('hidden');}
-function startGame(){
- cancelAnimationFrame(raf);
- level=1;lives=5;coins=0;selectedSkin=owned[0]?0:selectedSkin;
- resetPlayer();buildLevel();camera=0;running=true;paused=false;
- hidePanel();hud();last=performance.now();raf=requestAnimationFrame(loop);
+function biome(){return themes[Math.floor((level-1)/10)%themes.length];}
+function isBossLevel(){return level%5===0;}
+function bossData(){
+ if(level===80)return {name:'THE FINAL DRAGON',emoji:'🐉'};
+ return bossTypes[(Math.floor(level/5)-1)%bossTypes.length];
 }
+function playerEmoji(){return skins[selectedSkin].emoji;}
+
 function buildLevel(){
- resetPlayer();camera=0;doorUsed=false;attackTimer=0;shieldTimer=0;invuln=0;
- platforms=[{x:0,y:GROUND,w:WORLD,h:90}];
- spikes=[];enemies=[];loot=[];particles=[];
- const seed=level*37;
- for(let i=0;i<13;i++){
-  let x=230+i*175;
-  let y=GROUND-75-((i*31+seed)%105);
-  platforms.push({x,y,w:105+(i%3)*18,h:18});
+ levelSeed=level*97+13;
+ groundY=H-85;
+ worldWidth=2250+level*38;
+ camera=0;platforms=[];hazards=[];enemies=[];items=[];projectiles=[];particles=[];doors=[];
+ boss=null;doorNear=null;attackFlash=0;
+ const t=biome();
+ platforms.push({x:0,y:groundY,w:worldWidth,h:110,type:'ground'});
+ // Each level gets its own arrangement of platforms, heights, hazards and secrets.
+ let x=270,idx=0;
+ while(x<worldWidth-280){
+  const r=rand(idx+level*4);
+  const y=groundY-(85+r*145);
+  const w=115+rand(idx+level*9)*85;
+  platforms.push({x,y,w,h:19,type:'platform'});
+  if(idx%3===0){
+   platforms.push({x:x+28,y:y-85-rand(idx+level)*35,w:85,h:17,type:'platform'});
+  }
+  if(idx%2===0){
+   items.push({type:'coin',x:x+w/2,y:y-35,r:12,taken:false});
+   items.push({type:'coin',x:x+w/2+28,y:y-35,r:12,taken:false});
+  }
+  if(idx%4===1)hazards.push({x:x+w+30,y:groundY-35,w:38,h:35,type:'spike'});
+  if(idx%3===2)items.push({type:'heart',x:x+w/2,y:y-65,r:15,taken:false});
+  if(idx%5===3)items.push({type:'shield',x:x+w/2,y:y-65,r:15,taken:false});
+  x+=205+rand(idx+level*19)*130;
+  idx++;
  }
- for(let i=0;i<10;i++){
-  let x=340+i*205;
-  spikes.push({x,y:GROUND-23,w:42,h:23});
+ // Spikes placed on selected platforms and on the ground.
+ for(let i=0;i<4+Math.floor(level/8);i++){
+  const hx=440+i*360+rand(i+level)*100;
+  const target=platforms.find(p=>p.type==='platform'&&hx>p.x&&hx<p.x+p.w-35);
+  if(target&&i%2===0)hazards.push({x:hx,y:target.y-27,w:35,h:27,type:'spike'});
+  else hazards.push({x:hx,y:groundY-34,w:35,h:34,type:'spike'});
  }
- for(let i=0;i<9;i++){
-  let x=300+i*230;
-  loot.push({x,y:GROUND-75-(i%3)*42,w:18,h:18,kind:i%4===0?'heart':'coin',taken:false});
+ // Ghosts and bats increase in number and speed.
+ for(let i=0;i<2+Math.floor(level/8);i++){
+  const ex=570+i*480+rand(i+level*3)*100;
+  if(ex<worldWidth-250){
+   const bat=i%2===1;
+   enemies.push({type:bat?'bat':'ghost',x:ex,y:bat?groundY-180-rand(i)*90:groundY-48,w:bat?45:42,h:bat?35:42,baseX:ex,baseY:bat?groundY-180-rand(i)*90:groundY-48,phase:rand(i+level)*6.28,hp:1,speed:1+level*.012});
+  }
  }
- for(let i=0;i<5;i++){
-  enemies.push({x:420+i*360,y:GROUND-34,w:30,h:30,type:i%2?'bat':'ghost',hp:1,dir:i%2?1:-1,baseY:GROUND-34,phase:i});
+ // Secret doors are hidden throughout the forest.
+ if(level%2===0){
+  const dx=800+rand(level+42)*(worldWidth-1100);
+  doors.push({x:dx,y:groundY-70,w:48,h:70,opened:false});
  }
- boss={x:WORLD-260,y:GROUND-76,w:64,h:76,hp:Math.min(100,65+level),maxHp:Math.min(100,65+level),dir:-1,attack:0,flash:0};
- levelMessage=100;
- hud();
+ // Boss battle every five levels.
+ if(isBossLevel()){
+  const data=bossData();
+  const hp=level===80?24:7+Math.floor(level/5)*2;
+  boss={x:worldWidth-330,y:groundY-115,w:105,h:105,hp,maxHp:hp,phase:0,attackTimer:1.8,flash:0,dir:-1,...data};
+ }
+ const exitX=worldWidth-105;
+ items.push({type:'coin',x:worldWidth*.5,y:groundY-75,r:12,taken:false});
+ player={x:75,y:groundY-58,w:43,h:55,vx:0,vy:0,onGround:true,jumps:0,face:1};
+ invulnerable=1.5;shieldActive=0;shieldCooldown=0;attackCooldown=0;
+ say('LEVEL '+level+' — '+t.name);
 }
-function hud(){
- $('levelHud').textContent=`🌙 Night ${level} / 75`;
- $('lifeHud').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(5-Math.max(0,lives));
- $('coinHud').textContent='🪙 '+coins;
- $('bossHud').textContent=boss?`👹 Boss: ${Math.ceil(boss.hp/boss.maxHp*100)}%`:'👹 Boss';
+function startGame(){
+ level=1;lives=MAXLIVES;coins=0;score=0;scene='playing';paused=false;
+ buildLevel();overlay.classList.add('hidden');lastTime=performance.now();
 }
-function damage(){
- if(invuln>0||shieldTimer>0)return;
- lives--;invuln=95;hud();
- if(lives<=0)gameOver();
-}
-function gameOver(){
- running=false;
- showPanel('💀 GAME OVER',`<p>You made it to Night ${level}!</p><p>You collected 🪙 ${coins} coins.</p>`,[
- `<button class="big" id="againBtn">Try Again</button>`,
- `<button id="homeBtn">Main Menu</button>`]);
- $('againBtn').onclick=startGame;$('homeBtn').onclick=mainMenu;
-}
-function winGame(){
- running=false;
- showPanel('🏆 YOU SURVIVED ALL 75 NIGHTS!',`<p>You defeated every spooky forest boss!</p><p>Coins collected: 🪙 ${coins}</p>`,[
- `<button class="big" id="againBtn">Play Again</button>`,
- `<button id="homeBtn">Main Menu</button>`]);
- $('againBtn').onclick=startGame;$('homeBtn').onclick=mainMenu;
-}
-function mainMenu(){
- showPanel('🌲 75 Nights in the Spooky Forest',
- `<p>Survive 75 levels, defeat the bosses, and become the forest champion!</p>
- <p><b>Move:</b> A/D or arrows &nbsp; <b>Jump:</b> SPACE<br><b>Sword:</b> X &nbsp; <b>Shield:</b> C &nbsp; <b>Secret door:</b> E</p>`,
- [`<button class="big" id="startBtn">⚔️ START ADVENTURE</button><button id="shopBtn2">🛍 Skin Shop</button>`]);
- $('startBtn').onclick=startGame;$('shopBtn2').onclick=shop;
-}
-function shop(){
- const cards=skins.map((s,i)=>`<div class="skin"><div style="font-size:30px">${s.emoji}</div><b>${s.name}</b><br><small>${owned[i]?'Unlocked':`🪙 ${s.cost}`}</small><br><button data-skin="${i}">${selectedSkin===i?'Equipped':owned[i]?'Equip':'Buy'}</button></div>`).join('');
- showPanel('🛍️ HERO SKIN SHOP',`<p>You have 🪙 ${coins} coins. Buy a new look for your hero!</p><div class="shopGrid">${cards}</div>`,[
- `<button id="shopBack">Back to Game</button>`]);
- document.querySelectorAll('[data-skin]').forEach(btn=>{
-  btn.onclick=()=>{
-   const i=Number(btn.dataset.skin),s=skins[i];
-   if(!owned[i]){if(coins<s.cost){btn.textContent='Need more coins';return;}coins-=s.cost;owned[i]=true;}
-   selectedSkin=i;hud();shop();
-  };
- });
- $('shopBack').onclick=()=>{
-  $('panel').classList.add('hidden');
-  if(player){running=true;paused=false;last=performance.now();raf=requestAnimationFrame(loop);}
-  else mainMenu();
- };
-}
-function togglePause(){
- if(!running&&!paused)return;
- if(paused){paused=false;running=true;$('panel').classList.add('hidden');last=performance.now();raf=requestAnimationFrame(loop);return;}
- paused=true;running=false;
- showPanel('⏸ GAME PAUSED',`<p>Take a breather, forest hero!</p><p>Night ${level} • ❤️ ${lives} • 🪙 ${coins}</p>`,[
- `<button class="big" id="resumeBtn">▶ Resume</button><button id="pauseShop">🛍 Shop</button><button id="pauseHome">Main Menu</button>`]);
- paused=true;
- $('resumeBtn').onclick=()=>{paused=false;running=true;hidePanel();last=performance.now();raf=requestAnimationFrame(loop);};
- $('pauseShop').onclick=shop;$('pauseHome').onclick=mainMenu;
-}
-function attack(){
- if(!running||attackTimer>0)return;
- attackTimer=18;
- const hitbox={x:player.face>0?player.x+player.w:player.x-48,y:player.y+5,w:48,h:player.h-8};
- if(rect(hitbox,boss)&&boss.hp>0){boss.hp-=level>=60?12:18;boss.flash=8;if(boss.hp<=0)boss.hp=0;}
- enemies.forEach(e=>{if(e.hp>0&&rect(hitbox,e))e.hp=0;});
- hud();
-}
-function useDoor(){
- if(!running||doorUsed)return;
- if(Math.abs(player.x-(WORLD-520))<95){
-  doorUsed=true;coins+=10;loot.push({x:player.x+35,y:GROUND-100,w:18,h:18,kind:'heart',taken:false});
-  levelMessage=100;hud();
+function loseLife(){
+ if(invulnerable>0||shieldActive>0)return;
+ lives--;invulnerable=1.5;player.vy=-300;player.vx=-110;
+ if(lives<=0){
+  scene='gameover';
+  show('THE FOREST GOT YOU! 👻','You reached level '+level+' and collected '+coins+' coins. Try again, brave explorer!','TRY AGAIN',startGame);
+ }else{
+  say('OUCH! ❤️ -1 LIFE');
  }
 }
-function nextLevel(){
- if(level>=75){winGame();return;}
- level++;buildLevel();hud();
+function completeLevel(){
+ if(level>=TOTAL){
+  scene='won';
+  show('FOREST CHAMPION! 🏆','You defeated the final dragon and escaped all 80 levels of the Spooky Forest!','PLAY AGAIN',startGame);
+  return;
+ }
+ level++;
+ buildLevel();
+}
+function jump(){
+ if(scene!=='playing'||paused)return;
+ if(player.jumps<2){
+  player.vy=player.jumps===0?-600:-520;
+  player.jumps++;player.onGround=false;
+ }
+}
+function doAttack(){
+ if(scene!=='playing'||paused||attackCooldown>0)return;
+ attackCooldown=.38;attackFlash=.18;
+ const p=player;
+ let hit=false;
+ for(const e of enemies){
+  const inRange=Math.abs((e.x+e.w/2)-(p.x+p.w/2))<100&&Math.abs((e.y+e.h/2)-(p.y+p.h/2))<90;
+  if(inRange&&Math.sign((e.x+e.w/2)-(p.x+p.w/2))===p.face){
+   e.hp--;hit=true;
+   if(e.hp<=0){score+=20;coins+=2;e.dead=true;}
+  }
+ }
+ if(boss&&Math.abs((boss.x+boss.w/2)-(p.x+p.w/2))<145&&Math.abs((boss.y+boss.h/2)-(p.y+p.h/2))<130&&Math.sign((boss.x+boss.w/2)-(p.x+p.w/2))===p.face){
+  boss.hp--;boss.flash=.16;hit=true;score+=10;
+  if(boss.hp<=0){boss=null;score+=150;coins+=15;say('BOSS DEFEATED! 🏆');}
+ }
+ if(hit)say('SWORD STRIKE! ⚔️');
+}
+function useShield(){
+ if(scene!=='playing'||paused||shieldCooldown>0||shieldActive>0)return;
+ shieldActive=1.7;
+ shieldCooldown=7;
+ say('SHIELD ACTIVATED! 🛡️');
+}
+function openDoor(){
+ doorNear=doors.find(d=>!d.opened&&Math.abs((d.x+d.w/2)-(player.x+player.w/2))<85);
+ if(doorNear){
+  doorNear.opened=true;
+  coins+=10;score+=50;
+  items.push({type:'heart',x:doorNear.x+25,y:doorNear.y-30,r:15,taken:false});
+  say('SECRET ROOM FOUND! +10 COINS');
+ }else say('LOOK FOR A SECRET DOOR!');
 }
 function update(dt){
- const step=Math.min(dt/16.67,2.2);
- if(keys['ArrowLeft']||keys['a']){player.vx=-4.4;player.face=-1;}
- else if(keys['ArrowRight']||keys['d']){player.vx=4.4;player.face=1;}
- else player.vx*=.78;
- player.x=clamp(player.x+player.vx*step,0,WORLD-player.w);
- if((keys[' ']||keys['ArrowUp']||keys['w'])&&player.onGround){player.vy=-12.5;player.onGround=false;}
- player.vy+=.58*step;player.y+=player.vy*step;player.onGround=false;
- for(const p of platforms){
-  const wasBottom=player.y+player.h-player.vy*step;
-  if(player.vy>=0&&player.x+player.w>p.x&&player.x<p.x+p.w&&wasBottom<=p.y+5&&player.y+player.h>=p.y){
-   player.y=p.y-player.h;player.vy=0;player.onGround=true;
+ if(scene!=='playing'||paused)return;
+ dt=Math.min(dt,.035);
+ const p=player;
+ invulnerable=Math.max(0,invulnerable-dt);
+ shieldActive=Math.max(0,shieldActive-dt);
+ shieldCooldown=Math.max(0,shieldCooldown-dt);
+ attackCooldown=Math.max(0,attackCooldown-dt);
+ attackFlash=Math.max(0,attackFlash-dt);
+ messageTimer=Math.max(0,messageTimer-dt);
+ if(keys.h){doAttack();keys.h=false;}
+ if(keys.j){useShield();keys.j=false;}
+ if(keys.e){openDoor();keys.e=false;}
+ const left=keys.a||keys.arrowleft,right=keys.d||keys.arrowright;
+ p.vx=(right?1:0)-(left?1:0);
+ if(p.vx)p.face=Math.sign(p.vx);
+ p.x+=p.vx*245*dt;
+ p.x=clamp(p.x,0,worldWidth-p.w);
+ const oldBottom=p.y+p.h;
+ p.vy+=1450*dt;
+ p.y+=p.vy*dt;
+ p.onGround=false;
+ if(p.vy>=0){
+  for(const pl of platforms){
+   if(p.x+p.w>pl.x+3&&p.x<pl.x+pl.w-3&&oldBottom<=pl.y+8&&p.y+p.h>=pl.y&&p.y<pl.y){
+    p.y=pl.y-p.h;p.vy=0;p.onGround=true;p.jumps=0;break;
+   }
   }
  }
- if(player.y>H+100){damage();player.y=GROUND-player.h;player.vy=0;}
- if(invuln>0)invuln-=step;
- if(attackTimer>0)attackTimer-=step;
- if(shieldTimer>0)shieldTimer-=step;
- if(levelMessage>0)levelMessage-=step;
- for(const s of spikes){if(rect(player,s))damage();}
- for(const item of loot){
-  if(!item.taken&&rect(player,item)){
-   item.taken=true;
-   if(item.kind==='coin')coins+=5;
-   else lives=Math.min(5,lives+1);
-   hud();
+ if(p.y>H+100){loseLife();p.y=groundY-p.h;p.vy=0;}
+ // Hazard collisions use the actual hazard rectangles.
+ for(const h of hazards){
+  if(rect(p,{x:h.x+5,y:h.y+8,w:h.w-10,h:h.h-8})){loseLife();break;}
+ }
+ // Pickups
+ for(const it of items){
+  if(it.taken)continue;
+  if(Math.hypot(p.x+p.w/2-it.x,p.y+p.h/2-it.y)<37){
+   it.taken=true;
+   if(it.type==='coin'){coins++;score+=10;}
+   if(it.type==='heart'){lives=Math.min(MAXLIVES,lives+1);say('EXTRA LIFE! ❤️');}
+   if(it.type==='shield'){shieldCooldown=0;say('SHIELD RECHARGED! 🛡️');}
   }
  }
- enemies.forEach(e=>{
-  if(e.hp<=0)return;
-  e.x+=e.dir*(e.type==='bat'?1.8:1.1)*step;
-  if(e.x<e.phase*300+250||e.x>e.phase*300+470)e.dir*=-1;
-  if(e.type==='bat')e.y=e.baseY-55+Math.sin(performance.now()/220+e.phase)*25;
-  if(rect(player,e))damage();
- });
- if(boss.hp>0){
-  boss.x+=boss.dir*(.65+level*.006)*step;
-  if(boss.x< WORLD-410)boss.dir=1;
-  if(boss.x>WORLD-170)boss.dir=-1;
-  boss.attack+=step;
-  if(boss.attack>100){boss.attack=0;particles.push({x:boss.x,y:boss.y+35,vx:-3,life:100,type:'fire'});}
-  if(rect(player,boss))damage();
+ // Enemies move in distinct patrol patterns and chase when nearby.
+ for(const e of enemies){
+  if(e.dead)continue;
+  e.phase+=dt*e.speed;
+  if(Math.abs(p.x-e.x)<320)e.x+=Math.sign(p.x-e.x)*Math.min(85*dt,Math.abs(p.x-e.x));
+  else e.x=e.baseX+Math.sin(e.phase)*75;
+  e.y=e.baseY+(e.type==='bat'?Math.sin(e.phase*2)*25:Math.sin(e.phase)*9);
+  if(rect(p,{x:e.x+7,y:e.y+7,w:e.w-14,h:e.h-12}))loseLife();
  }
- particles.forEach(p=>{p.x+=p.vx*step;p.life-=step;if(rect(player,{x:p.x,y:p.y,w:18,h:18}))damage();});
- particles=particles.filter(p=>p.life>0);
- // Camera follows the hero, keeping the player near the center.
- camera=clamp(player.x-W*.42,0,WORLD-W);
- if(boss.hp<=0&&player.x>WORLD-125){nextLevel();}
- hud();
+ enemies=enemies.filter(e=>!e.dead);
+ // Boss movement and ranged attacks.
+ if(boss){
+  boss.phase+=dt;
+  boss.flash=Math.max(0,boss.flash-dt);
+  boss.x+=Math.sin(boss.phase*1.3)*35*dt;
+  boss.y=groundY-boss.h+Math.sin(boss.phase*2)*20;
+  boss.attackTimer-=dt;
+  if(boss.attackTimer<=0){
+   boss.attackTimer=Math.max(.9,2.4-level*.012);
+   const dx=(p.x+p.w/2)-(boss.x+boss.w/2),dy=(p.y+p.h/2)-(boss.y+boss.h/2);
+   const len=Math.hypot(dx,dy)||1;
+   projectiles.push({x:boss.x+boss.w/2,y:boss.y+boss.h/2,vx:dx/len*260,vy:dy/len*260,r:12,life:3,emoji:level===80?'🔥':'🟣'});
+  }
+  if(rect(p,{x:boss.x+12,y:boss.y+12,w:boss.w-24,h:boss.h-15}))loseLife();
+ }
+ for(const q of projectiles){
+  q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;
+  if(Math.hypot(q.x-(p.x+p.w/2),q.y-(p.y+p.h/2))<q.r+20){
+   if(shieldActive<=0)loseLife();
+   q.life=0;
+  }
+ }
+ projectiles=projectiles.filter(q=>q.life>0);
+ camera=clamp(p.x-W*.34,0,worldWidth-W);
+ const exitX=worldWidth-105;
+ if(p.x>exitX&&(!isBossLevel()||!boss)){
+  completeLevel();return;
+ }
+ for(const part of particles){part.x+=part.vx*dt;part.y+=part.vy*dt;part.life-=dt;}
+ particles=particles.filter(q=>q.life>0);
+}
+function rounded(x,y,w,h,r,c){
+ ctx.fillStyle=c;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
 }
 function drawBackground(){
+ const t=biome();
  const g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,'#17152d');g.addColorStop(1,'#30213b');
+ g.addColorStop(0,t.sky);g.addColorStop(1,'#171c29');
  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- ctx.fillStyle='#e8d8ff';ctx.beginPath();ctx.arc(790,95,37,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#17152d';ctx.beginPath();ctx.arc(805,83,35,0,Math.PI*2);ctx.fill();
- for(let i=0;i<16;i++){
-  const x=((i*210-camera*.25)%1100+1100)%1100;
-  ctx.fillStyle=i%2?'#201d37':'#29203c';
-  ctx.fillRect(x,220,22,GROUND-220);
-  ctx.beginPath();ctx.moveTo(x-45,260);ctx.lineTo(x+11,100+(i%3)*25);ctx.lineTo(x+68,260);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x-40,330);ctx.lineTo(x+11,190);ctx.lineTo(x+62,330);ctx.fill();
+ // Moon
+ ctx.fillStyle='#f7e9b7';ctx.beginPath();ctx.arc(W*.79,115,42,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle=t.sky;ctx.beginPath();ctx.arc(W*.81,102,38,0,Math.PI*2);ctx.fill();
+ // Distant spooky silhouettes
+ for(let i=0;i<9;i++){
+  const x=((i*190-camera*.18)%(W+230)+W+230)%(W+230)-90;
+  ctx.fillStyle='#111a26';
+  ctx.beginPath();ctx.moveTo(x,H-85);ctx.lineTo(x+40,H-260-(i%3)*30);ctx.lineTo(x+100,H-85);ctx.fill();
+  ctx.font='30px Arial';ctx.fillText(t.tree,x+20,H-90);
  }
 }
-function draw(){
- drawBackground();
+function drawWorld(){
+ const t=biome();
  ctx.save();ctx.translate(-camera,0);
- // Ground
- ctx.fillStyle='#283b32';ctx.fillRect(0,GROUND,WORLD,H-GROUND);
- ctx.fillStyle='#4b704a';ctx.fillRect(0,GROUND,WORLD,9);
- for(let x=0;x<WORLD;x+=55){ctx.fillStyle='#34533e';ctx.fillRect(x,GROUND+18,24,5);}
- // Platforms
- platforms.slice(1).forEach(p=>{
-  ctx.fillStyle='#57416a';ctx.fillRect(p.x,p.y,p.w,p.h);
-  ctx.fillStyle='#8c6697';ctx.fillRect(p.x,p.y,p.w,5);
- });
+ // Ground and platforms
+ for(const pl of platforms){
+  ctx.fillStyle=pl.type==='ground'?t.ground:t.platform;
+  ctx.fillRect(pl.x,pl.y,pl.w,pl.h);
+  ctx.fillStyle='#ffffff22';ctx.fillRect(pl.x,pl.y,pl.w,4);
+  if(pl.type==='ground'){
+   ctx.fillStyle='#11182055';
+   for(let x=pl.x+10;x<pl.x+pl.w;x+=75)ctx.fillRect(x,pl.y+18,25,3);
+  }
+ }
  // Spikes
- spikes.forEach(s=>{
-  ctx.fillStyle='#b8b4c4';
-  for(let x=s.x;x<s.x+s.w;x+=14){ctx.beginPath();ctx.moveTo(x,s.y+s.h);ctx.lineTo(x+7,s.y);ctx.lineTo(x+14,s.y+s.h);ctx.fill();}
- });
- // Secret door
- ctx.fillStyle='#633f72';ctx.fillRect(WORLD-520,GROUND-70,44,70);
- ctx.strokeStyle='#d7a6f5';ctx.lineWidth=3;ctx.strokeRect(WORLD-520,GROUND-70,44,70);
- ctx.fillStyle='#f5d6ff';ctx.beginPath();ctx.arc(WORLD-487,GROUND-36,3,0,Math.PI*2);ctx.fill();
- // Loot
- loot.forEach(item=>{if(item.taken)return;ctx.font='22px sans-serif';ctx.fillText(item.kind==='coin'?'🪙':'💖',item.x-2,item.y+19);});
+ for(const h of hazards){
+  ctx.fillStyle='#d9d9e8';
+  ctx.beginPath();ctx.moveTo(h.x,h.y+h.h);ctx.lineTo(h.x+h.w/2,h.y);ctx.lineTo(h.x+h.w,h.y+h.h);ctx.fill();
+  ctx.fillStyle='#6b567e';ctx.fillRect(h.x,h.y+h.h-5,h.w,5);
+ }
+ // Secret doors
+ for(const d of doors){
+  ctx.fillStyle=d.opened?'#2a6848':'#482d60';
+  ctx.fillRect(d.x,d.y,d.w,d.h);
+  ctx.font='30px Arial';ctx.textAlign='center';ctx.fillText(d.opened?'✨':'🚪',d.x+d.w/2,d.y+43);
+ }
+ // Items
+ for(const it of items){
+  if(it.taken)continue;
+  ctx.font='25px Arial';ctx.textAlign='center';
+  ctx.fillText(it.type==='coin'?'🪙':it.type==='heart'?'❤️':'🛡️',it.x,it.y+9);
+ }
  // Enemies
- enemies.forEach(e=>{if(e.hp<=0)return;ctx.font='30px sans-serif';ctx.fillText(e.type==='bat'?'🦇':'👻',e.x-3,e.y+27);});
+ for(const e of enemies){
+  ctx.font='39px Arial';ctx.textAlign='center';
+  ctx.fillText(e.type==='bat'?'🦇':'👻',e.x+e.w/2,e.y+e.h);
+ }
  // Boss
- if(boss.hp>0){
-  ctx.font='64px sans-serif';ctx.fillText(level===75?'🐉':level%3===0?'🧛':level%3===1?'👹':'🦇',boss.x-5,boss.y+62);
-  ctx.fillStyle='#211326';ctx.fillRect(boss.x-5,boss.y-17,75,9);
-  ctx.fillStyle='#e34d72';ctx.fillRect(boss.x-5,boss.y-17,75*(boss.hp/boss.maxHp),9);
+ if(boss){
+  ctx.globalAlpha=boss.flash>0?.5:1;
+  ctx.font='88px Arial';ctx.textAlign='center';
+  ctx.fillText(boss.emoji,boss.x+boss.w/2,boss.y+boss.h);
+  ctx.globalAlpha=1;
  }
- // Fireballs
- particles.forEach(p=>{ctx.font='22px sans-serif';ctx.fillText('🔥',p.x,p.y+20);});
+ // Boss projectiles
+ for(const q of projectiles){
+  ctx.font='25px Arial';ctx.textAlign='center';ctx.fillText(q.emoji,q.x,q.y);
+ }
+ // Exit gate
+ rounded(worldWidth-110,groundY-100,65,100,12,boss?'#4a3548':'#9b65a8');
+ ctx.font='34px Arial';ctx.textAlign='center';ctx.fillText(boss?'🔒':'🚪',worldWidth-77,groundY-43);
  // Player
- if(invuln<=0||Math.floor(invuln/6)%2===0){
-  ctx.font='39px sans-serif';ctx.fillText(skins[selectedSkin].emoji,player.x-6,player.y+39);
+ if(!(invulnerable>0&&Math.floor(performance.now()/90)%2===0)){
+  ctx.font='48px Arial';ctx.textAlign='center';
+  ctx.fillText(playerEmoji(),player.x+player.w/2,player.y+player.h);
  }
- // Sword swing
- if(attackTimer>0){
-  ctx.strokeStyle='#fff1a6';ctx.lineWidth=7;ctx.beginPath();
-  const sx=player.face>0?player.x+player.w:player.x;
-  ctx.arc(sx,player.y+24,36,player.face>0?-1.2:Math.PI-1.2,player.face>0?1.2:Math.PI+1.2);ctx.stroke();
+ // Sword swipe
+ if(attackFlash>0){
+  ctx.strokeStyle='#fff2a4';ctx.lineWidth=8;
+  ctx.beginPath();
+  ctx.arc(player.x+player.w/2+player.face*32,player.y+player.h/2,45,-1.1,1.1);
+  ctx.stroke();
  }
  // Shield bubble
- if(shieldTimer>0){
-  ctx.strokeStyle='#73d9ff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(player.x+15,player.y+23,34,0,Math.PI*2);ctx.stroke();
+ if(shieldActive>0){
+  ctx.strokeStyle='#6be8ff';ctx.lineWidth=5;
+  ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,43,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#6be8ff22';ctx.fill();
  }
  ctx.restore();
- // On-screen boss health bar
- if(boss.hp>0){
-  ctx.fillStyle='#24172d';ctx.fillRect(330,72,300,13);
-  ctx.fillStyle='#e44b73';ctx.fillRect(330,72,300*boss.hp/boss.maxHp,13);
-  ctx.strokeStyle='#f1d7ff';ctx.strokeRect(330,72,300,13);
-  ctx.fillStyle='white';ctx.font='14px Fredoka';ctx.textAlign='center';ctx.fillText('NIGHT '+level+' BOSS',480,65);ctx.textAlign='left';
- }else{
-  ctx.fillStyle='#bdf7c4';ctx.font='bold 20px Fredoka';ctx.textAlign='center';ctx.fillText('BOSS DEFEATED! FIND THE EXIT →',480,100);ctx.textAlign='left';
+}
+function draw(){
+ drawBackground();drawWorld();
+ ctx.fillStyle='#fff';ctx.textAlign='center';ctx.font='bold 18px Fredoka';
+ ctx.fillText('LEVEL '+level+' / 80 — '+biome().name,W/2,36);
+ if(messageTimer>0){
+  rounded(W/2-155,54,310,40,12,'#251832e8');
+  ctx.fillStyle='#fff';ctx.font='bold 18px Fredoka';ctx.fillText(message,W/2,80);
  }
- if(levelMessage>0){ctx.fillStyle='#fff';ctx.font='bold 25px Fredoka';ctx.textAlign='center';ctx.fillText('NIGHT '+level,480,160);ctx.textAlign='left';}
+ // Action status
+ rounded(12,H-52,Math.min(W-24,390),40,10,'#171326dd');
+ ctx.textAlign='left';ctx.font='14px Fredoka';ctx.fillStyle='#fff';
+ const sh=shieldActive>0?'SHIELD ON '+shieldActive.toFixed(1)+'s':shieldCooldown>0?'J Shield: '+shieldCooldown.toFixed(1)+'s':'J Shield: READY';
+ const atk=attackCooldown>0?'H Sword: '+attackCooldown.toFixed(1)+'s':'H Sword: READY';
+ ctx.fillText('🛡️ '+sh+'    ⚔️ '+atk,22,H-27);
+}
+function updateHud(){
+ stats.textContent='🌙 Level '+level+'/80  |  ❤️ '+lives+'/5  |  🪙 '+coins+'  |  ⭐ '+score+'  |  '+playerEmoji();
+ if(boss){
+  bossbar.style.display='block';bossname.textContent=boss.name+'  '+boss.hp+'/'+boss.maxHp;
+  bossfill.style.width=(100*boss.hp/boss.maxHp)+'%';
+ }else bossbar.style.display='none';
 }
 function loop(now){
- if(!running)return;
- const dt=Math.min(now-last,40);last=now;
- update(dt);draw();
- if(running)raf=requestAnimationFrame(loop);
+ const dt=lastTime?(now-lastTime)/1000:0;lastTime=now;
+ update(dt);draw();updateHud();
+ requestAnimationFrame(loop);
 }
-function shield(){
- if(!running)return;
- shieldTimer=75;
+function togglePause(){
+ if(scene!=='playing')return;
+ paused=!paused;
+ if(paused){
+  show('PAUSED 🌙','Your adventure is safe. Take a break!','RESUME',()=>{
+   overlay.classList.add('hidden');paused=false;lastTime=performance.now();
+  });
+ }else overlay.classList.add('hidden');
 }
-document.addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();keys[k]=true;
- if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
- if(k==='x')attack();
- if(k==='c')shield();
- if(k==='e')useDoor();
+function openShop(){
+ if(scene!=='playing'||paused)return;
+ paused=true;
+ let html='<h1>🛍️ Spooky Skin Shop</h1><p>Spend your coins to unlock new heroes!</p>';
+ skins.forEach((s,i)=>{
+  const unlocked=unlockedSkins.includes(i);
+  html+='<p>'+s.emoji+' <b>'+s.name+'</b> — '+(unlocked?'Unlocked':'🪙 '+s.cost)+'<br><button data-skin="'+i+'">'+(unlocked?(selectedSkin===i?'Selected':'Choose'):'Unlock')+'</button></p>';
+ });
+ html+='<p>Coins: 🪙 '+coins+'</p><button id="closeShop">BACK TO GAME</button>';
+ dialog.innerHTML=html;overlay.classList.remove('hidden');
+ dialog.querySelectorAll('[data-skin]').forEach(btn=>{
+  btn.onclick=()=>{
+   const i=Number(btn.dataset.skin),s=skins[i];
+   if(!unlockedSkins.includes(i)){
+    if(coins<s.cost){say('NOT ENOUGH COINS!');return;}
+    coins-=s.cost;unlockedSkins.push(i);
+   }
+   selectedSkin=i;openShop();
+  };
+ });
+ document.getElementById('closeShop').onclick=()=>{
+  overlay.classList.add('hidden');paused=false;lastTime=performance.now();
+ };
+}
+document.getElementById('startBtn').onclick=startGame;
+document.getElementById('pauseBtn').onclick=togglePause;
+document.getElementById('restartBtn').onclick=()=>{
+ if(scene==='playing'){
+  buildLevel();paused=false;overlay.classList.add('hidden');
+ }else startGame();
+};
+document.getElementById('shopBtn').onclick=openShop;
+document.getElementById('homeBtn').onclick=()=>location.href='../../index.html';
+addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
+ if(!keys[k]){
+  if(k==='h')doAttack();
+  if(k==='j')useShield();
+  if(k==='e')openDoor();
+ }
+ keys[k]=true;
  if(k==='escape')togglePause();
 });
-document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-window.addEventListener('blur',()=>{Object.keys(keys).forEach(k=>keys[k]=false);});
-$('startBtn').onclick=startGame;
-$('titleShopBtn').onclick=shop;
-$('pauseBtn').onclick=togglePause;
-$('shopBtn').onclick=shop;
-$('startBtn').focus();
-drawBackground();
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+addEventListener('blur',()=>{keys={};jumpWasDown=false;});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){keys={};jumpWasDown=false;}});
+buildLevel();scene='title';requestAnimationFrame(loop);
 })();
 </script>
 </body>
