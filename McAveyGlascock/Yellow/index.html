@@ -3,388 +3,465 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yellow Backrooms - The Dumpling Escape</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Backrooms: Timmy's Escape</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#17170e;color:#fff;font-family:'Fredoka',sans-serif;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh}
-#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;pointer-events:none}
-.pill{background:#201e13eF;border:2px solid #b7a85b;border-radius:12px;padding:8px 12px;font-size:15px;font-weight:600}
-#controls{position:fixed;bottom:9px;left:10px;background:#17170ddd;padding:8px 12px;border-radius:10px;font-size:13px}
-#overlay{position:fixed;inset:0;background:#090907eF;display:flex;align-items:center;justify-content:center;padding:15px;z-index:5}
-.panel{width:min(550px,95vw);background:linear-gradient(145deg,#49421e,#252414);border:3px solid #d6c56b;border-radius:22px;padding:27px;text-align:center;box-shadow:0 15px 60px #000}
-h1{font-size:clamp(30px,6vw,48px);color:#f5dc70;margin:0 0 8px;text-shadow:3px 3px #51451c}
-p{font-size:17px;line-height:1.5}
-button{font-family:inherit;font-weight:700;font-size:18px;border:0;border-radius:12px;padding:13px 25px;margin:7px;background:#f1d46a;color:#29220e;cursor:pointer;box-shadow:0 4px #9e7e31}
-button:hover{filter:brightness(1.12);transform:translateY(-2px)}
-.small{font-size:13px;color:#d5d0a7}
+body{margin:0;background:#211d15;color:#fff;font-family:Fredoka,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:10px}
+#game{width:min(960px,100%);background:#373020;border:4px solid #b69b42;border-radius:16px;overflow:hidden}
+header{background:#51472c;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:clamp(19px,3vw,27px);color:#ffe37a;margin:0}
+#hud{display:flex;gap:6px;flex-wrap:wrap}
+.stat{background:#282317;padding:6px 9px;border-radius:8px;font-size:13px;font-weight:700}
+#stage{position:relative}
+canvas{width:100%;height:auto;display:block;background:#b6a75c}
+#overlay{position:absolute;inset:0;background:#17140edc;display:flex;align-items:center;justify-content:center;padding:12px;z-index:5}
+.panel{width:min(530px,96%);max-height:95%;overflow:auto;background:#4d4329;border:3px solid #c9ae55;border-radius:17px;padding:20px;text-align:center}
+.panel h2{color:#ffe47c;font-size:clamp(24px,4vw,34px);margin:5px}
+.panel p{line-height:1.5}
+button{font-family:Fredoka,sans-serif;font-weight:700;border:0;border-radius:9px;padding:10px 14px;margin:4px;background:#ffe17a;color:#302714;cursor:pointer;font-size:15px;box-shadow:0 4px 0 #9d7b32}
+button:active{transform:translateY(2px);box-shadow:0 2px 0 #9d7b32}
+button:disabled{opacity:.4;cursor:not-allowed}
+.secondary{background:#b6e4bd}
+#message{background:#272216;padding:8px;text-align:center;min-height:34px;color:#ffe88b}
+#controls{background:#51472c;padding:8px;display:flex;justify-content:center;flex-wrap:wrap;gap:5px}
+.hidden{display:none!important}
+.shopgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shopitem{background:#302a1d;padding:10px;border-radius:10px}
+.shopitem strong{color:#ffe17a;font-size:18px}
+.shopitem p{font-size:13px;margin:5px}
+.small{font-size:13px;color:#e9dfbd}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
+<div id="game">
+<header>
+<h1>🟨 BACKROOMS: TIMMY'S ESCAPE</h1>
 <div id="hud">
- <div class="pill" id="levelHud">LEVEL 1 / 10</div>
- <div class="pill" id="lifeHud">❤️❤️❤️</div>
- <div class="pill" id="coinHud">🪙 0</div>
- <div class="pill" id="powerHud">⚡ READY</div>
+<span class="stat" id="level">LEVEL 1 / 1000</span>
+<span class="stat" id="coins">🪙 0</span>
+<span class="stat" id="health">❤️ 5</span>
+<span class="stat" id="entities">👁 0</span>
 </div>
-<div id="controls">Move: WASD / Arrows | Dash: SPACE | Special ability: X | Secret door: E | Pause: P</div>
+</header>
+<div id="stage">
+<canvas id="c" width="900" height="612"></canvas>
 <div id="overlay">
- <div class="panel">
-  <h1>🟨 YELLOW BACKROOMS</h1>
-  <p><b>THE DUMPLING ESCAPE</b></p>
-  <p>You are a yellow dumpling trapped in the Backrooms. Monsters are hunting you! Find the coins, discover secret doors, and escape all ten levels.</p>
-  <p class="small">The levels get harder as you go. Use your special ability when monsters get too close!</p>
-  <button id="startButton" type="button">ENTER THE BACKROOMS</button>
- </div>
+<div class="panel">
+<div style="font-size:65px">🟨👁🚪</div>
+<h2>BACKROOMS</h2>
+<h3 style="color:#e8d88b;margin:0">TIMMY'S ESCAPE</h3>
+<p>Timmy is trapped in the Backrooms! Find the exit, collect coins, avoid terrifying entities, discover secret doors, and survive all 1,000 levels.</p>
+<p class="small">ARROW KEYS or WASD = Move<br>SPACE = Special ability<br>E = Secret door / interact<br>B = Shop · P = Pause</p>
+<button id="startBtn" style="font-size:22px;padding:13px 32px">🚪 START ESCAPE</button>
+<p class="small">Can you make it through all 1,000 levels?</p>
+</div>
+</div>
+</div>
+<div id="message">Something is watching you...</div>
+<div id="controls">
+<button id="pauseBtn">⏸ Pause</button>
+<button id="abilityBtn" class="secondary">✨ Special Ability</button>
+<button id="shopBtn">🛍 Shop</button>
+<button id="doorBtn" class="secondary">🚪 Secret Door</button>
+<button id="restartBtn">↻ Restart Level</button>
+<button id="homeBtn">🏠 Game Lab</button>
+</div>
 </div>
 <script>
 (()=>{
-'use strict';
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-const overlay=document.getElementById('overlay');
-const levelHud=document.getElementById('levelHud');
-const lifeHud=document.getElementById('lifeHud');
-const coinHud=document.getElementById('coinHud');
-const powerHud=document.getElementById('powerHud');
+"use strict";
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+const TILE=36,COLS=25,ROWS=17,W=900,H=612;
+let level=1,coins=0,health=5,running=false,paused=true,frame=0,last=0;
+let grid=[],player,enemies=[],loot=[],powerups=[],particles=[];
+let ability=0,abilityCooldown=0,shield=0,speedBoost=0;
+let keys={},enemyClock=0,worldCoins=0,secretDoor=null;
+let shopReturnPaused=false;
+let exit={x:23,y:15};
+const dirs=[[0,-1],[1,0],[0,1],[-1,0]];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rand=(a,b)=>Math.floor(Math.random()*(b-a+1));
 
-const W=960,H=540;
-let dpr=1;
-function resize(){
- dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=W*dpr;canvas.height=H*dpr;
- canvas.style.width='100vw';canvas.style.height='100vh';
- ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-resize();addEventListener('resize',resize);
-
-const TILE=40,COLS=24,ROWS=13;
-const levelNames=['The Yellow Halls','The Long Corridor','The Flickering Lights','The Storage Rooms','The Endless Hall','The Dark Basement','The Maze of Doors','The Monster Nest','The Forgotten Rooms','The Final Escape'];
-let level=0,lives=3,coins=0,levelCoins=0;
-let map=[],player,monsters=[],pickups=[],doors=[],exit;
-let running=false,keys={},last=0,raf=0;
-let invincible=0,shield=0,speedTime=0,abilityCooldown=0,dashTime=0,dashCooldown=0;
-let message='',messageTime=0,flash=0;
-
+function say(t){$("message").textContent=t;}
 function updateHUD(){
- levelHud.textContent='🟨 '+levelNames[level]+' — '+(level+1)+'/10';
- lifeHud.textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);
- coinHud.textContent='🪙 '+coins;
- powerHud.textContent=abilityCooldown<=0?'⚡ READY':'⚡ '+Math.ceil(abilityCooldown/60);
+ $("level").textContent="LEVEL "+level+" / 1000";
+ $("coins").textContent="🪙 "+coins;
+ $("health").textContent="❤️ "+health;
+ $("entities").textContent="👁 "+enemies.length;
+ $("abilityBtn").textContent=abilityCooldown>0?"✨ Recharge "+Math.ceil(abilityCooldown/60)+"s":"✨ Special Ability";
 }
-
-function showPanel(title,desc,button,action,extra=''){
- running=false;cancelAnimationFrame(raf);
- overlay.innerHTML='';
- const panel=document.createElement('div');panel.className='panel';
- const h=document.createElement('h1');h.textContent=title;
- const p=document.createElement('p');p.textContent=desc;
- const b=document.createElement('button');b.textContent=button;b.type='button';b.onclick=action;
- panel.append(h,p);
- if(extra){const s=document.createElement('p');s.className='small';s.textContent=extra;panel.appendChild(s)}
- panel.appendChild(b);overlay.appendChild(panel);overlay.style.display='flex';
+function inside(x,y){return x>=0&&x<COLS&&y>=0&&y<ROWS;}
+function openCell(x,y){return inside(x,y)&&grid[y][x]!==1;}
+function neighbors(x,y){
+ return dirs.map(d=>[x+d[0],y+d[1]]).filter(([a,b])=>openCell(a,b));
 }
-function showMessage(t){message=t;messageTime=130}
-
-function buildLevel(){
- map=Array.from({length:ROWS},(_,y)=>Array.from({length:COLS},(_,x)=>
-  x===0||y===0||x===COLS-1||y===ROWS-1?1:0));
- const difficulty=level;
- // Build a maze with connected corridors and some difficult turns.
- for(let y=2;y<ROWS-2;y+=2){
-  const gap=2+((y*3+level*5)% (COLS-5));
-  for(let x=2;x<COLS-2;x++){
-   if(x!==gap&&x!==gap+1)map[y][x]=1;
+function generateMaze(){
+ grid=Array.from({length:ROWS},()=>Array(COLS).fill(1));
+ // Randomized maze generation, with additional corridors as levels increase.
+ let stack=[[1,1]];
+ grid[1][1]=0;
+ while(stack.length){
+  let [x,y]=stack[stack.length-1];
+  let options=[];
+  for(let [dx,dy] of [[0,-2],[2,0],[0,2],[-2,0]]){
+   let nx=x+dx,ny=y+dy;
+   if(nx>0&&nx<COLS-1&&ny>0&&ny<ROWS-1&&grid[ny][nx]===1)options.push([nx,ny,dx,dy]);
+  }
+  if(!options.length){stack.pop();continue;}
+  let [nx,ny,dx,dy]=options[rand(0,options.length-1)];
+  grid[y+dy/2][x+dx/2]=0;grid[ny][nx]=0;stack.push([nx,ny]);
+ }
+ // Make the maze more open and challenging as levels advance.
+ const extra=Math.min(75,12+Math.floor(level/12));
+ for(let i=0;i<extra;i++){
+  let x=rand(1,COLS-2),y=rand(1,ROWS-2);
+  if(Math.random()<.5){if(x%2===0)grid[y][x]=0;}
+  else if(y%2===0)grid[y][x]=0;
+ }
+ // Ensure the exit is reachable and the entrance remains clear.
+ grid[1][1]=0;grid[ROWS-2][COLS-2]=0;
+ grid[ROWS-2][COLS-3]=0;grid[ROWS-3][COLS-2]=0;
+ exit={x:COLS-2,y:ROWS-2};
+}
+function reachable(x1,y1,x2,y2){
+ let q=[[x1,y1]],seen=new Set([x1+","+y1]);
+ while(q.length){
+  let [x,y]=q.shift();
+  if(x===x2&&y===y2)return true;
+  for(let [nx,ny] of neighbors(x,y)){
+   let k=nx+","+ny;
+   if(!seen.has(k)){seen.add(k);q.push([nx,ny]);}
   }
  }
- for(let x=4;x<COLS-3;x+=5){
-  const gap=2+((x*2+level*3)%(ROWS-5));
-  for(let y=2;y<ROWS-2;y++){
-   if(y!==gap&&y!==gap+1)map[y][x]=1;
-  }
+ return false;
+}
+function floorCells(){
+ let a=[];
+ for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)
+  if(grid[y][x]===0&&!(x===1&&y===1)&&!(x===exit.x&&y===exit.y))a.push({x,y});
+ return a;
+}
+function randomFloor(minDistance=0){
+ let cells=floorCells();
+ for(let i=0;i<100;i++){
+  let p=cells[rand(0,cells.length-1)];
+  if(Math.abs(p.x-1)+Math.abs(p.y-1)>minDistance)return p;
  }
- // Clear spawn and exit corridors
- for(let y=1;y<=3;y++)for(let x=1;x<=3;x++)map[y][x]=0;
- for(let y=ROWS-4;y<ROWS-1;y++)for(let x=COLS-4;x<COLS-1;x++)map[y][x]=0;
- // Open occasional side passages to keep maze traversable
- for(let y=2;y<ROWS-2;y+=2){
-  map[y][2]=0;map[y][COLS-3]=0;
+ return cells[cells.length-1]||{x:3,y:3};
+}
+function makeLevel(){
+ generateMaze();
+ player={x:1,y:1,moveTimer:0,invulnerable:0};
+ enemies=[];loot=[];powerups=[];particles=[];
+ const difficulty=Math.min(20,1+Math.floor((level-1)/50));
+ const enemyCount=Math.min(18,2+Math.floor(level/8));
+ for(let i=0;i<enemyCount;i++){
+  let p=randomFloor(7);
+  enemies.push({x:p.x,y:p.y,hp:1+Math.floor(level/100),type:Math.random()<.18?"fast":"normal",timer:rand(15,65),stun:0});
  }
- for(let x=2;x<COLS-2;x+=4)map[ROWS-3][x]=0;
-
- player={x:1.5*TILE,y:1.5*TILE,r:12,speed:2.25};
- exit={x:(COLS-2.5)*TILE,y:(ROWS-2.5)*TILE};
- monsters=[];
- pickups=[];
- doors=[];
- invincible=100;shield=0;speedTime=0;abilityCooldown=0;dashTime=0;dashCooldown=0;
- levelCoins=0;
-
- const monsterCount=Math.min(2+level,8);
- for(let i=0;i<monsterCount;i++){
-  let mx,my,tries=0;
-  do{
-   mx=(3+Math.floor(Math.random()*(COLS-6))+.5)*TILE;
-   my=(3+Math.floor(Math.random()*(ROWS-6))+.5)*TILE;
-   tries++;
-  }while((wallAt(mx,my)||Math.hypot(mx-player.x,my-player.y)<220)&&tries<100);
-  monsters.push({x:mx,y:my,r:14,speed:.72+level*.09,phase:Math.random()*10});
+ const coinCount=Math.min(45,10+Math.floor(level/10));
+ for(let i=0;i<coinCount;i++)loot.push({...randomFloor(2),got:false});
+ for(let i=0;i<Math.min(7,2+Math.floor(level/100));i++)
+  powerups.push({...randomFloor(3),got:false,type:["heart","shield","speed","blast"][i%4]});
+ // Secret door hidden in a random wall adjoining a walkable room.
+ let candidates=[];
+ for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++){
+  if(grid[y][x]===1&&dirs.some(([dx,dy])=>openCell(x+dx,y+dy)))candidates.push({x,y});
  }
- // Coins, placed on open floor
- let placed=0,attempts=0;
- while(placed<12&&attempts<300){
-  attempts++;
-  const x=(2+Math.floor(Math.random()*(COLS-4))+.5)*TILE;
-  const y=(2+Math.floor(Math.random()*(ROWS-4))+.5)*TILE;
-  if(!wallAt(x,y)&&Math.hypot(x-player.x,y-player.y)>55&&Math.hypot(x-exit.x,y-exit.y)>50){
-   pickups.push({x,y,type:'coin',taken:false});placed++;
-  }
- }
- // Powerups
- const powerTypes=['shield','speed','heart','blast'];
- for(let i=0;i<4;i++){
-  let x,y,tries=0;
-  do{x=(2+Math.floor(Math.random()*(COLS-4))+.5)*TILE;y=(2+Math.floor(Math.random()*(ROWS-4))+.5)*TILE;tries++}
-  while((wallAt(x,y)||Math.hypot(x-player.x,y-player.y)<100)&&tries<100);
-  pickups.push({x,y,type:powerTypes[i],taken:false});
- }
- // Secret doors in open locations
- for(let i=0;i<2;i++){
-  let x,y,tries=0;
-  do{x=(2+Math.floor(Math.random()*(COLS-4))+.5)*TILE;y=(2+Math.floor(Math.random()*(ROWS-4))+.5)*TILE;tries++}
-  while((wallAt(x,y)||Math.hypot(x-player.x,y-player.y)<100)&&tries<100);
-  doors.push({x,y,used:false});
- }
+ secretDoor=candidates[rand(0,candidates.length-1)]||{x:3,y:3};
  updateHUD();
-}
-function wallAt(x,y){
- const tx=Math.floor(x/TILE),ty=Math.floor(y/TILE);
- return !map[ty]||map[ty][tx]!==0;
-}
-function blocked(x,y,r){
- return wallAt(x-r,y-r)||wallAt(x+r,y-r)||wallAt(x-r,y+r)||wallAt(x+r,y+r);
-}
-function movePlayer(dx,dy){
- if(!blocked(player.x+dx,player.y,player.r))player.x+=dx;
- if(!blocked(player.x,player.y+dy,player.r))player.y+=dy;
+ say("Level "+level+"! Find the exit. Watch out for entities!");
 }
 function startGame(){
- level=0;lives=3;coins=0;buildLevel();
- overlay.style.display='none';running=true;last=performance.now();raf=requestAnimationFrame(loop);
+ running=true;paused=false;level=1;coins=0;health=5;ability=0;
+ abilityCooldown=0;shield=0;speedBoost=0;worldCoins=0;
+ makeLevel();hidePanel();$("pauseBtn").textContent="⏸ Pause";
+ last=performance.now();requestAnimationFrame(loop);
+}
+function hidePanel(){$("overlay").classList.add("hidden");}
+function showPanel(title,html,buttons){
+ const ov=$("overlay");ov.innerHTML="";
+ const p=document.createElement("div");p.className="panel";
+ const h=document.createElement("h2");h.textContent=title;p.appendChild(h);
+ const body=document.createElement("div");body.innerHTML=html;p.appendChild(body);
+ buttons.forEach(b=>{
+  const btn=document.createElement("button");btn.textContent=b.text;
+  if(b.secondary)btn.className="secondary";
+  btn.addEventListener("click",b.action);p.appendChild(btn);
+ });
+ ov.classList.remove("hidden");
 }
 function nextLevel(){
- level++;
- if(level>=10){
-  showPanel('🏆 YOU ESCAPED!','The yellow dumpling made it out of the Backrooms! You collected '+coins+' coins and survived all ten levels!','PLAY AGAIN',startGame,'You are a Backrooms legend!');
+ if(level>=1000){
+  paused=true;
+  showPanel("🏆 YOU ESCAPED!","TIMMY HAS BEATEN ALL 1,000 LEVELS!<br><br>You are the ultimate Backrooms survivor!",
+   [{text:"Play Again",action:startGame},{text:"Game Lab",action:goHome,secondary:true}]);
   return;
  }
- buildLevel();showMessage('Level '+(level+1)+': '+levelNames[level]);
+ level++;health=Math.min(5,health+1);abilityCooldown=0;
+ paused=false;makeLevel();hidePanel();last=performance.now();
 }
-function loseLife(){
- if(invincible>0||shield>0)return;
- lives--;invincible=120;updateHUD();
- if(lives<=0){
-  showPanel('👁️ CAUGHT!','The monsters found you! Your adventure is over. You collected '+coins+' coins.','TRY AGAIN',startGame);
-  return;
+function move(dx,dy){
+ if(!running||paused||player.moveTimer>0)return;
+ const nx=player.x+dx,ny=player.y+dy;
+ if(!openCell(nx,ny)){player.moveTimer=5;return;}
+ player.x=nx;player.y=ny;player.moveTimer=speedBoost>0?4:8;
+ collectAtPlayer();
+ if(player.x===exit.x&&player.y===exit.y){
+  if(enemies.length===0){
+   paused=true;
+   showPanel("🚪 LEVEL COMPLETE!","Timmy found the exit!<br><br>Level "+level+" complete. Ready for the next level?",
+    [{text:"Next Level ➜",action:nextLevel}]);
+  }else say("The exit is open, but defeat the remaining entities first!");
  }
- player.x=1.5*TILE;player.y=1.5*TILE;
- monsters.forEach((m,i)=>{if(Math.hypot(m.x-player.x,m.y-player.y)<180){m.x=(COLS-3.5)*TILE;m.y=(ROWS-3.5)*TILE}});
- showMessage('You lost a life! Keep moving!');
 }
-function useAbility(){
- if(!running||abilityCooldown>0)return;
- abilityCooldown=480;
- // A pulse pushes nearby monsters away and briefly freezes them.
- for(const m of monsters){
-  const d=Math.hypot(m.x-player.x,m.y-player.y);
-  if(d<190){
-   const a=Math.atan2(m.y-player.y,m.x-player.x);
-   m.x+=Math.cos(a)*100;m.y+=Math.sin(a)*100;
-   m.stun=130;
+function collectAtPlayer(){
+ loot.forEach(c=>{
+  if(!c.got&&c.x===player.x&&c.y===player.y){
+   c.got=true;coins++;worldCoins++;say("🪙 Coin collected!");
   }
- }
- flash=20;showMessage('ENERGY PULSE! Monsters pushed away!');
+ });
+ powerups.forEach(p=>{
+  if(!p.got&&p.x===player.x&&p.y===player.y){
+   p.got=true;
+   if(p.type==="heart"){health=Math.min(5,health+1);say("💖 Extra health!");}
+   if(p.type==="shield"){shield=600;say("🛡 Shield activated!");}
+   if(p.type==="speed"){speedBoost=600;say("⚡ Speed boost activated!");}
+   if(p.type==="blast"){
+    enemies.forEach(e=>{if(Math.abs(e.x-player.x)+Math.abs(e.y-player.y)<=5)e.hp=0;});
+    enemies=enemies.filter(e=>e.hp>0);say("💥 Blast! Nearby entities defeated!");
+   }
+  }
+ });
  updateHUD();
 }
-function useDoor(){
- let best=null,dist=48;
- for(const d of doors){
-  const n=Math.hypot(player.x-d.x,player.y-d.y);
-  if(!d.used&&n<dist){dist=n;best=d}
- }
- if(best){
-  best.used=true;
-  // Secret door sends player to another safe corridor.
-  const spots=[];
-  for(let y=2;y<ROWS-2;y++)for(let x=2;x<COLS-2;x++)
-   if(!wallAt((x+.5)*TILE,(y+.5)*TILE))spots.push({x:(x+.5)*TILE,y:(y+.5)*TILE});
-  if(spots.length){
-   const target=spots[Math.floor(Math.random()*spots.length)];
-   player.x=target.x;player.y=target.y;
+function findPath(sx,sy,tx,ty){
+ let q=[[sx,sy]],prev=new Map(),seen=new Set([sx+","+sy]);
+ while(q.length){
+  let [x,y]=q.shift();
+  if(x===tx&&y===ty)break;
+  for(let [nx,ny] of neighbors(x,y)){
+   let k=nx+","+ny;
+   if(!seen.has(k)){seen.add(k);prev.set(k,[x,y]);q.push([nx,ny]);}
   }
-  showMessage('SECRET DOOR! You found a shortcut!');
- }else showMessage('Find a glowing secret door first!');
+ }
+ let key=tx+","+ty;
+ if(!seen.has(key))return null;
+ let path=[];
+ while(key!==(sx+","+sy)){
+  let p=prev.get(key);if(!p)return null;
+  path.push(key.split(",").map(Number));key=p[0]+","+p[1];
+ }
+ return path.reverse()[0]||null;
 }
-
-function update(dt){
- const step=Math.min(dt/16.67,2);
- let dx=0,dy=0;
- if(keys.ArrowLeft||keys.a||keys.A)dx--;
- if(keys.ArrowRight||keys.d||keys.D)dx++;
- if(keys.ArrowUp||keys.w||keys.W)dy--;
- if(keys.ArrowDown||keys.s||keys.S)dy++;
- if(dx&&dy){dx*=.707;dy*=.707}
- let speed=player.speed+(speedTime>0?1.6:0);
- if(dashTime>0){speed=5.4;dashTime-=step}
- movePlayer(dx*speed*step,dy*speed*step);
- if(dashCooldown>0)dashCooldown-=step;
- if(dashTime<=0&&keys.space&&dashCooldown<=0){dashTime=12;dashCooldown=100;keys.space=false}
- if(invincible>0)invincible-=step;
- if(shield>0)shield-=step;
- if(speedTime>0)speedTime-=step;
- if(abilityCooldown>0)abilityCooldown-=step;
- if(flash>0)flash-=step;
- if(messageTime>0)messageTime-=step;
-
- // Collect pickups
- for(const p of pickups){
-  if(p.taken)continue;
-  if(Math.hypot(player.x-p.x,player.y-p.y)<25){
-   p.taken=true;
-   if(p.type==='coin'){coins++;levelCoins++}
-   if(p.type==='shield'){shield=500;showMessage('SHIELD! Monsters cannot hurt you!')}
-   if(p.type==='speed'){speedTime=500;showMessage('SPEED BOOST!')}
-   if(p.type==='heart'){lives=Math.min(3,lives+1);showMessage('EXTRA LIFE!')}
-   if(p.type==='blast'){abilityCooldown=0;showMessage('ABILITY RECHARGED!')}
-   updateHUD();
+function moveEnemies(){
+ enemies.forEach(e=>{
+  if(e.stun>0){e.stun--;return;}
+  e.timer--;
+  if(e.timer>0)return;
+  e.timer=Math.max(8,rand(25,55)-Math.min(15,level/10));
+  let next=findPath(e.x,e.y,player.x,player.y);
+  if(next){e.x=next[0];e.y=next[1];}
+  if(e.x===player.x&&e.y===player.y){
+   if(shield<=0&&player.invulnerable<=0){
+    health--;player.invulnerable=55;
+    say("👁 AN ENTITY CAUGHT YOU! You lost a heart!");
+    if(health<=0)gameOver();
+   }else if(shield>0){e.stun=100;}
   }
- }
- // Monsters chase the player, with collision-safe movement.
- for(const m of monsters){
-  if(m.stun>0){m.stun-=step;continue}
-  const d=Math.hypot(player.x-m.x,player.y-m.y);
-  if(d<360){
-   const a=Math.atan2(player.y-m.y,player.x-m.x);
-   const vx=Math.cos(a)*m.speed*step;
-   const vy=Math.sin(a)*m.speed*step;
-   if(!blocked(m.x+vx,m.y,m.r))m.x+=vx;
-   if(!blocked(m.x,m.y+vy,m.r))m.y+=vy;
-  }else{
-   m.phase+=.015*step;
+ });
+ enemies=enemies.filter(e=>e.hp>0);
+ updateHUD();
+}
+function useAbility(){
+ if(!running||paused)return;
+ if(abilityCooldown>0){say("Your special ability is recharging!");return;}
+ abilityCooldown=600;
+ let count=0;
+ enemies.forEach(e=>{
+  if(Math.abs(e.x-player.x)+Math.abs(e.y-player.y)<=5){
+   e.stun=150;e.hp=0;count++;
   }
-  if(d<player.r+m.r+3)loseLife();
+ });
+ enemies=enemies.filter(e=>e.hp>0);
+ particles.push({x:player.x,y:player.y,life:40});
+ say(count?"✨ TIMMY'S SPECIAL BLAST defeated "+count+" entities!":"✨ Special blast! Nearby entities are stunned.");
+ updateHUD();
+}
+function interactDoor(){
+ if(!running||paused)return;
+ const d=Math.abs(player.x-secretDoor.x)+Math.abs(player.y-secretDoor.y);
+ if(d<=1){
+  // Secret rooms contain coins and a helpful power-up.
+  const bonus=5+Math.min(15,Math.floor(level/50));
+  coins+=bonus;health=Math.min(5,health+1);
+  secretDoor=randomFloor(5);
+  say("🔑 SECRET ROOM! You found "+bonus+" bonus coins and one heart!");
+  updateHUD();
+ }else say("Look for a hidden door in the walls. Get close and press E!");
+}
+function openShop(){
+ if(!running)return;
+ shopReturnPaused=paused;paused=true;
+ const html=`<p>You have <b>🪙 ${coins} coins</b>.</p>
+ <div class="shopgrid">
+ <div class="shopitem"><strong>💖 HEART</strong><p>Restore 1 health</p><p>15 coins</p><button id="buyHeart">Buy</button></div>
+ <div class="shopitem"><strong>🛡 SHIELD</strong><p>Temporary protection</p><p>25 coins</p><button id="buyShield">Buy</button></div>
+ <div class="shopitem"><strong>⚡ SPEED</strong><p>Move faster</p><p>20 coins</p><button id="buySpeed">Buy</button></div>
+ <div class="shopitem"><strong>💥 BLAST</strong><p>Defeat nearby entities</p><p>35 coins</p><button id="buyBlast">Buy</button></div>
+ </div>`;
+ showPanel("🛍 BACKROOMS SHOP",html,[{text:"Close Shop",action:closeShop,secondary:true}]);
+ $("buyHeart").onclick=()=>buy("heart",15);
+ $("buyShield").onclick=()=>buy("shield",25);
+ $("buySpeed").onclick=()=>buy("speed",20);
+ $("buyBlast").onclick=()=>buy("blast",35);
+}
+function buy(type,cost){
+ if(coins<cost){say("Not enough coins! Keep exploring.");return;}
+ if(type==="heart"&&health>=5){say("Your health is already full!");return;}
+ coins-=cost;
+ if(type==="heart"){health++;say("💖 Health restored!");}
+ if(type==="shield"){shield=900;say("🛡 Shield activated!");}
+ if(type==="speed"){speedBoost=900;say("⚡ Speed boost activated!");}
+ if(type==="blast"){
+  enemies.forEach(e=>{if(Math.abs(e.x-player.x)+Math.abs(e.y-player.y)<=6)e.hp=0;});
+  enemies=enemies.filter(e=>e.hp>0);say("💥 Blast purchased and used!");
  }
- if(Math.hypot(player.x-exit.x,player.y-exit.y)<27){
-  nextLevel();return;
- }
+ updateHUD();openShop();
+}
+function closeShop(){paused=shopReturnPaused;hidePanel();last=performance.now();}
+function gameOver(){
+ paused=true;
+ showPanel("💀 GAME OVER","The Backrooms got Timmy!<br><br>You reached level "+level+" and collected "+coins+" coins.",
+  [{text:"↻ Try Again",action:startGame},{text:"🏠 Game Lab",action:goHome,secondary:true}]);
+}
+function togglePause(){
+ if(!running)return;
+ if(!paused){
+  paused=true;$("pauseBtn").textContent="▶ Resume";
+  showPanel("⏸ PAUSED","Timmy's adventure is on hold.",
+   [{text:"▶ Resume",action:resume},{text:"🏠 Game Lab",action:goHome,secondary:true}]);
+ }else resume();
+}
+function resume(){paused=false;hidePanel();$("pauseBtn").textContent="⏸ Pause";last=performance.now();}
+function goHome(){
+ running=false;paused=true;
+ showPanel("BACKROOMS: TIMMY'S ESCAPE","Ready to enter the Backrooms again?",
+  [{text:"Start Adventure",action:startGame},{text:"Back to Game Lab",action:()=>location.href="../../index.html",secondary:true}]);
+}
+function update(){
+ frame++;
+ if(player.moveTimer>0)player.moveTimer--;
+ if(player.invulnerable>0)player.invulnerable--;
+ if(abilityCooldown>0)abilityCooldown--;
+ if(shield>0)shield--;
+ if(speedBoost>0)speedBoost--;
+ enemyClock++;
+ if(enemyClock>=12){enemyClock=0;moveEnemies();}
+ updateHUD();
 }
 function draw(){
- ctx.clearRect(0,0,W,H);
- ctx.fillStyle='#b9ad69';ctx.fillRect(0,0,W,H);
- // Yellow Backrooms floor and checker pattern
+ ctx.fillStyle="#b8a65d";ctx.fillRect(0,0,W,H);
+ const ox=player?clamp(player.x* TILE-W/2,0,COLS*TILE-W):0;
+ const oy=player?clamp(player.y*TILE-H/2,0,ROWS*TILE-H):0;
+ ctx.save();ctx.translate(-ox,-oy);
+ // Backrooms floor and walls
  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
   const px=x*TILE,py=y*TILE;
-  if(map[y][x]===1){
-   ctx.fillStyle='#a69b55';ctx.fillRect(px,py,TILE,TILE);
-   ctx.fillStyle='#d1c477';ctx.fillRect(px,py,TILE,5);
-   ctx.fillStyle='#877d42';ctx.fillRect(px+TILE-4,py,4,TILE);
+  if(grid[y][x]===1){
+   ctx.fillStyle="#77683d";ctx.fillRect(px,py,TILE,TILE);
+   ctx.fillStyle="#a99453";ctx.fillRect(px+2,py+2,TILE-4,TILE-4);
+   ctx.fillStyle="#c3ad65";ctx.fillRect(px+4,py+4,TILE-8,4);
   }else{
-   ctx.fillStyle=(x+y)%2?'#b9b16e':'#c4bb79';
-   ctx.fillRect(px,py,TILE,TILE);
-   ctx.strokeStyle='#a89f68';ctx.lineWidth=1;ctx.strokeRect(px,py,TILE,TILE);
-  }
- }
- // Fluorescent ceiling-light effect
- for(let y=1;y<ROWS-1;y+=3)for(let x=1;x<COLS-1;x+=5){
-  if(map[y][x]===0){
-   ctx.fillStyle='#f7f0b0';ctx.fillRect(x*TILE+5,y*TILE+3,30,4);
-  }
- }
- // Secret doors
- for(const d of doors){
-  if(d.used)continue;
-  ctx.fillStyle='#6c4e9d';ctx.fillRect(d.x-13,d.y-18,26,36);
-  ctx.strokeStyle='#d5b4ff';ctx.lineWidth=3;ctx.strokeRect(d.x-13,d.y-18,26,36);
-  ctx.fillStyle='#fff0a0';ctx.beginPath();ctx.arc(d.x+7,d.y,3,0,Math.PI*2);ctx.fill();
- }
- // Pickups
- for(const p of pickups){
-  if(p.taken)continue;
-  if(p.type==='coin'){
-   ctx.fillStyle='#f7d34d';ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fill();
-   ctx.strokeStyle='#fff4ae';ctx.lineWidth=2;ctx.stroke();
-  }else{
-   const colors={shield:'#71e8ff',speed:'#ff9b4b',heart:'#ff6689',blast:'#bb8cff'};
-   const symbols={shield:'S',speed:'⚡',heart:'♥',blast:'✦'};
-   ctx.fillStyle=colors[p.type];ctx.beginPath();ctx.arc(p.x,p.y,12,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle='#262014';ctx.font='bold 15px Fredoka';ctx.textAlign='center';ctx.fillText(symbols[p.type],p.x,p.y+5);
+   ctx.fillStyle=(x+y)%2?"#c8b66c":"#c1af65";ctx.fillRect(px,py,TILE,TILE);
+   ctx.strokeStyle="#a89758";ctx.lineWidth=1;ctx.strokeRect(px,py,TILE,TILE);
   }
  }
  // Exit
- ctx.fillStyle='#286b49';ctx.fillRect(exit.x-15,exit.y-20,30,40);
- ctx.strokeStyle='#b3ffb9';ctx.lineWidth=3;ctx.strokeRect(exit.x-15,exit.y-20,30,40);
- ctx.fillStyle='white';ctx.font='bold 12px Fredoka';ctx.textAlign='center';ctx.fillText('EXIT',exit.x,exit.y-26);
- // Monsters
- for(const m of monsters){
-  ctx.fillStyle='#24232a';ctx.beginPath();ctx.ellipse(m.x,m.y,17,19,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#b93d36';ctx.beginPath();ctx.arc(m.x-6,m.y-4,3,0,Math.PI*2);ctx.arc(m.x+6,m.y-4,3,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#09090b';ctx.fillRect(m.x-7,m.y+5,14,4);
- }
- // Yellow dumpling player
- if(invincible<=0||Math.floor(invincible/8)%2===0){
-  ctx.fillStyle=shield>0?'#8deaff':'#f5d43e';
-  ctx.beginPath();ctx.ellipse(player.x,player.y,14,13,0,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#fff2a3';ctx.lineWidth=2;ctx.stroke();
-  ctx.fillStyle='#342b12';
-  ctx.beginPath();ctx.arc(player.x-5,player.y-2,2,0,Math.PI*2);ctx.arc(player.x+5,player.y-2,2,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#342b12';ctx.lineWidth=2;ctx.beginPath();ctx.arc(player.x,player.y+3,4,0,Math.PI);ctx.stroke();
- }
- // Ability pulse visual
- if(flash>0){
-  ctx.strokeStyle='#c9a3ff';ctx.lineWidth=5;ctx.globalAlpha=flash/20;
-  ctx.beginPath();ctx.arc(player.x,player.y,190*(1-flash/25),0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;
- }
- // Dark vignette
- const vg=ctx.createRadialGradient(player.x,player.y,80,player.x,player.y,430);
- vg.addColorStop(0,'#00000000');vg.addColorStop(1,'#171308a8');
- ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
- if(messageTime>0){
-  ctx.fillStyle='#17170ee8';ctx.fillRect(W/2-210,18,420,38);
-  ctx.fillStyle='white';ctx.font='bold 18px Fredoka';ctx.textAlign='center';ctx.fillText(message,W/2,43);
- }
-}
-function loop(t){
- if(!running)return;
- const dt=Math.min(t-last,40);last=t;
- update(dt);draw();
- if(running)raf=requestAnimationFrame(loop);
-}
-function pauseGame(){
- if(!running)return;
- showPanel('⏸ GAME PAUSED','The monsters are waiting... Your progress is safe.','RESUME',()=>{
-  overlay.style.display='none';running=true;last=performance.now();raf=requestAnimationFrame(loop);
+ ctx.fillStyle="#163d31";ctx.fillRect(exit.x*TILE+5,exit.y*TILE+3,TILE-10,TILE-6);
+ ctx.fillStyle="#b5f2bb";ctx.fillRect(exit.x*TILE+10,exit.y*TILE+9,TILE-20,TILE-17);
+ ctx.font="18px sans-serif";ctx.textAlign="center";ctx.fillText("🚪",exit.x*TILE+18,exit.y*TILE+25);
+ // Secret door marker is intentionally subtle.
+ ctx.fillStyle="#8d7842";ctx.fillRect(secretDoor.x*TILE+5,secretDoor.y*TILE+3,TILE-10,TILE-6);
+ ctx.fillStyle="#d9c47b";ctx.fillRect(secretDoor.x*TILE+8,secretDoor.y*TILE+6,TILE-16,TILE-12);
+ ctx.fillStyle="#3b3020";ctx.beginPath();ctx.arc(secretDoor.x*TILE+25,secretDoor.y*TILE+18,2,0,Math.PI*2);ctx.fill();
+ loot.forEach(c=>{
+  if(!c.got){ctx.fillStyle="#ffe45a";ctx.beginPath();ctx.arc(c.x*TILE+18,c.y*TILE+18,7,0,Math.PI*2);ctx.fill();ctx.fillStyle="#936d20";ctx.font="10px Arial";ctx.fillText("$",c.x*TILE+18,c.y*TILE+21);}
  });
+ powerups.forEach(p=>{
+  if(!p.got){ctx.font="23px sans-serif";ctx.textAlign="center";ctx.fillText(p.type==="heart"?"💖":p.type==="shield"?"🛡":p.type==="speed"?"⚡":"💥",p.x*TILE+18,p.y*TILE+26);}
+ });
+ enemies.forEach(e=>{
+  ctx.font="27px sans-serif";ctx.textAlign="center";
+  ctx.fillText(e.type==="fast"?"👹":"👁",e.x*TILE+18,e.y*TILE+27);
+  if(e.hp>1){ctx.fillStyle="#391c18";ctx.fillRect(e.x*TILE+7,e.y*TILE+2,22,4);ctx.fillStyle="#ee6d57";ctx.fillRect(e.x*TILE+7,e.y*TILE+2,22*Math.min(1,e.hp/(1+Math.floor(level/100))),4);}
+ });
+ if(player){
+  ctx.font="27px sans-serif";ctx.textAlign="center";
+  if(player.invulnerable===0||Math.floor(frame/5)%2===0)ctx.fillText("🧍",player.x*TILE+18,player.y*TILE+28);
+  if(shield>0){ctx.strokeStyle="#9defff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(player.x*TILE+18,player.y*TILE+18,17,0,Math.PI*2);ctx.stroke();}
+ }
+ particles.forEach(p=>{
+  ctx.strokeStyle="#fff4a3";ctx.lineWidth=5;ctx.beginPath();ctx.arc(p.x*TILE+18,p.y*TILE+18,30-p.life/2,0,Math.PI*2);ctx.stroke();
+ });
+ ctx.restore();
+ ctx.fillStyle="#17140dce";ctx.fillRect(12,12,230,43);
+ ctx.fillStyle="#fff2b3";ctx.font="bold 16px Fredoka";ctx.textAlign="left";
+ ctx.fillText("LEVEL "+level+"  •  "+enemies.length+" ENTITIES",22,39);
+ if(abilityCooldown>0){
+  ctx.fillStyle="#17140dce";ctx.fillRect(W-190,12,178,35);
+  ctx.fillStyle="#fff";ctx.fillText("POWER: "+Math.ceil(abilityCooldown/60)+"s",W-180,35);
+ }
 }
-window.addEventListener('keydown',e=>{
- const k=e.key;
- if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(k))e.preventDefault();
- if(k===' '){keys.space=true}
- else keys[k]=true;
- if((k==='x'||k==='X')&&running)useAbility();
- if((k==='e'||k==='E')&&running)useDoor();
- if((k==='p'||k==='P')&&running)pauseGame();
+function loop(now){
+ if(!running)return;
+ last=now;
+ if(!paused)update();
+ draw();
+ requestAnimationFrame(loop);
+}
+function keydown(e){
+ const k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ keys[k]=true;
+ if(e.repeat)return;
+ if(k==="arrowup"||k==="w")move(0,-1);
+ if(k==="arrowdown"||k==="s")move(0,1);
+ if(k==="arrowleft"||k==="a")move(-1,0);
+ if(k==="arrowright"||k==="d")move(1,0);
+ if(k===" "){useAbility();}
+ if(k==="e"){interactDoor();}
+ if(k==="b"){openShop();}
+ if(k==="p"){togglePause();}
+}
+function keyup(e){keys[e.key.toLowerCase()]=false;}
+window.addEventListener("keydown",keydown);
+window.addEventListener("keyup",keyup);
+window.addEventListener("blur",()=>keys={});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running&&!paused)togglePause();});
+
+$("startBtn").addEventListener("click",startGame);
+$("pauseBtn").addEventListener("click",togglePause);
+$("abilityBtn").addEventListener("click",useAbility);
+$("shopBtn").addEventListener("click",openShop);
+$("doorBtn").addEventListener("click",interactDoor);
+$("restartBtn").addEventListener("click",()=>{
+ if(!running)return;
+ paused=true;
+ showPanel("RESTART LEVEL?","Restart this level? Your coins will be kept.",
+  [{text:"Restart",action:()=>{paused=false;makeLevel();hidePanel();last=performance.now();}},
+   {text:"Cancel",action:resume,secondary:true}]);
 });
-window.addEventListener('keyup',e=>{
- if(e.key===' ')keys.space=false;
- else keys[e.key]=false;
-});
-window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
-document.getElementById('startButton').addEventListener('click',startGame);
-buildLevel();draw();
+$("homeBtn").addEventListener("click",goHome);
+
+// Initial title screen background
+grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+player={x:1,y:1,moveTimer:0,invulnerable:0};
+exit={x:COLS-2,y:ROWS-2};secretDoor={x:5,y:5};
+draw();
 })();
 </script>
 </body>
