@@ -3,396 +3,410 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Environmental Escape</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#142b35;color:white;font-family:Fredoka,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:12px}
-#game{width:min(1000px,100%);border:4px solid #6d9f8c;border-radius:17px;overflow:hidden;background:#203e46;box-shadow:0 12px 40px #0009}
-header{padding:10px 14px;background:#244e53;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-h1{font-size:clamp(19px,3vw,27px);margin:0;color:#ffe88a}
-#hud{display:flex;gap:7px;flex-wrap:wrap}
-.stat{background:#163941;padding:6px 9px;border-radius:8px;font-weight:700;font-size:13px}
-#stage{position:relative}
-canvas{width:100%;height:auto;display:block}
-#overlay{position:absolute;inset:0;background:#10272deF;display:flex;align-items:center;justify-content:center;padding:12px;z-index:4}
-.panel{width:min(560px,96%);background:#24535a;border:3px solid #a5d5ad;border-radius:18px;padding:20px;text-align:center;max-height:96%;overflow:auto;box-shadow:0 8px 0 #10272d}
-.panel h2{color:#ffe88a;font-size:clamp(24px,4vw,36px);margin:5px}
-.panel p{line-height:1.5}
-.small{font-size:13px;color:#d3e9dc}
-button{border:0;border-radius:10px;padding:10px 15px;margin:4px;background:#ffe88a;color:#25434a;font-family:Fredoka,sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 0 #b68d43}
-button:hover{filter:brightness(1.1)}
-button:active{transform:translateY(2px);box-shadow:0 2px 0 #b68d43}
-.secondary{background:#9ce4d2}
-#message{min-height:32px;text-align:center;padding:7px;background:#183a42;color:#fff0a3;font-weight:600}
-#controls{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;padding:9px;background:#244e53}
+body{margin:0;background:#102c35;color:#fff;font-family:Fredoka,Arial,sans-serif;overflow:hidden}
+#game{display:block;width:100vw;height:100vh;background:#75c9e8}
+#hud{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;pointer-events:none;flex-wrap:wrap}
+.panel{background:#102c35df;border:2px solid #ffffff55;border-radius:14px;padding:8px 13px;box-shadow:0 3px 10px #0003;font-size:15px}
+#controls{display:flex;gap:6px;pointer-events:auto}
+button{font-family:inherit;font-weight:700;border:0;border-radius:12px;padding:9px 13px;background:#fff;color:#173b46;cursor:pointer;font-size:14px}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+#overlay{position:absolute;inset:0;background:#092b36c9;display:flex;align-items:center;justify-content:center;padding:18px}
+#dialog{background:#fff;color:#173b46;border:5px solid #a8e5ef;border-radius:25px;padding:28px;max-width:540px;width:100%;text-align:center;box-shadow:0 12px 35px #0005}
+#dialog h1{font-size:clamp(30px,5vw,48px);margin:0 0 8px;color:#147b8c}
+#dialog p{font-size:18px;line-height:1.4;margin:10px 0 18px}
+#dialog button{background:#ffbd45;color:#573a00;font-size:20px;padding:13px 26px}
+.small{font-size:14px!important;color:#54717a}
 .hidden{display:none!important}
+@media(max-width:650px){.panel{font-size:12px;padding:6px 8px}button{font-size:12px;padding:7px 9px}}
 </style>
 </head>
 <body>
-<div id="game">
-<header>
-<h1>🌎 Environmental Escape</h1>
+<canvas id="game"></canvas>
 <div id="hud">
-<span class="stat" id="level">Level 1/110</span>
-<span class="stat" id="animal">🐰 Rabbit</span>
-<span class="stat" id="lives">❤️❤️❤️❤️❤️</span>
-<span class="stat" id="coins">🪙 0</span>
-<span class="stat" id="ability">✨ Ready</span>
+  <div class="panel" id="stats">🌎 Environmental Escape</div>
+  <div id="controls">
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="restartBtn">↻ Restart</button>
+    <button id="homeBtn">🏠 Game Lab</button>
+  </div>
 </div>
-</header>
-<div id="stage">
-<canvas id="c" width="900" height="520"></canvas>
 <div id="overlay">
-<div class="panel">
-<div style="font-size:60px">🐰 🐸 🐢</div>
-<h2>ENVIRONMENTAL ESCAPE</h2>
-<p>Travel through amazing environments, collect coins, dodge spikes and eagles, and escape all 110 levels!</p>
-<p class="small">⬅️ ➡️ Move · ⬆️ Jump · SPACE Jump<br>X = Special Ability (has a cooldown!)</p>
-<button id="start" style="font-size:21px;padding:13px 32px">▶ START ADVENTURE</button>
-<p class="small">The final 20 levels take you to the Turtle Kingdom!</p>
-</div>
-</div>
-</div>
-<div id="message">Your adventure is waiting!</div>
-<div id="controls">
-<button id="pause">⏸ Pause</button>
-<button id="power" class="secondary">✨ Special Ability (X)</button>
-<button id="restart" class="secondary">↻ Restart Level</button>
-<button id="home">🏠 Game Lab</button>
-</div>
+  <div id="dialog">
+    <h1>🌎 Environmental Escape!</h1>
+    <p>Travel through 75 exciting levels, meet different animal heroes, and escape every environment!</p>
+    <p><b>WASD</b> or arrow keys to move and jump.<br><b>W</b> or <b>SPACE</b> to jump. <b>X</b> for your special ability.</p>
+    <p class="small">Collect coins, grab power-ups, dodge spikes and eagles, and make it to the exit!</p>
+    <button id="startBtn">LET'S PLAY!</button>
+  </div>
 </div>
 
 <script>
-"use strict";
 (()=>{
-const c=document.getElementById("c"),ctx=c.getContext("2d");
-const $=id=>document.getElementById(id);
-const W=900,H=520;
-const keys={};
-let running=false,paused=true,frame=0,last=0;
-let level=1,lives=5,coins=0;
-let player,platforms=[],spikes=[],eagles=[],treasures=[],powerups=[];
-let camera=0,worldWidth=2100,goal=0;
-let abilityCooldown=0,abilityTime=0,invulnerable=0;
-let jumping=false,worldName="",animalName="",animalEmoji="";
-let messageTimer=0;
+'use strict';
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+const stats=document.getElementById('stats');
+const overlay=document.getElementById('overlay');
+const dialog=document.getElementById('dialog');
+const startBtn=document.getElementById('startBtn');
+const pauseBtn=document.getElementById('pauseBtn');
+const restartBtn=document.getElementById('restartBtn');
+const homeBtn=document.getElementById('homeBtn');
 
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-const rand=(a,b)=>a+Math.random()*(b-a);
-function say(t){$("message").textContent=t;messageTimer=160;}
-function show(title,body,buttons){
- const ov=$("overlay");ov.innerHTML="";
- const panel=document.createElement("div");panel.className="panel";
- const h=document.createElement("h2");h.textContent=title;panel.appendChild(h);
- const p=document.createElement("p");p.innerHTML=body;panel.appendChild(p);
- buttons.forEach(b=>{
-  const btn=document.createElement("button");btn.textContent=b.text;
-  if(b.secondary)btn.className="secondary";
-  btn.addEventListener("click",b.action);panel.appendChild(btn);
- });
- ov.classList.remove("hidden");
+let W=innerWidth,H=innerHeight,dpr=1;
+function resize(){
+  W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
+  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+  canvas.style.width=W+'px';canvas.style.height=H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
 }
-function hide(){ $("overlay").classList.add("hidden");}
-function biome(n){
- if(n<=18)return ["🌲 Forest","Rabbit","🐰","#67b95f","#a3df82"];
- if(n<=36)return ["🌿 Wetlands","Frog","🐸","#55a99a","#9bd5a5"];
- if(n<=54)return ["🌊 Ocean","Sea Turtle","🐢","#239cb5","#8ce0d9"];
- if(n<=72)return ["❄️ Arctic","Arctic Fox","🦊","#9ac6df","#e8f5ff"];
- if(n<=90)return ["🌴 Rainforest","Toucan","🦜","#328d57","#9ad65e"];
- return ["🐢 Turtle Kingdom","Royal Turtle","🐢","#287e69","#a3e8a9"];
+addEventListener('resize',resize);resize();
+
+const TOTAL=75;
+const biomes=[
+ {name:'Forest',animal:'🐰',sky:'#8bd5ee',ground:'#438b48',platform:'#a56e42',decor:'🌲',hazard:'🌵'},
+ {name:'Wetlands',animal:'🐸',sky:'#9bd9ce',ground:'#367d65',platform:'#8a7250',decor:'🌾',hazard:'🪵'},
+ {name:'Ocean',animal:'🐢',sky:'#62c9e9',ground:'#d8c17b',platform:'#3d9bb4',decor:'🌴',hazard:'🦀'},
+ {name:'Arctic',animal:'🦊',sky:'#bde8f4',ground:'#e8f5f8',platform:'#8dc4d6',decor:'❄️',hazard:'🧊'},
+ {name:'Rainforest',animal:'🦜',sky:'#75cdb2',ground:'#327c4d',platform:'#8b653e',decor:'🌴',hazard:'🌿'},
+ {name:'Turtle Kingdom',animal:'🐢',sky:'#86d9b0',ground:'#398c59',platform:'#70b96a',decor:'🏰',hazard:'🌵'}
+];
+const animalCycle=['🐰','🦊','🐸','🦝','🦔','🦜','🐻','🦌','🐢','🐨','🐼','🦦'];
+function biomeFor(level){return level>=61?5:Math.min(4,Math.floor((level-1)/12));}
+function animalFor(level){return level>=61?'🐢':animalCycle[(level-1)%animalCycle.length];}
+function levelName(level){return level>=61?'Turtle Kingdom':biomes[biomeFor(level)].name;}
+
+let level=1,hearts=5,coins=0,score=0,scene='title',paused=false;
+let player,camera=0,platforms=[],hazards=[],coinsOnMap=[],powerups=[],enemies=[],decor=[];
+let worldWidth=2600,groundY=0,exit,particles=[];
+let keys={},lastTime=0,invulnerable=0,abilityCooldown=0,shieldTime=0,speedTime=0;
+let message='',messageTimer=0,levelStartTimer=0;
+let jumpWasDown=false;
+
+function makePlayer(){
+ return {x:90,y:groundY-52,w:42,h:48,vx:0,vy:0,onGround:false,jumps:0,face:1};
 }
-function updateHUD(){
- const b=biome(level);
- $("level").textContent="Level "+level+"/110";
- $("animal").textContent=b[2]+" "+b[1];
- $("lives").textContent="❤️".repeat(Math.max(0,lives))+"🖤".repeat(5-Math.max(0,lives));
- $("coins").textContent="🪙 "+coins;
- $("ability").textContent=abilityCooldown>0?"✨ "+(abilityCooldown/60).toFixed(1)+"s":"✨ Ready";
+function rects(a,b){
+ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 }
-function makeLevel(){
- const b=biome(level);worldName=b[0];animalName=b[1];animalEmoji=b[2];
- const turtle=level>=91;
- worldWidth=turtle?2450:2050;
- goal=worldWidth-95;
- platforms=[];spikes=[];eagles=[];treasures=[];powerups=[];
- camera=0;abilityTime=0;invulnerable=60;
- player={x:55,y:350,vx:0,vy:0,w:34,h:40,onGround:false};
- // Ground is broken into gaps to make jumping important.
- platforms.push({x:0,y:455,w:250,h:100});
- let x=285;
- let index=0;
- while(x<worldWidth-240){
-  const gap=rand(65,115);
-  const width=rand(125,215);
-  const height=rand(0,95);
-  const py=clamp(420-height,285,425);
-  platforms.push({x:x,y:py,w:width,h:25});
-  if(index%2===0)platforms.push({x:x+width+gap*.35,y:py+65,w:gap*.7,h:20});
-  // Hazards sit on platforms, not in midair.
-  if(index%2===1&&width>145)spikes.push({x:x+rand(45,width-45),y:py-18,w:35,h:18});
-  if(index%3===1)eagles.push({x:x+rand(30,width),y:py-rand(95,145),baseY:py-rand(95,145),minX:x-25,maxX:x+width+45,dir:1,speed:rand(1.1,1.8)});
-  if(index%2===0)treasures.push({x:x+width*.5,y:py-32,got:false});
-  if(index%4===2)powerups.push({x:x+width*.75,y:py-30,got:false,type:Math.random()<.5?"heart":"boost"});
-  x+=width+gap;
-  index++;
+function rand(seed){let x=Math.sin(seed*127.1+level*311.7)*43758.5453;return x-Math.floor(x);}
+function addPlatform(x,y,w,h=18){platforms.push({x,y,w,h});}
+function addHazard(x,y,w=38,h=34,type='spike'){hazards.push({x,y,w,h,type});}
+
+function buildLevel(){
+ const b=biomes[biomeFor(level)];
+ worldWidth=2450+Math.min(level,30)*12;
+ groundY=H-78;
+ platforms=[];hazards=[];coinsOnMap=[];powerups=[];enemies=[];decor=[];particles=[];
+ camera=0;
+ // Continuous ground ensures players always have a safe place to land.
+ addPlatform(0,groundY,worldWidth,100);
+ // Raised platforms are spaced apart, never stacked on top of one another.
+ let x=330;
+ let n=0;
+ while(x<worldWidth-300){
+   const y=groundY-(95+rand(n+level*3)*115);
+   const width=125+rand(n+level*9)*65;
+   addPlatform(x,y,width,18);
+   for(let c=0;c<2;c++){
+     coinsOnMap.push({x:x+30+c*38,y:y-35,r:11,taken:false});
+   }
+   if(n%2===0){
+     const hx=x+width+55;
+     if(hx<worldWidth-220)addHazard(hx,groundY-34,38,34,'spike');
+   }
+   if(n%4===2){
+     powerups.push({x:x+width/2,y:y-45,type:n%8===2?'heart':'shield',taken:false});
+   }
+   x+=260+rand(n+level*13)*95;
+   n++;
  }
- platforms.push({x:worldWidth-250,y:455,w:250,h:100});
- // Turtle Kingdom adds special shell bridges and extra hazards.
- if(turtle){
-  for(let i=0;i<6;i++){
-   const tx=430+i*310;
-   platforms.push({x:tx,y:255+(i%2)*45,w:110,h:20,shell:true});
-   spikes.push({x:tx+50,y:455-18,w:35,h:18});
-   if(i%2===0)eagles.push({x:tx+30,y:175,baseY:175,minX:tx-20,maxX:tx+160,dir:1,speed:1.7});
-  }
+ // Ground hazards, with generous clear spaces between them.
+ for(let i=0;i<5+Math.min(5,Math.floor(level/12));i++){
+   const hx=520+i*350+rand(i+level)*90;
+   if(hx<worldWidth-200)addHazard(hx,groundY-34,38,34,'spike');
  }
- // Extra starting and ending platforms guarantee a playable route.
- platforms.sort((a,b)=>a.x-b.x);
- updateHUD();
- say(turtle?"Welcome to Turtle Kingdom! Reach the royal exit!":"Escape the "+worldName+"! Find the exit gate!");
-}
-function start(){
- running=true;paused=false;level=1;lives=5;coins=0;
- abilityCooldown=0;makeLevel();hide();
- $("pause").textContent="⏸ Pause";
- last=performance.now();requestAnimationFrame(loop);
-}
-function restartLevel(){
- paused=false;makeLevel();hide();say("Level restarted. You can do it!");
- $("pause").textContent="⏸ Pause";
-}
-function jump(){
- if(player.onGround){player.vy=-10.6;player.onGround=false;}
-}
-function useAbility(){
- if(!running||paused)return;
- if(abilityCooldown>0){say("Your special ability is still recharging!");return;}
- abilityCooldown=8*60;
- abilityTime=2*60;
- invulnerable=2*60;
- // The ability creates a protective burst that clears nearby hazards.
- spikes=spikes.filter(s=>Math.abs((s.x+s.w/2)-player.x)>155);
- eagles=eagles.filter(e=>Math.hypot(e.x-player.x,e.y-player.y)>165);
+ // Flying eagles with their own patrol paths.
+ for(let i=0;i<2+Math.min(3,Math.floor(level/15));i++){
+   const ex=650+i*570;
+   if(ex<worldWidth-180)enemies.push({x:ex,y:groundY-190-rand(i+level)*70,w:48,h:35,base:ex,phase:rand(i+level*4)*6.28,speed:1.1+Math.min(level*.025,.9),type:'eagle'});
+ }
+ // Extra coins on safe ground stretches.
  for(let i=0;i<12;i++){
-  particles.push({x:player.x+rand(-55,55),y:player.y+rand(-55,55),life:35});
+   const cx=230+i*185+rand(i+level*7)*50;
+   if(cx<worldWidth-160)coinsOnMap.push({x:cx,y:groundY-58,r:11,taken:false});
  }
- say("✨ SPECIAL ABILITY! Protective power activated!");
- updateHUD();
+ exit={x:worldWidth-125,y:groundY-90,w:70,h:90};
+ decor=[];
+ for(let i=0;i<35;i++){
+   decor.push({x:rand(i+level*31)*worldWidth,y:groundY-20,emoji:b.decor});
+ }
+ player=makePlayer();
+ invulnerable=1.1;abilityCooldown=0;shieldTime=0;speedTime=0;
+ message='Level '+level+' — '+levelName(level);messageTimer=2;
 }
-let particles=[];
-function damage(){
- if(invulnerable>0)return;
- lives--;updateHUD();
- if(lives<=0){
-  paused=true;
-  show("💔 GAME OVER","You made it to level "+level+"!<br>You collected "+coins+" coins.<br>Try again and escape all 110 levels!",
-   [{text:"↻ Retry Level",action:()=>{lives=5;restartLevel();}},
-    {text:"▶ Start Over",action:start,secondary:true},
-    {text:"🏠 Game Lab",action:goHome,secondary:true}]);
-  say("Game over! Give it another try.");
+function resetCurrentLevel(){
+ buildLevel();
+ scene='playing';paused=false;
+ overlay.classList.add('hidden');
+ lastTime=performance.now();
+}
+function showOverlay(title,body,buttonText,action){
+ dialog.innerHTML='<h1>'+title+'</h1><p>'+body+'</p><button id="dialogAction">'+buttonText+'</button>';
+ overlay.classList.remove('hidden');
+ document.getElementById('dialogAction').addEventListener('click',action);
+}
+function startGame(){
+ level=1;hearts=5;coins=0;score=0;scene='playing';paused=false;
+ buildLevel();overlay.classList.add('hidden');lastTime=performance.now();
+}
+function loseLife(){
+ if(invulnerable>0||shieldTime>0)return;
+ hearts--;
+ if(hearts<=0){
+   scene='gameover';
+   showOverlay('Oh no! 💚','You ran out of hearts! You reached level '+level+'. Your adventure can start again whenever you are ready.','TRY AGAIN',startGame);
  }else{
-  say("Ouch! You lost a life. Restarting level "+level+"!");
-  makeLevel();
-  player.x=55;player.y=350;player.vy=0;
-  invulnerable=100;
+   scene='retry';
+   showOverlay('Try Again! 🐾','You lost a heart, but you still have '+hearts+' left! Level '+level+' will restart. You can keep going!','RETRY LEVEL',()=>{
+     resetCurrentLevel();
+   });
  }
 }
 function completeLevel(){
- if(level>=110){
-  paused=true;
-  show("🏆 TURTLE KINGDOM SAVED!","You escaped all 110 levels and became the hero of the Turtle Kingdom!<br><br>🪙 Coins collected: "+coins,
-   [{text:"▶ Play Again",action:start},{text:"🏠 Game Lab",action:goHome,secondary:true}]);
-  say("YOU DID IT! All 110 levels completed!");
-  return;
+ if(scene!=='playing')return;
+ if(level>=TOTAL){
+   scene='won';
+   showOverlay('YOU DID IT! 🐢🏆','You escaped all 75 levels and saved Turtle Kingdom! You are an Environmental Escape champion!','PLAY AGAIN',startGame);
+   return;
  }
- level++;makeLevel();player.x=55;player.y=350;invulnerable=100;
- say("Level "+level+" unlocked! Keep escaping!");
+ level++;
+ buildLevel();
 }
-function update(){
- frame++;
- if(abilityCooldown>0)abilityCooldown--;
- if(abilityTime>0)abilityTime--;
- if(invulnerable>0)invulnerable--;
- if(messageTimer>0)messageTimer--;
- let left=keys.ArrowLeft,right=keys.ArrowRight;
- if(left){player.vx=-3.3;}
- else if(right){player.vx=3.3;}
- else player.vx*=.78;
- player.x+=player.vx;
- player.x=clamp(player.x,0,worldWidth-player.w);
- const oldY=player.y;
- player.vy+=.48;
- player.vy=Math.min(player.vy,12);
- player.y+=player.vy;
- player.onGround=false;
- // Platform landing.
- for(const p of platforms){
-  if(player.x+player.w>p.x&&player.x<p.x+p.w&&
-     oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
-   player.y=p.y-player.h;player.vy=0;player.onGround=true;
-  }
+function jump(){
+ if(scene!=='playing'||paused)return;
+ if(player.jumps<3){
+   player.vy=player.jumps===0?-590:-545;
+   player.jumps++;
+   player.onGround=false;
  }
- // Falling out of the level.
- if(player.y>H+90){damage();return;}
- // Spike collision.
- for(const s of spikes){
-  if(player.x+player.w-5>s.x&&player.x+5<s.x+s.w&&
-     player.y+player.h>s.y&&player.y+5<s.y+s.h){damage();return;}
+}
+function useAbility(){
+ if(scene!=='playing'||paused||abilityCooldown>0)return;
+ abilityCooldown=8;
+ shieldTime=1.35;
+ // The special ability clears nearby hazards and briefly protects the animal.
+ hazards=hazards.filter(h=>Math.abs((h.x+h.w/2)-(player.x+player.w/2))>175);
+ enemies=enemies.filter(e=>Math.abs((e.x+e.w/2)-(player.x+player.w/2))>190);
+ for(let i=0;i<16;i++)particles.push({x:player.x+player.w/2,y:player.y+player.h/2,vx:(rand(i+level)-.5)*330,vy:(rand(i+level+80)-.5)*330,life:.55});
+ message='SPECIAL POWER!';messageTimer=.9;
+}
+function update(dt){
+ if(scene!=='playing'||paused)return;
+ dt=Math.min(dt,.035);
+ invulnerable=Math.max(0,invulnerable-dt);
+ abilityCooldown=Math.max(0,abilityCooldown-dt);
+ shieldTime=Math.max(0,shieldTime-dt);
+ speedTime=Math.max(0,speedTime-dt);
+ messageTimer=Math.max(0,messageTimer-dt);
+ const p=player;
+ const left=keys['a']||keys['arrowleft'];
+ const right=keys['d']||keys['arrowright'];
+ const jumpDown=keys['w']||keys['arrowup']||keys[' '];
+ if(jumpDown&&!jumpWasDown)jump();
+ jumpWasDown=!!jumpDown;
+ if(keys['x']){useAbility();keys['x']=false;}
+ const moveSpeed=speedTime>0?360:270;
+ p.vx=(right?1:0)-(left?1:0);
+ if(p.vx!==0)p.face=Math.sign(p.vx);
+ p.x+=p.vx*moveSpeed*dt;
+ p.x=Math.max(0,Math.min(worldWidth-p.w,p.x));
+ const oldBottom=p.y+p.h;
+ p.vy+=1500*dt;
+ p.y+=p.vy*dt;
+ p.onGround=false;
+ // Stable one-way platform collision: only land while falling through a platform top.
+ if(p.vy>=0){
+   for(const plat of platforms){
+     const newBottom=p.y+p.h;
+     const horizontal=p.x+p.w>plat.x+4&&p.x<plat.x+plat.w-4;
+     if(horizontal&&oldBottom<=plat.y+8&&newBottom>=plat.y&&p.y<plat.y){
+       p.y=plat.y-p.h;p.vy=0;p.onGround=true;p.jumps=0;
+       break;
+     }
+   }
  }
- // Flying eagles patrol their platforms.
- for(const e of eagles){
-  e.x+=e.dir*e.speed;
-  e.y=e.baseY+Math.sin(frame*.045+e.x*.01)*13;
-  if(e.x>e.maxX||e.x<e.minX)e.dir*=-1;
-  if(player.x+player.w-5>e.x-17&&player.x+5<e.x+17&&
-     player.y+player.h-4>e.y-14&&player.y+5<e.y+15){damage();return;}
+ if(p.y>H+150){loseLife();return;}
+ // Collect coins and power-ups.
+ for(const c of coinsOnMap){
+   if(!c.taken&&Math.hypot(p.x+p.w/2-c.x,p.y+p.h/2-c.y)<34){
+     c.taken=true;coins++;score+=10;
+   }
  }
- // Collect coins.
- treasures.forEach(t=>{
-  if(!t.got&&Math.hypot(player.x+player.w/2-t.x,player.y+player.h/2-t.y)<34){
-   t.got=true;coins++;updateHUD();
-  }
- });
- // Collect power-ups.
- powerups.forEach(p=>{
-  if(!p.got&&Math.hypot(player.x+player.w/2-p.x,player.y+player.h/2-p.y)<35){
-   p.got=true;
-   if(p.type==="heart"){lives=Math.min(5,lives+1);say("💖 Extra life collected!");}
-   else{abilityCooldown=0;say("⚡ Ability recharged!");}
-   updateHUD();
-  }
- });
- // Exit gate.
- if(player.x+player.w>goal&&player.y+player.h>380)completeLevel();
- // Camera follows player.
- camera=clamp(player.x-W*.36,0,worldWidth-W);
- if(frame%12===0)updateHUD();
+ for(const u of powerups){
+   if(!u.taken&&Math.hypot(p.x+p.w/2-u.x,p.y+p.h/2-u.y)<38){
+     u.taken=true;
+     if(u.type==='heart')hearts=Math.min(5,hearts+1);
+     else shieldTime=5;
+     score+=25;message=u.type==='heart'?'EXTRA HEART!':'SHIELD POWER-UP!';messageTimer=1.2;
+   }
+ }
+ // Hazards only hurt when the player's body actually overlaps the hazard.
+ for(const h of hazards){
+   if(rects(p,{x:h.x+5,y:h.y+7,w:h.w-10,h:h.h-7})){loseLife();return;}
+ }
+ // Eagles patrol horizontally and bob up and down.
+ for(const e of enemies){
+   e.phase+=dt*e.speed;
+   e.x=e.base+Math.sin(e.phase)*85;
+   e.y+=Math.sin(e.phase*1.8)*.35;
+   if(rects(p,{x:e.x+8,y:e.y+8,w:e.w-16,h:e.h-12})){loseLife();return;}
+ }
+ if(rects(p,exit)){completeLevel();return;}
+ camera=Math.max(0,Math.min(worldWidth-W,p.x-W*.32));
+ for(const part of particles){part.x+=part.vx*dt;part.y+=part.vy*dt;part.life-=dt;}
+ particles=particles.filter(q=>q.life>0);
+}
+function roundRect(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
 }
 function drawBackground(){
- const b=biome(level);
- const g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,b[3]);g.addColorStop(1,b[4]);
- ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- // Decorative distant hills.
- ctx.fillStyle="#ffffff24";
- for(let i=0;i<8;i++){
-  const x=(i*175-camera*.18)%1050;
-  ctx.beginPath();ctx.arc(x,340,75,Math.PI,Math.PI*2);ctx.fill();
+ const b=biomes[biomeFor(level)];
+ const grad=ctx.createLinearGradient(0,0,0,H);
+ grad.addColorStop(0,b.sky);grad.addColorStop(1,'#e6f7e9');
+ ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ // Clouds
+ ctx.fillStyle='#ffffff88';
+ for(let i=0;i<5;i++){
+   const x=((i*250-camera*.18)%(W+180)+W+180)%(W+180)-60;
+   const y=55+(i%3)*45;
+   ctx.beginPath();ctx.arc(x,y,22,0,Math.PI*2);ctx.arc(x+25,y-9,27,0,Math.PI*2);ctx.arc(x+53,y,20,0,Math.PI*2);ctx.fill();
  }
- if(level>=91){
-  ctx.fillStyle="#d8ffb522";
-  for(let i=0;i<12;i++){
-   const x=(i*130-camera*.25)%1000;
-   ctx.beginPath();ctx.arc(x,100+(i%3)*45,30,0,Math.PI*2);ctx.fill();
-  }
-  ctx.fillStyle="#ffe9a0";ctx.font="bold 19px Fredoka";ctx.fillText("🐢 TURTLE KINGDOM",330,35);
- }else{
-  ctx.fillStyle="#ffffffb0";ctx.font="bold 17px Fredoka";ctx.fillText(b[0],20,30);
+ // Distant hills
+ ctx.fillStyle='#ffffff35';
+ for(let i=0;i<7;i++){
+   const x=((i*270-camera*.3)%(W+300)+W+300)%(W+300)-100;
+   ctx.beginPath();ctx.ellipse(x,H-105,170,90,0,Math.PI,Math.PI*2);ctx.fill();
  }
 }
-function draw(){
- drawBackground();
+function drawWorld(){
+ const b=biomes[biomeFor(level)];
  ctx.save();ctx.translate(-camera,0);
- // Platforms
- platforms.forEach(p=>{
-  ctx.fillStyle=p.shell?"#4a9b74":"#684e37";
-  ctx.fillRect(p.x,p.y,p.w,p.h);
-  ctx.fillStyle=p.shell?"#a4e6a6":"#9b754c";
-  ctx.fillRect(p.x,p.y,p.w,7);
-  ctx.fillStyle="#ffffff25";
-  ctx.fillRect(p.x+5,p.y+9,p.w-10,3);
- });
- // Spikes
- spikes.forEach(s=>{
-  ctx.fillStyle="#d5dbe2";
-  for(let x=s.x;x<s.x+s.w;x+=12){
-   ctx.beginPath();ctx.moveTo(x,s.y+s.h);ctx.lineTo(x+6,s.y);ctx.lineTo(x+12,s.y+s.h);ctx.fill();
-  }
- });
- // Eagles
- eagles.forEach(e=>{
-  ctx.font="29px sans-serif";ctx.textAlign="center";ctx.fillText("🦅",e.x,e.y+10);
- });
- // Coins
- treasures.forEach(t=>{
-  if(!t.got){
-   ctx.fillStyle="#ffdf51";ctx.beginPath();ctx.arc(t.x,t.y,10,0,Math.PI*2);ctx.fill();
-   ctx.fillStyle="#9a7024";ctx.font="bold 12px Arial";ctx.textAlign="center";ctx.fillText("$",t.x,t.y+4);
-  }
- });
- // Power-ups
- powerups.forEach(p=>{
-  if(!p.got){ctx.font="24px sans-serif";ctx.textAlign="center";ctx.fillText(p.type==="heart"?"💖":"⚡",p.x,p.y+8);}
- });
- // Exit
- ctx.fillStyle="#ffe779";ctx.fillRect(goal,365,46,90);
- ctx.fillStyle="#3e654f";ctx.fillRect(goal+9,375,28,80);
- ctx.fillStyle="#fff";ctx.font="bold 13px Fredoka";ctx.textAlign="center";ctx.fillText("EXIT",goal+23,355);
- // Player
- if(invulnerable===0||Math.floor(frame/5)%2===0){
-  ctx.font="38px sans-serif";ctx.textAlign="center";
-  ctx.fillText(animalEmoji,player.x+player.w/2,player.y+player.h-3);
+ // Decorative scenery
+ for(const d of decor){
+   ctx.font='34px Arial';ctx.fillText(d.emoji,d.x,d.y);
  }
- // Special ability glow
- if(abilityTime>0){
-  ctx.strokeStyle="#fff58b";ctx.lineWidth=5;
-  ctx.beginPath();ctx.arc(player.x+17,player.y+20,43+Math.sin(frame*.25)*7,0,Math.PI*2);ctx.stroke();
+ // Platforms
+ for(const pl of platforms){
+   if(pl.x+pl.w<camera-30||pl.x>camera+W+30)continue;
+   ctx.fillStyle=b.ground;ctx.fillRect(pl.x,pl.y,pl.w,pl.h);
+   ctx.fillStyle='#ffffff45';ctx.fillRect(pl.x,pl.y,pl.w,5);
+   if(pl.y<groundY-25){
+     ctx.fillStyle='#00000012';ctx.fillRect(pl.x,pl.y+pl.h,pl.w,5);
+   }
+ }
+ // Hazards
+ for(const h of hazards){
+   ctx.font='36px Arial';ctx.textAlign='center';ctx.fillText(b.hazard,h.x+h.w/2,h.y+h.h);
+ }
+ // Coins
+ for(const c of coinsOnMap){
+   if(c.taken)continue;
+   ctx.fillStyle='#ffd83d';ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#b77b16';ctx.lineWidth=3;ctx.stroke();
+   ctx.fillStyle='#fff3a3';ctx.fillRect(c.x-2,c.y-7,4,14);
+ }
+ // Powerups
+ for(const u of powerups){
+   if(u.taken)continue;
+   ctx.font='28px Arial';ctx.textAlign='center';ctx.fillText(u.type==='heart'?'💖':'🛡️',u.x,u.y);
+ }
+ // Eagles
+ for(const e of enemies){
+   ctx.font='38px Arial';ctx.textAlign='center';ctx.fillText('🦅',e.x+e.w/2,e.y+e.h);
+ }
+ // Exit
+ roundRect(exit.x,exit.y,exit.w,exit.h,12,level>=61?'#1c9c55':'#b87a37');
+ ctx.fillStyle='#fff';ctx.font='bold 15px Fredoka';ctx.textAlign='center';ctx.fillText('EXIT',exit.x+exit.w/2,exit.y+48);
+ ctx.font='32px Arial';ctx.fillText(level>=61?'🐢':'🚪',exit.x+exit.w/2,exit.y+29);
+ // Player
+ if(!(invulnerable>0&&Math.floor(performance.now()/90)%2===0)){
+   ctx.font='43px Arial';ctx.textAlign='center';
+   const animal=animalFor(level);
+   ctx.save();
+   if(player.face<0){ctx.translate(player.x+player.w/2,0);ctx.scale(-1,1);ctx.fillText(animal,0,player.y+player.h-2);}
+   else ctx.fillText(animal,player.x+player.w/2,player.y+player.h-2);
+   ctx.restore();
+ }
+ // Shield ring
+ if(shieldTime>0){
+   ctx.strokeStyle='#58d9ff';ctx.lineWidth=5;ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,36,0,Math.PI*2);ctx.stroke();
+ }
+ for(const part of particles){
+   ctx.fillStyle='#8ff4ff';ctx.beginPath();ctx.arc(part.x,part.y,5,0,Math.PI*2);ctx.fill();
  }
  ctx.restore();
- // Cooldown bar
- ctx.fillStyle="#15333ccc";ctx.fillRect(14,H-42,230,28);
- ctx.fillStyle="#fff";ctx.font="bold 13px Fredoka";ctx.textAlign="left";
- ctx.fillText("SPECIAL",22,H-23);
- ctx.fillStyle="#425b5d";ctx.fillRect(92,H-32,140,12);
- ctx.fillStyle=abilityCooldown===0?"#ffdf69":"#79d5c2";
- ctx.fillRect(92,H-32,140*(1-abilityCooldown/(8*60)),12);
+}
+function draw(){
+ drawBackground();drawWorld();
+ // Level banner
+ ctx.fillStyle='#123b46dd';ctx.font='bold 17px Fredoka';ctx.textAlign='center';
+ ctx.fillText('LEVEL '+level+' / '+TOTAL+'  •  '+levelName(level),W/2,35);
+ if(messageTimer>0){
+   ctx.fillStyle='#123b46dd';roundRect(W/2-145,55,290,42,14,'#123b46dd');
+   ctx.fillStyle='#fff';ctx.font='bold 20px Fredoka';ctx.fillText(message,W/2,83);
+ }
+ const abilityText=abilityCooldown>0?'X Power: '+abilityCooldown.toFixed(1)+'s':'X Power: READY';
+ ctx.fillStyle='#123b46dd';roundRect(12,H-48,220,34,10,'#123b46dd');
+ ctx.fillStyle='#fff';ctx.font='14px Fredoka';ctx.textAlign='left';
+ ctx.fillText('Animal: '+animalFor(level)+'   '+abilityText,23,H-26);
+}
+function updateHUD(){
+ stats.textContent='🌎 Level '+level+'/75  |  '+levelName(level)+'  |  '+animalFor(level)+'  |  ❤️ '+hearts+'  |  🪙 '+coins+'  |  ⭐ '+score;
+ pauseBtn.textContent=paused?'▶ Resume':'⏸ Pause';
 }
 function loop(now){
- if(!running)return;
- const dt=Math.min(40,now-last||16);last=now;
- if(!paused)update();
- draw();
+ const dt=lastTime?(now-lastTime)/1000:0;lastTime=now;
+ if(scene==='playing')update(dt);
+ draw();updateHUD();
  requestAnimationFrame(loop);
 }
 function togglePause(){
- if(!running)return;
- if(!paused){
-  paused=true;$("pause").textContent="▶ Resume";
-  show("⏸ PAUSED","Your progress is safe!<br>Take a break, then keep escaping.",
-   [{text:"▶ Resume",action:resume},{text:"🏠 Game Lab",action:goHome,secondary:true}]);
- }else resume();
+ if(scene!=='playing')return;
+ paused=!paused;
+ if(paused){
+   showOverlay('Game Paused ⏸','Take a breather! Your progress is safe.','RESUME',()=>{
+     overlay.classList.add('hidden');paused=false;lastTime=performance.now();
+   });
+ }else overlay.classList.add('hidden');
 }
-function resume(){paused=false;hide();$("pause").textContent="⏸ Pause";last=performance.now();}
-function goHome(){
- running=false;paused=true;
- show("ENVIRONMENTAL ESCAPE","Thanks for playing! Ready for another adventure?",
-  [{text:"▶ Play Again",action:start},{text:"Back to Game Lab",action:()=>location.href="../../index.html",secondary:true}]);
-}
-function keydown(e){
- const k=e.key;
- if(["ArrowLeft","ArrowRight","ArrowUp"," "].includes(k))e.preventDefault();
+startBtn.addEventListener('click',startGame);
+pauseBtn.addEventListener('click',togglePause);
+restartBtn.addEventListener('click',()=>{
+ if(scene==='playing'||scene==='retry')resetCurrentLevel();
+ else startGame();
+});
+homeBtn.addEventListener('click',()=>{location.href='../../index.html';});
+addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase();
+ if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
  keys[k]=true;
- if(e.repeat)return;
- if(k==="ArrowUp"&&!paused&&running)jump();
- if(k===" "&&!paused&&running)jump();
- if(k.toLowerCase()==="x"&&!paused&&running)useAbility();
- if(k.toLowerCase()==="p")togglePause();
-}
-function keyup(e){keys[e.key]=false;}
-window.addEventListener("keydown",keydown);
-window.addEventListener("keyup",keyup);
-window.addEventListener("blur",()=>Object.keys(keys).forEach(k=>keys[k]=false));
-document.addEventListener("visibilitychange",()=>{if(document.hidden&&running&&!paused)togglePause();});
-$("start").addEventListener("click",()=>{start();});
-$("pause").addEventListener("click",togglePause);
-$("power").addEventListener("click",useAbility);
-$("restart").addEventListener("click",()=>{if(running){paused=true;show("RESTART LEVEL?","Restart this level from the beginning?",[{text:"Restart",action:restartLevel},{text:"Cancel",action:resume,secondary:true}]);}});
-$("home").addEventListener("click",goHome);
-drawBackground();
-ctx.fillStyle="#fff";ctx.font="bold 36px Fredoka";ctx.textAlign="center";
-ctx.fillText("ENVIRONMENTAL ESCAPE",W/2,H/2);
+ if(k==='escape')togglePause();
+ if(k==='r'&&scene==='playing')resetCurrentLevel();
+});
+addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
+addEventListener('blur',()=>{keys={};jumpWasDown=false;});
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden){keys={};jumpWasDown=false;}
+});
+buildLevel();
+scene='title';
+requestAnimationFrame(loop);
 })();
 </script>
 </body>
