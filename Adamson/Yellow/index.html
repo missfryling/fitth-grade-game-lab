@@ -4,573 +4,495 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lucia: Miami City Stories 3D</title>
+<title>GTA6</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 *{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#101b2b;font-family:Arial,sans-serif;color:white}
-canvas{display:block}
-#hud{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;pointer-events:none}
-.pill{background:#101a2ddd;border:1px solid #78d8ff;border-radius:14px;padding:9px 13px;font-weight:bold;text-shadow:0 1px 3px #000}
-#bottom{position:absolute;bottom:12px;left:12px;background:#101a2ddd;border:1px solid #78d8ff;border-radius:12px;padding:10px;font-size:13px;line-height:1.6}
-#notice{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:#fff0a8;color:#382c36;padding:11px 17px;border-radius:12px;font-weight:bold;opacity:0;transition:opacity .2s;max-width:90vw;text-align:center}
-#overlay{position:absolute;inset:0;background:#07101eeF;display:flex;align-items:center;justify-content:center;padding:15px}
-#card{width:min(600px,96vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#19334b,#111b31);border:2px solid #7bdfff;border-radius:22px;padding:23px;text-align:center;box-shadow:0 0 40px #4acaff44}
-h1{color:#9eeaff;font-size:clamp(28px,6vw,43px);margin:5px}
-button{background:#ffe17c;color:#332a3b;border:0;border-radius:11px;padding:11px 16px;font-weight:bold;font-size:15px;cursor:pointer;margin:4px}
-button:active{transform:translateY(2px)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}
-.small{font-size:13px;color:#c8d9e8;line-height:1.5}
+body{margin:0;background:#101725;color:white;font-family:Outfit,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:12px}
+#app{width:min(1200px,100%);background:#192437;border:2px solid #52627a;border-radius:18px;overflow:hidden;box-shadow:0 18px 55px #0009}
+header{height:auto;min-height:56px;background:linear-gradient(90deg,#172d3c,#344b5b,#172d3c);display:flex;align-items:center;justify-content:space-between;padding:9px 16px;gap:10px;flex-wrap:wrap}
+.logo{font-family:Fredoka,sans-serif;font-weight:700;font-size:27px;letter-spacing:2px;color:#ffe36e;text-shadow:2px 3px #16202b}
+#stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{background:#26374c;border:1px solid #60748b;border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700}
+#gameArea{position:relative;background:#70b8c5}
+canvas{width:100%;height:auto;display:block}
+#overlay{position:absolute;inset:0;background:#0c1524eF;display:flex;align-items:center;justify-content:center;padding:15px;z-index:10}
+.panel{width:min(570px,96%);max-height:95%;overflow:auto;background:linear-gradient(145deg,#253b50,#17263a);border:2px solid #e5c86e;border-radius:18px;padding:22px;text-align:center;box-shadow:0 15px 40px #0009}
+.panel h2{font-family:Fredoka,sans-serif;color:#ffe36e;font-size:30px;margin:4px 0 12px}
+.panel p{line-height:1.5;font-size:15px}
+.panel .sub{font-size:13px;color:#c4d3e2}
+button{border:0;border-radius:9px;padding:9px 13px;margin:3px;background:#ffe071;color:#253146;font-family:Outfit,sans-serif;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 3px 0 #b78e37}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button:active{transform:translateY(2px);box-shadow:none}
+button.secondary{background:#8bd5d2;box-shadow:0 3px 0 #438c91}
+button.dark{background:#3e526c;color:white;box-shadow:0 3px 0 #1c2b40}
+#toolbar{background:#18263a;padding:8px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+#toolbar button{font-size:13px}
+#message{min-height:32px;padding:7px 12px;text-align:center;background:#25364a;color:#ffeaa1;font-weight:600;font-size:14px}
+#missionbar{background:#111e30;padding:8px 14px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:13px}
 .hidden{display:none!important}
-#dialog{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);width:min(560px,92vw);background:#10182eed;border:2px solid #ffe17c;border-radius:16px;padding:16px;text-align:center}
-#dialog button{margin-top:10px}
 </style>
 </head>
 <body>
-<div id="hud">
- <div class="pill" id="location">🌴 MIAMI</div>
- <div class="pill" id="mission">📋 Mission: Explore the city</div>
- <div class="pill" id="wanted">🚨 WANTED: ☆☆☆☆☆</div>
- <div class="pill" id="mode">🚶 ON FOOT</div>
-</div>
-<div id="notice"></div>
-<div id="bottom">WASD / Arrows: Move<br>Shift: Run · E: Interact<br>F: Fish · Escape: Pause</div>
-<div id="dialog" class="hidden"></div>
+<div id="app">
+<header>
+ <div class="logo">GTA6 <span style="font-size:13px;color:#fff;letter-spacing:1px">MIAMI</span></div>
+ <div id="stats">
+  <div class="stat" id="money">💵 $0</div>
+  <div class="stat" id="wanted">🚨 No Wanted Level</div>
+  <div class="stat" id="time">🕒 8:00 AM</div>
+  <div class="stat" id="vehicle">🚶 On Foot</div>
+ </div>
+</header>
+<div id="gameArea">
+<canvas id="c" width="1000" height="620"></canvas>
 <div id="overlay">
- <div id="card">
-  <h1>🌴 LUCIA: MIAMI CITY STORIES</h1>
-  <h2>THE 3D CITY ADVENTURE</h2>
-  <p>Explore a huge Miami-inspired city. Drive through the streets, meet people, collect items, investigate a swamp mystery, and discover the ocean.</p>
-  <div class="grid">
-   <button onclick="startGame()">START CITY ADVENTURE</button>
-   <button onclick="showHelp()">HOW TO PLAY</button>
-  </div>
-  <p class="small">Third-person 3D world · Random pedestrians · AI traffic · Enterable cars and buildings · Swamp mystery · Ocean fishing</p>
+ <div class="panel">
+  <div style="font-size:60px">🌴 🚘 🌊</div>
+  <h2 style="font-size:42px">GTA6</h2>
+  <h3 style="color:#8ee5e2;margin:0">WELCOME TO MIAMI</h3>
+  <p>Explore the city as Lucia! Drive through the streets, complete missions, collect money, visit shops, and discover the beach and marina.</p>
+  <p class="sub">WASD / ARROWS: Move or drive<br>E: Enter or exit car / interact<br>SHIFT: Turbo boost · SPACE: Car horn<br>P: Pause · B: Food and drink shop · M: Radio</p>
+  <button id="start" style="font-size:21px;padding:13px 34px">▶ START GTA6</button>
+  <p class="sub">A school-friendly Miami adventure. No weapons or shooting.</p>
  </div>
 </div>
+</div>
+<div id="missionbar">
+ <span id="mission">📍 Mission: Find your first assignment</span>
+ <span id="location">📍 Vice City</span>
+</div>
+<div id="message">Welcome to Miami, Lucia!</div>
+<div id="toolbar">
+ <button id="pause">⏸ Pause</button>
+ <button id="interact" class="secondary">E · Interact</button>
+ <button id="turbo">⚡ Turbo</button>
+ <button id="shop" class="secondary">🍔 Shop</button>
+ <button id="radio" class="dark">📻 Radio: On</button>
+ <button id="settings" class="dark">⚙ Settings</button>
+ <button id="restart" class="dark">↻ Restart</button>
+ <button id="home" class="dark">🏠 Game Lab</button>
+</div>
+</div>
 
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+<script>
+"use strict";
+(()=>{
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+const W=1000,H=620,MW=2700,MH=2200;
+const keys={};
+let running=false,paused=true,frame=0,last=0,elapsed=0;
+let money=0,health=100,wanted=0,radio=true,sound=true;
+let player,car,driving=false,camera={x:0,y:0};
+let traffic=[],people=[],coins=[],police=[],buildings=[],trees=[],particles=[];
+let missionIndex=0,missionProgress=0,missionDone=[false,false,false,false];
+let turbo=100,turboActive=false,helicopter=false;
+let inside=null,dayMinutes=480;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const roadX=[390,930,1470,2010,2550];
+const roadY=[300,790,1280,1770,2150];
 
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x8bb8d5);
-scene.fog=new THREE.Fog(0x8bb8d5,150,750);
-
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,1600);
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled=true;
-renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-document.body.appendChild(renderer.domElement);
-
-const hemi=new THREE.HemisphereLight(0xc9eaff,0x43513d,2);
-scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffedcf,3);
-sun.position.set(-130,220,90);
-sun.castShadow=true;
-sun.shadow.mapSize.set(2048,2048);
-sun.shadow.camera.left=-260;sun.shadow.camera.right=260;
-sun.shadow.camera.top=260;sun.shadow.camera.bottom=-260;
-scene.add(sun);
-
-const mat=(color,roughness=.85)=>new THREE.MeshStandardMaterial({color,roughness});
-const materials={
- road:mat(0x30343a),sidewalk:mat(0xb9b9ad),grass:mat(0x477b55),
- water:mat(0x167d9e,.3),white:mat(0xf2eee2),yellow:mat(0xffdc67),
- glass:new THREE.MeshStandardMaterial({color:0x75b9d3,roughness:.2,metalness:.3}),
- building:[0xe6d7c3,0xd4e2df,0xd9c3b0,0xbecbd0,0xf0dfbd,0xc2d2d6].map(c=>mat(c)),
-};
-const boxGeo=new THREE.BoxGeometry(1,1,1);
-const sphereGeo=new THREE.SphereGeometry(1,16,12);
-const cylinderGeo=new THREE.CylinderGeometry(1,1,1,12);
-
-let running=false,paused=false,night=false;
-let player,car=null,boat=null;
-let pedestrians=[],traffic=[],buildings=[],collectibles=[];
-let keys={};
-let wanted=0,wantedClock=0,escapeClock=0,missionItems=0;
-let mission='Collect 5 items around Miami';
-let swampStarted=false,swampWait=0,boar=null,swampGuy=null;
-let dialogue=null,dialogueTimer=0;
-let fishCount=0,score=0;
-let cityTime=0,frame=0;
-let currentInterior=false,insideBuilding=null;
-let fishing=false,fishTimer=0;
-let helicopter=null,helicopterActive=false;
-let last=0,raf=0;
-
-const citySize=850;
-const roads=[-300,-100,100,300];
-const oceanZ=-440;
-const swampPos=new THREE.Vector3(340,0,340);
-
-function mesh(geo,material,x,y,z,sx=1,sy=1,sz=1){
- const o=new THREE.Mesh(geo,material);
- o.position.set(x,y,z);o.scale.set(sx,sy,sz);
- o.castShadow=true;o.receiveShadow=true;scene.add(o);return o;
+function say(s){$("message").textContent=s}
+function setOverlay(title,html,buttons){
+ const ov=$("overlay");ov.innerHTML="";
+ const panel=document.createElement("div");panel.className="panel";
+ const h=document.createElement("h2");h.textContent=title;panel.appendChild(h);
+ const body=document.createElement("div");body.innerHTML=html;panel.appendChild(body);
+ buttons.forEach(b=>{
+  const el=document.createElement("button");el.textContent=b.text;
+  if(b.secondary)el.className="secondary";
+  el.addEventListener("click",b.action);panel.appendChild(el);
+ });
+ ov.classList.remove("hidden");
 }
-function makeBuilding(x,z,w,d,h,index){
- const color=materials.building[index%materials.building.length];
- const b=mesh(boxGeo,color,x,h/2,z,w,h,d);
- b.userData={type:'building',x,z,w,d,h};
- buildings.push(b);
- // Windows
- const windowMat=night?mat(0xffe9a0):materials.glass;
- for(let y=4;y<h-2;y+=5){
-  for(let side=-1;side<=1;side+=2){
-   for(let wx=-w/2+2;wx<w/2-1;wx+=4){
-    mesh(boxGeo,windowMat,x+wx,y,z+side*(d/2+.04),1.5,2,.08);
-   }
-  }
-  for(let wz=-d/2+2;wz<d/2-1;wz+=4){
-   for(let side=-1;side<=1;side+=2){
-    mesh(boxGeo,windowMat,x+side*(w/2+.04),y,z+wz,.08,2,1.5);
-   }
-  }
- }
- // Roof details
- if(h>35)mesh(boxGeo,mat(0x8c969c),x,h+1,z,w*.25,2,d*.25);
- return b;
-}
-function makePalm(x,z){
- const trunk=mesh(cylinderGeo,mat(0x765034),x,5,z,1,10,1);
- for(let i=0;i<7;i++){
-  const angle=i*Math.PI*2/7;
-  const leaf=mesh(boxGeo,mat(0x24764b),x+Math.cos(angle)*3,10,z+Math.sin(angle)*3,1,1,7);
-  leaf.rotation.y=-angle;
-  leaf.rotation.z=-.3;
- }
-}
-function buildCity(){
- // Ground
- mesh(boxGeo,materials.grass,0,-1,-10,1000,2,1000);
- // Ocean
- mesh(boxGeo,materials.water,0,-.3,-470,1100,1,240);
- // Beach
- mesh(boxGeo,mat(0xdac69a),0,.1,-340,1100,1,35);
- // Roads, sidewalks and cross streets
- for(const x of roads){
-  mesh(boxGeo,materials.road,x,.02,0,26,.3,900);
-  mesh(boxGeo,materials.sidewalk,x-19,.25,0,12,.5,900);
-  mesh(boxGeo,materials.sidewalk,x+19,.25,0,12,.5,900);
-  for(let z=-420;z<430;z+=30)mesh(boxGeo,materials.yellow,x,.22,z,1,.04,10);
- }
- for(const z of roads){
-  mesh(boxGeo,materials.road,0,.03,z,900,.3,26);
-  mesh(boxGeo,materials.sidewalk,0,.25,z-19,900,.5,12);
-  mesh(boxGeo,materials.sidewalk,0,.25,z+19,900,.5,12);
-  for(let x=-420;x<430;x+=30)mesh(boxGeo,materials.yellow,x,.22,z,10,.04,1);
- }
- // Blocks of Miami-inspired buildings
- let idx=0;
- for(let x=-390;x<=390;x+=100){
-  for(let z=-390;z<=390;z+=100){
-   if(roads.some(r=>Math.abs(x-r)<48)||roads.some(r=>Math.abs(z-r)<48))continue;
-   let w=rand(45,67),d=rand(45,65),h=rand(25,110);
-   if(Math.abs(z+340)<90)h*=1.35;
-   makeBuilding(x+rand(-8,8),z+rand(-8,8),w,d,h,idx++);
-   if(Math.random()<.55){
-    makePalm(x-30,z+30);makePalm(x+30,z-30);
-   }
-  }
- }
- // Tall skyline near waterfront
- for(let i=0;i<15;i++){
-  let x=-380+i*55,z=-290-rand(0,25),h=rand(90,190);
-  makeBuilding(x,z,rand(35,48),rand(35,45),h,i+2);
- }
- // Street lamps
- for(let x=-400;x<=400;x+=100)for(let z=-400;z<=400;z+=100){
-  if(roads.some(r=>Math.abs(x-r)<35)||roads.some(r=>Math.abs(z-r)<35)){
-   mesh(cylinderGeo,mat(0x4c5660),x,5,z,0.6,10,.6);
-   mesh(sphereGeo,mat(0xffefbb),x,10,z,.9,.5,.9);
-  }
- }
- // Waterfront fishing pier
- mesh(boxGeo,mat(0x805e42),0,1,-360,100,2,38);
-}
-function makePerson(x,z){
- const group=new THREE.Group();
- const female=Math.random()<.5;
- const skin=[0x9b6548,0xd6a17c,0xf0c7a0,0x754a37][randInt(4)];
- const shirt=[0xe45d65,0x54a6b8,0xf1c45c,0x8563b5,0xeeeeee,0x367b55][randInt(6)];
- const pants=[0x29364a,0x6d594a,0x343434,0x8b9ca4][randInt(4)];
- const body=mesh(boxGeo,mat(shirt),0,0,0,.65,1.1,.4);
- const head=mesh(sphereGeo,mat(skin),0,.9,0,.32,.36,.32);
- const legs=[];
- for(let side of [-1,1]){
-  const leg=mesh(boxGeo,mat(pants),side*.18,-.65,0,.2,.75,.23);
-  legs.push(leg);
- }
- const hair=mesh(sphereGeo,mat([0x2a1c18,0x58301c,0xc69a48,0x171717][randInt(4)]),0,1.13,0,.35,.18,.35);
- group.add(body,head,...legs,hair);
- // Reposition pieces into group coordinates
- group.position.set(x,1,z);
- scene.add(group);
- const person={group,x,z,legs,phase:Math.random()*6,speed:rand(1.2,2.5),direction:Math.random()*Math.PI*2,female};
- pedestrians.push(person);
- return person;
-}
-function makeCar(x,z,color,ai=true){
- const g=new THREE.Group();
- const body=new THREE.Mesh(boxGeo,mat(color,.45));
- body.scale.set(2.3,.75,4.4);body.position.y=.85;body.castShadow=true;g.add(body);
- const cabin=new THREE.Mesh(boxGeo,materials.glass);
- cabin.scale.set(1.7,.8,2);cabin.position.set(0,1.55,-.1);g.add(cabin);
- for(const side of [-1,1])for(const end of [-1,1]){
-  const wheel=new THREE.Mesh(cylinderGeo,mat(0x111318));
-  wheel.rotation.z=Math.PI/2;wheel.scale.set(.48,.25,.48);
-  wheel.position.set(side*1.18,.48,end*1.35);g.add(wheel);
- }
- const light=mesh(boxGeo,mat(0xfff1b1),0,0,0,.4,.2,.1);
- light.position.set(0,1.02,2.2);g.add(light);
- scene.add(g);g.position.set(x,0,z);
- return {group:g,x,z,ai,speed:ai?rand(8,13):0,heading:0,color};
-}
-function makeBoat(){
- const g=new THREE.Group();
- const hull=new THREE.Mesh(boxGeo,mat(0xeeeeed));hull.scale.set(3,1,7);hull.position.y=.6;g.add(hull);
- const cabin=new THREE.Mesh(boxGeo,mat(0xe3e5e5));cabin.scale.set(2,1.5,2);cabin.position.set(0,1.5,-.3);g.add(cabin);
- scene.add(g);g.position.set(0,0,-365);
- return {group:g,x:0,z:-365,speed:0,heading:0};
-}
-function rand(a,b){return a+Math.random()*(b-a)}
-function randInt(n){return Math.floor(Math.random()*n)}
-function createLucia(){
- const g=new THREE.Group();
- const skin=mat(0xc68b67),hair=mat(0x35251e),shirt=mat(0x202b43),pants=mat(0x292e3a);
- const torso=new THREE.Mesh(boxGeo,shirt);torso.scale.set(.8,1.3,.45);torso.position.y=1.5;g.add(torso);
- const head=new THREE.Mesh(sphereGeo,skin);head.scale.set(.34,.4,.34);head.position.y=2.45;g.add(head);
- const hairMesh=new THREE.Mesh(sphereGeo,hair);hairMesh.scale.set(.39,.45,.38);hairMesh.position.set(0,2.65,-.02);g.add(hairMesh);
- for(const side of [-1,1]){
-  const leg=new THREE.Mesh(boxGeo,pants);leg.scale.set(.28,1,.32);leg.position.set(side*.23,.55,0);g.add(leg);
-  const arm=new THREE.Mesh(boxGeo,skin);arm.scale.set(.2,.8,.23);arm.position.set(side*.52,1.5,0);g.add(arm);
- }
- scene.add(g);return g;
-}
-function clearWorld(){
- // Scene is rebuilt for day/night lighting and interiors, but keep core objects.
-}
-function startGame(){
- buildCity();
- player=createLucia();
- car=makeCar(-100,0,0xb62036,false);
- boat=makeBoat();
- for(let i=0;i<70;i++){
-  let x,z;
-  do{x=rand(-420,420);z=rand(-420,280)}
-  while(roads.some(r=>Math.abs(x-r)<30)||roads.some(r=>Math.abs(z-r)<30));
-  makePerson(x,z);
- }
- for(let i=0;i<20;i++){
-  let z=rand(-400,400);
-  let x=roads[randInt(roads.length)]+(Math.random()<.5?-8:8);
-  traffic.push(makeCar(x,z,[0xeeeeee,0x202a37,0x2873a4,0xc3a54e,0x9c2734][randInt(5)]));
- }
- for(let i=0;i<18;i++){
-  let p=randomRoadside();
-  const item=mesh(sphereGeo,mat(0xffd84c),p.x,1.3,p.z,.55,.55,.55);
-  item.userData.collect=true;collectibles.push(item);
- }
- swampGuy=makePerson(swampPos.x,swampPos.z);
- swampGuy.group.scale.set(1.1,1.1,1.1);
- player.position.set(-100,0,30);
- camera.position.set(-100,7,48);
- camera.lookAt(player.position);
- running=true;paused=false;missionItems=0;wanted=0;wantedClock=0;escapeClock=0;
- mission='Collect 5 items around Miami';
- hideOverlay();updateHUD();last=performance.now();
- raf=requestAnimationFrame(loop);
-}
-function randomRoadside(){
- const road=roads[randInt(roads.length)];
- if(Math.random()<.5)return{x:road+rand(28,38),z:rand(-410,400)};
- return{x:rand(-410,410),z:road+rand(28,38)};
-}
+function hideOverlay(){$("overlay").classList.add("hidden")}
 function updateHUD(){
- document.getElementById('location').textContent=night?'🌃 MIAMI AT NIGHT':'🌴 MIAMI';
- document.getElementById('mission').textContent='📋 '+mission;
- document.getElementById('wanted').textContent='🚨 WANTED: '+'★'.repeat(wanted)+'☆'.repeat(5-wanted);
- document.getElementById('mode').textContent=car&&player.parent===car.group?'🚘 DRIVING':boat&&player.parent===boat.group?'🚤 BOATING':'🚶 ON FOOT';
+ $("money").textContent="💵 $"+money;
+ $("wanted").textContent=wanted?"🚨 "+"★".repeat(wanted):"🚨 No Wanted Level";
+ $("vehicle").textContent=driving?"🚘 Driving":"🚶 On Foot";
+ $("time").textContent="🕒 "+String(Math.floor(dayMinutes/60)%12||12)+":"+String(dayMinutes%60).padStart(2,"0")+" "+(dayMinutes>=720?"PM":"AM");
+ $("mission").textContent="📍 "+missionText();
+ $("location").textContent=inside?"🏢 "+inside.name:locationName();
 }
-function say(t){
- const n=document.getElementById('notice');n.textContent=t;n.style.opacity=1;
- clearTimeout(say.timer);say.timer=setTimeout(()=>n.style.opacity=0,2200);
+function missionText(){
+ const names=[
+  "Mission 1: Collect 10 coins and deliver them to Beach Café",
+  "Mission 2: Pick up the marina package and deliver it to the hotel",
+  "Mission 3: Help 3 visitors around Ocean Drive",
+  "Mission 4: Drive through all 5 checkpoint gates"
+ ];
+ return missionDone.every(Boolean)?"All missions complete! Explore Miami!":names[missionIndex]||"Explore Miami";
 }
-function showHelp(){
- showPanel('<h1>HOW TO PLAY</h1><p>WASD or arrows to move. Shift to run. E to enter vehicles, buildings, or speak with characters. F to fish near your boat.</p><p>Collect 5 glowing items around Miami to unlock the swamp mystery mission. Police wanted levels increase every two minutes.</p><button onclick="startGame()">START</button>');
+function locationName(){
+ if(player.y<600)return "📍 North Beach";
+ if(player.y<1100)return "📍 Vice City Downtown";
+ if(player.y<1650)return "📍 Ocean Drive";
+ return "📍 Marina & South Beach";
 }
-function showPanel(html){document.getElementById('card').innerHTML=html;document.getElementById('overlay').classList.remove('hidden')}
-function hideOverlay(){document.getElementById('overlay').classList.add('hidden')}
-function showHome(){running=false;paused=false;cancelAnimationFrame(raf);showPanel('<h1>🌴 LUCIA: MIAMI CITY STORIES</h1><p>Explore Miami, drive, meet people, and uncover the swamp mystery.</p><button onclick="startGame()">START CITY ADVENTURE</button>')}
-function openDialog(title,body,callback){
- const el=document.getElementById('dialog');
- el.innerHTML='<b>'+title+'</b><p>'+body+'</p><button id="dialogBtn">Continue</button>';
- el.classList.remove('hidden');
- document.getElementById('dialogBtn').onclick=()=>{el.classList.add('hidden');if(callback)callback()};
+function reset(){
+ money=0;health=100;wanted=0;missionIndex=0;missionProgress=0;
+ missionDone=[false,false,false,false];elapsed=0;dayMinutes=480;
+ turbo=100;turboActive=false;inside=null;driving=false;
+ player={x:260,y:300,angle:0,speed:2.4};
+ car={x:330,y:300,angle:0,speed:0,color:"#e94c54"};
+ camera={x:0,y:0};makeCity();updateHUD();
 }
+function makeCity(){
+ buildings=[];trees=[];coins=[];traffic=[];people=[];police=[];particles=[];
+ // Buildings occupy blocks between the broad city streets.
+ const blocks=[
+  [80,65,240,145],[500,60,320,155],[1050,55,300,170],[1600,60,300,160],[2180,60,280,150],
+  [80,390,240,300],[500,390,320,300],[1050,390,300,300],[1600,390,300,300],[2180,390,280,300],
+  [80,880,240,300],[500,880,320,300],[1050,880,300,300],[1600,880,300,300],[2180,880,280,300],
+  [80,1380,240,300],[500,1380,320,300],[1050,1380,300,300],[1600,1380,300,300],[2180,1380,280,300],
+  [80,1830,240,250],[500,1830,320,250],[1050,1830,300,250],[1600,1830,300,250]
+ ];
+ const colors=["#f4a66b","#f0d17e","#d987a2","#7ec3c0","#9a9bd8","#e4e2d0","#db986c"];
+ blocks.forEach((b,i)=>buildings.push({x:b[0],y:b[1],w:b[2],h:b[3],color:colors[i%colors.length],name:["Hotel","Apartment","Store","Office","Beach Club"][i%5]}));
+ // Beach and marina trees
+ for(let i=0;i<90;i++)trees.push({x:rand(40,MW-40),y:rand(30,MH-30),size:rand(12,22)});
+ for(let i=0;i<38;i++)coins.push({x:rand(120,MW-120),y:rand(100,MH-100),got:false});
+ for(let i=0;i<18;i++)people.push({x:rand(100,MW-100),y:rand(100,MH-100),angle:rand(0,6.28),speed:rand(.15,.4),color:colors[i%colors.length]});
+ const carColors=["#42b9c7","#e8c34c","#f26e73","#8c8de0","#e9e9e9","#5dbb82"];
+ for(let i=0;i<22;i++){
+  const horizontal=Math.random()<.5;
+  traffic.push({x:horizontal?rand(30,MW-30):roadX[Math.floor(rand(0,roadX.length))]+rand(-20,20),
+   y:horizontal?roadY[Math.floor(rand(0,roadY.length))]+rand(-25,25):rand(30,MH-30),
+   angle:horizontal?(Math.random()<.5?0:Math.PI):(Math.random()<.5?Math.PI/2:-Math.PI/2),
+   speed:rand(.8,1.7),color:carColors[i%carColors.length]});
+ }
+}
+function start(){
+ reset();running=true;paused=false;hideOverlay();say("Welcome to Miami! Find the yellow mission marker to get started.");
+ last=performance.now();requestAnimationFrame(loop);
+}
+function collidesBuilding(x,y,r=13){
+ return buildings.some(b=>x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h);
+}
+function moveActor(actor,dx,dy,r){
+ let nx=clamp(actor.x+dx,20,MW-20),ny=clamp(actor.y+dy,20,MH-20);
+ if(!collidesBuilding(nx,actor.y,r))actor.x=nx;
+ if(!collidesBuilding(actor.x,ny,r))actor.y=ny;
+}
+function nearestCar(){
+ return dist(player,car)<75;
+}
+function toggleCar(){
+ if(inside){inside=null;say("You stepped back outside.");return;}
+ if(driving){
+  driving=false;player.x=car.x+30;player.y=car.y+10;player.angle=car.angle;say("Lucia exited the car.");updateHUD();return;
+ }
+ if(nearestCar()){
+  driving=true;player.x=car.x;player.y=car.y;say("You're driving! Use WASD or arrows to cruise Miami.");updateHUD();
+ }else interact();
+}
+function turboBoost(){
+ if(turbo>=25&&!turboActive){turbo-=25;turboActive=true;say("⚡ TURBO BOOST!");setTimeout(()=>turboActive=false,1800);}
+ else say("Turbo is recharging. Keep moving!");
+}
+function missionMarker(){
+ if(missionIndex===0)return {x:2350,y:790,label:"Beach Café"};
+ if(missionIndex===1)return {x:2350,y:1770,label:"Ocean Hotel"};
+ if(missionIndex===2)return {x:1470,y:1280,label:"Ocean Drive"};
+ if(missionIndex===3)return {x:930,y:790,label:"Checkpoint Route"};
+ return null;
+}
+function interact(){
+ if(inside){inside=null;say("You left the building.");updateHUD();return;}
+ const m=missionMarker();
+ if(m&&dist(player,m)<100){
+  if(missionIndex===0){
+   if(money>=10){missionDone[0]=true;money+=50;missionIndex=1;missionProgress=0;say("Mission complete! +$50. Head to the marina!");}
+   else say("Beach Café needs 10 coins. Collect coins around the city first!");
+  }else if(missionIndex===1){
+   if(missionProgress===0){missionProgress=1;say("Package collected! Deliver it to the hotel entrance at the pink marker.");}
+   else{missionDone[1]=true;money+=75;missionIndex=2;missionProgress=0;say("Package delivered! +$75. Now help 3 visitors on Ocean Drive.");}
+  }else if(missionIndex===2){
+   if(missionProgress>=3){missionDone[2]=true;money+=100;missionIndex=3;missionProgress=0;say("You helped everyone! +$100. Start the checkpoint drive!");}
+   else say("Find three visitors with blue markers nearby and press E beside each one.");
+  }else if(missionIndex===3){
+   missionProgress++;say("Checkpoint "+missionProgress+" of 5!");
+   if(missionProgress>=5){missionDone[3]=true;money+=150;missionIndex=4;say("ALL MISSIONS COMPLETE! +$150. Miami is yours to explore!");}
+  }
+  updateHUD();return;
+ }
+ // Help visitors in mission 3.
+ if(missionIndex===2){
+  const p=people.find(p=>!p.helped&&dist(player,p)<65);
+  if(p){p.helped=true;missionProgress++;money+=10;say("Visitor helped! "+missionProgress+"/3. +$10");updateHUD();return;}
+ }
+ // Enter a nearby business.
+ const b=buildings.find(b=>Math.hypot(player.x-(b.x+b.w/2),player.y-(b.y+b.h/2))<Math.max(b.w,b.h)/2+30);
+ if(b){inside={name:b.name};say("You stepped inside "+b.name+". Press E to leave.");updateHUD();return;}
+ say("Explore Miami! Look for the glowing mission marker.");
+}
+function openShop(){
+ if(!running||paused)return;
+ paused=true;
+ setOverlay("🍔 MIAMI FOOD & DRINKS","<p>You have <b>$"+money+"</b>.</p><p>🍔 Burger and drink — $15<br>Restores 25 health</p><p>🥤 Energy smoothie — $10<br>Refills your turbo</p><p>🌮 Taco combo — $20<br>Restores 50 health</p>",
+ [{text:"🍔 Buy Combo ($15)",action:()=>buy("food",15)},
+  {text:"🥤 Buy Smoothie ($10)",action:()=>buy("turbo",10),secondary:true},
+  {text:"🌮 Buy Taco ($20)",action:()=>buy("health",20)},
+  {text:"Close Shop",action:resume,secondary:true}]);
+}
+function buy(type,cost){
+ if(money<cost){say("Not enough money yet! Collect more coins.");return;}
+ money-=cost;
+ if(type==="food")health=Math.min(100,health+25);
+ if(type==="health")health=Math.min(100,health+50);
+ if(type==="turbo")turbo=100;
+ updateHUD();say("Purchase complete! Thanks for visiting Miami.");resume();
+}
+function openSettings(){
+ paused=true;
+ setOverlay("⚙ SETTINGS","<p>Customize your Miami adventure.</p><p>Sound: "+(sound?"ON":"OFF")+"<br>Radio: "+(radio?"ON":"OFF")+"</p>",
+ [{text:"🔊 Toggle Sound",action:()=>{sound=!sound;openSettings()}},
+  {text:"📻 Toggle Radio",action:()=>{radio=!radio;openSettings()}},
+  {text:"Resume",action:resume,secondary:true}]);
+}
+function resume(){paused=false;hideOverlay();last=performance.now();}
 function togglePause(){
  if(!running)return;
- paused=!paused;
- if(paused)showPanel('<h1>⏸ PAUSED</h1><p>Take a break in Miami.</p><button onclick="resume()">RESUME</button> <button onclick="showHome()">HOME</button>');
+ if(!paused){paused=true;setOverlay("⏸ GAME PAUSED","<p>Your Miami adventure is saved right where you left it.</p>",
+  [{text:"▶ Resume",action:resume},{text:"🏠 Game Lab",action:goHome,secondary:true}]);}
  else resume();
 }
-function resume(){paused=false;hideOverlay();last=performance.now();raf=requestAnimationFrame(loop)}
-function interact(){
- if(!player)return;
- if(currentInterior){
-  currentInterior=false;insideBuilding=null;
-  player.position.set(player.position.x,0,player.position.z+12);
-  scene.background.set(night?0x09152c:0x8bb8d5);
-  scene.fog=new THREE.Fog(night?0x09152c:0x8bb8d5,150,750);
-  say('You stepped outside.');return;
- }
- if(car&&player.parent===car.group){
-  const worldPos=new THREE.Vector3();car.group.getWorldPosition(worldPos);
-  scene.add(player);player.position.set(worldPos.x+4,0,worldPos.z);
-  player.rotation.y=car.group.rotation.y;car=null;say('You left the car.');updateHUD();return;
- }
- if(boat&&player.parent===boat.group){
-  scene.add(player);player.position.set(boat.group.position.x+5,0,boat.group.position.z);
-  boat=null;say('You stepped off the boat.');updateHUD();return;
- }
- if(swampStarted&&!boar){
-  if(player.position.distanceTo(swampPos)<18){
-   startSwampTalk();return;
-  }
- }
- // Enter nearest vehicle
- let nearest=null,dist=14;
- traffic.concat([car]).filter(Boolean).forEach(c=>{
-  const d=player.position.distanceTo(c.group.position);
-  if(d<dist){dist=d;nearest=c}
- });
- if(nearest){
-  car=nearest;scene.remove(player);car.group.add(player);player.position.set(0,0,0);
-  say('You got into the car. Use WASD to drive.');updateHUD();return;
- }
- // Building entrance
- const b=buildings.find(o=>player.position.distanceTo(new THREE.Vector3(o.position.x,0,o.position.z))<o.userData.w*.5+7&&Math.abs(player.position.z-o.position.z)<o.userData.d*.5+7);
- if(b){
-  currentInterior=true;insideBuilding=b;
-  scene.background.set(0x251d2c);scene.fog=new THREE.Fog(0x251d2c,20,100);
-  say('You entered a building. Press E to leave.');return;
- }
- say('Explore the streets, collect glowing items, or find a car!');
-}
-function startSwampTalk(){
- const lines=[
- 'I saw something tall moving between the trees. Some people say it is Bigfoot.',
- 'There are strange footprints near the water. They are much too big for a person.',
- 'My cousin swears he heard a huge creature making noises out here.',
- 'People keep talking about Bigfoot, but nobody has ever brought back proof.',
- 'I was fishing one night when I saw a giant shadow across the swamp.'
- ];
- openDialog('A STRANGE MAN BY THE SWAMP',lines[randInt(lines.length)],()=>{
-  mission='Investigate the swamp lookout';
-  swampWait=0;
-  say('Drive or walk to the lookout and wait for a clue.');
-  updateHUD();
- });
-}
-function startSwampMission(){
- if(swampStarted)return;
- swampStarted=true;mission='Find the strange man near the swamp';
- swampGuy.group.visible=true;
- say('New mission: Find the strange man near the swamp!');
- updateHUD();
-}
-function spawnBoar(){
- if(boar)return;
- const g=new THREE.Group();
- const body=new THREE.Mesh(sphereGeo,mat(0x69462e));body.scale.set(1.2,.8,1.8);g.add(body);
- const head=new THREE.Mesh(sphereGeo,mat(0x805438));head.scale.set(.7,.65,.7);head.position.set(0,.2,1.2);g.add(head);
- for(let i=-1;i<=1;i+=2){
-  const tusk=new THREE.Mesh(cylinderGeo,mat(0xfff2d3));tusk.scale.set(.12,.5,.12);tusk.position.set(i*.45,.2,1.6);tusk.rotation.x=-.5;g.add(tusk);
- }
- scene.add(g);g.position.set(swampPos.x+20,0,swampPos.z+10);boar=g;
- say('A WILD BOAR! GET BACK TO THE CAR!');
- mission='Escape the wild boar!';
+function goHome(){
+ running=false;paused=true;setOverlay("GTA6","<p>Thanks for exploring Miami!</p>",
+ [{text:"▶ Play Again",action:start},{text:"Back to Game Lab",action:()=>location.href="../../index.html",secondary:true}]);
 }
 function update(dt){
- const speed=keys.shift?12:7;
- const activeCar=car&&player.parent===car.group;
- const activeBoat=boat&&player.parent===boat.group;
- if(activeCar){
-  let accel=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
-  let steer=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
-  car.speed=THREE.MathUtils.clamp(car.speed+accel*dt*17,-8,28);
-  car.group.rotation.y-=steer*dt*(.7+Math.abs(car.speed)*.035);
-  const forward=new THREE.Vector3(Math.sin(car.group.rotation.y),0,Math.cos(car.group.rotation.y));
-  car.group.position.addScaledVector(forward,car.speed*dt);
-  // Cars remain on road corridors, not sidewalks.
-  let onRoad=roads.some(r=>Math.abs(car.group.position.x-r)<17||Math.abs(car.group.position.z-r)<17);
-  if(!onRoad){car.group.position.addScaledVector(forward,-car.speed*dt);car.speed*=.35;say('Stay on the road!')}
-  car.group.position.x=THREE.MathUtils.clamp(car.group.position.x,-430,430);
-  car.group.position.z=THREE.MathUtils.clamp(car.group.position.z,-420,420);
- }else if(activeBoat){
-  let accel=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
-  let steer=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
-  boat.speed=THREE.MathUtils.clamp(boat.speed+accel*dt*7,-5,14);
-  boat.group.rotation.y-=steer*dt*.8;
-  boat.group.position.x+=Math.sin(boat.group.rotation.y)*boat.speed*dt;
-  boat.group.position.z+=Math.cos(boat.group.rotation.y)*boat.speed*dt;
-  if(boat.group.position.z>-345){boat.group.position.z=-345;boat.speed=0}
- }else if(!currentInterior){
-  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
-  let dz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
-  let dir=new THREE.Vector3(dx,0,dz);
-  if(dir.lengthSq()>0){
-   dir.normalize().multiplyScalar(speed*dt);
-   player.position.add(dir);
-   player.rotation.y=Math.atan2(dir.x,dir.z);
+ frame++;elapsed+=dt;dayMinutes+=dt*.08;
+ if(turbo<100)turbo=Math.min(100,turbo+dt*.004);
+ if(!inside){
+  let dx=0,dy=0;
+  if(keys.ArrowLeft||keys.a)dx--;
+  if(keys.ArrowRight||keys.d)dx++;
+  if(keys.ArrowUp||keys.w)dy--;
+  if(keys.ArrowDown||keys.s)dy++;
+  if(driving){
+   if(dx)car.angle+=dx*.045;
+   if(dy){
+    car.speed=clamp(car.speed+dy*.045,-2.8,5.0);
+   }else car.speed*=.985;
+   let boost=turboActive?1.7:1;
+   let vx=Math.cos(car.angle)*car.speed*boost,vy=Math.sin(car.angle)*car.speed*boost;
+   let ox=car.x,oy=car.y;
+   moveActor(car,vx*dt*.06,vy*dt*.06,18);
+   if(Math.abs(car.x-ox)<.1&&Math.abs(car.y-oy)<.1)car.speed*=-.25;
+   player.x=car.x;player.y=car.y;
+  }else{
+   if(dx||dy){let l=Math.hypot(dx,dy);moveActor(player,dx/l*2.5*dt*.06,dy/l*2.5*dt*.06,12);}
   }
-  player.position.x=THREE.MathUtils.clamp(player.position.x,-440,440);
-  player.position.z=THREE.MathUtils.clamp(player.position.z,-430,420);
  }
- // Follow camera in third person
- const focus=activeCar?car.group:activeBoat?boat.group:player;
- const heading=activeCar?car.group.rotation.y:activeBoat?boat.group.rotation.y:player.rotation.y;
- const follow=new THREE.Vector3(Math.sin(heading)*-15,7,Math.cos(heading)*-15);
- const desired=focus.position.clone().add(follow);
- camera.position.lerp(desired,Math.min(1,dt*4));
- camera.lookAt(focus.position.x,focus.position.y+2,focus.position.z);
- // NPCs walk along sidewalks, with randomized looks and direction.
- pedestrians.forEach(p=>{
-  if(p.group===swampGuy.group&&swampStarted)return;
-  p.phase+=dt*5;
-  p.x+=Math.sin(p.direction)*p.speed*dt;
-  p.z+=Math.cos(p.direction)*p.speed*dt;
-  if(Math.random()<dt*.12)p.direction+=rand(-1.3,1.3);
-  if(Math.abs(p.x)>440||Math.abs(p.z)>430)p.direction+=Math.PI;
-  p.group.position.set(p.x,1+Math.sin(p.phase)*.04,p.z);
-  p.legs.forEach((leg,i)=>leg.rotation.x=Math.sin(p.phase+i*Math.PI)*.35);
- });
- // AI traffic drives on roads, never on sidewalks.
+ // Traffic follows the road grid.
  traffic.forEach(t=>{
-  if(t===car)return;
-  const alongX=Math.abs(t.x-roadClosest(t.x))<12;
-  if(alongX){t.z+=t.speed*dt;if(t.z>440)t.z=-440}
-  else{t.x+=t.speed*dt;if(t.x>440)t.x=-440}
-  if(player.position.distanceTo(t.group.position)<5&&!activeCar) say('Watch out for traffic!');
+  t.x+=Math.cos(t.angle)*t.speed*dt*.06;t.y+=Math.sin(t.angle)*t.speed*dt*.06;
+  if(t.x<0)t.x=MW;if(t.x>MW)t.x=0;if(t.y<0)t.y=MH;if(t.y>MH)t.y=0;
  });
- // Collectibles
- if(!activeCar&&!activeBoat&&!currentInterior){
-  collectibles.forEach(o=>{
-   if(o.visible&&player.position.distanceTo(o.position)<3){
-    o.visible=false;missionItems++;score+=100;
-    say('Collected an item! '+missionItems+'/5');
-    if(missionItems>=5&&!swampStarted){
-     mission='Swamp mystery unlocked!';
-     say('Five items collected! A new swamp mission is available.');
-     startSwampMission();
-    }
-    updateHUD();
-   }
-  });
- }
- // Swamp wait and boar event after five minutes.
- if(swampStarted&&mission==='Investigate the swamp lookout'){
-  if(player.position.distanceTo(new THREE.Vector3(340,0,340))<25){
-   swampWait+=dt;
-   if(swampWait>=300){spawnBoar();mission='Escape the wild boar!';updateHUD()}
-  }
- }
- if(boar&&!activeCar){
-  const target=activeCar?car.group.position:player.position;
-  const dir=new THREE.Vector3().subVectors(target,boar.position);dir.y=0;
-  if(dir.length()>1)boar.position.addScaledVector(dir.normalize(),dt*8);
-  if(boar.position.distanceTo(player.position)<4){say('The boar is right behind you!');}
- }
- // Wanted system: each two minutes of active chase adds a star.
+ people.forEach(p=>{
+  if(Math.random()<.015)p.angle+=rand(-1.2,1.2);
+  p.x+=Math.cos(p.angle)*p.speed*dt*.06;p.y+=Math.sin(p.angle)*p.speed*dt*.06;
+  if(p.x<30||p.x>MW-30||p.y<30||p.y>MH-30)p.angle+=Math.PI;
+ });
+ coins.forEach(o=>{
+  if(!o.got&&dist(player,o)<28){o.got=true;money+=5;say("💵 You found $5!");updateHUD();}
+ });
+ // Nonviolent wanted level escalates over time, with a police pursuit.
+ const stars=Math.min(5,Math.floor(elapsed/300)+1);
+ if(elapsed>=300)wanted=Math.max(wanted,stars);
  if(wanted>0){
-  wantedClock+=dt;
-  if(wanted<5&&wantedClock>=120){
-   wantedClock=0;wanted++;say('WANTED LEVEL INCREASED! '+wanted+' STARS');updateHUD();
-   if(wanted===5)activateHelicopter();
+  if(police.length<Math.min(wanted,5)){
+   police.push({x:player.x+rand(-300,300),y:player.y+rand(-300,300),speed:1.2+wanted*.35});
   }
-  if(wanted===5){
-   escapeClock+=dt;
-   if(escapeClock>=240){
-    wanted=0;wantedClock=0;escapeClock=0;helicopterActive=false;
-    if(helicopter)scene.remove(helicopter);
-    say('You escaped the five-star police chase!');
-    updateHUD();
+  police.forEach(p=>{
+   let d=dist(p,player);
+   if(d>12){p.x+=(player.x-p.x)/d*p.speed*dt*.06;p.y+=(player.y-p.y)/d*p.speed*dt*.06;}
+   if(d<27&&Math.random()<.006){health=Math.max(0,health-4);say("Police are close! Keep driving and avoid their cars.");}
+  });
+  helicopter=wanted>=3;
+ }else helicopter=false;
+ if(health<=0){health=100;wanted=0;police=[];car.x=player.x=330;car.y=player.y=300;car.speed=0;driving=false;money=Math.max(0,money-20);say("Lucia took a break at the clinic. $20 medical fee.");updateHUD();}
+ // Camera smoothly follows Lucia.
+ const tx=clamp(player.x-W/2,0,MW-W),ty=clamp(player.y-H/2,0,MH-H);
+ camera.x+=(tx-camera.x)*.12;camera.y+=(ty-camera.y)*.12;
+ if(frame%15===0)updateHUD();
+}
+function drawRoads(){
+ ctx.fillStyle="#5f9c79";ctx.fillRect(0,0,MW,MH);
+ // Beach and water on the eastern edge.
+ ctx.fillStyle="#39a9bd";ctx.fillRect(2440,0,260,MH);
+ ctx.fillStyle="#f0d69a";ctx.fillRect(2370,0,70,MH);
+ for(let y=0;y<MH;y+=45){ctx.fillStyle="#7bd0d5";ctx.fillRect(2450,y,230,3);}
+ // Road grid
+ ctx.fillStyle="#454c54";
+ roadX.forEach(x=>ctx.fillRect(x-78,0,156,MH));
+ roadY.forEach(y=>ctx.fillRect(0,y-75,MW,150));
+ // Sidewalks
+ ctx.fillStyle="#b9b6a9";
+ roadX.forEach(x=>{ctx.fillRect(x-91,0,13,MH);ctx.fillRect(x+78,0,13,MH)});
+ roadY.forEach(y=>{ctx.fillRect(0,y-88,MW,13);ctx.fillRect(0,y+75,MW,13)});
+ // Lane markings
+ ctx.strokeStyle="#e7d89d";ctx.lineWidth=3;ctx.setLineDash([24,23]);
+ roadX.forEach(x=>{ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,MH);ctx.stroke()});
+ roadY.forEach(y=>{ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(MW,y);ctx.stroke()});
+ ctx.setLineDash([]);
+ // Crosswalk stripes
+ roadX.forEach(x=>roadY.forEach(y=>{
+  ctx.fillStyle="#eee";for(let i=0;i<7;i++){ctx.fillRect(x-70+i*20,y-69,10,20);ctx.fillRect(x-70+i*20,y+48,10,20);}
+ }));
+}
+function drawBuildings(){
+ buildings.forEach(b=>{
+  // 3D-style building extrusion and shadow
+  ctx.fillStyle="#0005";ctx.fillRect(b.x+18,b.y+20,b.w,b.h);
+  ctx.fillStyle="#65717c";ctx.fillRect(b.x+10,b.y+10,b.w,b.h);
+  ctx.fillStyle=b.color;ctx.fillRect(b.x,b.y,b.w,b.h);
+  ctx.fillStyle="#ffffff24";ctx.fillRect(b.x+8,b.y+8,b.w-16,9);
+  ctx.fillStyle="#ffffff35";
+  for(let x=b.x+17;x<b.x+b.w-10;x+=37){
+   for(let y=b.y+25;y<b.y+b.h-10;y+=38){
+    ctx.fillRect(x,y,19,19);
    }
   }
+  ctx.fillStyle="#27374a";ctx.fillRect(b.x+b.w/2-12,b.y+b.h-35,24,35);
+  ctx.fillStyle="#0002";ctx.fillRect(b.x,b.y+b.h-7,b.w,7);
+ });
+}
+function drawTree(t){
+ ctx.fillStyle="#64452e";ctx.fillRect(t.x-3,t.y,7,t.size);
+ ctx.fillStyle="#176a4e";ctx.beginPath();ctx.arc(t.x,t.y-4,t.size,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#32966a";ctx.beginPath();ctx.arc(t.x-5,t.y-9,t.size*.62,0,Math.PI*2);ctx.fill();
+}
+function drawCar(x,y,a,color,policeCar=false){
+ ctx.save();ctx.translate(x,y);ctx.rotate(a);
+ ctx.fillStyle="#0005";ctx.fillRect(-18,-10,42,26);
+ ctx.fillStyle="#171c27";ctx.fillRect(-20,-12,40,24);
+ ctx.fillStyle=color;ctx.fillRect(-18,-10,36,20);
+ ctx.fillStyle="#9dd7e2";ctx.fillRect(-5,-8,13,16);
+ ctx.fillStyle="#dce8ed";ctx.fillRect(10,-8,5,16);
+ ctx.fillStyle="#fff5a8";ctx.fillRect(16,-8,3,5);ctx.fillRect(16,3,3,5);
+ if(policeCar){ctx.fillStyle="#e9f5ff";ctx.fillRect(-3,-12,9,3);ctx.fillStyle="#f44";ctx.fillRect(-3,-15,5,4);ctx.fillStyle="#4bd8ff";ctx.fillRect(2,-15,5,4);}
+ ctx.restore();
+}
+function drawLucia(){
+ ctx.save();ctx.translate(player.x,player.y);
+ ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,10,11,5,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#f0bb91";ctx.fillRect(-6,-12,12,12);
+ ctx.fillStyle="#452a24";ctx.fillRect(-7,-17,14,7);ctx.fillRect(-8,-12,3,13);
+ ctx.fillStyle="#e6a0a1";ctx.fillRect(-7,1,14,10);
+ ctx.fillStyle="#202d43";ctx.fillRect(-6,10,5,6);ctx.fillRect(2,10,5,6);
+ ctx.restore();
+}
+function drawMarker(m){
+ if(!m)return;
+ const pulse=10+Math.sin(frame*.12)*5;
+ ctx.strokeStyle="#ffe46c";ctx.lineWidth=4;ctx.beginPath();ctx.arc(m.x,m.y,pulse+15,0,Math.PI*2);ctx.stroke();
+ ctx.fillStyle="#ffe46c";ctx.beginPath();ctx.arc(m.x,m.y,8,0,Math.PI*2);ctx.fill();
+ ctx.font="bold 15px Outfit";ctx.textAlign="center";ctx.fillStyle="#fff";ctx.fillText(m.label,m.x,m.y-32);
+}
+function render(){
+ ctx.clearRect(0,0,W,H);
+ ctx.save();ctx.translate(-camera.x,-camera.y);
+ drawRoads();
+ trees.forEach(drawTree);
+ drawBuildings();
+ // Coins
+ coins.forEach(o=>{if(!o.got){ctx.fillStyle="#ffe071";ctx.beginPath();ctx.arc(o.x,o.y,9,0,Math.PI*2);ctx.fill();ctx.fillStyle="#8d6420";ctx.font="bold 11px Arial";ctx.textAlign="center";ctx.fillText("$",o.x,o.y+4);}});
+ // Pedestrians
+ people.forEach(p=>{
+  ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,8,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#f1c29e";ctx.beginPath();ctx.arc(p.x,p.y-8,5,0,Math.PI*2);ctx.fill();
+  if(missionIndex===2&&!p.helped){ctx.fillStyle="#7ceaff";ctx.beginPath();ctx.arc(p.x,p.y-22,5,0,Math.PI*2);ctx.fill();}
+ });
+ // Traffic
+ traffic.forEach(t=>drawCar(t.x,t.y,t.angle,t.color));
+ // Police
+ police.forEach(p=>drawCar(p.x,p.y,Math.atan2(player.y-p.y,player.x-p.x),"#e7f3fa",true));
+ // Marina dock details
+ for(let i=0;i<8;i++){ctx.fillStyle="#916e4c";ctx.fillRect(2490+i*24,500+i*60,7,36);}
+ // Car and player
+ drawCar(car.x,car.y,car.angle,car.color);
+ if(!driving)drawLucia();
+ // Mission marker
+ const m=missionMarker();drawMarker(m);
+ // Checkpoints for last mission
+ if(missionIndex===3){
+  for(let i=0;i<5;i++){
+   const x=600+i*300,y=790;
+   ctx.strokeStyle=i<missionProgress?"#6cff9b":"#ffe071";ctx.lineWidth=7;
+   ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);ctx.stroke();
+  }
  }
- // Night cycle
- cityTime+=dt;
- if(cityTime>180){cityTime=0;night=!night;changeLighting()}
- if(night&&frame%15===0)updateNightWindows();
- frame++;
-}
-function roadClosest(v){return roads.reduce((a,b)=>Math.abs(v-a)<Math.abs(v-b)?a:b)}
-function activateHelicopter(){
- if(helicopterActive)return;
- helicopterActive=true;
- helicopter=new THREE.Group();
- const body=new THREE.Mesh(sphereGeo,mat(0x242d38));body.scale.set(2,1,3);helicopter.add(body);
- const rotor=new THREE.Mesh(boxGeo,mat(0x222222));rotor.scale.set(10,.08,.3);rotor.position.y=1.5;helicopter.add(rotor);
- scene.add(helicopter);
- say('🚁 FIVE STARS! HELICOPTERS ARE SEARCHING FOR YOU!');
-}
-function updateNightWindows(){
- // Keep the city visible at night with illuminated skyline windows.
- scene.background.set(0x09152c);
- scene.fog.color.set(0x09152c);
- sun.intensity=.35;hemi.intensity=.65;
-}
-function changeLighting(){
- if(night){
-  scene.background.set(0x09152c);scene.fog.color.set(0x09152c);
-  sun.intensity=.35;hemi.intensity=.65;
-  say('Night has fallen over Miami. The skyline is glowing!');
- }else{
-  scene.background.set(0x8bb8d5);scene.fog.color.set(0x8bb8d5);
-  sun.intensity=3;hemi.intensity=2;
-  say('Morning in Miami!');
+ // Helicopter spotlight
+ if(helicopter){
+  const hx=player.x+Math.sin(frame*.015)*130,hy=player.y-180;
+  ctx.fillStyle="#fff3";ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx-90,hy+260);ctx.lineTo(hx+90,hy+260);ctx.fill();
+  ctx.font="30px Arial";ctx.textAlign="center";ctx.fillText("🚁",hx,hy);
  }
- updateHUD();
+ // Current location labels
+ ctx.font="bold 27px Outfit";ctx.textAlign="center";ctx.fillStyle="#fff9";
+ ctx.fillText("VICE CITY",930,280);
+ ctx.restore();
+ // Minimap
+ drawMinimap();
+ // Turbo meter and health
+ ctx.fillStyle="#111b2ccc";ctx.fillRect(15,H-54,220,40);
+ ctx.fillStyle="#fff";ctx.font="bold 12px Outfit";ctx.textAlign="left";ctx.fillText("TURBO",25,H-38);
+ ctx.fillStyle="#35465c";ctx.fillRect(80,H-47,140,12);
+ ctx.fillStyle="#5ce0dd";ctx.fillRect(80,H-47,140*turbo/100,12);
+ ctx.fillText("HEALTH "+health+"%",25,H-17);
 }
-function fish(){
- if(!player)return;
- if(!boat||player.position.distanceTo(new THREE.Vector3(0,0,-365))>30){
-  say('Find the boat at the waterfront first!');return;
- }
- fishing=true;fishTimer=3;
- say('Fishing... wait for a bite!');
- setTimeout(()=>{if(fishing){fishing=false;fishCount++;score+=50;say('You caught a fish! Total: '+fishCount)}},3000);
+function drawMinimap(){
+ const x=W-164,y=H-122,w=148,h=106;
+ ctx.fillStyle="#101a2ddd";ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle="#e8d58b";ctx.strokeRect(x,y,w,h);
+ ctx.fillStyle="#596b6b";
+ roadX.forEach(rx=>ctx.fillRect(x+rx/MW*w-3,y,6,h));
+ roadY.forEach(ry=>ctx.fillRect(x,y+ry/MH*h-3,w,6));
+ ctx.fillStyle="#46e1d1";ctx.beginPath();ctx.arc(x+player.x/MW*w,y+player.y/MH*h,4,0,Math.PI*2);ctx.fill();
+ const m=missionMarker();if(m){ctx.fillStyle="#ffe071";ctx.beginPath();ctx.arc(x+m.x/MW*w,y+m.y/MH*h,4,0,Math.PI*2);ctx.fill();}
+ ctx.fillStyle="#fff";ctx.font="10px Outfit";ctx.textAlign="left";ctx.fillText("MIAMI MAP",x+6,y+12);
 }
-function loop(t){
- if(!running||paused)return;
- const dt=Math.min(.04,(t-last)/1000||.016);last=t;
- update(dt);
- renderer.render(scene,camera);
- raf=requestAnimationFrame(loop);
+function loop(now){
+ if(!running)return;
+ const dt=Math.min(40,now-last||16);last=now;
+ if(!paused)update(dt);
+ render();
+ requestAnimationFrame(loop);
 }
 function keydown(e){
  const k=e.key.toLowerCase();
- if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
- keys[k]=true;
- if(k==='e')interact();
- if(k==='f')fish();
- if(k==='escape')togglePause();
- if(k==='p')togglePause();
- if(k==='r'&&wanted>0){say('Keep moving to escape the police!')}
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ keys[k]=true;keys[e.key]=true;
+ if(e.repeat)return;
+ if(k==="e"&&running&&!paused)toggleCar();
+ if(k==="shift"&&running&&!paused)turboBoost();
+ if(k===" "&&running&&!paused&&driving)say("📣 HONK! Beep beep!");
+ if(k==="p")togglePause();
+ if(k==="b")openShop();
+ if(k==="m"){radio=!radio;$("radio").textContent="📻 Radio: "+(radio?"On":"Off");say(radio?"Radio turned on!":"Radio turned off.");}
 }
-addEventListener('keydown',keydown);
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-addEventListener('blur',()=>keys={});
-addEventListener('resize',()=>{
- camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
-});
-resize();
+function keyup(e){keys[e.key]=false;keys[e.key.toLowerCase()]=false;}
+window.addEventListener("keydown",keydown);
+window.addEventListener("keyup",keyup);
+window.addEventListener("blur",()=>Object.keys(keys).forEach(k=>keys[k]=false));
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&running&&!paused)togglePause()});
+$("start").addEventListener("click",start);
+$("pause").addEventListener("click",togglePause);
+$("interact").addEventListener("click",()=>{if(running&&!paused)interact()});
+$("turbo").addEventListener("click",()=>{if(running&&!paused)turboBoost()});
+$("shop").addEventListener("click",openShop);
+$("radio").addEventListener("click",()=>{radio=!radio;$("radio").textContent="📻 Radio: "+(radio?"On":"Off");say(radio?"Radio turned on!":"Radio turned off.");});
+$("settings").addEventListener("click",openSettings);
+$("restart").addEventListener("click",()=>{if(running){paused=true;setOverlay("RESTART GTA6?","<p>Start your Miami adventure from the beginning?</p>",[{text:"Restart",action:start},{text:"Cancel",action:resume,secondary:true}]);}});
+$("home").addEventListener("click",goHome);
+})();
 </script>
 </body>
 </html>
+
 
