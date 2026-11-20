@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Speed City</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
@@ -43,14 +43,12 @@ button:hover{filter:brightness(1.1)}
   <button id="start">START SKATING!</button>
  </div>
 </div>
-
 <script>
 (()=>{
 'use strict';
 const canvas=document.querySelector('canvas');
 const ctx=canvas.getContext('2d');
 const overlay=document.getElementById('overlay');
-const dialog=document.getElementById('dialog');
 const stats=document.getElementById('stats');
 const pauseBtn=document.getElementById('pause');
 let W=innerWidth,H=innerHeight,dpr=1;
@@ -77,7 +75,28 @@ const rand=(n)=>{let x=Math.sin(n*127.1+level*311.7)*43758.5453;return x-Math.fl
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rect=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 
+// Tight collision boxes: only the central body of the player and obstacle count.
+function playerHitbox(){
+ return {
+  x:player.x+12,
+  y:player.y+13,
+  w:player.w-24,
+  h:player.h-17
+ };
+}
+function obstacleHitbox(o){
+ if(o.type==='robot'){
+  // Robot artwork is emoji-sized; use a small central torso box.
+  return {x:o.x+12,y:o.y+15,w:o.w-24,h:o.h-20};
+ }
+ if(o.type==='barrier'){
+  // Avoid counting the empty space around the striped barrier.
+  return {x:o.x+7,y:o.y+9,w:o.w-14,h:o.h-12};
+ }
+ return {x:o.x,y:o.y,w:o.w,h:o.h};
+}
 function show(title,body,button,action){
+ const dialog=document.getElementById('dialog');
  dialog.innerHTML='<h1>'+title+'</h1><p>'+body+'</p><button id="dialogButton">'+button+'</button>';
  overlay.classList.remove('hidden');
  document.getElementById('dialogButton').onclick=action;
@@ -112,22 +131,16 @@ function buildLevel(){
    objects.push({type:'coin',x:x+85,y:groundY-100-r*40,w:24,h:24,taken:false});
    objects.push({type:'coin',x:x+125,y:groundY-125-r*30,w:24,h:24,taken:false});
   }
-  if(i%4===1){
-   objects.push({type:'target',x:x+170,y:groundY-70,w:42,h:52,hit:false});
-  }
-  if(i%5===3){
-   objects.push({type:'health',x:x+210,y:groundY-75,w:34,h:34,taken:false});
-  }
+  if(i%4===1)objects.push({type:'target',x:x+170,y:groundY-70,w:42,h:52,hit:false});
+  if(i%5===3)objects.push({type:'health',x:x+210,y:groundY-75,w:34,h:34,taken:false});
   x+=gapBase+rand(i+level*11)*100;
   i++;
  }
- // Additional spray targets make each level's goal achievable.
  while(objects.filter(o=>o.type==='target').length<targetsNeeded+2){
   const tx=objects.length*73+700;
   if(tx<worldLength-100)objects.push({type:'target',x:tx,y:groundY-65,w:42,h:52,hit:false});
   else break;
  }
- // A finish marker at the end of the course.
  objects.push({type:'finish',x:worldLength-100,y:groundY-100,w:55,h:100});
 }
 function resetLevel(){
@@ -193,11 +206,9 @@ function update(dt){
  p.vy+=1500*dt;
  p.y+=p.vy*dt;
  p.onGround=false;p.grinding=false;
- // Reliable landing on the ground.
  if(p.vy>=0&&oldBottom<=groundY&&p.y+p.h>=groundY){
   p.y=groundY-p.h;p.vy=0;p.onGround=true;p.jumps=0;
  }
- // Rails can be landed on from above and give a little speed.
  if(p.vy>=0){
   for(const o of objects){
    if(o.type!=='rail')continue;
@@ -209,7 +220,18 @@ function update(dt){
   }
  }
  if(p.y>H+100){loseHealth();p.y=groundY-p.h;p.vy=0;}
- // Objects
+ // Tight obstacle collisions: use smaller player and object hitboxes.
+ const ph=playerHitbox();
+ for(const o of objects){
+  if((o.type==='barrier'||o.type==='robot')&&!o.hit){
+   const oh=obstacleHitbox(o);
+   if(rect(ph,oh)){
+    o.hit=true;
+    loseHealth();
+   }
+  }
+ }
+ // Other objects
  for(const o of objects){
   if(o.type==='coin'&&!o.taken&&rect(p,{x:o.x,y:o.y,w:o.w,h:o.h})){
    o.taken=true;coins++;score+=10;
@@ -217,21 +239,13 @@ function update(dt){
   if(o.type==='health'&&!o.taken&&rect(p,o)){
    o.taken=true;health=Math.min(maxHealth,health+1);healthPickups++;score+=30;say('HEALTH RESTORED! 💚');
   }
-  if((o.type==='barrier'||o.type==='robot')&&!o.hit&&rect(p,{x:o.x+5,y:o.y+5,w:o.w-10,h:o.h-5})){
-   o.hit=true;loseHealth();
-  }
   if(o.type==='ramp'&&!o.hit&&rect(p,{x:o.x,y:groundY-38,w:o.w,h:38})){
    o.hit=true;p.vy=-570;p.jumps=1;p.onGround=false;say('RAMP BOOST! 🚀');
   }
   if(o.type==='target'&&!o.hit&&rect(p,o)){
-   // Targets can be sprayed or touched for a close-up tag.
    o.hit=true;targetsHit++;score+=50;say('TARGET TAGGED! 🎨');
   }
-  if(o.type==='finish'&&p.x>o.x&&targetsHit>=targetsNeeded){
-   nextLevel();return;
-  }
  }
- // Spray projectiles hit targets and robots.
  for(const s of sprayShots){
   s.x+=s.vx*dt;s.life-=dt;
   for(const o of objects){
@@ -244,12 +258,10 @@ function update(dt){
   }
  }
  sprayShots=sprayShots.filter(s=>s.life>0);
- // Police steadily follow, becoming faster at higher levels.
  policeX+=(p.x-210-policeX)*dt*(.55+level*.003);
  if(p.x-policeX>390){loseHealth();policeX=p.x-260;}
  if(p.x<policeX+30&&invincible<=0){loseHealth();policeX=p.x-230;}
  camera=clamp(p.x-W*.32,0,worldLength-W);
- // Particles
  for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt;}
  particles=particles.filter(q=>q.life>0);
 }
@@ -257,7 +269,6 @@ function background(){
  const g=ctx.createLinearGradient(0,0,0,H);
  g.addColorStop(0,'#67c9ed');g.addColorStop(.65,'#d8eff3');g.addColorStop(1,'#f9d9a0');
  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- // City skyline
  for(let i=0;i<14;i++){
   let x=((i*155-camera*.25)%(W+180)+W+180)%(W+180)-60;
   const bh=90+(i*47)%140;
@@ -271,13 +282,11 @@ function background(){
 function draw(){
  background();
  ctx.save();ctx.translate(-camera,0);
- // Road
- ctx.fillStyle='#343b48';ctx.fillRect(camera-5,groundY, W+10, H-groundY+10);
+ ctx.fillStyle='#343b48';ctx.fillRect(camera-5,groundY,W+10,H-groundY+10);
  ctx.fillStyle='#f5d65b';ctx.fillRect(camera-5,groundY+5,W+10,5);
  for(let x=Math.floor(camera/90)*90;x<camera+W+100;x+=90){
   ctx.fillStyle='#e6e6e6';ctx.fillRect(x,groundY+65,48,6);
  }
- // Obstacles and items
  for(const o of objects){
   if(o.x<camera-100||o.x>camera+W+100)continue;
   if(o.type==='barrier'){
@@ -319,30 +328,22 @@ function draw(){
    ctx.font='17px Fredoka';ctx.fillStyle='#fff';ctx.fillText('FINISH',o.x+30,o.y-8);
   }
  }
- // Police car
  ctx.font='48px Arial';ctx.textAlign='center';ctx.fillText('🚓',policeX,groundY+2);
- // Skateboarder
- if(!(invincible>0&&Math.floor(performance.now()/90)%2===0)){
-  ctx.font='48px Arial';ctx.textAlign='center';
-  ctx.fillText('🛹',player.x+player.w/2,player.y+player.h);
-  ctx.font='30px Arial';ctx.fillText('😎',player.x+player.w/2,player.y+15);
- }
- // Spray paint shots
+ ctx.font='48px Arial';ctx.textAlign='center';
+ ctx.fillText('🛹',player.x+player.w/2,player.y+player.h);
+ ctx.font='30px Arial';ctx.fillText('😎',player.x+player.w/2,player.y+15);
  for(const s of sprayShots){
   ctx.fillStyle='#ff55bd';ctx.beginPath();ctx.arc(s.x,s.y,8,0,Math.PI*2);ctx.fill();
  }
  ctx.restore();
- // Message
  if(messageTime>0){
   ctx.fillStyle='#102b3cdd';ctx.beginPath();ctx.roundRect(W/2-145,75,290,42,12);ctx.fill();
   ctx.fillStyle='#fff';ctx.font='bold 20px Fredoka';ctx.textAlign='center';ctx.fillText(message,W/2,103);
  }
- // Progress bar
  const progress=clamp(player.x/worldLength,0,1);
  ctx.fillStyle='#17354b';ctx.fillRect(14,H-20,W-28,8);
  ctx.fillStyle='#ffcf45';ctx.fillRect(14,H-20,(W-28)*progress,8);
- ctx.fillStyle='#fff';ctx.font='13px Fredoka';ctx.textAlign='right';
- ctx.fillText('COURSE '+Math.round(progress*100)+'%',W-15,H-27);
+ ctx.fillStyle='#fff';ctx.font='13px Fredoka';ctx.textAlign='right';ctx.fillText('COURSE '+Math.round(progress*100)+'%',W-15,H-27);
 }
 function updateHud(){
  stats.textContent='🛹 Level '+level+'/75  |  ❤️ '+('❤️'.repeat(health))+('🖤'.repeat(maxHealth-health))+'  |  🪙 '+coins+'  |  🎯 '+targetsHit+'/'+targetsNeeded+'  |  ⭐ '+score;
@@ -350,8 +351,7 @@ function updateHud(){
 }
 function loop(now){
  const dt=lastTime?(now-lastTime)/1000:0;lastTime=now;
- update(dt);draw();updateHud();
- requestAnimationFrame(loop);
+ update(dt);draw();updateHud();requestAnimationFrame(loop);
 }
 function togglePause(){
  if(state!=='playing')return;
@@ -378,8 +378,7 @@ addEventListener('keydown',e=>{
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 addEventListener('blur',()=>{keys={};jumpWasDown=false;});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){keys={};jumpWasDown=false;}});
-buildLevel();state='title';
-requestAnimationFrame(loop);
+buildLevel();state='title';requestAnimationFrame(loop);
 })();
 </script>
 </body>
