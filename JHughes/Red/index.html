@@ -3,422 +3,435 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Jurassic Dream Escape</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box}
-body{margin:0;overflow:hidden;background:#101923;color:white;font-family:Outfit,Arial}
+body{margin:0;background:#101b1b;color:white;font-family:Outfit,Arial;overflow:hidden}
 canvas{display:block;width:100vw;height:100vh}
-#hud{position:fixed;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap;pointer-events:none}
-.pill{background:#101923df;border:2px solid #ffffff38;border-radius:13px;padding:8px 12px;font-size:14px;font-weight:700}
-#controls{position:fixed;right:12px;bottom:12px;display:flex;gap:7px}
-button{font-family:inherit;font-weight:700;border:0;border-radius:12px;padding:10px 14px;background:#ffd34e;color:#30220b;cursor:pointer}
-button:hover{filter:brightness(1.1)}
-#overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#07111cdb;padding:15px;z-index:5}
-.panel{width:min(560px,95vw);background:#fff8e7;color:#27251e;border:5px solid #e7b74b;border-radius:24px;padding:24px;text-align:center;box-shadow:0 12px 45px #0008}
-.panel h1{font:700 clamp(30px,5vw,48px) Fredoka;color:#a64d24;margin:5px}
-.panel h2{font:700 27px Fredoka;margin:8px}
+#hud{position:fixed;top:9px;left:10px;right:10px;display:flex;gap:7px;justify-content:space-between;flex-wrap:wrap;pointer-events:none}
+.pill{background:#10221fe8;border:1px solid #ffffff55;border-radius:12px;padding:7px 11px;font-size:13px;font-weight:700}
+#buttons{position:fixed;right:10px;bottom:10px;display:flex;gap:7px}
+button{border:0;border-radius:12px;padding:10px 15px;background:#f5cf55;color:#30250d;font:700 16px Fredoka;cursor:pointer}
+button:hover{filter:brightness(1.12)}
+#overlay{position:fixed;inset:0;background:#07110fe0;display:flex;align-items:center;justify-content:center;padding:14px;z-index:5}
+.panel{width:min(550px,96vw);background:#f3f0df;color:#26332b;border:5px solid #8ca77a;border-radius:24px;padding:23px;text-align:center;box-shadow:0 12px 40px #0009}
+.panel h1{font:700 clamp(30px,5vw,46px) Fredoka;color:#376443;margin:5px}
 .panel p{line-height:1.5}
 .panel button{font-size:19px;padding:13px 25px}
+.small{font-size:13px;color:#5b665d}
 .hidden{display:none!important}
-#levelName{font-size:16px}
-.small{font-size:13px;color:#665d50}
-#cooldowns{position:fixed;bottom:13px;left:12px;display:flex;gap:8px;pointer-events:none}
+#hint{position:fixed;bottom:10px;left:10px;background:#10221fe8;padding:9px 12px;border-radius:10px;font-size:12px;pointer-events:none}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
 <div id="hud">
- <div class="pill">🧑‍🔬 Bob</div>
- <div class="pill" id="levelName">Level 1: Lost Jungle</div>
- <div class="pill" id="timer">⏱ 2:00</div>
- <div class="pill" id="lives">❤️❤️❤️</div>
- <div class="pill" id="coins">🪙 0</div>
- <div class="pill" id="bossHud">🦖 Dino Dream</div>
+ <div class="pill" id="levelHud">🦖 Level 1</div>
+ <div class="pill" id="lifeHud">❤️❤️❤️</div>
+ <div class="pill" id="timerHud">⏱ 2:00</div>
+ <div class="pill" id="laserHud">🔫 Laser: Ready</div>
+ <div class="pill" id="blastHud">💥 Blast: Ready</div>
+ <div class="pill" id="coinHud">🪙 0</div>
 </div>
-<div id="cooldowns">
- <div class="pill" id="laserHud">⚡ Laser: READY</div>
- <div class="pill" id="specialHud">💥 Special: READY</div>
-</div>
-<div id="controls">
+<div id="hint">← → Move · SPACE Jump · X Laser · Z Special Blast</div>
+<div id="buttons">
  <button id="pauseBtn">⏸ Pause</button>
  <button id="restartBtn">↻ Restart</button>
 </div>
 <div id="overlay">
- <div class="panel" id="intro">
-  <h1>🦖 Jurassic Dream Escape</h1>
-  <h2>Bob's Dinosaur Adventure</h2>
-  <p>Bob the scientist is getting ready for bed. But when he falls asleep, he wakes up in the age of dinosaurs!</p>
-  <p>Jump over obstacles, collect coins, find power-ups, and escape the dinosaur dream!</p>
-  <p class="small">Move: A/D or arrow keys · Jump: W, ↑ or Space · Laser: X · Special attack: Z</p>
-  <button id="startBtn">🌙 Go to Sleep!</button>
- </div>
- <div class="panel hidden" id="sleepPanel">
-  <h1>😴 Zzzzz...</h1>
-  <h2>Bob is falling asleep...</h2>
-  <p>The room is getting darker...</p>
-  <div style="font-size:48px">🛏️ 🧑‍🔬 💤</div>
+ <div class="panel" id="introPanel">
+  <h1>🦕 Jurassic Dream Escape!</h1>
+  <h2>Bob's Dinosaur Dream</h2>
+  <p>Bob is a scientist who accidentally falls asleep and wakes up in the age of dinosaurs! Can he survive the dream and escape?</p>
+  <p>Jump across platforms, avoid dangerous dinosaurs, collect coins and power-ups, and use your laser to fight back!</p>
+  <p class="small">Move: Arrow keys or A/D · Jump: SPACE or W · Laser: X · Special Blast: Z</p>
+  <button id="startBtn">💤 Start the Dream!</button>
  </div>
  <div class="panel hidden" id="pausePanel">
   <h1>⏸ Dream Paused</h1>
-  <p>Bob is taking a little break.</p>
-  <button id="resumeBtn">▶ Continue Dream</button>
+  <p>The dinosaurs can wait!</p>
+  <button id="resumeBtn">▶ Resume</button>
  </div>
  <div class="panel hidden" id="messagePanel">
   <h1 id="messageTitle">Level Complete!</h1>
   <p id="messageText"></p>
-  <button id="continueBtn">Continue</button>
+  <button id="nextBtn">Next Level ➜</button>
  </div>
  <div class="panel hidden" id="endPanel">
-  <h1 id="endTitle">🏆 Dream Escaped!</h1>
+  <h1 id="endTitle">Dream Complete!</h1>
   <p id="endText"></p>
   <button id="againBtn">Play Again</button>
  </div>
 </div>
-
 <script>
 (()=>{
 'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-let W=innerWidth,H=innerHeight,dpr=1;
+let W=innerWidth,H=innerHeight,D=1;
 function resize(){
- W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=W*dpr;canvas.height=H*dpr;
+ W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);
+ canvas.width=W*D;canvas.height=H*D;
  canvas.style.width=W+'px';canvas.style.height=H+'px';
- ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.setTransform(D,0,0,D,0,0);
 }
 addEventListener('resize',resize);resize();
 
-const levels=[
- {name:'Lost Jungle',sky:'#78c9a0',ground:'#527a3c',accent:'#b4d66b',decor:'🌴',enemy:'🦖',obstacle:'🌿',platform:'#8c623d',count:5,speed:95},
- {name:'Dino Desert',sky:'#f4b96b',ground:'#b87938',accent:'#f5df8a',decor:'🌵',enemy:'🦕',obstacle:'🪨',platform:'#d79b55',count:6,speed:105},
- {name:'Frozen Fossil Falls',sky:'#9bd9ed',ground:'#527d9c',accent:'#e1f7ff',decor:'❄️',enemy:'🐊',obstacle:'🧊',platform:'#b8e5f3',count:7,speed:112},
- {name:'Volcano Valley',sky:'#d77b58',ground:'#563c39',accent:'#ffb33f',decor:'🌋',enemy:'🦖',obstacle:'🔥',platform:'#86605a',count:8,speed:122},
- {name:'Prehistoric Swamp',sky:'#7b9b68',ground:'#425b3d',accent:'#b1c66b',decor:'🌳',enemy:'🦎',obstacle:'🪵',platform:'#71814a',count:9,speed:130},
- {name:'T-Rex Showdown',sky:'#5b4050',ground:'#302c37',accent:'#ffba52',decor:'🌋',enemy:'🦖',obstacle:'🔥',platform:'#76535a',count:0,speed:140}
+const levelNames=[
+ 'The Lost Jungle','Dino Valley','Frozen Fossil Falls',
+ 'Volcano Valley','Prehistoric Swamp','T-Rex Showdown'
 ];
-const keys={};
-let scene='intro',running=false,paused=false,level=1,lives=3,coins=0;
-let player,platforms=[],enemies=[],items=[],hazards=[],shots=[],enemyShots=[];
-let boss=null,levelTime=120,laserCD=0,specialCD=0,invuln=0;
-let camera=0,worldW=1800,groundY=0,last=0,sleepTimer=0,levelMessage=false;
+const WORLD=2250,GROUND=H-65;
+let level=1,lives=3,coins=0,timeLeft=120;
+let player,platforms,enemies,shots,enemyShots,pickups,hazards;
+let boss=null,exit,doorOpen=false,camera=0;
+let running=false,paused=false,ended=false,transition=false;
+let keys={},laserCooldown=0,blastCooldown=0;
+let laserFlash=0,blastFlash=0,invulnerable=0;
+let last=performance.now(),introTime=0,scene='intro';
+let score=0;
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const rand=(a,b)=>a+Math.random()*(b-a);
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 
-function showPanel(id){
- ['intro','sleepPanel','pausePanel','messagePanel','endPanel'].forEach(p=>$(p).classList.toggle('hidden',p!==id));
+function show(id){
+ ['introPanel','pausePanel','messagePanel','endPanel'].forEach(p=>$(p).classList.toggle('hidden',p!==id));
  $('overlay').classList.remove('hidden');
 }
-function hideOverlay(){$('overlay').classList.add('hidden')}
-function startSleep(){
- scene='sleep';sleepTimer=0;running=false;paused=false;showPanel('sleepPanel');last=performance.now();
+function hide(){ $('overlay').classList.add('hidden'); }
+function updateHud(){
+ $('levelHud').textContent='🦖 Level '+level+': '+levelNames[level-1];
+ $('lifeHud').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives));
+ $('timerHud').textContent='⏱ '+Math.floor(timeLeft/60)+':'+String(Math.floor(timeLeft%60)).padStart(2,'0');
+ $('laserHud').textContent=laserCooldown>0?'🔫 Laser: '+laserCooldown.toFixed(1)+'s':'🔫 Laser: Ready';
+ $('blastHud').textContent=blastCooldown>0?'💥 Blast: '+blastCooldown.toFixed(1)+'s':'💥 Blast: Ready';
+ $('coinHud').textContent='🪙 '+coins;
 }
-function beginDream(){
- level=1;lives=3;coins=0;laserCD=0;specialCD=0;scene='playing';
- setupLevel();running=true;paused=false;hideOverlay();last=performance.now();
+function startGame(){
+ level=1;lives=3;coins=0;score=0;scene='playing';
+ loadLevel();running=true;paused=false;ended=false;
+ hide();last=performance.now();
 }
-function setupLevel(){
- const cfg=levels[level-1];
- worldW=level===6?2300:1850+level*70;
- groundY=H-90;
- camera=0;
- player={x:90,y:groundY-48,w:34,h:48,vx:0,vy:0,onGround:false,face:1};
- platforms=[];enemies=[];items=[];hazards=[];shots=[];enemyShots=[];boss=null;
- levelTime=120;laserCD=0;specialCD=0;invuln=1.5;
- platforms.push({x:0,y:groundY,w:worldW,h:90});
- // Unique platform arrangements for each environment.
- if(level===1){
-  [[250,groundY-110,140],[490,groundY-175,145],[760,groundY-115,150],[1030,groundY-205,145],[1320,groundY-130,150],[1580,groundY-180,140]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
- }else if(level===2){
-  [[200,groundY-95,125],[410,groundY-190,120],[650,groundY-125,170],[900,groundY-225,120],[1150,groundY-145,160],[1450,groundY-205,140],[1700,groundY-110,130]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
- }else if(level===3){
-  [[190,groundY-150,145],[420,groundY-225,130],[650,groundY-130,150],[900,groundY-205,130],[1140,groundY-265,150],[1400,groundY-165,140],[1650,groundY-220,150]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
- }else if(level===4){
-  [[190,groundY-115,125],[390,groundY-190,130],[620,groundY-275,130],[850,groundY-175,150],[1100,groundY-255,130],[1350,groundY-165,150],[1600,groundY-235,140]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
- }else if(level===5){
-  [[220,groundY-120,180],[500,groundY-210,130],[730,groundY-145,190],[1020,groundY-235,130],[1250,groundY-155,170],[1520,groundY-215,160],[1770,groundY-120,120]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
- }else{
-  [[220,groundY-120,150],[470,groundY-205,140],[740,groundY-130,170],[1020,groundY-225,145],[1300,groundY-150,150],[1580,groundY-235,160],[1870,groundY-140,150]].forEach(p=>platforms.push({x:p[0],y:p[1],w:p[2],h:18}));
+function loadLevel(){
+ timeLeft=120;laserCooldown=0;blastCooldown=0;
+ laserFlash=0;blastFlash=0;invulnerable=1.5;
+ doorOpen=false;transition=false;
+ player={x:75,y:GROUND-45,w:34,h:46,vx:0,vy:0,onGround:false,face:1};
+ camera=0;shots=[];enemyShots=[];pickups=[];hazards=[];enemies=[];
+ platforms=[{x:0,y:GROUND,w:WORLD,h:100}];
+ const gap=level>=4?180:155;
+ for(let i=0;i<12;i++){
+  let x=190+i*gap;
+  let y=GROUND-110-(i%3)*65;
+  platforms.push({x,y,w:105+(i%2)*20,h:18});
+  if(i%3===1)platforms.push({x:x+45,y:y-100,w:85,h:17});
  }
- // Collectibles and hazards vary by level.
- for(let i=0;i<cfg.count;i++){
-  const x=260+i*205+rand(-25,25);
-  const y=groundY-rand(65,185);
-  enemies.push({x,y,w:44,h:40,hp:level===6?3:1,speed:cfg.speed+rand(-12,15),face:-1,stun:0,kind:i%3});
+ // Level-specific hazards.
+ for(let i=0;i<7+level;i++){
+  hazards.push({x:280+i*240,y:GROUND-18,w:35,h:18,kind:level});
  }
- for(let i=0;i<17;i++){
-  let x=160+i*95;
-  let y=groundY-60;
-  if(i%3===1)y-=85;
-  items.push({x,y,type:'coin',got:false});
+ // Enemies placed on the ground and platforms.
+ for(let i=0;i<5+level;i++){
+  let p=platforms[1+(i*2)%(platforms.length-1)];
+  enemies.push({
+   x:p.x+rand(15,Math.max(20,p.w-15)),y:p.y-36,
+   w:40,h:36,hp:1+Math.floor(level/3),
+   speed:45+level*8+rand(0,18),dir:i%2?1:-1,
+   minX:p.x,maxX:p.x+p.w,kind:i%3
+  });
  }
- for(let i=0;i<5;i++){
-  items.push({x:380+i*300,y:groundY-50-rand(40,100),type:['heart','speed','shield','blast'][i%4],got:false});
+ // Coins and power-ups.
+ for(let i=0;i<18;i++){
+  let p=platforms[1+(i*3)%(platforms.length-1)];
+  pickups.push({x:p.x+p.w/2,y:p.y-28,type:'coin',got:false});
  }
- for(let i=0;i<4+level;i++){
-  hazards.push({x:350+i*235,y:groundY-28,w:32,h:28,type:level===3?'ice':level===4||level===6?'fire':'spike'});
+ for(let i=0;i<4;i++){
+  let p=platforms[2+i*3];
+  if(p)pickups.push({x:p.x+p.w/2,y:p.y-30,type:['heart','speed','blast','coin'][i],got:false});
  }
+ // Boss appears in the final level.
  if(level===6){
-  boss={x:worldW-360,y:groundY-125,w:125,h:125,hp:40,maxHp:40,dir:-1,attack:2.3,flash:0};
-  // Boss arena is clear enough for the showdown.
-  hazards=hazards.filter(h=>h.x<worldW-600);
-  enemies=[];
+  boss={x:WORLD-340,y:GROUND-115,w:135,h:105,hp:40,maxHp:40,dir:-1,attack:2.2};
  }
+ exit={x:WORLD-85,y:GROUND-110,w:55,h:110};
  updateHud();
 }
-function updateHud(){
- const cfg=levels[level-1];
- $('levelName').textContent='Level '+level+': '+cfg.name;
- $('lives').textContent='❤️'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives));
- $('coins').textContent='🪙 '+coins;
- $('timer').textContent='⏱ '+Math.floor(levelTime/60)+':'+String(Math.ceil(levelTime%60)).padStart(2,'0');
- $('laserHud').textContent=laserCD>0?'⚡ Laser: '+laserCD.toFixed(1)+'s':'⚡ Laser: READY';
- $('specialHud').textContent=specialCD>0?'💥 Special: '+specialCD.toFixed(1)+'s':'💥 Special: READY';
- $('bossHud').textContent=boss?'🦖 T-Rex HP: '+boss.hp+'/'+boss.maxHp:'🦕 Find the exit!';
-}
-function jump(){
- if(scene!=='playing'||!running||paused)return;
- if(player.onGround){player.vy=-620;player.onGround=false}
+function rectHit(a,b){
+ return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
 }
 function fireLaser(){
- if(scene!=='playing'||!running||paused||laserCD>0)return;
- laserCD=10;
- shots.push({x:player.x+player.w/2,y:player.y+20,vx:player.face*620,life:1.3});
+ if(!running||paused||ended||laserCooldown>0)return;
+ laserCooldown=3;
+ laserFlash=.18;
+ shots.push({x:player.x+(player.face>0?player.w:-18),y:player.y+17,
+  vx:player.face*650,life:1.7});
 }
-function specialAttack(){
- if(scene!=='playing'||!running||paused||specialCD>0)return;
- specialCD=8;
- enemies.forEach(e=>{if(Math.abs(e.x-player.x)<210)e.hp-=2});
- if(boss&&Math.abs(boss.x-player.x)<300){boss.hp-=5;boss.flash=.25}
- shots.push({x:player.x+player.w/2,y:player.y+15,vx:0,life:.45,blast:true});
+function specialBlast(){
+ if(!running||paused||ended||blastCooldown>0)return;
+ blastCooldown=8;blastFlash=.45;
+ enemies.forEach(e=>{
+  if(Math.abs(e.x-player.x)<210&&Math.abs(e.y-player.y)<130)e.hp-=2;
+ });
+ if(boss&&Math.abs(boss.x-player.x)<260)boss.hp-=5;
 }
-function damagePlayer(){
- if(invuln>0||scene!=='playing')return;
- lives--;invuln=1.8;player.x=Math.max(60,player.x-100);player.y=groundY-100;player.vy=-150;
+function hurt(){
+ if(invulnerable>0||ended)return;
+ lives--;invulnerable=1.6;
+ player.vy=-250;player.x=Math.max(35,player.x-35);
+ if(lives<=0){
+  lives=0;running=false;ended=true;
+  $('endTitle').textContent='🦖 The Dinosaurs Won!';
+  $('endText').textContent='Bob made it to level '+level+'. Collect more power-ups and try again!';
+  show('endPanel');
+ }
  updateHud();
- if(lives<=0)finish(false);
 }
-function finish(won){
- running=false;scene='finished';
- $('endTitle').textContent=won?'🏆 Dream Escaped!':'💤 Dream Over!';
- $('endText').textContent=won?'Bob defeated the T-Rex and escaped the dinosaur dream! Final coins: '+coins:'Bob ran out of lives. The dinosaurs won this time. Try again!';
- showPanel('endPanel');
-}
-function completeLevel(){
- if(level>=6){finish(true);return}
- running=false;
- $('messageTitle').textContent='🎉 Level '+level+' Complete!';
- $('messageText').textContent='You escaped '+levels[level-1].name+'! Get ready for '+levels[level].name+'!';
- showPanel('messagePanel');levelMessage=true;
-}
-function nextLevel(){
- levelMessage=false;level++;setupLevel();running=true;scene='playing';paused=false;hideOverlay();last=performance.now();
+function jump(){
+ if(!running||paused||ended)return;
+ if(player.onGround){player.vy=-570;player.onGround=false}
 }
 function update(dt){
- if(scene==='sleep'){
-  sleepTimer+=dt;
-  if(sleepTimer>3.8)beginDream();
-  return;
+ if(scene!=='playing'||!running||paused||ended)return;
+ timeLeft-=dt;
+ if(timeLeft<=0){
+  timeLeft=0;hurt();
+  if(!ended){timeLeft=120;player.x=Math.max(40,player.x-150);player.y=GROUND-60;player.vy=0}
  }
- if(scene!=='playing'||!running||paused)return;
- levelTime-=dt;laserCD=Math.max(0,laserCD-dt);specialCD=Math.max(0,specialCD-dt);invuln=Math.max(0,invuln-dt);
- if(levelTime<=0){levelTime=0;damagePlayer();if(scene!=='playing')return;levelTime=120}
- let dir=0;
- if(keys.ArrowRight||keys.d)dir++;
- if(keys.ArrowLeft||keys.a)dir--;
- player.vx=dir*260;
- if(dir)player.face=dir;
- player.x=clamp(player.x+player.vx*dt,0,worldW-player.w);
+ laserCooldown=Math.max(0,laserCooldown-dt);
+ blastCooldown=Math.max(0,blastCooldown-dt);
+ laserFlash=Math.max(0,laserFlash-dt);
+ blastFlash=Math.max(0,blastFlash-dt);
+ invulnerable=Math.max(0,invulnerable-dt);
+
+ let move=0;
+ if(keys.ArrowLeft||keys.a)move--;
+ if(keys.ArrowRight||keys.d)move++;
+ player.vx=move*270;
+ if(move)player.face=move;
+ player.x=clamp(player.x+player.vx*dt,0,WORLD-player.w);
+ const oldBottom=player.y+player.h;
  player.vy+=1450*dt;
- const oldY=player.y;
- player.y+=player.vy*dt;player.onGround=false;
- platforms.forEach(p=>{
-  if(player.x+player.w>p.x&&player.x<p.x+p.w&&oldY+player.h<=p.y+8&&player.y+player.h>=p.y&&player.vy>=0){
+ player.y+=player.vy*dt;
+ player.onGround=false;
+ for(const p of platforms){
+  if(player.vy>=0&&oldBottom<=p.y+8&&player.y+player.h>=p.y&&player.x+player.w>p.x&&player.x<p.x+p.w){
    player.y=p.y-player.h;player.vy=0;player.onGround=true;
   }
- });
- if(player.y>H+200){damagePlayer();player.y=groundY-player.h}
+ }
+ if(player.y>H+150){hurt();player.y=GROUND-player.h;player.vy=0}
+ // Hazard collisions.
+ hazards.forEach(h=>{if(rectHit(player,{x:h.x,y:h.y,w:h.w,h:h.h}))hurt()});
+ // Enemies move and collide with Bob.
  enemies.forEach(e=>{
-  if(e.hp<=0)return;
-  if(e.stun>0)e.stun-=dt;
-  else{
-   const dx=player.x-e.x;
-   if(Math.abs(dx)<390){e.x+=Math.sign(dx)*e.speed*.35*dt;e.face=Math.sign(dx)}
-  }
-  if(Math.abs(player.x-e.x)<38&&Math.abs(player.y-e.y)<35)damagePlayer();
+  e.x+=e.dir*e.speed*dt;
+  if(e.x<e.minX||e.x+e.w>e.maxX)e.dir*=-1;
+  if(rectHit(player,e))hurt();
  });
- enemies=enemies.filter(e=>e.hp>0);
- hazards.forEach(h=>{
-  if(player.x+player.w>h.x&&player.x<h.x+h.w&&player.y+player.h>h.y&&player.y<h.y+h.h)damagePlayer();
- });
- items.forEach(it=>{
-  if(it.got)return;
-  if(Math.abs(player.x+player.w/2-it.x)<30&&Math.abs(player.y+player.h/2-it.y)<35){
-   it.got=true;
-   if(it.type==='coin')coins+=5;
-   if(it.type==='heart')lives=Math.min(3,lives+1);
-   if(it.type==='speed'){player.vx*=1.5}
-   if(it.type==='shield')invuln=5;
-   if(it.type==='blast'){specialCD=0}
-  }
- });
+ // Laser shots.
  shots.forEach(s=>{
-  s.life-=dt;s.x+=s.vx*dt;
-  if(s.blast){
-   enemies.forEach(e=>{if(Math.abs(e.x-s.x)<130)e.hp-=2});
-   s.life=-1;
-  }else{
-   enemies.forEach(e=>{
-    if(Math.abs(e.x-s.x)<32&&Math.abs(e.y-s.y)<45){e.hp--;s.life=-1}
-   });
-   if(boss&&Math.abs(boss.x-s.x)<75&&Math.abs(boss.y-s.y)<65){boss.hp--;boss.flash=.12;s.life=-1}
+  s.x+=s.vx*dt;s.life-=dt;
+  enemies.forEach(e=>{
+   if(e.hp>0&&s.life>0&&s.x>e.x&&s.x<e.x+e.w&&s.y>e.y&&s.y<e.y+e.h){
+    e.hp--;s.life=0;score+=10;
+   }
+  });
+  if(boss&&s.life>0&&s.x>boss.x&&s.x<boss.x+boss.w&&s.y>boss.y&&s.y<boss.y+boss.h){
+   boss.hp--;s.life=0;score+=10;
   }
  });
- shots=shots.filter(s=>s.life>0);
- if(boss){
-  boss.flash=Math.max(0,boss.flash-dt);
-  boss.x+=boss.dir*boss.speed*0; // Keep boss in its arena.
+ shots=shots.filter(s=>s.life>0&&s.x>-20&&s.x<WORLD+20);
+ enemies=enemies.filter(e=>e.hp>0);
+ // Boss behavior and projectiles.
+ if(boss&&boss.hp>0){
+  boss.x+=boss.dir*65*dt;
+  if(boss.x<WORLD-560||boss.x>WORLD-210)boss.dir*=-1;
   boss.attack-=dt;
   if(boss.attack<=0){
-   boss.attack=2.3;
-   enemyShots.push({x:boss.x,y:boss.y+55,vx:boss.x>player.x?-260:-180,life:3});
+   boss.attack=2.1;
+   enemyShots.push({x:boss.x+15,y:boss.y+55,vx:-270,vy:-70,life:4});
   }
-  if(Math.abs(player.x-boss.x)<105&&Math.abs(player.y-boss.y)<100)damagePlayer();
-  if(boss.hp<=0){
-   boss=null;
-   items.push({x:worldW-150,y:groundY-60,type:'coin',got:false});
-  }
- }
- enemyShots.forEach(s=>{s.x+=s.vx*dt;s.life-=dt;if(Math.abs(s.x-player.x)<27&&Math.abs(s.y-player.y)<45){s.life=-1;damagePlayer()}});
+  if(rectHit(player,boss))hurt();
+ }else if(boss&&boss.hp<=0){boss=null;score+=500}
+ enemyShots.forEach(s=>{
+  s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;
+  if(rectHit(player,{x:s.x,y:s.y,w:20,h:20})) {hurt();s.life=0}
+ });
  enemyShots=enemyShots.filter(s=>s.life>0);
- camera=clamp(player.x-W*.36,0,worldW-W);
- if(level!==6&&player.x>worldW-100&&enemies.length===0)completeLevel();
- if(level===6&&player.x>worldW-100&&!boss)completeLevel();
+ // Pickups.
+ pickups.forEach(p=>{
+  if(p.got)return;
+  if(Math.hypot(player.x+player.w/2-p.x,player.y+player.h/2-p.y)<34){
+   p.got=true;
+   if(p.type==='coin'){coins+=1;score+=5}
+   if(p.type==='heart')lives=Math.min(3,lives+1);
+   if(p.type==='speed')player.vx*=1.15;
+   if(p.type==='blast')blastCooldown=0;
+  }
+ });
+ // The exit becomes available only after every enemy is defeated.
+ const enemiesGone=enemies.length===0;
+ const bossGone=!boss;
+ doorOpen=enemiesGone&&bossGone;
+ if(doorOpen&&rectHit(player,exit)){
+  completeLevel();
+ }
+ camera=clamp(player.x-W*.38,0,WORLD-W);
  updateHud();
 }
+function completeLevel(){
+ if(transition)return;
+ transition=true;running=false;
+ if(level===6){
+  ended=true;
+  $('endTitle').textContent='🏆 Bob Escaped the Dinosaur Dream!';
+  $('endText').textContent='You beat all six levels, defeated the dinosaurs, and escaped! Final score: '+score+' · Coins: '+coins;
+  show('endPanel');
+ }else{
+  $('messageTitle').textContent='🎉 Level '+level+' Complete!';
+  $('messageText').textContent='You defeated all the dinosaurs and found the exit! Get ready for '+levelNames[level]+'!';
+  show('messagePanel');
+ }
+}
+function nextLevel(){
+ if(level>=6)return;
+ level++;loadLevel();running=true;paused=false;hide();last=performance.now();
+}
 function drawBackground(){
- const cfg=levels[level-1];
- const grad=ctx.createLinearGradient(0,0,0,H);
- grad.addColorStop(0,cfg.sky);grad.addColorStop(1,cfg.ground);
- ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
- // layered environment silhouettes
- for(let i=0;i<9;i++){
-  const x=((i*250-camera*.22)%(W+250)+W+250)%(W+250)-100;
-  ctx.fillStyle=level===2?'#bd874b':level===3?'#d9f2f8':level===4?'#75453f':level===5?'#496346':level===6?'#44333f':'#497c52';
-  ctx.beginPath();ctx.moveTo(x,H-90);ctx.lineTo(x+100,H*.35+((i%3)*25));ctx.lineTo(x+210,H-90);ctx.fill();
-  ctx.font='48px Arial';ctx.fillText(cfg.decor,x+50,H-100);
- }
- // environment-specific details
- if(level===2){
-  ctx.fillStyle='#f9e0a1';ctx.beginPath();ctx.arc(W-110,110,42,0,Math.PI*2);ctx.fill();
-  for(let i=0;i<10;i++){let x=(i*190-camera*.5)%(W+100);ctx.fillStyle='#d19a59';ctx.fillRect(x,H-145,35,48)}
- }
- if(level===3){
-  for(let i=0;i<8;i++){let x=(i*210-camera*.4)%(W+100);ctx.fillStyle='#e7faff';ctx.beginPath();ctx.moveTo(x,H-90);ctx.lineTo(x+30,H-180);ctx.lineTo(x+65,H-90);ctx.fill()}
- }
- if(level===4||level===6){
-  for(let i=0;i<5;i++){let x=(i*260-camera*.3)%(W+100);ctx.fillStyle='#ffb044';ctx.beginPath();ctx.arc(x,H-80,18,Math.PI,0);ctx.fill()}
- }
- if(level===5){
-  ctx.fillStyle='#304b38';for(let i=0;i<8;i++){let x=(i*200-camera*.3)%(W+100);ctx.beginPath();ctx.ellipse(x,H-60,45,15,0,0,Math.PI*2);ctx.fill()}
+ let skies=['#7eb7a0','#a5c5c2','#9ebacb','#f19a56','#638f72','#c1a17a'];
+ ctx.fillStyle=skies[level-1];ctx.fillRect(0,0,W,H);
+ ctx.fillStyle='rgba(24,51,40,.38)';
+ for(let i=0;i<12;i++){
+  let x=((i*235-camera*.25)%(W+200)+W+200)%(W+200);
+  ctx.beginPath();ctx.arc(x,H*.47,55+i%3*15,0,Math.PI*2);ctx.fill();
  }
 }
 function draw(){
  ctx.clearRect(0,0,W,H);
- if(scene==='intro'||scene==='sleep'){
-  ctx.fillStyle='#192638';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#273c55';ctx.fillRect(0,H*.65,W,H*.35);
-  ctx.font='90px Arial';ctx.fillText('🛏️',W*.35,H*.72);
-  ctx.font='70px Arial';ctx.fillText('🧑‍🔬',W*.48,H*.65);
-  ctx.font='38px Arial';ctx.fillText('🌙',W*.78,H*.22);
-  ctx.fillStyle='#fff';ctx.font='bold 20px Outfit';ctx.fillText('BOB’S BEDROOM',W*.05,45);
+ if(scene==='intro'){
+  ctx.fillStyle='#263d34';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#8d715d';ctx.fillRect(W*.24,H*.53,W*.52,H*.28);
+  ctx.fillStyle='#d6c6a6';ctx.fillRect(W*.31,H*.48,W*.38,H*.22);
+  ctx.font='70px Arial';ctx.fillText('🛏️',W*.42,H*.58);
+  ctx.font='38px Arial';ctx.fillText('🧑‍🔬',W*.48,H*.48);
+  ctx.fillStyle='white';ctx.textAlign='center';ctx.font='bold 25px Fredoka';
+  ctx.fillText('Bob is falling asleep...',W/2,H*.25);ctx.textAlign='left';
   return;
  }
- if(scene==='finished')return;
- const cfg=levels[level-1];
  drawBackground();
  ctx.save();ctx.translate(-camera,0);
- // ground and platforms
- ctx.fillStyle=cfg.ground;ctx.fillRect(0,groundY,worldW,H-groundY);
- ctx.fillStyle=cfg.accent;ctx.fillRect(0,groundY,worldW,8);
- platforms.slice(1).forEach(p=>{
-  ctx.fillStyle=cfg.platform;ctx.fillRect(p.x,p.y,p.w,p.h);
-  ctx.fillStyle=cfg.accent;ctx.fillRect(p.x,p.y,p.w,5);
+ // Platforms.
+ platforms.forEach((p,i)=>{
+  ctx.fillStyle=level===4?'#a64b2d':level===3?'#a6c6d2':'#76533b';
+  ctx.fillRect(p.x,p.y,p.w,p.h);
+  ctx.fillStyle=level===4?'#f3a34d':level===3?'#e7f5f5':'#5c914d';
+  ctx.fillRect(p.x,p.y,p.w,7);
+  ctx.fillStyle='#382e28';
+  for(let x=p.x+12;x<p.x+p.w-5;x+=30)ctx.fillRect(x,p.y+10,7,5);
  });
- // hazards
+ // Hazards.
  hazards.forEach(h=>{
-  ctx.font='29px Arial';
-  ctx.fillText(h.type==='fire'?'🔥':h.type==='ice'?'🧊':'🔺',h.x,h.y+27);
+  ctx.fillStyle=level===4?'#f36c25':'#4d3430';
+  ctx.beginPath();ctx.moveTo(h.x,h.y+h.h);ctx.lineTo(h.x+h.w/2,h.y-13);ctx.lineTo(h.x+h.w,h.y+h.h);ctx.fill();
  });
- // collectibles
- items.forEach(it=>{
-  if(it.got)return;
-  ctx.font='27px Arial';
-  ctx.fillText(it.type==='coin'?'🪙':it.type==='heart'?'❤️':it.type==='speed'?'⚡':it.type==='shield'?'🛡️':'💥',it.x-12,it.y+10);
+ // Pickups.
+ pickups.forEach(p=>{
+  if(p.got)return;
+  ctx.font='25px Arial';
+  ctx.fillText(p.type==='coin'?'🪙':p.type==='heart'?'❤️':p.type==='speed'?'⚡':'💥',p.x-13,p.y+9);
  });
- // enemies
+ // Enemies.
  enemies.forEach(e=>{
-  ctx.font='38px Arial';
-  ctx.fillText(e.kind===0?'🦖':e.kind===1?'🦕':'🐊',e.x-4,e.y+34);
-  if(e.hp>1){ctx.fillStyle='#262626';ctx.fillRect(e.x,e.y-8,38,5);ctx.fillStyle='#ef4b4b';ctx.fillRect(e.x,e.y-8,38*e.hp/3,5)}
+  ctx.font='39px Arial';
+  ctx.fillText(['🦖','🦕','🐊'][e.kind],e.x-3,e.y+32);
  });
- // boss
+ // Boss.
  if(boss){
-  ctx.font='112px Arial';ctx.fillText('🦖',boss.x-5,boss.y+105);
-  ctx.fillStyle='#261d20';ctx.fillRect(boss.x+5,boss.y-22,112,12);
-  ctx.fillStyle='#e33d39';ctx.fillRect(boss.x+5,boss.y-22,112*Math.max(0,boss.hp/boss.maxHp),12);
-  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(boss.x+5,boss.y-22,112,12);
-  ctx.fillStyle='#fff';ctx.font='bold 14px Outfit';ctx.fillText('T-REX',boss.x+34,boss.y-30);
+  ctx.font='92px Arial';ctx.fillText('🦖',boss.x,boss.y+95);
+  ctx.fillStyle='#251d1d';ctx.fillRect(boss.x,boss.y-18,boss.w,11);
+  ctx.fillStyle='#e34c42';ctx.fillRect(boss.x,boss.y-18,boss.w*clamp(boss.hp/boss.maxHp,0,1),11);
+  ctx.fillStyle='white';ctx.font='bold 13px Outfit';ctx.fillText('T-REX BOSS',boss.x+12,boss.y-23);
  }
- // friendly laser
+ // Enemy projectiles.
+ enemyShots.forEach(s=>{ctx.font='25px Arial';ctx.fillText('🔥',s.x,s.y+10)});
+ // Laser projectiles.
  shots.forEach(s=>{
-  ctx.fillStyle=s.blast?'#8ffcff':'#4effff';
-  ctx.shadowColor='#4effff';ctx.shadowBlur=14;
-  ctx.fillRect(s.x-12,s.y-4,s.blast?24:32,8);ctx.shadowBlur=0;
+  ctx.strokeStyle='#a8ffff';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(s.x-s.vx*.045,s.y);ctx.stroke();
  });
- enemyShots.forEach(s=>{ctx.font='27px Arial';ctx.fillText('🔥',s.x-10,s.y+10)});
- // Bob
- if(invuln>0&&Math.floor(performance.now()/100)%2===0)ctx.globalAlpha=.35;
- ctx.font='39px Arial';ctx.fillText('🧑‍🔬',player.x-3,player.y+38);ctx.globalAlpha=1;
+ // Exit.
+ ctx.fillStyle=doorOpen?'#f4d65a':'#52473e';
+ ctx.fillRect(exit.x,exit.y,exit.w,exit.h);
+ ctx.fillStyle='#2b2924';ctx.fillRect(exit.x+8,exit.y+8,exit.w-16,exit.h-8);
+ ctx.font='30px Arial';ctx.fillText(doorOpen?'🚪':'🔒',exit.x+8,exit.y+58);
+ ctx.fillStyle='white';ctx.font='bold 12px Outfit';
+ ctx.fillText(doorOpen?'EXIT OPEN':'LOCKED',exit.x-2,exit.y-7);
+ // Bob.
+ if(!(invulnerable>0&&Math.floor(performance.now()/100)%2===0)){
+  ctx.font='43px Arial';ctx.fillText('🧑‍🔬',player.x-4,player.y+player.h);
+ }
+ if(blastFlash>0){
+  ctx.strokeStyle='#c6faff';ctx.lineWidth=8;ctx.beginPath();
+  ctx.arc(player.x+player.w/2,player.y+player.h/2,180*(1-blastFlash/.45),0,Math.PI*2);ctx.stroke();
+ }
  ctx.restore();
- // exit marker
- ctx.font='40px Arial';ctx.fillText('🚪',W-70,H-130);
- ctx.fillStyle='#fff';ctx.font='bold 13px Outfit';ctx.fillText('EXIT',W-70,H-95);
- ctx.fillStyle='#fff';ctx.font='bold 14px Outfit';
- if(level!==6)ctx.fillText(enemies.length?'Defeat the dinosaurs to open the exit!':'Run to the exit! ➜',15,H-25);
- else ctx.fillText(boss?'Defeat the T-Rex!':'The way out is open! Reach the exit!',15,H-25);
+ // Level status.
+ ctx.fillStyle='rgba(5,20,15,.65)';ctx.fillRect(W/2-170,H-47,340,32);
+ ctx.fillStyle='white';ctx.font='bold 14px Outfit';ctx.textAlign='center';
+ ctx.fillText(doorOpen?'THE EXIT IS OPEN! WALK INTO THE DOOR!':'Defeat every dinosaur to unlock the exit!',W/2,H-26);
+ ctx.textAlign='left';
 }
 function loop(now){
- const dt=Math.min(.04,(now-last)/1000||0);last=now;
- update(dt);draw();requestAnimationFrame(loop);
+ const dt=Math.min(.04,Math.max(0,(now-last)/1000));last=now;
+ if(scene==='intro'){
+  introTime+=dt;
+  if(introTime>6){
+   scene='playing';loadLevel();running=true;hide();
+  }
+ }else update(dt);
+ draw();requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
-
-addEventListener('keydown',e=>{
- const k=e.key.length===1?e.key.toLowerCase():e.key;
- if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+function pauseGame(){
+ if(!running||ended)return;
+ running=false;paused=true;show('pausePanel');
+}
+function resumeGame(){
+ if(!paused)return;
+ paused=false;running=true;hide();last=performance.now();
+}
+function keyDown(e){
+ let k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(['ArrowLeft','ArrowRight','ArrowUp',' ','ArrowDown'].includes(e.key))e.preventDefault();
  keys[k]=true;
- if(['ArrowUp','w',' '].includes(k))jump();
+ if(k===' '||k==='ArrowUp'||k==='w')jump();
  if(k==='x')fireLaser();
- if(k==='z')specialAttack();
- if(k==='Escape'||k==='p')togglePause();
-});
-addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false});
-addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)for(const k in keys)keys[k]=false});
-function togglePause(){
- if(scene!=='playing'||levelMessage)return;
- if(running){running=false;paused=true;showPanel('pausePanel')}
- else if(paused){paused=false;running=true;hideOverlay();last=performance.now()}
+ if(k==='z')specialBlast();
+ if(k==='p'||k==='Escape'){if(running)pauseGame();else if(paused)resumeGame()}
 }
-$('startBtn').addEventListener('click',startSleep);
-$('resumeBtn').addEventListener('click',togglePause);
-$('pauseBtn').addEventListener('click',togglePause);
-$('restartBtn').addEventListener('click',()=>{if(confirm('Restart the whole dream?'))beginDream()});
-$('continueBtn').addEventListener('click',nextLevel);
-$('againBtn').addEventListener('click',beginDream);
+function keyUp(e){
+ let k=e.key.length===1?e.key.toLowerCase():e.key;keys[k]=false;
+}
+addEventListener('keydown',keyDown);
+addEventListener('keyup',keyUp);
+addEventListener('blur',()=>{keys={}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
+
+function bind(id,fn){
+ $(id).addEventListener('click',e=>{e.preventDefault();e.stopPropagation();fn()});
+}
+bind('startBtn',startGame);
+bind('resumeBtn',resumeGame);
+bind('pauseBtn',()=>{if(running)pauseGame();else if(paused)resumeGame()});
+bind('nextBtn',nextLevel);
+bind('againBtn',startGame);
+bind('restartBtn',startGame);
+
+// Keep the animation loop running independently of button presses.
+loadLevel();
+running=false;
+requestAnimationFrame(loop);
 })();
 </script>
 </body>
