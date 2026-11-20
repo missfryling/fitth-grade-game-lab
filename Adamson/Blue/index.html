@@ -3,545 +3,448 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yumi's Animal Adventures</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#17152d;color:white;font-family:Fredoka,Arial;overflow:hidden}
-canvas{display:block;width:100vw;height:100vh}
-#hud{position:fixed;inset:0;pointer-events:none}
-.top{display:flex;justify-content:space-between;align-items:flex-start;padding:10px;gap:8px}
-.panel{background:#191631eF;border:2px solid #ffffff35;border-radius:13px;padding:9px 13px;box-shadow:0 5px 16px #0006}
-.brand{font-size:21px;font-weight:700;color:#e6a7ff}
-.stats{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.stat{font-weight:700;font-size:13px}
-#mission{position:absolute;left:10px;top:80px;max-width:290px;font-size:13px;line-height:1.4}
-#controls{position:absolute;bottom:10px;left:10px;font-size:12px;line-height:1.5}
-#actions{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
-button{border:0;border-radius:10px;padding:9px 13px;font:700 14px Fredoka;background:#e4a6ff;color:#261637;cursor:pointer}
-button.alt{background:#394268;color:white}
-button:hover{filter:brightness(1.12)}
-#notice{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);font-size:27px;font-weight:700;text-align:center;text-shadow:0 3px 10px #000;max-width:90%}
-#overlay,#shop{position:fixed;inset:0;background:#09091cdd;display:flex;align-items:center;justify-content:center;z-index:5;padding:15px}
-#card,#shopCard{width:min(560px,95vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#302653,#1d294c);border:2px solid #ffffff44;border-radius:22px;padding:25px;text-align:center;box-shadow:0 15px 50px #0009}
-h1{color:#e4a6ff;font-size:clamp(30px,6vw,48px);margin:5px}
-#card p{line-height:1.5;color:#eee8ff}
-#shop{display:none}
-.shoprow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid #ffffff25;text-align:left}
-.small{font-size:12px;color:#c8c9e9}
-@media(max-width:650px){.brand{font-size:16px}.panel{padding:7px 9px}#mission{top:95px;max-width:220px}#controls{font-size:10px}}
+body{margin:0;background:#201b3d;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#game{width:min(100%,1100px);padding:12px}
+#top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+h1{font-size:clamp(20px,4vw,30px);margin:0;color:#ffb9ed;text-shadow:2px 3px #713d91}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:#463b70;border:2px solid #806ac0;border-radius:14px;padding:7px 12px;font-weight:bold}
+#stage{position:relative;border:5px solid #a98be8;border-radius:20px;overflow:hidden;background:#8dd9c3;box-shadow:0 10px 35px #0008}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+#message{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:#30234deF;border:2px solid #e5b5ff;border-radius:15px;padding:9px 16px;text-align:center;font-size:14px;max-width:90%;pointer-events:none}
+#controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+button{font-family:inherit;border:0;border-radius:13px;padding:10px 15px;background:#ffb5e7;color:#492b68;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 4px #a45caa}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button:active{transform:translateY(2px);box-shadow:0 2px #a45caa}
+button.purple{background:#bba5ff;color:#30234e;box-shadow:0 4px #7662b7}
+button.green{background:#a8f2c5;color:#205b48;box-shadow:0 4px #559c75}
+button.gold{background:#ffe28c;color:#76501d;box-shadow:0 4px #b58b39}
+#help{font-size:13px;text-align:center;color:#e7ddff;margin-top:9px}
+#overlay{position:absolute;inset:0;background:#211738eF;display:flex;align-items:center;justify-content:center;padding:20px;z-index:5}
+.panel{width:min(500px,95%);background:#fff0fb;color:#54356e;border:5px solid #e3a8ed;border-radius:25px;padding:22px;text-align:center;box-shadow:0 8px 30px #0007}
+.panel h2{margin:0 0 10px;font-size:29px;color:#a34caa}
+.panel p{line-height:1.45}
+.panel button{margin:5px}
+.hidden{display:none!important}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="hud">
- <div class="top">
-  <div class="panel">
-   <div class="brand">🐉 YUMI'S ANIMAL ADVENTURES</div>
-   <div class="stat" id="place">🌸 Cute Town</div>
-  </div>
+<div id="game">
+ <div id="top">
+  <h1>🐉 Yumi's Animal Adventures 🌸</h1>
   <div class="stats">
-   <div class="panel stat">🪙 <span id="coins">0</span></div>
-   <div class="panel stat">🍓 <span id="berries">0</span></div>
-   <div class="panel stat">❤️ <span id="health">100</span></div>
-   <div class="panel stat">🌎 Level <span id="level">1</span>/6</div>
+   <div class="stat">🪙 <span id="coins">0</span></div>
+   <div class="stat">❤️ <span id="lives">5</span></div>
+   <div class="stat">🌟 <span id="level">Cute Town</span></div>
   </div>
  </div>
- <div class="panel" id="mission">
-  <b style="color:#e6b2ff">🌸 YOUR ADVENTURE</b>
-  <div id="missionText">Collect 5 strawberries and feed 3 animals to open the Dark Side portal!</div>
-  <div style="margin-top:5px">🍓 Strawberries: <span id="strawberryCount">0</span>/5</div>
-  <div>🐰 Animals fed: <span id="fedCount">0</span>/3</div>
-  <div id="portalStatus">🔒 Portal locked</div>
+ <div id="stage">
+  <canvas id="c" width="900" height="560"></canvas>
+  <div id="message">Welcome to Cute Town! Explore and visit the houses. 💖</div>
+  <div id="overlay">
+   <div class="panel">
+    <h2>🐉 Welcome, Yumi!</h2>
+    <p>Explore Cute Town, play fun mini-games in the houses, collect coins, and get ready to defeat the UWU monster blobs in the Dark Side!</p>
+    <p>✨ There are six Dark Side levels to conquer!</p>
+    <button class="green" id="start">START ADVENTURE!</button>
+   </div>
+  </div>
  </div>
- <div class="panel" id="controls">WASD / Arrows: Move<br>E: Enter houses / interact<br>SPACE: Dragon attack<br>Q: Special ability<br>B: Shop</div>
- <div id="actions">
-  <button id="shopBtn">🛍️ Shop (B)</button>
-  <button class="alt" id="pauseBtn">Ⅱ Pause</button>
-  <button class="alt" id="restartBtn">↻ Restart</button>
-  <button class="alt" id="homeBtn">⌂ Game Lab</button>
+ <div id="controls">
+  <button class="purple" id="interact">E · INTERACT</button>
+  <button class="gold" id="special">✨ DRAGON BLAST (SPACE)</button>
+  <button id="secret">🔍 SECRET DOOR</button>
+  <button class="purple" id="pause">⏸ PAUSE</button>
+  <button id="restart">↻ RESTART</button>
+  <button class="green" id="home">🏡 GAME LAB</button>
  </div>
- <div id="notice"></div>
+ <div id="help">Move: WASD or arrow keys · Interact: E · Dragon Blast: SPACE · Find houses, animals, coins, and secret doors!</div>
 </div>
-
-<div id="overlay">
- <div id="card">
-  <div style="font-size:52px">🐉🌸🍓</div>
-  <h1>YUMI'S ANIMAL ADVENTURES</h1>
-  <p>Explore Cute Town, visit houses, collect strawberries, help animals, and discover the mysterious Dark Side!</p>
-  <p>Watch out for the cars driving around town. They can bump into Yumi!</p>
-  <button id="startBtn">START ADVENTURE</button>
- </div>
-</div>
-
-<div id="shop">
- <div id="shopCard">
-  <h1>🛍️ YUMI'S SHOP</h1>
-  <p>Coins: <b id="shopCoins">0</b></p>
-  <div id="shopItems"></div>
-  <button class="alt" id="closeShop">CLOSE SHOP</button>
- </div>
-</div>
-
 <script>
 (()=>{
-'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+"use strict";
+const canvas=document.getElementById("c"),ctx=canvas.getContext("2d");
+const W=900,H=560;
 const $=id=>document.getElementById(id);
-const VW=960,VH=600,WW=1600,WH=1050;
-let camera={x:0,y:0};
-let mode='town',running=false,paused=false,shopOpen=false;
-let player={x:140,y:160,health:100,speed:220,shield:0,boost:0,attack:0,special:0,hit:0};
-let keys={},coins=0,berries=0,strawberries=0,animalsFed=0;
-let level=1,blobs=[],cars=[],items=[],animals=[],houses=[],effects=[];
-let portalOpen=false,notice='',noticeTimer=0,carHitCD=0,attackCD=0,specialCD=0;
-let last=0,raf=0,insideHouse=-1,interiorItems=[],interiorExit=false;
-let carColors=['#ff638a','#62c7ee','#f6c65c','#a98af0','#64d69c','#f3f1ed'];
-let carLanes=[480,760];
-let worldNames=['Shadow Garden','Misty Forest','Crystal Caves','Midnight Desert','Dragon Mountain','Monster Kingdom'];
-
-function resize(){
- const d=Math.min(devicePixelRatio||1,2);
- canvas.width=VW*d;canvas.height=VH*d;
- canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';
- ctx.setTransform(canvas.width/VW,0,0,canvas.height/VH,0,0);
+let mode="title",paused=false,coins=0,lives=5,level=1,unlocked=1;
+let keys={},last=0,toastTimer=0,toast="Welcome to Cute Town!";
+let player={x:450,y:300,speed:210,face:1,invuln:0,blast:0};
+let houseIndex=-1,mini=null,miniScore=0,miniTarget=0,miniStep=0;
+let animalsFed=0,strawberries=0,carTime=0,carHit=0;
+let blobs=[],townCoins=[],cars=[],particles=[],bonusCollected=false;
+let darkDoorOpen=false,secretRoom=false,gameOver=false;
+const houses=[
+ {x:90,y:85,w:145,h:100,name:"🍓 Strawberry Kitchen",type:"chop",desc:"Chop strawberries into yummy treats!"},
+ {x:380,y:65,w:145,h:100,name:"🐾 Animal Care House",type:"feed",desc:"Feed the hungry little animals!"},
+ {x:665,y:85,w:145,h:100,name:"🧩 Puzzle Palace",type:"match",desc:"Match the cute pictures!"},
+ {x:90,y:365,w:145,h:100,name:"🏥 Cute Pet Clinic",type:"clinic",desc:"Help the adorable patients!"},
+ {x:380,y:385,w:145,h:100,name:"🎨 Art Studio",type:"paint",desc:"Make a colorful masterpiece!"},
+ {x:665,y:365,w:145,h:100,name:"🍰 Sweet Shop",type:"bake",desc:"Make a delicious cupcake!"}
+];
+const darkNames=["The Gloomy Garden","Bubblegum Bog","Shadow Forest","Crystal Caverns","Monster Mountain","The UWU Castle"];
+const darkDescriptions=[
+"Find and defeat 3 silly blobs!",
+"Defeat 4 bouncy blobs!",
+"Defeat 5 sneaky blobs!",
+"Defeat 6 crystal blobs!",
+"Defeat 7 powerful blobs!",
+"Defeat the final 9 blobs and save Cute Town!"
+];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function say(t){toast=t;$("message").textContent=t;toastTimer=3}
+function stats(){
+ $("coins").textContent=coins;$("lives").textContent=lives;
+ $("level").textContent=mode==="dark"?( "Dark Side "+level+"/6"):mode==="house"?"Mini-game":mode==="bonus"?"Secret Room":"Cute Town";
 }
-addEventListener('resize',resize);resize();
-const rand=(a,b)=>a+Math.random()*(b-a);
-const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-function say(t,d=2.2){notice=t;noticeTimer=d;$('notice').textContent=t}
-function updateHUD(){
- $('coins').textContent=coins;
- $('berries').textContent=berries;
- $('health').textContent=Math.max(0,Math.ceil(player.health));
- $('level').textContent=level;
- $('place').textContent=mode==='town'?'🌸 Cute Town':mode==='interior'?'🏡 Inside a House':'🌑 '+worldNames[level-1];
- $('strawberryCount').textContent=strawberries;
- $('fedCount').textContent=animalsFed;
- $('portalStatus').textContent=portalOpen?'🌀 Portal OPEN!':'🔒 Portal locked';
- $('shopCoins').textContent=coins;
+function addCoins(n){coins+=n;stats();say("+"+n+" coins! 🪙")}
+function panel(title,body,buttons){
+ const o=$("overlay");o.innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+body+'</p><div id="panelButtons"></div></div>';o.classList.remove("hidden");
+ const box=$("panelButtons");
+ buttons.forEach(b=>{let el=document.createElement("button");el.textContent=b.text;el.className=b.cls||"";el.onclick=b.fn;box.appendChild(el)});
 }
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function hidePanel(){$("overlay").classList.add("hidden")}
 function start(){
- running=true;paused=false;mode='town';insideHouse=-1;
- player={x:140,y:160,health:100,speed:220,shield:0,boost:0,attack:0,special:0,hit:0};
- coins=0;berries=0;strawberries=0;animalsFed=0;level=1;portalOpen=false;
- keys={};carHitCD=0;attackCD=0;specialCD=0;
- buildTown();
- $('overlay').style.display='none';
- $('shop').style.display='none';
- last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
- updateHUD();
+ mode="town";paused=false;gameOver=false;player.x=450;player.y=290;
+ player.invuln=0;player.blast=0;coins=0;lives=5;level=1;unlocked=1;
+ strawberries=0;animalsFed=0;houseIndex=-1;mini=null;secretRoom=false;
+ buildTown();stats();hidePanel();say("Explore Cute Town! Walk near a house and press E.");
 }
 function buildTown(){
- houses=[
-  {x:330,y:160,w:130,h:110,color:'#ff9cbe',name:'Pink Cottage'},
-  {x:690,y:155,w:135,h:115,color:'#88c8ff',name:'Blue House'},
-  {x:1120,y:170,w:140,h:115,color:'#f5c66e',name:'Sunny House'},
-  {x:420,y:800,w:135,h:110,color:'#b99aff',name:'Purple House'},
-  {x:1030,y:820,w:135,h:110,color:'#81d6a9',name:'Green House'}
+ townCoins=[];
+ for(let i=0;i<18;i++)townCoins.push({x:270+(i%6)*65,y:220+Math.floor(i/6)*65,got:false});
+ cars=[
+ {x:-100,y:275,v:105,color:"#ff7a9d"},
+ {x:1000,y:320,v:-125,color:"#6e8cff"},
+ {x:600,y:500,v:90,color:"#ffd25f"}
  ];
- animals=[
-  {x:540,y:330,type:'🐰',fed:false},
-  {x:940,y:350,type:'🐱',fed:false},
-  {x:1280,y:630,type:'🐻',fed:false}
- ];
- items=[];
- for(let i=0;i<8;i++)items.push({x:rand(90,1450),y:rand(100,920),type:'berry',active:true});
- for(let i=0;i<12;i++)items.push({x:rand(80,1500),y:rand(90,950),type:'coin',active:true});
- for(let i=0;i<4;i++)items.push({x:rand(100,1450),y:rand(100,920),type:i%2?'shield':'heart',active:true});
- cars=[];
- for(let i=0;i<7;i++){
-  cars.push({x:rand(-200,1800),y:carLanes[i%2],speed:rand(95,170)*(i%2?1:-1),color:carColors[i%carColors.length],w:75,h:38});
- }
+}
+function beginDark(){
+ mode="dark";secretRoom=false;player.x=90;player.y=480;player.invuln=0;
+ spawnBlobs();stats();say("Welcome to "+darkNames[level-1]+"! Defeat every RAWR blob!");
+}
+function spawnBlobs(){
  blobs=[];
+ const count=[3,4,5,6,7,9][level-1];
+ for(let i=0;i<count;i++){
+  blobs.push({x:220+(i%4)*145,y:140+Math.floor(i/4)*180,
+   hp:level>=5?2:1,speed:25+level*5,alive:true,
+   color:["#ff9bd5","#a7a0ff","#9af0d0","#ffcf75"][i%4],
+   wobble:Math.random()*6});
+ }
+ darkDoorOpen=false;
 }
-function buildInterior(index){
- mode='interior';insideHouse=index;
- player.x=140;player.y=420;
- camera.x=0;camera.y=0;
- interiorItems=[];
- for(let i=0;i<5;i++)interiorItems.push({x:rand(190,760),y:rand(160,370),active:true});
- say('Welcome inside the '+houses[index].name+'!');
- updateHUD();
+function openHouse(i){
+ houseIndex=i;mode="house";mini=houses[i].type;miniScore=0;miniStep=0;
+ miniTarget=mini==="match"?3:mini==="clinic"?3:mini==="feed"?4:mini==="chop"?5:mini==="paint"?4:3;
+ stats();say(houses[i].desc);
 }
-function exitInterior(){
- mode='town';insideHouse=-1;player.x=houses[insideHouse===-1?0:insideHouse]?.x||350;player.y=houses[0].y+140;
- player.x=houses[Math.max(0,insideHouse)]?.x||350;
- player.y=houses[Math.max(0,insideHouse)]?.y+145;
- camera.x=clamp(player.x-VW/2,0,WW-VW);camera.y=clamp(player.y-VH/2,0,WH-VH);
- say('Back in Cute Town!');
- updateHUD();
+function finishMini(){
+ const reward=25+miniScore*5;
+ addCoins(reward);
+ if(mini==="feed")animalsFed+=2;
+ if(mini==="chop")strawberries+=3;
+ if(mini==="clinic")lives=Math.min(5,lives+1);
+ say("Mini-game complete! You earned "+reward+" coins! 🎉");
+ mode="town";mini=null;houseIndex=-1;player.x=450;player.y=300;stats();
 }
-function getNearHouse(){
- return houses.findIndex(h=>Math.abs(player.x-(h.x+h.w/2))<95&&Math.abs(player.y-(h.y+h.h+20))<70);
+function clickMini(x,y){
+ if(mode!=="house")return;
+ // Play area button
+ if(x>240&&x<660&&y>360&&y<455){
+  miniStep++;miniScore++;
+  if(mini==="chop")say(["Chop! 🍓","Slice! 🍓","Perfect cut! ✨"][miniStep%3]);
+  if(mini==="feed")say("Yummy! The animal is happy! 🐰");
+  if(mini==="match")say("It's a match! 🧩");
+  if(mini==="clinic")say("The pet feels better! 💗");
+  if(mini==="paint")say("Beautiful colors! 🎨");
+  if(mini==="bake")say("Sprinkles added! 🍬");
+  if(miniStep>=miniTarget)finishMini();
+ }else if(x>350&&x<550&&y>260&&y<345){
+  miniStep++;miniScore++;
+  if(miniStep>=miniTarget)finishMini();
+ }
 }
 function interact(){
- if(mode==='interior'){
-  if(player.y>VH-100||player.x<65){
-   const idx=insideHouse;
-   mode='town';insideHouse=-1;
-   player.x=houses[idx].x+houses[idx].w/2;
-   player.y=houses[idx].y+houses[idx].h+45;
-   say('Back in Cute Town!');
-   updateHUD();return;
+ if(mode==="town"){
+  let near=-1,dist=999;
+  houses.forEach((h,i)=>{let d=Math.hypot(player.x-(h.x+h.w/2),player.y-(h.y+h.h/2));if(d<dist){dist=d;near=i}});
+  if(dist<105){openHouse(near);return}
+  if(Math.hypot(player.x-800,player.y-280)<95){
+   if(strawberries>=3&&animalsFed>=2){beginDark();return}
+   say("The Dark Side portal needs 3 strawberries and 2 happy animals! 🍓🐾");return;
   }
-  say('Look around! There may be hidden coins.');
-  return;
- }
- if(mode==='town'){
-  const hi=getNearHouse();
-  if(hi>=0){buildInterior(hi);return}
-  const animal=animals.find(a=>!a.fed&&distance(player,a)<65);
-  if(animal){
-   if(berries>0){berries--;animal.fed=true;animalsFed++;say(animal.type+' is happy! Thank you, Yumi!');checkPortal();updateHUD()}
-   else say('Find strawberries first!');
+  if(Math.hypot(player.x-450,player.y-520)<70){say("Welcome to Cute Town! Visit all six houses!");return}
+  say("Explore the town! Find a house, animal, or the glowing portal."); 
+ }else if(mode==="dark"){
+  if(darkDoorOpen&&Math.hypot(player.x-820,player.y-490)<85){
+   level++;
+   if(level>6){
+    mode="win";stats();
+    panel("🌈 YOU SAVED CUTE TOWN!","Yumi defeated the UWU blobs and saved all her friends! You are an amazing dragon hero!",[
+     {text:"PLAY AGAIN",cls:"green",fn:start},{text:"BACK TO TOWN",fn:()=>{mode="town";level=1;player.x=450;player.y=300;hidePanel();stats()}}
+    ]);
+   }else{unlocked=Math.max(unlocked,level);player.x=90;player.y=480;spawnBlobs();stats();say("LEVEL "+level+"! "+darkNames[level-1]);}
    return;
   }
-  if(portalOpen&&distance(player,{x:1450,y:880})<95){enterDarkSide();return}
-  say('Explore! Find houses, strawberries, and animals.');
- }else{
-  if(distance(player,{x:WW-95,y:WH-95})<100){
-   if(blobs.length===0){level++;if(level>6){winGame();return}enterDarkSide();return}
-   say('Defeat all the RAWR monsters first!');
+  if(Math.hypot(player.x-80,player.y-80)<75){say("A secret door! Press the SECRET DOOR button.");return}
+  say(darkDoorOpen?"The exit portal is open! Go to the glowing door and press E!":"Defeat all the blobs to open the exit!");
+ }else if(mode==="bonus"){
+  say("You found the secret room! Collect the treasure and return.");
+  if(!bonusCollected){bonusCollected=true;addCoins(50);say("SECRET TREASURE! +50 coins! 💎");}
+  else say("You already collected the treasure!");
+ }
+}
+function secret(){
+ if(mode==="town"){
+  if(strawberries>=3&&animalsFed>=2){beginDark();return}
+  say("The Dark Side portal needs 3 strawberries and 2 happy animals!");
+ }else if(mode==="dark"){
+  if(Math.hypot(player.x-80,player.y-80)<150){
+   mode="bonus";bonusCollected=false;player.x=450;player.y=300;stats();say("You discovered a secret treasure room!");
+  }else say("Look for the hidden glowing door in the upper-left corner!");
+ }else if(mode==="bonus"){
+  mode="dark";player.x=100;player.y=100;stats();say("Back to the Dark Side!");
+ }else say("Look for secret doors as you explore!");
+}
+function blast(){
+ if(mode!=="dark"||player.blast>0)return;
+ player.blast=2.5;
+ let hit=0;
+ blobs.forEach(b=>{
+  if(b.alive&&Math.hypot(player.x-b.x,player.y-b.y)<175){
+   b.hp--;hit++;
+   if(b.hp<=0){b.alive=false;addCoins(10)}
   }
- }
+ });
+ particles.push({x:player.x,y:player.y,r:10,life:.5});
+ if(hit)say("DRAGON BLAST! 💥 You hit "+hit+" blob(s)!");
+ else say("DRAGON BLAST! Get closer to the blobs!");
+ checkBlobs();
 }
-function checkPortal(){
- if(strawberries>=5&&animalsFed>=3&&!portalOpen){
-  portalOpen=true;say('🌀 THE DARK SIDE PORTAL IS OPEN!');
- }
-}
-function collectItems(){
- for(const it of items){
-  if(!it.active||distance(player,it)>32)continue;
-  it.active=false;
-  if(it.type==='berry'){berries++;strawberries++;say('🍓 Strawberry collected!');checkPortal()}
-  if(it.type==='coin'){coins+=5;say('🪙 +5 coins!')}
-  if(it.type==='shield'){player.shield=10;say('🛡️ Shield power-up!')}
-  if(it.type==='heart'){player.health=Math.min(100,player.health+25);say('❤️ Health restored!')}
- }
- if(items.filter(i=>i.active&&i.type==='coin').length<4){
-  for(let i=0;i<5;i++)items.push({x:rand(80,1500),y:rand(100,950),type:'coin',active:true});
- }
-}
-function enterDarkSide(){
- mode='dark';insideHouse=-1;
- player.x=100;player.y=100;player.health=Math.max(60,player.health);
- blobs=[];items=[];
- for(let i=0;i<Math.min(5+level,12);i++)spawnBlob();
- for(let i=0;i<8;i++)items.push({x:rand(100,1450),y:rand(100,900),type:i%3===0?'heart':i%3===1?'coin':'shield',active:true});
- say('🌑 Welcome to '+worldNames[level-1]+'!');
- updateHUD();
-}
-function spawnBlob(){
- blobs.push({x:rand(250,1450),y:rand(180,900),hp:2+Math.floor(level/2),speed:rand(35,48)+level*3,size:rand(25,34),hit:0});
-}
-function attack(){
- if(attackCD>0)return;
- attackCD=.45;
- if(mode==='dark'){
-  let hit=0;
-  for(const b of blobs){if(distance(player,b)<115){b.hp--;b.hit=.2;hit++}}
-  if(hit)say('🐉 DRAGON ATTACK!');
- }else say('Yumi practices her dragon attack!');
-}
-function special(){
- if(specialCD>0)return;
- specialCD=6;
- if(mode==='dark'){
-  let count=0;
-  for(const b of blobs){if(distance(player,b)<205){b.hp-=2;count++}}
-  effects.push({x:player.x,y:player.y,r:0,life:.5});
-  say(count?'✨ DRAGON POWER!':'✨ Dragon power activated!');
- }else{
-  player.shield=8;
-  effects.push({x:player.x,y:player.y,r:0,life:.5});
-  say('✨ DRAGON SHIELD!');
- }
-}
-function openShop(){
- if(!running)return;
- paused=true;shopOpen=true;
- $('shop').style.display='flex';
- $('shopCoins').textContent=coins;
- const stock=[
-  ['❤️ Health Potion','Restore 40 health',25,'health'],
-  ['🛡️ Dragon Shield','Shield Yumi for 15 seconds',30,'shield'],
-  ['⚡ Speed Boots','Run faster for 20 seconds',35,'speed'],
-  ['🐉 Dragon Blast','Power up the next dragon attack',40,'blast']
- ];
- $('shopItems').innerHTML=stock.map(s=>
-  '<div class="shoprow"><div><b>'+s[0]+'</b><div class="small">'+s[1]+'</div></div><button data-item="'+s[3]+'" data-cost="'+s[2]+'">'+s[2]+' coins</button></div>'
- ).join('');
- $('shopItems').querySelectorAll('button').forEach(b=>b.onclick=()=>buy(b.dataset.item,+b.dataset.cost));
-}
-function buy(item,cost){
- if(coins<cost){say('Not enough coins!');return}
- coins-=cost;
- if(item==='health')player.health=Math.min(100,player.health+40);
- if(item==='shield')player.shield=15;
- if(item==='speed')player.boost=20;
- if(item==='blast')player.attack=1;
- $('shopCoins').textContent=coins;updateHUD();openShop();
-}
-function closeShop(){
- shopOpen=false;$('shop').style.display='none';paused=false;last=performance.now();
-}
-function winGame(){
- running=false;
- $('overlay').style.display='flex';
- $('card').innerHTML='<div style="font-size:50px">🐉🏆</div><h1>YUMI SAVED THE DAY!</h1><p>You conquered all six Dark Side levels and helped the animals of Cute Town!</p><p>Coins collected: '+coins+'</p><button id="playAgain">PLAY AGAIN</button>';
- $('playAgain').onclick=start;
-}
-function gameOver(){
- running=false;
- $('overlay').style.display='flex';
- $('card').innerHTML='<div style="font-size:50px">💜🐉</div><h1>TRY AGAIN!</h1><p>Yumi needs a little more help. Your adventure is waiting!</p><button id="again">PLAY AGAIN</button>';
- $('again').onclick=start;
-}
-function updateCars(dt){
- for(const car of cars){
-  car.x+=car.speed*dt;
-  if(car.speed>0&&car.x>WW+150)car.x=-150;
-  if(car.speed<0&&car.x<-150)car.x=WW+150;
-  if(carHitCD<=0&&Math.abs(player.y-car.y)<34&&Math.abs(player.x-car.x)<54){
-   player.health-=14;player.hit=.45;carHitCD=1.4;
-   player.x+=car.speed>0?-35:35;
-   say('🚗 BEEP BEEP! Watch out for traffic!');
-   if(player.health<=0)gameOver();
-  }
+function checkBlobs(){
+ if(mode==="dark"&&blobs.length&&blobs.every(b=>!b.alive)){
+  darkDoorOpen=true;say("LEVEL COMPLETE! The exit portal is OPEN! Find it! 🌟");
  }
 }
 function update(dt){
- carHitCD=Math.max(0,carHitCD-dt);
- attackCD=Math.max(0,attackCD-dt);
- specialCD=Math.max(0,specialCD-dt);
- player.shield=Math.max(0,player.shield-dt);
- player.boost=Math.max(0,player.boost-dt);
- player.hit=Math.max(0,player.hit-dt);
- noticeTimer=Math.max(0,noticeTimer-dt);
- if(noticeTimer<=0)$('notice').textContent='';
- let dx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0);
- let dy=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0);
- const len=Math.hypot(dx,dy)||1;
- const speed=player.speed*(player.boost>0?1.35:1);
- player.x+=dx/len*speed*dt;
- player.y+=dy/len*speed*dt;
- if(mode==='town'){
-  player.x=clamp(player.x,25,WW-25);player.y=clamp(player.y,90,WH-25);
-  updateCars(dt);collectItems();
- }else if(mode==='interior'){
-  player.x=clamp(player.x,35,VW-35);player.y=clamp(player.y,85,VH-35);
-  for(const it of interiorItems){
-   if(it.active&&distance(player,it)<28){it.active=false;coins+=5;say('🏡 Hidden house coins! +5')}
-  }
- }else if(mode==='dark'){
-  player.x=clamp(player.x,25,WW-25);player.y=clamp(player.y,85,WH-25);
-  for(let i=blobs.length-1;i>=0;i--){
-   const b=blobs[i],d=distance(player,b);
-   if(d>1){b.x+=(player.x-b.x)/d*b.speed*dt;b.y+=(player.y-b.y)/d*b.speed*dt}
-   b.hit=Math.max(0,b.hit-dt);
-   if(d<39&&player.hit<=0&&player.shield<=0){
-    player.health-=dt*(6+level);
-    if(player.health<=0){gameOver();return}
+ if(mode==="title"||paused||gameOver)return;
+ player.invuln=Math.max(0,player.invuln-dt);
+ player.blast=Math.max(0,player.blast-dt);
+ carTime+=dt;
+ if(mode==="town"){
+  let dx=0,dy=0;
+  if(keys.ArrowLeft||keys.a)dx--;
+  if(keys.ArrowRight||keys.d)dx++;
+  if(keys.ArrowUp||keys.w)dy--;
+  if(keys.ArrowDown||keys.s)dy++;
+  let len=Math.hypot(dx,dy)||1;
+  player.x=clamp(player.x+dx/len*player.speed*dt,35,865);
+  player.y=clamp(player.y+dy/len*player.speed*dt,35,525);
+  if(dx)player.face=Math.sign(dx);
+  townCoins.forEach(c=>{if(!c.got&&Math.hypot(c.x-player.x,c.y-player.y)<25){c.got=true;addCoins(5)}});
+  cars.forEach(car=>{
+   car.x+=car.v*dt;if(car.x>1050)car.x=-150;if(car.x<-150)car.x=1050;
+   if(player.invuln<=0&&Math.abs(car.x-player.x)<35&&Math.abs(car.y-player.y)<25){
+    player.invuln=1.5;lives--;stats();say("Watch out for cars! 💥");
+    if(lives<=0)endGame();
    }
-   if(b.hp<=0){blobs.splice(i,1);coins+=5;say('Blob defeated! +5 coins')}
-  }
-  for(const it of items){
-   if(it.active&&distance(player,it)<30){
-    it.active=false;
-    if(it.type==='coin'){coins+=5;say('+5 coins!')}
-    if(it.type==='heart'){player.health=Math.min(100,player.health+25);say('❤️ Health restored!')}
-    if(it.type==='shield'){player.shield=10;say('🛡️ Shield power-up!')}
-   }
+  });
+ }else if(mode==="dark"||mode==="bonus"){
+  let dx=0,dy=0;
+  if(keys.ArrowLeft||keys.a)dx--;
+  if(keys.ArrowRight||keys.d)dx++;
+  if(keys.ArrowUp||keys.w)dy--;
+  if(keys.ArrowDown||keys.s)dy++;
+  let len=Math.hypot(dx,dy)||1;
+  player.x=clamp(player.x+dx/len*player.speed*dt,25,875);
+  player.y=clamp(player.y+dy/len*player.speed*dt,25,530);
+  if(dx)player.face=Math.sign(dx);
+  if(mode==="dark"){
+   blobs.forEach(b=>{
+    if(!b.alive)return;
+    let d=Math.hypot(player.x-b.x,player.y-b.y);
+    if(d>30){b.x+=(player.x-b.x)/d*b.speed*dt;b.y+=(player.y-b.y)/d*b.speed*dt;}
+    if(d<32&&player.invuln<=0){
+     lives--;player.invuln=1.2;stats();say("A blob bonked Yumi! ❤️");
+     if(lives<=0)endGame();
+    }
+   });
+   checkBlobs();
   }
  }
- for(const e of effects){e.r+=450*dt;e.life-=dt}
- effects=effects.filter(e=>e.life>0);
- camera.x=mode==='interior'?0:clamp(player.x-VW/2,0,WW-VW);
- camera.y=mode==='interior'?0:clamp(player.y-VH/2,0,WH-VH);
- updateHUD();
+ particles=particles.filter(p=>p.life>0);
+ particles.forEach(p=>{p.life-=dt;p.r+=250*dt});
+ if(toastTimer>0)toastTimer-=dt;
 }
-function drawYumi(){
- const x=player.x-camera.x,y=player.y-camera.y;
+function endGame(){
+ gameOver=true;
+ panel("Oh no, Yumi! 💗","Yumi ran out of hearts. Don't give up, dragon hero!",[
+  {text:"TRY AGAIN",cls:"green",fn:()=>{lives=5;gameOver=false;mode="town";player.x=450;player.y=300;buildTown();hidePanel();stats()}},
+  {text:"RESTART ADVENTURE",fn:start}
+ ]);
+}
+function rounded(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+}
+function drawYumi(x,y){
  ctx.save();ctx.translate(x,y);
- if(player.shield>0){ctx.strokeStyle='#8deaff';ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,35,0,7);ctx.stroke()}
- if(player.hit>0&&Math.floor(player.hit*20)%2===0)ctx.globalAlpha=.4;
- // Tail
- ctx.strokeStyle='#9250cb';ctx.lineWidth=13;ctx.lineCap='round';
- ctx.beginPath();ctx.moveTo(-5,13);ctx.quadraticCurveTo(-30,35,-20,12);ctx.stroke();
- // Body
- ctx.fillStyle='#a66be5';ctx.beginPath();ctx.ellipse(0,10,18,23,0,0,7);ctx.fill();
- // Head
- ctx.fillStyle='#bb8af0';ctx.beginPath();ctx.arc(0,-19,20,0,7);ctx.fill();
- // Horns
- ctx.fillStyle='#7041a6';
- ctx.beginPath();ctx.moveTo(-14,-32);ctx.lineTo(-20,-49);ctx.lineTo(-6,-37);ctx.fill();
- ctx.beginPath();ctx.moveTo(14,-32);ctx.lineTo(20,-49);ctx.lineTo(6,-37);ctx.fill();
- // Face
- ctx.fillStyle='white';ctx.beginPath();ctx.arc(-7,-21,5,0,7);ctx.arc(7,-21,5,0,7);ctx.fill();
- ctx.fillStyle='#38234d';ctx.beginPath();ctx.arc(-6,-21,2.5,0,7);ctx.arc(8,-21,2.5,0,7);ctx.fill();
- ctx.fillStyle='#ffb5d9';ctx.beginPath();ctx.arc(-14,-12,4,0,7);ctx.arc(14,-12,4,0,7);ctx.fill();
- ctx.strokeStyle='#7041a6';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,-12,6,.15,2.9);ctx.stroke();
+ if(player.invuln>0&&Math.floor(carTime*12)%2===0)ctx.globalAlpha=.4;
+ // shadow
+ ctx.fillStyle="#0002";ctx.beginPath();ctx.ellipse(0,19,20,8,0,0,Math.PI*2);ctx.fill();
+ // hair
+ ctx.fillStyle="#633c85";ctx.beginPath();ctx.arc(0,-4,20,0,Math.PI*2);ctx.fill();
+ // dragon hood and horns
+ ctx.fillStyle="#9d71dc";ctx.beginPath();ctx.arc(0,-10,19,Math.PI,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#f7d5ff";ctx.beginPath();ctx.moveTo(-14,-20);ctx.lineTo(-22,-35);ctx.lineTo(-5,-26);ctx.fill();
+ ctx.beginPath();ctx.moveTo(14,-20);ctx.lineTo(22,-35);ctx.lineTo(5,-26);ctx.fill();
+ // face
+ ctx.fillStyle="#ffd7c5";ctx.beginPath();ctx.arc(0,-3,14,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#49305b";ctx.beginPath();ctx.arc(-5,-5,2,0,7);ctx.arc(5,-5,2,0,7);ctx.fill();
+ ctx.strokeStyle="#bd668f";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,4,.2,2.9);ctx.stroke();
+ ctx.fillStyle="#ff9ebd";ctx.beginPath();ctx.arc(-10,2,3,0,7);ctx.arc(10,2,3,0,7);ctx.fill();
+ // dress/body
+ ctx.fillStyle="#d99aff";ctx.beginPath();ctx.moveTo(-10,11);ctx.lineTo(10,11);ctx.lineTo(15,29);ctx.lineTo(-15,29);ctx.fill();
+ // tail
+ ctx.strokeStyle="#9d71dc";ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(9,20);ctx.quadraticCurveTo(27,27,24,11);ctx.stroke();
  ctx.restore();
 }
-function drawHouse(h){
- const x=h.x-camera.x,y=h.y-camera.y;
- ctx.fillStyle='#0003';ctx.fillRect(x-4,y+h.h-2,h.w+8,12);
- ctx.fillStyle=h.color;ctx.fillRect(x,y,h.w,h.h);
- ctx.fillStyle='#ffe9b5';
- ctx.beginPath();ctx.moveTo(x-13,y+8);ctx.lineTo(x+h.w/2,y-55);ctx.lineTo(x+h.w+13,y+8);ctx.closePath();ctx.fill();
- ctx.fillStyle='#70476a';ctx.fillRect(x+h.w/2-17,y+h.h-48,34,48);
- ctx.fillStyle='#fff5db';ctx.fillRect(x+17,y+27,28,30);ctx.fillRect(x+h.w-45,y+27,28,30);
- ctx.fillStyle='#fff';ctx.font='bold 13px Fredoka';ctx.textAlign='center';ctx.fillText(h.name,x+h.w/2,y+h.h+17);
- ctx.fillStyle='#fff';ctx.font='bold 12px Fredoka';ctx.fillText('E',x+h.w/2,y+h.h+34);
-}
-function drawCar(car){
- const x=car.x-camera.x,y=car.y-camera.y;
- ctx.save();ctx.translate(x,y);
- if(car.speed<0)ctx.scale(-1,1);
- ctx.fillStyle='#0005';ctx.beginPath();ctx.ellipse(0,17,43,9,0,0,7);ctx.fill();
- ctx.fillStyle=car.color;ctx.beginPath();ctx.roundRect(-39,-13,78,29,9);ctx.fill();
- ctx.fillStyle='#b8e8fa';ctx.beginPath();ctx.moveTo(-22,-12);ctx.lineTo(-13,-27);ctx.lineTo(17,-27);ctx.lineTo(28,-12);ctx.closePath();ctx.fill();
- ctx.fillStyle='#263047';ctx.beginPath();ctx.arc(-24,15,8,0,7);ctx.arc(25,15,8,0,7);ctx.fill();
- ctx.fillStyle='#fff5c9';ctx.fillRect(34,-7,5,7);
- ctx.fillStyle='#ff6478';ctx.fillRect(-39,-7,5,8);
+function drawBlob(b){
+ ctx.save();ctx.translate(b.x,b.y);let wob=Math.sin(carTime*5+b.wobble)*3;
+ ctx.fillStyle="#0002";ctx.beginPath();ctx.ellipse(0,17,23,7,0,0,7);ctx.fill();
+ ctx.fillStyle=b.color;ctx.beginPath();ctx.ellipse(0,wob,23,19+wob/3,0,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(-8,-3,6,0,7);ctx.arc(8,-3,6,0,7);ctx.fill();
+ ctx.fillStyle="#46335e";ctx.beginPath();ctx.arc(-7,-2,2.5,0,7);ctx.arc(9,-2,2.5,0,7);ctx.fill();
+ ctx.strokeStyle="#69435e";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,6,6,.1,3);ctx.stroke();
+ ctx.fillStyle="#fff";ctx.font="bold 12px Fredoka";ctx.textAlign="center";ctx.fillText("RAWR!",0,-28);
+ if(b.hp>1){rounded(-15,25,30,5,3,"#593b68");rounded(-15,25,30*b.hp/(level>=5?2:1),5,3,"#ff6e9d")}
  ctx.restore();
 }
 function drawTown(){
- ctx.fillStyle='#b8eaa6';ctx.fillRect(0,0,VW,VH);
+ ctx.fillStyle="#9ce5c4";ctx.fillRect(0,0,W,H);
  // grass details
- for(let i=0;i<70;i++){
-  const x=(i*131)%WW-camera.x,y=(i*89)%WH-camera.y;
-  if(x>-20&&x<VW+20&&y>-20&&y<VH+20){ctx.fillStyle='#8bd48c';ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
- }
- // Main roads
- ctx.fillStyle='#626878';
- ctx.fillRect(-camera.x,450-camera.y,WW,105);
- ctx.fillRect(0-camera.x,730-camera.y,WW,85);
- ctx.fillStyle='#f5e6a7';
- for(let x=0;x<WW;x+=100){ctx.fillRect(x-camera.x,499-camera.y,55,5);ctx.fillRect(x-camera.x,770-camera.y,55,5)}
- // Cross road
- ctx.fillStyle='#626878';ctx.fillRect(850-camera.x,0-camera.y,95,WH);
- for(let y=0;y<WH;y+=95){ctx.fillStyle='#f5e6a7';ctx.fillRect(895-camera.x,y-camera.y,5,48)}
- // Town decorations
- for(let i=0;i<20;i++){
-  const x=(i*227+80)-camera.x,y=(i*167+60)-camera.y;
-  ctx.fillStyle='#7b573b';ctx.fillRect(x-4,y,8,22);
-  ctx.fillStyle='#348d58';ctx.beginPath();ctx.arc(x,y-8,22,0,7);ctx.fill();
-  ctx.fillStyle='#ffdf87';ctx.beginPath();ctx.arc(x-8,y-13,3,0,7);ctx.fill();
- }
- houses.forEach(drawHouse);
- animals.forEach(a=>{
-  const x=a.x-camera.x,y=a.y-camera.y;
-  ctx.font='35px Arial';ctx.textAlign='center';ctx.fillText(a.type,x,y);
-  if(!a.fed){ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.fillText('Feed me!',x,y-25)}
-  else{ctx.fillStyle='#fff';ctx.font='12px Fredoka';ctx.fillText('❤️ Happy!',x,y-25)}
+ for(let i=0;i<45;i++){let x=(i*173)%W,y=(i*97)%H;ctx.fillStyle=i%2?"#83d5aa":"#b7efcf";ctx.beginPath();ctx.arc(x,y,3,0,7);ctx.fill()}
+ // roads
+ rounded(0,245,W,115,15,"#d9c5ad");
+ ctx.strokeStyle="#fff2d4";ctx.lineWidth=5;ctx.setLineDash([24,20]);ctx.beginPath();ctx.moveTo(0,302);ctx.lineTo(W,302);ctx.stroke();ctx.setLineDash([]);
+ rounded(0,480,W,45,10,"#d9c5ad");
+ // trees
+ for(let i=0;i<14;i++){let x=(i*79+25)%W,y=i%2?215:405;ctx.fillStyle="#986b4a";ctx.fillRect(x-4,y,9,22);ctx.fillStyle="#53b97b";ctx.beginPath();ctx.arc(x,y,19,0,7);ctx.fill();ctx.fillStyle="#83dfa0";ctx.beginPath();ctx.arc(x-6,y-6,8,0,7);ctx.fill()}
+ houses.forEach((h,i)=>{
+  ctx.fillStyle="#0002";ctx.fillRect(h.x+5,h.y+8,h.w,h.h);
+  ctx.fillStyle=["#ffb6c8","#a9c7ff","#ffe39d","#b9efce","#d8b6ff","#ffcf9f"][i];
+  ctx.fillRect(h.x,h.y,h.w,h.h);
+  ctx.fillStyle="#fff4f7";ctx.fillRect(h.x+12,h.y+14,h.w-24,24);
+  ctx.fillStyle="#64466d";ctx.font="bold 14px Fredoka";ctx.textAlign="center";ctx.fillText(h.name,h.x+h.w/2,h.y+31);
+  ctx.fillStyle="#986b4a";ctx.fillRect(h.x+h.w/2-15,h.y+58,30,42);
+  ctx.fillStyle="#d8f4ff";ctx.fillRect(h.x+15,h.y+55,24,22);ctx.fillRect(h.x+h.w-39,h.y+55,24,22);
+  ctx.fillStyle="#fff";ctx.font="12px Fredoka";ctx.fillText("MINI-GAME",h.x+h.w/2,h.y+h.h+14);
  });
- for(const it of items){if(!it.active)continue;
-  const x=it.x-camera.x,y=it.y-camera.y;
-  ctx.font='23px Arial';ctx.textAlign='center';
-  ctx.fillText(it.type==='berry'?'🍓':it.type==='coin'?'🪙':it.type==='shield'?'🛡️':'❤️',x,y);
- }
- cars.forEach(drawCar);
- if(portalOpen){
-  const x=1450-camera.x,y=880-camera.y;
-  ctx.save();ctx.shadowColor='#c86cff';ctx.shadowBlur=28;
-  ctx.strokeStyle='#d99aff';ctx.lineWidth=9;ctx.beginPath();ctx.ellipse(x,y,32,48,0,0,7);ctx.stroke();
-  ctx.font='27px Arial';ctx.textAlign='center';ctx.fillText('🌀',x,y+10);
-  ctx.restore();
-  ctx.fillStyle='white';ctx.font='bold 13px Fredoka';ctx.textAlign='center';ctx.fillText('DARK SIDE',x,y+65);
- }
+ // portal
+ ctx.fillStyle="#3f236b";ctx.beginPath();ctx.ellipse(800,290,38,52,0,0,7);ctx.fill();
+ ctx.strokeStyle="#ff8be4";ctx.lineWidth=6;ctx.beginPath();ctx.ellipse(800,290,32,46,0,0,7);ctx.stroke();
+ ctx.fillStyle="#fff";ctx.font="bold 15px Fredoka";ctx.textAlign="center";ctx.fillText("DARK SIDE",800,355);
+ ctx.font="30px Fredoka";ctx.fillText("🌀",800,300);
+ townCoins.forEach(c=>{if(!c.got){ctx.font="23px Fredoka";ctx.textAlign="center";ctx.fillText("🪙",c.x,c.y)}});
+ cars.forEach(car=>{ctx.fillStyle=car.color;ctx.beginPath();ctx.roundRect(car.x-23,car.y-12,46,24,7);ctx.fill();ctx.fillStyle="#dff7ff";ctx.fillRect(car.x-12,car.y-9,24,9);ctx.fillStyle="#302b4d";ctx.fillRect(car.x-14,car.y+9,9,5);ctx.fillRect(car.x+8,car.y+9,9,5)});
+ ctx.fillStyle="#fff";ctx.font="bold 15px Fredoka";ctx.textAlign="left";ctx.fillText("CUTE TOWN",18,25);
+ ctx.font="13px Fredoka";ctx.fillText("Collect coins • Visit houses • Find the portal",18,45);
+ drawYumi(player.x,player.y);
 }
-function drawInterior(){
- ctx.fillStyle='#f7e7d6';ctx.fillRect(0,0,VW,VH);
- ctx.fillStyle='#d3a98a';ctx.fillRect(0,480,VW,120);
- ctx.fillStyle='#ffe8aa';ctx.fillRect(45,55,870,430);
- ctx.fillStyle='#bc8d73';ctx.fillRect(60,70,840,400);
- ctx.fillStyle='#f4d9bb';ctx.fillRect(75,85,810,370);
- ctx.fillStyle='#8a5b79';ctx.fillRect(120,115,170,95);
- ctx.fillStyle='#fff1c9';ctx.font='bold 20px Fredoka';ctx.textAlign='center';ctx.fillText('WELCOME HOME!',205,170);
- ctx.font='65px Arial';ctx.fillText('🛋️',460,260);ctx.fillText('🪴',760,290);ctx.fillText('🪟',190,330);
- for(const it of interiorItems){if(!it.active)continue;ctx.font='25px Arial';ctx.fillText('🪙',it.x,it.y)}
- ctx.fillStyle='#fff';ctx.font='bold 15px Fredoka';ctx.fillText('Press E near the bottom door to leave',480,555);
+function drawHouse(){
+ ctx.fillStyle="#fbe6f6";ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#f5cde7";ctx.fillRect(0,430,W,130);
+ ctx.fillStyle="#fff";ctx.font="bold 32px Fredoka";ctx.textAlign="center";ctx.fillText(houses[houseIndex].name,450,65);
+ ctx.fillStyle="#8a5a9d";ctx.font="18px Fredoka";ctx.fillText(houses[houseIndex].desc,450,105);
+ ctx.fillStyle="#d7b5ee";ctx.beginPath();ctx.arc(450,230,95,0,7);ctx.fill();
+ const emojis={chop:["🍓","🔪","🍓","🍰"],feed:["🐰","🥕","🐱","🐶"],match:["🐸","🐸","🦋","🦋"],clinic:["🐶","🩹","🐱","💗"],paint:["🎨","🖌️","🌈","🖼️"],bake:["🧁","🍓","🍬","🍰"]};
+ let arr=emojis[mini]||emojis.chop;
+ arr.forEach((e,i)=>{ctx.font="48px Fredoka";ctx.fillText(e,300+i*100,250+Math.sin(carTime*3+i)*5)});
+ ctx.fillStyle="#674477";ctx.font="bold 21px Fredoka";ctx.fillText("Mini-game progress: "+miniStep+" / "+miniTarget,450,325);
+ ctx.fillStyle="#fff";ctx.font="17px Fredoka";ctx.fillText("Click the big button to play!",450,355);
+ rounded(240,375,420,80,20,"#a9e8c4");
+ ctx.fillStyle="#315d4b";ctx.font="bold 25px Fredoka";ctx.fillText("PLAY! ✨",450,425);
+ ctx.fillStyle="#8d5c9c";ctx.font="15px Fredoka";ctx.fillText("Each action earns points and helps you finish!",450,500);
 }
 function drawDark(){
- ctx.fillStyle='#201633';ctx.fillRect(0,0,VW,VH);
- // spooky background
- for(let i=0;i<40;i++){
-  const x=(i*151+level*73-camera.x*.2)%VW;
-  const y=(i*97+level*41-camera.y*.2)%VH;
-  ctx.fillStyle='#ffffff18';ctx.beginPath();ctx.arc(x,y,2+(i%4),0,7);ctx.fill();
+ const colors=["#37314f","#44365c","#273c4e","#302f5d","#47304e","#38284d"];
+ ctx.fillStyle=colors[level-1];ctx.fillRect(0,0,W,H);
+ for(let i=0;i<75;i++){let x=(i*131)%W,y=(i*79)%H;ctx.fillStyle=i%2?"#ffffff18":"#d7b7ff22";ctx.beginPath();ctx.arc(x,y,2+(i%3),0,7);ctx.fill()}
+ // path
+ ctx.fillStyle="#655178";ctx.beginPath();ctx.moveTo(0,450);ctx.lineTo(150,400);ctx.lineTo(300,470);ctx.lineTo(460,390);ctx.lineTo(630,450);ctx.lineTo(900,380);ctx.lineTo(900,560);ctx.lineTo(0,560);ctx.fill();
+ ctx.fillStyle="#fff";ctx.textAlign="center";ctx.font="bold 25px Fredoka";ctx.fillText(darkNames[level-1],450,40);
+ ctx.font="16px Fredoka";ctx.fillText(darkDescriptions[level-1],450,67);
+ // secret door
+ ctx.fillStyle="#a987d8";ctx.fillRect(35,35,90,90);
+ ctx.fillStyle="#f7d8ff";ctx.fillRect(48,48,64,77);
+ ctx.fillStyle="#69468c";ctx.beginPath();ctx.arc(80,48,32,Math.PI,0);ctx.fill();
+ ctx.fillStyle="#fff";ctx.font="12px Fredoka";ctx.fillText("SECRET",80,140);
+ blobs.forEach(b=>{if(b.alive)drawBlob(b)});
+ if(darkDoorOpen){
+  ctx.fillStyle="#a9f4dc";ctx.beginPath();ctx.ellipse(820,490,42,58,0,0,7);ctx.fill();
+  ctx.strokeStyle="#fff";ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(820,490,35,50,0,0,7);ctx.stroke();
+  ctx.fillStyle="#fff";ctx.font="bold 14px Fredoka";ctx.fillText("EXIT!",820,565);
+ }else{
+  ctx.fillStyle="#806a99";ctx.fillRect(785,450,70,90);
+  ctx.fillStyle="#d5c4e5";ctx.font="13px Fredoka";ctx.fillText("LOCKED",820,445);
  }
- // Dark forest decorations
- for(let i=0;i<16;i++){
-  const x=(i*117+80-camera.x*.6)%VW,y=(i*173+80-camera.y*.6)%VH;
-  ctx.fillStyle='#39294f';ctx.fillRect(x-5,y,10,35);
-  ctx.fillStyle='#51406c';ctx.beginPath();ctx.arc(x,y-10,25,0,7);ctx.fill();
- }
- // ground path
- ctx.fillStyle='#493b58';ctx.fillRect(0,0,VW,VH);
- ctx.globalAlpha=.25;for(let i=0;i<35;i++){ctx.fillStyle='#aa87c6';ctx.beginPath();ctx.arc((i*177)%VW,(i*123)%VH,18,0,7);ctx.fill()}ctx.globalAlpha=1;
- for(const it of items){if(!it.active)continue;ctx.font='24px Arial';ctx.textAlign='center';ctx.fillText(it.type==='coin'?'🪙':it.type==='heart'?'❤️':'🛡️',it.x-camera.x,it.y-camera.y)}
- for(const b of blobs){
-  const x=b.x-camera.x,y=b.y-camera.y;
-  ctx.fillStyle=b.hit?'#fff':'#9a68ce';ctx.beginPath();ctx.ellipse(x,y, b.size,b.size*.8,0,0,7);ctx.fill();
-  ctx.fillStyle='#d9baff';ctx.beginPath();ctx.arc(x-b.size*.35,y-b.size*.2,5,0,7);ctx.arc(x+b.size*.35,y-b.size*.2,5,0,7);ctx.fill();
-  ctx.fillStyle='#24142f';ctx.beginPath();ctx.arc(x-b.size*.35,y-b.size*.2,2,0,7);ctx.arc(x+b.size*.35,y-b.size*.2,2,0,7);ctx.fill();
-  ctx.fillStyle='white';ctx.font='bold 12px Fredoka';ctx.textAlign='center';ctx.fillText('RAWR!',x,y-b.size-12);
-  ctx.fillStyle='#281a37';ctx.fillRect(x-22,y+b.size+4,44,5);
-  ctx.fillStyle='#ff729f';ctx.fillRect(x-22,y+b.size+4,44*Math.max(0,b.hp/(2+Math.floor(level/2))),5);
- }
- const ex=WW-95-camera.x,ey=WH-95-camera.y;
- ctx.font='35px Arial';ctx.textAlign='center';ctx.fillText('🚪',ex,ey);
- ctx.fillStyle='white';ctx.font='bold 13px Fredoka';ctx.fillText('EXIT',ex,ey+30);
+ drawYumi(player.x,player.y);
+ ctx.fillStyle="#fff";ctx.font="14px Fredoka";ctx.textAlign="left";ctx.fillText("💥 Space = Dragon Blast",18,535);
+}
+function drawBonus(){
+ ctx.fillStyle="#30234e";ctx.fillRect(0,0,W,H);
+ ctx.fillStyle="#f9d78b";ctx.textAlign="center";ctx.font="bold 32px Fredoka";ctx.fillText("SECRET TREASURE ROOM!",450,80);
+ ctx.font="75px Fredoka";ctx.fillText("💎",450,270);
+ ctx.font="50px Fredoka";ctx.fillText("🪙 🪙 🪙",450,370);
+ ctx.fillStyle="#fff";ctx.font="18px Fredoka";ctx.fillText("Press SECRET DOOR to return to the Dark Side",450,470);
+ drawYumi(player.x,player.y);
 }
 function draw(){
- ctx.clearRect(0,0,VW,VH);
- if(mode==='town')drawTown();
- else if(mode==='interior')drawInterior();
- else drawDark();
- drawYumi();
- for(const e of effects){
-  ctx.strokeStyle='#e8b0ff';ctx.lineWidth=7;ctx.beginPath();ctx.arc(e.x-camera.x,e.y-camera.y,e.r,0,7);ctx.stroke();
+ ctx.clearRect(0,0,W,H);
+ if(mode==="town")drawTown();
+ else if(mode==="house")drawHouse();
+ else if(mode==="dark")drawDark();
+ else if(mode==="bonus")drawBonus();
+ else if(mode==="win"){drawTown()}
+ if(paused){
+  ctx.fillStyle="#201735bb";ctx.fillRect(0,0,W,H);
+  ctx.fillStyle="#fff";ctx.textAlign="center";ctx.font="bold 48px Fredoka";ctx.fillText("PAUSED ⏸",450,270);
+  ctx.font="20px Fredoka";ctx.fillText("Press PAUSE to continue",450,315);
  }
 }
-function loop(now){
- if(!running)return;
- const dt=Math.min(.035,(now-last)/1000||0);last=now;
- if(!paused&&!shopOpen)update(dt);
- draw();
- raf=requestAnimationFrame(loop);
+function frame(t){
+ let dt=Math.min(.035,(t-last)/1000||0);last=t;
+ update(dt);draw();requestAnimationFrame(frame);
 }
-function keyDown(e){
- if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
- keys[e.code]=true;
- if(e.repeat)return;
- if(e.code==='KeyE')interact();
- if(e.code==='Space')attack();
- if(e.code==='KeyQ')special();
- if(e.code==='KeyB')openShop();
- if(e.code==='KeyP')togglePause();
-}
-function togglePause(){
- if(!running||shopOpen)return;
- paused=!paused;
- $('pauseBtn').textContent=paused?'▶ Resume':'Ⅱ Pause';
- last=performance.now();
-}
-addEventListener('keydown',keyDown);
-addEventListener('keyup',e=>keys[e.code]=false);
-addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)keys={}});
-$('startBtn').addEventListener('click',start);
-$('shopBtn').onclick=openShop;
-$('closeShop').onclick=closeShop;
-$('pauseBtn').onclick=togglePause;
-$('restartBtn').onclick=()=>{if(running)start()};
-$('homeBtn').onclick=()=>location.href='../../index.html';
+canvas.addEventListener("click",e=>{
+ const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+ if(mode==="house")clickMini(x,y);
+});
+window.addEventListener("keydown",e=>{
+ const k=e.key.toLowerCase();
+ if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))e.preventDefault();
+ keys[e.key]=true;keys[k]=true;
+ if(k==="e"&&!e.repeat)interact();
+ if(k===" "&&!e.repeat)blast();
+ if(k==="escape")paused=!paused;
+});
+window.addEventListener("keyup",e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
+window.addEventListener("blur",()=>{keys={}});
+document.addEventListener("visibilitychange",()=>{if(document.hidden)keys={}});
+$("start").onclick=start;
+$("interact").onclick=interact;
+$("special").onclick=blast;
+$("secret").onclick=secret;
+$("pause").onclick=()=>{if(mode!=="title"&&!gameOver)paused=!paused};
+$("restart").onclick=()=>{if(mode==="dark"){player.x=90;player.y=480;spawnBlobs();say("Level restarted!");}else if(mode==="house"){miniStep=0;miniScore=0;say("Mini-game restarted!");}else start();};
+$("home").onclick=()=>location.href="../../index.html";
+stats();requestAnimationFrame(frame);
 })();
 </script>
 </body>
 </html>
+
