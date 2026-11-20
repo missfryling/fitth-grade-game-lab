@@ -4,301 +4,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mouse Trap - Billy Bob's Escape</title>
+<title>Mouse Trap: Billy Bob's Escape</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#251b36;color:white;font-family:Fredoka,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
-#game{width:min(100%,1000px);padding:12px}
-header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-h1{margin:0;color:#ffe68a;font-size:clamp(22px,4vw,34px)}
-.stats{display:flex;gap:7px;flex-wrap:wrap}
-.stat{background:#49365f;border:2px solid #b99be0;border-radius:12px;padding:6px 11px;font-weight:600}
-#stage{position:relative;border:5px solid #f8d98a;border-radius:17px;overflow:hidden;background:#d9c4a0}
-canvas{display:block;width:100%;height:auto}
-#overlay{position:absolute;inset:0;background:#1b1534df;display:flex;justify-content:center;align-items:center;padding:15px;text-align:center}
-.panel{background:#49365f;border:3px solid #ffe68a;border-radius:20px;padding:22px;width:min(550px,100%);box-shadow:0 8px 25px #0008}
-.panel h2{margin:0 0 10px;color:#ffe68a;font-size:30px}
-.panel p{line-height:1.5}
-button{font-family:inherit;font-size:17px;font-weight:700;border:0;border-radius:12px;padding:10px 17px;margin:4px;background:#ffda69;color:#49320d;cursor:pointer;box-shadow:0 4px #bd8b30}
-#message{text-align:center;min-height:27px;padding:7px;color:#ffe9a3;font-weight:600}
-.controls{text-align:center;color:#e5d7f7;font-size:14px}
-#buttons{text-align:center;margin-top:6px}
-#doorPrompt{position:absolute;bottom:15px;left:50%;transform:translateX(-50%);background:#4b286fee;border:3px solid #ffe68a;border-radius:15px;padding:9px 18px;color:white;font-weight:700;display:none;box-shadow:0 0 18px #fff7;white-space:nowrap}
+body{margin:0;background:#171c20;color:#fff;font-family:Outfit,Arial,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:14px}
+#app{width:min(100%,1100px)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+h1{font-family:Fredoka,sans-serif;font-size:clamp(22px,4vw,34px);margin:0;color:#f6d77a;text-shadow:0 3px #684b20}
+#stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:#303b42;border:1px solid #56636b;padding:8px 13px;border-radius:12px;font-weight:700}
+#gameFrame{position:relative;border:5px solid #59636a;border-radius:18px;overflow:hidden;background:#252b2e;box-shadow:0 14px 35px #0009}
+canvas{display:block;width:100%;height:auto;aspect-ratio:16/10;background:#857b68}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#101619d9;padding:16px;z-index:5}
+.panel{width:min(520px,96%);background:linear-gradient(145deg,#35434a,#202a30);border:2px solid #a9b5b9;border-radius:20px;padding:24px;text-align:center;box-shadow:0 12px 35px #0009}
+.panel h2{font:700 32px Fredoka;margin:0 0 10px;color:#f6d77a}
+.panel p{line-height:1.5;color:#e2e8e9}
+button{font:700 16px Outfit;cursor:pointer;border:0;border-radius:12px;padding:11px 17px;background:#f4ce68;color:#342b18;box-shadow:0 4px #a17a30;margin:5px}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+button.secondary{background:#d8e0e3;box-shadow:0 4px #84939a;color:#263238}
+button:disabled{opacity:.45;cursor:not-allowed}
+#puzzleAnswers{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:15px}
+#puzzleAnswers button{background:#dce8ed;box-shadow:0 4px #82949c;color:#202c32;min-width:105px}
+#controls{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.hint{color:#d0d9dc;font-size:13px}
+#message{color:#f6d77a;font-weight:700;min-height:22px;margin-top:8px}
+@media(max-width:600px){body{padding:5px}.stat{padding:6px 9px;font-size:13px}.panel{padding:15px}.panel h2{font-size:25px}}
 </style>
 </head>
 <body>
-<div id="game">
+<div id="app">
 <header>
-<h1>🐭 Mouse Trap: Billy Bob's Escape!</h1>
-<div class="stats">
-<div class="stat">🧀 <span id="cheese">0</span>/5</div>
-<div class="stat">⭐ <span id="score">0</span></div>
-<div class="stat">❤️ <span id="lives">5</span></div>
-<div class="stat">🏠 Room <span id="room">1</span>/6</div>
+<h1>🐭 Mouse Trap: Billy Bob's Escape</h1>
+<div id="stats">
+<div class="stat" id="levelStat">Level 1 / 17</div>
+<div class="stat" id="cheeseStat">🧀 0 / 5</div>
+<div class="stat" id="heartStat">❤️❤️❤️❤️❤️</div>
+<div class="stat" id="scoreStat">⭐ 0</div>
 </div>
 </header>
-<div id="stage">
-<canvas id="canvas" width="900" height="600"></canvas>
-<div id="doorPrompt">🚪 WALK INTO THE DOOR!</div>
+<div id="gameFrame">
+<canvas id="game" width="960" height="600"></canvas>
 <div id="overlay">
-<div class="panel">
+<div class="panel" id="panel">
 <h2>🐭 Billy Bob's Escape!</h2>
-<p>Help Billy Bob collect all five pieces of cheese in each room!</p>
-<p>Watch out for the ONE cat and the mouse traps. Every piece of cheese unlocks a mini-game.</p>
-<p><b>Move:</b> Arrow keys or WASD</p>
-<p>When you collect all five cheeses, walk into either glowing purple door. It will take you to the next room automatically!</p>
-<button id="start">START GAME!</button>
+<p>Help Billy Bob collect all the cheese, solve mini puzzles, and escape through 17 rooms of the house!</p>
+<p>Watch out for the cat, the owner, and mouse traps. Hide inside the vents when danger gets close!</p>
+<p><b>Move:</b> WASD or arrow keys<br><b>Hide / unhide:</b> E near a vent<br><b>Pause:</b> P or Escape</p>
+<button id="startBtn">START GAME</button>
 </div>
 </div>
 </div>
-<div id="message">Collect five cheeses to unlock the doors!</div>
-<div class="controls">Move: Arrow Keys / WASD &nbsp; • &nbsp; Pause: P</div>
-<div id="buttons">
-<button id="pause">⏸ Pause</button>
-<button id="restart">↻ Restart</button>
-<button onclick="location.href='../../index.html'">🏠 Game Lab</button>
+<div id="controls">
+<div class="hint">Move: WASD / Arrow Keys &nbsp; • &nbsp; Hide in vents: E &nbsp; • &nbsp; Pause: P</div>
+<div>
+<button class="secondary" id="pauseBtn">Pause</button>
+<button class="secondary" id="restartBtn">Restart</button>
+<button class="secondary" id="backBtn">Game Lab</button>
 </div>
 </div>
+<div id="message">Collect all 5 pieces of cheese to unlock the exit door!</div>
+</div>
+
 <script>
 (()=>{
-const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
-const W=900,H=600,$=id=>document.getElementById(id);
-const rooms=[
-{name:'🍳 Kitchen',bg:'#e9c99e',wall:'#9c6745'},
-{name:'🛁 Bathroom',bg:'#b9e7ed',wall:'#438b9d'},
-{name:'🛝 Playground',bg:'#b9df9e',wall:'#568c50'},
-{name:'🥫 Pantry',bg:'#e6c3a0',wall:'#a66b43'},
-{name:'🌻 Garden',bg:'#b5dfad',wall:'#53834d'},
-{name:"🏰 Cat's Castle",bg:'#c8b4df',wall:'#76558e'}
+"use strict";
+const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");
+const W=canvas.width,H=canvas.height;
+const $=id=>document.getElementById(id);
+const levelNames=[
+"Kitchen","Bathroom","Living Room","Pantry","Laundry Room","Dining Room",
+"Playroom","Hallway","Guest Bedroom","Attic","Basement","Sunroom",
+"Garage","Library","Big Kitchen","Owner's Room","The Great Escape"
 ];
-const doors=[{x:65,y:300},{x:835,y:300}];
-const cheeseSpots=[[210,145],[440,120],[680,170],[250,450],[660,455]];
-let state='menu',keys={},room=0,score=0,lives=5;
-let cheese=[],traps=[],walls=[],invincible=0,last=0;
-let doorCooldown=0,transitioning=false,miniIndex=0;
-const player={x:450,y:300,r:18,speed:225};
-const cat={x:790,y:300,r:22,speed:95};
-function hud(){
- $('cheese').textContent=cheese.filter(c=>c.got).length;
- $('score').textContent=score;
- $('lives').textContent=lives;
- $('room').textContent=room+1;
+const keys={};
+let state="title",level=0,score=0,hearts=5,cheeseCount=0,cheeses=[],traps=[],vents=[],walls=[],cat=null,owner=null;
+let player={x:90,y:300,r:15,speed:3.2,hidden:false,invuln:0};
+let door={x:895,y:300};
+let last=0,frame=0,flash=0;
+const rand=(a,b)=>Math.random()*(b-a)+a;
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function updateStats(){
+ $("levelStat").textContent=`Level ${level+1} / 17`;
+ $("cheeseStat").textContent=`🧀 ${cheeseCount} / 5`;
+ $("heartStat").textContent="❤️".repeat(hearts)+"🖤".repeat(5-hearts);
+ $("scoreStat").textContent=`⭐ ${score}`;
 }
-function say(t){$('message').textContent=t}
-function makeRoom(){
- cheese=cheeseSpots.map(([x,y])=>({x:x+(room%2)*10,y,got:false}));
- traps=[{x:400,y:285},{x:570,y:390},{x:120,y:500}];
- const layouts=[
- [[350,180,100,55],[560,280,90,55],[90,370,100,55]],
- [[330,210,100,55],[570,350,100,55],[100,180,100,55]],
- [[350,210,120,50],[560,390,100,50],[110,350,100,50]],
- [[340,190,110,60],[570,320,100,60],[100,390,100,55]],
- [[350,200,100,50],[560,350,100,50],[100,350,100,50]],
- [[350,200,120,60],[560,360,100,55],[100,350,100,55]]
+function say(t){$("message").textContent=t}
+function makeLevel(){
+ cheeseCount=0;player.x=85;player.y=300;player.hidden=false;player.invuln=100;
+ door={x:900,y:300};
+ cheeses=[];traps=[];vents=[];walls=[];
+ // Furniture and room obstacles, with a clear central route.
+ const patterns=[
+ [[260,145,110,55],[470,420,120,55],[690,170,90,65]],
+ [[250,400,100,65],[480,150,130,55],[700,410,100,60]],
+ [[260,170,120,60],[500,420,140,65],[720,170,90,60]],
+ [[250,400,100,70],[450,165,120,65],[690,405,130,65]]
  ];
- walls=layouts[room].map(a=>({x:a[0],y:a[1],w:a[2],h:a[3]}));
- // Keep the doorways and the paths into them clear.
- walls=walls.filter(w=>!(w.x<155&&w.y<390&&w.y+w.h>210)&&!(w.x+w.w>745&&w.y<390&&w.y+w.h>210));
- player.x=450;player.y=300;
- cat.x=790;cat.y=300;cat.speed=95+room*12;
- invincible=1.5;doorCooldown=1;transitioning=false;
- $('doorPrompt').style.display='none';
- hud();
-}
-function showPanel(title,desc,button,action){
- $('overlay').style.display='flex';
- $('overlay').innerHTML='<div class="panel"><h2>'+title+'</h2><p>'+desc+'</p><button id="panelButton">'+button+'</button></div>';
- $('panelButton').onclick=action;
+ const pattern=patterns[level%patterns.length];
+ pattern.forEach(([x,y,w,h])=>walls.push({x,y,w,h}));
+ // Extra furniture changes as levels increase, without blocking the exit lane.
+ if(level>3)walls.push({x:350,y:270,w:70,h:55});
+ if(level>7)walls.push({x:610,y:285,w:85,h:48});
+ // Vents are spread around every room.
+ vents=[{x:145,y:115},{x:445,y:105},{x:790,y:115},{x:150,y:500},{x:465,y:505},{x:790,y:500},{x:900,y:480}];
+ for(let i=0;i<5;i++){
+   let p;
+   do{p={x:rand(120,820),y:rand(90,520)}}while(walls.some(w=>p.x>w.x-25&&p.x<w.x+w.w+25&&p.y>w.y-25&&p.y<w.y+w.h+25));
+   cheeses.push({...p,got:false});
+ }
+ // Mouse traps are placed away from the spawn and exit.
+ for(let i=0;i<Math.min(2+Math.floor(level/3),7);i++){
+   let p;
+   do{p={x:rand(220,800),y:rand(100,520)}}while(walls.some(w=>p.x>w.x-35&&p.x<w.x+w.w+35&&p.y>w.y-35&&p.y<w.y+w.h+35));
+   traps.push({...p,active:true});
+ }
+ // Exactly one cat. The owner joins the chase on later levels.
+ cat={x:760,y:300,r:22,speed:1.05+level*.055,stun:0};
+ owner=level>=2?{x:520,y:75,r:25,speed:.62+level*.035,stun:0}:null;
+ updateStats();
+ say(`Level ${level+1}: ${levelNames[level]} — find all 5 pieces of cheese!`);
 }
 function start(){
- room=0;score=0;lives=5;miniIndex=0;
- makeRoom();state='playing';
- $('overlay').style.display='none';last=performance.now();
- say('Find all five cheeses!');
+ level=0;score=0;hearts=5;state="playing";makeLevel();$("overlay").style.display="none";last=performance.now();requestAnimationFrame(loop);
 }
-$('start').onclick=start;
-$('restart').onclick=()=>{
- room=0;score=0;lives=5;miniIndex=0;
- makeRoom();state='playing';$('overlay').style.display='none';
- say('A brand-new escape adventure!');
-};
-$('pause').onclick=()=>{
- if(state==='playing'){
-  state='paused';
-  showPanel('⏸ Game Paused','Billy Bob is taking a little break!','RESUME',()=>{
-   state='playing';$('overlay').style.display='none';last=performance.now();
-  });
+function rectHit(x,y,r,w){
+ const cx=clamp(x,w.x,w.x+w.w),cy=clamp(y,w.y,w.y+w.h);
+ return Math.hypot(x-cx,y-cy)<r;
+}
+function moveEntity(ent,dx,dy){
+ let nx=clamp(ent.x+dx,22,W-22),ny=clamp(ent.y+dy,22,H-22);
+ if(!walls.some(w=>rectHit(nx,ent.y,ent.r,w)))ent.x=nx;
+ if(!walls.some(w=>rectHit(ent.x,ny,ent.r,w)))ent.y=ny;
+}
+function nearestVent(){
+ let v=null,best=Infinity;
+ for(const a of vents){let d=dist(player,a);if(d<best){best=d;v=a}}
+ return best<55?v:null;
+}
+function toggleHide(){
+ if(state!=="playing")return;
+ if(player.hidden){player.hidden=false;player.invuln=35;say("Billy Bob sneaks out of the vent!");return}
+ const v=nearestVent();
+ if(v){player.x=v.x;player.y=v.y;player.hidden=true;say("Shhh! Billy Bob is hiding in the vent.");}
+ else say("Move closer to a vent to hide!");
+}
+function caught(what){
+ if(player.invuln>0||player.hidden)return;
+ hearts--;player.invuln=100;player.hidden=false;
+ player.x=85;player.y=300;
+ say(`${what} caught Billy Bob! You lost a heart!`);
+ updateStats();
+ if(hearts<=0){finish(false)}
+}
+function collectCheese(){
+ for(const c of cheeses){
+  if(!c.got&&dist(player,c)<29){
+   c.got=true;cheeseCount++;score+=10;updateStats();
+   openPuzzle();
+   return;
+  }
  }
-};
-function finish(won){
- state=won?'won':'over';
- showPanel(won?'🎉 YOU ESCAPED!':'🐱 OH NO!',
- (won?'Billy Bob escaped all six rooms!':'The cat caught Billy Bob!')+'<br>Final score: '+score,
- 'PLAY AGAIN',start);
 }
-function nextRoom(){
- if(transitioning||state!=='playing')return;
- transitioning=true;
- if(room===rooms.length-1){
-  finish(true);return;
- }
- room++;
- makeRoom();
- say('🎉 Welcome to '+rooms[room].name+'! Find five more cheeses!');
-}
-function miniGame(){
- state='mini';
- const questions=[
- {q:'What is 6 + 4?',a:['8','10','12'],correct:1},
- {q:'Which one is cheese?',a:['🧀','🍎','🥕'],correct:0},
- {q:'What is 5 × 3?',a:['10','15','20'],correct:1},
- {q:'Which animal says meow?',a:['🐶','🐸','🐱'],correct:2},
- {q:'What is 12 - 5?',a:['7','8','9'],correct:0},
- {q:'Which food does Billy Bob LOVE?',a:['🍋','🧀','🥦'],correct:1}
- ];
- const q=questions[miniIndex++%questions.length];
- $('overlay').style.display='flex';
- $('overlay').innerHTML='<div class="panel"><h2>🧀 Cheese Challenge!</h2><p>'+q.q+'</p><div id="choices"></div><p id="feedback"></p></div>';
- q.a.forEach((answer,i)=>{
-  const b=document.createElement('button');b.textContent=answer;
+const puzzles=[
+ {q:"Which one is different?",opts:["🐱","🐱","🐶","🐱"],a:2,why:"The dog is different from the cats!"},
+ {q:"Remember the order: 🧀 🥛 🍎. Which item was in the middle?",opts:["🧀","🥛","🍎","🍪"],a:1,why:"The milk was in the middle!"},
+ {q:"Which one belongs in a kitchen?",opts:["🍳","🛏️","🚿","🪥"],a:0,why:"A frying pan belongs in a kitchen!"},
+ {q:"Find the matching pair!",opts:["🐭","🐰","🐭","🐱"],a:2,why:"You found the matching mouse!"},
+ {q:"Which object can Billy Bob hide inside?",opts:["📦","☀️","🎈","🍕"],a:0,why:"A box is a good hiding place!"}
+];
+function openPuzzle(){
+ state="puzzle";
+ const p=puzzles[Math.floor(Math.random()*puzzles.length)];
+ $("overlay").style.display="flex";
+ $("panel").innerHTML=`<h2>🧩 Mini Puzzle!</h2><p>${p.q}</p><div id="puzzleAnswers"></div><p id="puzzleFeedback">Choose the correct answer to continue.</p>`;
+ p.opts.forEach((o,i)=>{
+  const b=document.createElement("button");b.textContent=o;
   b.onclick=()=>{
-   if(state!=='mini')return;
-   if(i===q.correct){
-    score+=10;hud();
-    $('feedback').textContent='🎉 Correct! +10 bonus points!';
-    setTimeout(()=>{
-     if(state==='mini'){
-      $('overlay').style.display='none';state='playing';
-      say('Great job! Keep collecting cheese!');
-     }
-    },650);
-   }else{
-    $('feedback').textContent='Not quite! Try another answer!';
-    b.disabled=true;
-   }
+   if(i===p.a){score+=5;$("puzzleFeedback").textContent="Correct! "+p.why+" +5 bonus points!";updateStats();setTimeout(closePuzzle,700)}
+   else{$("puzzleFeedback").textContent="Not quite! Try another answer."}
   };
-  $('choices').appendChild(b);
+  $("puzzleAnswers").appendChild(b);
  });
 }
-function loseLife(){
- if(invincible>0)return;
- lives--;invincible=2;hud();
- say('🐱 The cat got you! Be careful!');
- if(lives<=0)finish(false);
+function closePuzzle(){
+ if(state!=="puzzle")return;
+ $("overlay").style.display="none";state="playing";
+ if(cheeseCount===5)say("Amazing! All the cheese is collected. Find the emoji door! 🚪");
+ else say("Puzzle solved! Keep collecting cheese.");
 }
-function blocked(x,y,r,w){
- return x+r>w.x&&x-r<w.x+w.w&&y+r>w.y&&y-r<w.y+w.h;
+function nextLevel(){
+ if(level>=16){finish(true);return}
+ level++;makeLevel();player.x=75;player.y=300;player.invuln=100;
 }
-function movePlayer(dx,dy,dt){
- let nx=Math.max(25,Math.min(W-25,player.x+dx*player.speed*dt));
- let ny=Math.max(25,Math.min(H-25,player.y+dy*player.speed*dt));
- if(!walls.some(w=>blocked(nx,player.y,player.r,w)))player.x=nx;
- if(!walls.some(w=>blocked(player.x,ny,player.r,w)))player.y=ny;
+function finish(won){
+ state=won?"won":"lost";$("overlay").style.display="flex";
+ $("panel").innerHTML=won?
+ `<h2>🏆 YOU ESCAPED!</h2><p>Billy Bob made it through all 17 levels!</p><p>Final score: <b>${score}</b></p><button id="again">PLAY AGAIN</button><button class="secondary" id="home">Game Lab</button>`:
+ `<h2>🐭 Oh no!</h2><p>Billy Bob ran out of hearts on Level ${level+1}.</p><p>Score: <b>${score}</b></p><button id="again">TRY AGAIN</button><button class="secondary" id="home">Game Lab</button>`;
+ $("again").onclick=start;$("home").onclick=()=>location.href="../../index.html";
+}
+function pause(){
+ if(state==="playing"){state="paused";$("overlay").style.display="flex";$("panel").innerHTML=`<h2>⏸ Paused</h2><p>Billy Bob is taking a little break.</p><button id="resume">RESUME</button><button class="secondary" id="again">RESTART GAME</button>`;$("resume").onclick=()=>{state="playing";$("overlay").style.display="none";last=performance.now();requestAnimationFrame(loop)};$("again").onclick=start}
+ else if(state==="paused"){state="playing";$("overlay").style.display="none";last=performance.now();requestAnimationFrame(loop)}
 }
 function update(dt){
- if(state!=='playing')return;
- invincible=Math.max(0,invincible-dt);
- doorCooldown=Math.max(0,doorCooldown-dt);
- const dx=(keys.arrowright||keys.d?1:0)-(keys.arrowleft||keys.a?1:0);
- const dy=(keys.arrowdown||keys.s?1:0)-(keys.arrowup||keys.w?1:0);
- const mag=Math.hypot(dx,dy)||1;
- movePlayer(dx/mag,dy/mag,dt);
-
- // Collect cheese and launch the mini-game.
- for(const c of cheese){
-  if(!c.got&&Math.hypot(player.x-c.x,player.y-c.y)<35){
-   c.got=true;score+=5;hud();
-   say('🧀 Cheese collected! Complete your mini-game!');
-   miniGame();return;
-  }
+ if(state!=="playing")return;
+ frame++;
+ if(player.invuln>0)player.invuln--;
+ if(cat.stun>0)cat.stun--;
+ if(owner&&owner.stun>0)owner.stun--;
+ let dx=0,dy=0;
+ if(keys.ArrowLeft||keys.a)dx--;
+ if(keys.ArrowRight||keys.d)dx++;
+ if(keys.ArrowUp||keys.w)dy--;
+ if(keys.ArrowDown||keys.s)dy++;
+ if(dx||dy){let m=Math.hypot(dx,dy);moveEntity(player,dx/m*player.speed,dy/m*player.speed)}
+ if(!player.hidden){
+  if(cat.stun<=0){let d=dist(cat,player);if(d<450){moveEntity(cat,(player.x-cat.x)/Math.max(d,1)*cat.speed,(player.y-cat.y)/Math.max(d,1)*cat.speed)}}
+  if(owner&&owner.stun<=0){let d=dist(owner,player);if(d<370){moveEntity(owner,(player.x-owner.x)/Math.max(d,1)*owner.speed,(player.y-owner.y)/Math.max(d,1)*owner.speed)}}
+  if(dist(player,cat)<30)caught("The cat");
+  if(owner&&dist(player,owner)<32)caught("The owner");
+  for(const t of traps)if(t.active&&dist(player,t)<25){t.active=false;caught("A mouse trap")}
+  collectCheese();
  }
-
- // Mouse traps.
- for(const t of traps){
-  if(t.x>0&&Math.hypot(player.x-t.x,player.y-t.y)<29){
-   t.x=-1000;loseLife();break;
-  }
+ // Emoji exit door: it opens only after all five cheeses are collected.
+ if(cheeseCount===5&&Math.hypot(player.x-door.x,player.y-door.y)<55){
+  if(level===16)finish(true);else nextLevel();
  }
-
- // One cat follows Billy Bob.
- const catDistance=Math.hypot(player.x-cat.x,player.y-cat.y);
- if(catDistance>35){
-  const angle=Math.atan2(player.y-cat.y,player.x-cat.x);
-  cat.x+=Math.cos(angle)*cat.speed*dt;
-  cat.y+=Math.sin(angle)*cat.speed*dt;
- }
- cat.x=Math.max(25,Math.min(W-25,cat.x));
- cat.y=Math.max(25,Math.min(H-25,cat.y));
- if(catDistance<34&&invincible<=0)loseLife();
-
- // Door proximity: automatically move to the next room when ready.
- const nearDoor=doors.some(d=>Math.hypot(player.x-d.x,player.y-d.y)<65);
- const allCheese=cheese.every(c=>c.got);
- $('doorPrompt').style.display=nearDoor?'block':'none';
- if(nearDoor&&!allCheese){
-  $('doorPrompt').textContent='🧀 COLLECT ALL 5 CHEESES FIRST!';
- }else if(nearDoor&&allCheese){
-  $('doorPrompt').textContent='✨ DOOR UNLOCKED! WALK IN!';
-  if(doorCooldown<=0)nextRoom();
- }
- if(allCheese&&!nearDoor)say('🌟 All five cheeses found! Walk into a glowing purple door!');
- hud();
 }
-function emoji(e,x,y,size=34){
- ctx.font=size+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e,x,y);
+function drawRoom(){
+ // Warm, realistic wood floor.
+ let g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,"#b69b72");g.addColorStop(1,"#78664e");ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ for(let y=0;y<H;y+=48){ctx.fillStyle=y%96===0?"#ffffff0a":"#00000009";ctx.fillRect(0,y,W,2);for(let x=0;x<W;x+=120){ctx.fillStyle="#fff1";ctx.fillRect(x+(y%96),y+9,55,1)}}
+ // Baseboards.
+ ctx.fillStyle="#594735";ctx.fillRect(0,0,W,20);ctx.fillRect(0,H-20,W,20);ctx.fillRect(0,0,20,H);ctx.fillRect(W-20,0,20,H);
+ // Furniture.
+ for(const w of walls){
+  ctx.fillStyle="#0005";ctx.fillRect(w.x+5,w.y+8,w.w,w.h);
+  let f=ctx.createLinearGradient(w.x,w.y,w.x,w.y+w.h);f.addColorStop(0,"#79563c");f.addColorStop(.5,"#563c2d");f.addColorStop(1,"#382a22");ctx.fillStyle=f;ctx.fillRect(w.x,w.y,w.w,w.h);
+  ctx.strokeStyle="#c09b6a";ctx.lineWidth=4;ctx.strokeRect(w.x+2,w.y+2,w.w-4,w.h-4);
+  ctx.strokeStyle="#ffffff22";ctx.lineWidth=1;ctx.strokeRect(w.x+9,w.y+9,w.w-18,w.h-18);
+ }
+ // Vents.
+ for(const v of vents){
+  ctx.fillStyle="#0008";ctx.beginPath();ctx.ellipse(v.x,v.y,25,17,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#68747a";ctx.beginPath();ctx.ellipse(v.x,v.y-3,24,16,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle="#c2cbd0";ctx.lineWidth=2;ctx.stroke();
+  for(let i=-2;i<=2;i++){ctx.strokeStyle="#293238";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(v.x-16,v.y+i*5);ctx.lineTo(v.x+16,v.y+i*5);ctx.stroke()}
+ }
+ // Exit door.
+ ctx.fillStyle="#0005";ctx.fillRect(door.x-24,door.y-45,48,90);
+ ctx.fillStyle="#5d3928";ctx.fillRect(door.x-22,door.y-43,44,86);
+ ctx.strokeStyle="#d7b46a";ctx.lineWidth=4;ctx.strokeRect(door.x-22,door.y-43,44,86);
+ ctx.font="38px Arial";ctx.textAlign="center";ctx.fillText("🚪",door.x,door.y+13);
+ ctx.font="14px Outfit";ctx.fillStyle="#fff";ctx.fillText(cheeseCount===5?"EXIT OPEN!":"LOCKED",door.x,door.y+62);
+}
+function drawCheese(c){
+ if(c.got)return;
+ ctx.save();ctx.translate(c.x,c.y);
+ ctx.shadowColor="#0008";ctx.shadowBlur=8;ctx.shadowOffsetY=4;
+ ctx.fillStyle="#f6c84c";ctx.beginPath();ctx.moveTo(-13,9);ctx.lineTo(13,9);ctx.lineTo(9,-9);ctx.closePath();ctx.fill();
+ ctx.shadowColor="transparent";ctx.fillStyle="#b77d22";
+ [[-4,2,2.5],[5,1,2],[-1,-4,1.8]].forEach(([x,y,r])=>{ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()});
+ ctx.restore();
+}
+function drawTrap(t){
+ if(!t.active)return;
+ ctx.save();ctx.translate(t.x,t.y);
+ ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,9,19,8,0,0,7);ctx.fill();
+ ctx.fillStyle="#aeb5b8";ctx.fillRect(-16,-8,32,5);
+ ctx.strokeStyle="#d8dfe1";ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,-1,13,Math.PI,0);ctx.stroke();
+ ctx.fillStyle="#777";ctx.fillRect(-4,-10,8,5);ctx.restore();
+}
+function drawMouse(){
+ ctx.save();ctx.translate(player.x,player.y);
+ if(player.hidden){ctx.globalAlpha=.35}
+ if(player.invuln>0&&Math.floor(frame/6)%2===0)ctx.globalAlpha*=.4;
+ ctx.fillStyle="#0006";ctx.beginPath();ctx.ellipse(1,12,18,8,0,0,7);ctx.fill();
+ // tail
+ ctx.strokeStyle="#b98c82";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-13,4);ctx.quadraticCurveTo(-30,14,-25,22);ctx.stroke();
+ // body and head
+ let fur=ctx.createRadialGradient(-5,-7,2,0,0,22);fur.addColorStop(0,"#c7c2b8");fur.addColorStop(1,"#777a78");
+ ctx.fillStyle=fur;ctx.beginPath();ctx.ellipse(0,2,15,11,-.2,0,7);ctx.fill();
+ ctx.fillStyle="#9b9b96";ctx.beginPath();ctx.arc(9,-7,10,0,7);ctx.fill();
+ ctx.fillStyle="#b98b8b";ctx.beginPath();ctx.arc(4,-15,5,0,7);ctx.arc(14,-15,5,0,7);ctx.fill();
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(13,-9,3,0,7);ctx.fill();
+ ctx.fillStyle="#111";ctx.beginPath();ctx.arc(14,-9,1.5,0,7);ctx.fill();ctx.beginPath();ctx.arc(19,-5,2,0,7);ctx.fill();
+ ctx.restore();
+}
+function drawCat(c){
+ ctx.save();ctx.translate(c.x,c.y);
+ ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,16,24,9,0,0,7);ctx.fill();
+ let f=ctx.createRadialGradient(-8,-8,3,0,0,30);f.addColorStop(0,"#b2b5b5");f.addColorStop(1,"#454b50");
+ ctx.fillStyle=f;ctx.beginPath();ctx.ellipse(0,2,23,15,0,0,7);ctx.fill();
+ ctx.beginPath();ctx.arc(15,-9,13,0,7);ctx.fill();
+ ctx.beginPath();ctx.moveTo(6,-17);ctx.lineTo(8,-31);ctx.lineTo(17,-19);ctx.fill();
+ ctx.beginPath();ctx.moveTo(18,-19);ctx.lineTo(27,-30);ctx.lineTo(27,-13);ctx.fill();
+ ctx.fillStyle="#d5d7a0";ctx.beginPath();ctx.arc(19,-11,2.5,0,7);ctx.fill();ctx.arc(9,-11,2.5,0,7);ctx.fill();
+ ctx.strokeStyle="#454b50";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-19,3);ctx.quadraticCurveTo(-38,-7,-34,-20);ctx.stroke();
+ ctx.restore();
+}
+function drawOwner(o){
+ ctx.save();ctx.translate(o.x,o.y);
+ ctx.fillStyle="#0005";ctx.beginPath();ctx.ellipse(0,20,23,8,0,0,7);ctx.fill();
+ let shirt=ctx.createLinearGradient(-15,-5,15,20);shirt.addColorStop(0,"#486d83");shirt.addColorStop(1,"#263f53");
+ ctx.fillStyle=shirt;ctx.beginPath();ctx.roundRect(-17,-4,34,29,8);ctx.fill();
+ ctx.fillStyle="#d5ad8b";ctx.beginPath();ctx.arc(0,-13,14,0,7);ctx.fill();
+ ctx.fillStyle="#4b352b";ctx.beginPath();ctx.arc(0,-18,14,Math.PI,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#222";ctx.beginPath();ctx.arc(-5,-13,1.7,0,7);ctx.arc(5,-13,1.7,0,7);ctx.fill();
+ ctx.strokeStyle="#744d3a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-8,4,.2,2.9);ctx.stroke();
+ ctx.restore();
 }
 function draw(){
- const theme=rooms[room];
- ctx.clearRect(0,0,W,H);
- ctx.fillStyle=theme.bg;ctx.fillRect(0,0,W,H);
- ctx.globalAlpha=.12;ctx.strokeStyle='#65452d';ctx.lineWidth=2;
- for(let x=0;x<W;x+=45){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
- for(let y=0;y<H;y+=45){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
- ctx.globalAlpha=1;
- ctx.strokeStyle=theme.wall;ctx.lineWidth=18;ctx.strokeRect(9,9,W-18,H-18);
- walls.forEach((w,i)=>{
-  ctx.fillStyle=i%2?'#9b775a':'#b48a60';
-  ctx.fillRect(w.x,w.y,w.w,w.h);
-  ctx.strokeStyle='#69472f';ctx.lineWidth=4;
-  ctx.strokeRect(w.x,w.y,w.w,w.h);
-  emoji(i===0?'📦':i===1?'🪑':'🧺',w.x+w.w/2,w.y+w.h/2,32);
- });
- // Glowing doors, positioned well inside the room.
- doors.forEach(d=>{
-  ctx.save();
-  ctx.shadowColor='#fff080';ctx.shadowBlur=24;
-  ctx.fillStyle='#713da5';ctx.fillRect(d.x-25,d.y-43,50,86);
-  ctx.restore();
-  ctx.strokeStyle='#ffe68a';ctx.lineWidth=5;
-  ctx.strokeRect(d.x-25,d.y-43,50,86);
-  emoji('🚪',d.x,d.y,38);
-  emoji('✨',d.x,d.y-55,23);
- });
- cheese.forEach(c=>{if(!c.got)emoji('🧀',c.x,c.y,34)});
- traps.forEach(t=>{if(t.x>0)emoji('🪤',t.x,t.y,34)});
- if(invincible<=0||Math.floor(performance.now()/100)%2===0)emoji('🐭',player.x,player.y,42);
- emoji('🐈',cat.x,cat.y,46);
- ctx.fillStyle='#3e2c48';ctx.font='bold 22px Fredoka';ctx.textAlign='left';
- ctx.fillText(theme.name,28,43);
- ctx.font='16px Fredoka';ctx.fillText('Cheese: '+cheese.filter(c=>c.got).length+'/5',28,67);
+ drawRoom();
+ cheeses.forEach(drawCheese);traps.forEach(drawTrap);
+ // Character shadows and danger radius hints.
+ if(owner)drawOwner(owner);drawCat(cat);drawMouse();
+ if(player.hidden){
+  ctx.fillStyle="#d9f2ff";ctx.font="bold 17px Outfit";ctx.textAlign="center";ctx.fillText("HIDING IN VENT",player.x,player.y-35);
+ }
+ ctx.fillStyle="#fff";ctx.font="bold 19px Fredoka";ctx.textAlign="left";ctx.fillText(levelNames[level],35,48);
+ ctx.font="14px Outfit";ctx.fillStyle="#fff";ctx.fillText("Cheese: "+cheeseCount+"/5",35,70);
+ if(cheeseCount===5){ctx.fillStyle="#ffe38a";ctx.textAlign="center";ctx.font="bold 18px Fredoka";ctx.fillText("ALL CHEESE FOUND! GO TO THE 🚪 DOOR!",W/2,42)}
 }
-window.addEventListener('keydown',e=>{
- const k=e.key.toLowerCase();
+function loop(t){
+ if(state!=="playing")return;
+ const dt=Math.min(2,(t-last)/16.67||1);last=t;
+ update(dt);draw();
+ if(state==="playing")requestAnimationFrame(loop);
+}
+document.addEventListener("keydown",e=>{
+ const k=e.key.length===1?e.key.toLowerCase():e.key;
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(e.key))e.preventDefault();
  keys[k]=true;
- if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k))e.preventDefault();
- if(k==='p'&&state==='playing')$('pause').click();
+ if(k==="e"&&!e.repeat)toggleHide();
+ if((k==="p"||k==="Escape")&&!e.repeat)pause();
 });
-window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-window.addEventListener('blur',()=>keys={});
-document.addEventListener('visibilitychange',()=>{
- if(document.hidden&&state==='playing')$('pause').click();
-});
-makeRoom();
-requestAnimationFrame(function loop(now){
- const dt=Math.min(.04,(now-last)/1000||0);
- last=now;update(dt);draw();requestAnimationFrame(loop);
-});
+document.addEventListener("keyup",e=>{keys[e.key.length===1?e.key.toLowerCase():e.key]=false});
+window.addEventListener("blur",()=>{Object.keys(keys).forEach(k=>keys[k]=false)});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&state==="playing")pause()});
+$("startBtn").addEventListener("click",start);
+$("pauseBtn").addEventListener("click",pause);
+$("restartBtn").addEventListener("click",start);
+$("backBtn").addEventListener("click",()=>location.href="../../index.html");
+makeLevel();draw();
 })();
 </script>
 </body>
