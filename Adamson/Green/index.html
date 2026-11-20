@@ -3,265 +3,552 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Skyler's Keyboard Maze</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skyler's Christmas Keyboard Maze</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#080b25;color:white;font-family:Fredoka,Arial;overflow:hidden;touch-action:manipulation}
-canvas{display:block;width:100vw;height:100vh;touch-action:none}
-#top{position:absolute;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;gap:7px;pointer-events:none;flex-wrap:wrap}
-.pill{background:#171b48eF;border:1px solid #8e8bff;border-radius:18px;padding:7px 13px;font-weight:700;font-size:14px;box-shadow:0 0 12px #726bff66}
-#tools{position:absolute;bottom:9px;left:0;right:0;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
-button,select,input{font:inherit}
-button{border:1px solid #b6aaff;border-radius:13px;padding:9px 14px;background:#d7caff;color:#27214d;font-weight:700;box-shadow:0 3px 0 #8071c9}
-button:active{transform:translateY(2px);box-shadow:0 1px 0 #8071c9}
-#overlay{position:absolute;inset:0;background:#07091deF;display:flex;align-items:center;justify-content:center;padding:15px}
-#card{width:min(550px,96vw);max-height:92vh;overflow:auto;background:#171b48;border:2px solid #aaa3ff;border-radius:24px;padding:23px;text-align:center;box-shadow:0 0 35px #746aff66}
-h1{font-size:clamp(28px,6vw,45px);color:#d9caff;margin:5px 0}
-h2{margin:8px 0}
-p{line-height:1.4}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
-.grid button{min-height:48px}
-input,select{padding:9px;border-radius:10px;border:1px solid #aaa3ff;background:#fff;color:#242044;width:100%;margin:5px 0 12px}
-label{display:block;text-align:left;font-size:14px}
-.small{font-size:13px;color:#c8c4ff}
-.hidden{display:none!important}
-#notice{position:absolute;top:62px;left:50%;transform:translateX(-50%);background:#fff0b9;color:#33234b;padding:7px 15px;border-radius:15px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none}
+body{margin:0;background:#071b32;color:white;font-family:Fredoka,Arial;overflow:hidden}
+#app{height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at top,#19466b,#07172c 75%)}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 14px;flex-wrap:wrap}
+h1{font-size:clamp(16px,2.7vw,26px);margin:0;color:#d8f4ff}
+#stats{display:flex;gap:6px;flex-wrap:wrap}
+.pill{background:#163c5b;border:1px solid #b9eaff55;border-radius:12px;padding:6px 10px;font-weight:700;font-size:13px}
+#toolbar{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;padding:3px 8px}
+button,input,select{font:600 15px Fredoka;border:0;border-radius:11px;padding:9px 13px}
+button{background:#d5f2ff;color:#12324c;cursor:pointer}
+button.secondary{background:#285778;color:white;border:1px solid #ffffff44}
+button:active{transform:scale(.97)}
+#stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:7px}
+canvas{display:block;max-width:100%;max-height:100%;border-radius:17px;border:2px solid #a9e5ff77;box-shadow:0 10px 35px #0008;touch-action:none}
+#touch{display:flex;justify-content:center;align-items:center;gap:9px;padding:5px 10px 8px}
+#touch button{width:52px;height:42px;font-size:21px;padding:0;background:#c9edff}
+#touch .middle{display:flex;flex-direction:column;gap:3px}
+#touch .middle button{height:34px}
+#footer{font-size:11px;text-align:center;color:#b7d8ee;padding:0 5px 5px}
+#modal{position:fixed;inset:0;background:#031326dd;display:none;align-items:center;justify-content:center;padding:15px;z-index:5}
+#box{width:min(500px,96vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#17476b,#102b4a);border:2px solid #bdeaff77;border-radius:22px;padding:23px;box-shadow:0 15px 55px #000b}
+#box h2{color:#d5f4ff;margin:0 0 12px;font-size:28px}
+#box p{line-height:1.45;color:#e0f2ff}
+.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.field label{font-weight:600;color:#c5edff}
+.field input,.field select{width:100%;background:#f1faff;color:#17334b}
+#box button{margin:5px}
+.small{font-size:12px;color:#bfe5f8}
+@media(max-height:650px){header{padding:5px 9px}#toolbar{padding:1px}#touch{padding:2px 8px}#touch button{height:34px}#touch .middle button{height:28px}}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="top">
- <div class="pill" id="worldLabel">🌌 Galaxy World 1</div>
- <div class="pill" id="levelLabel">Level 1 / 15</div>
- <div class="pill" id="stepLabel">👣 Steps: 0</div>
- <div class="pill" id="nameLabel">⭐ Skyler</div>
-</div>
-<div id="notice"></div>
-<div id="tools">
- <button onclick="openSettings()">⚙️ Settings</button>
- <button onclick="togglePause()">Ⅱ Pause</button>
- <button onclick="restartLevel()">↻ Restart Level</button>
- <button onclick="showHome()">⌂ Home</button>
-</div>
-<div id="overlay">
- <div id="card">
-  <h1>🌌 Skyler's Keyboard Maze</h1>
-  <p>Explore five galaxy worlds, solve 75 mazes, and find the glowing exit!</p>
-  <div class="grid">
-   <button onclick="startGame()">🚀 Start Maze</button>
-   <button onclick="openSettings()">⚙️ Settings</button>
-  </div>
-  <p class="small">Touchscreen: tap a nearby floor tile to move one step. Keyboard: WASD or arrow keys. Find the glowing portal!</p>
-  <p class="small">No monsters. No timers. Just you, the maze, and the galaxy!</p>
+<div id="app">
+<header>
+ <h1>🎄 SKYLER'S CHRISTMAS KEYBOARD MAZE ❄️</h1>
+ <div id="stats">
+  <div class="pill" id="world">🎁 Winter Wonderland</div>
+  <div class="pill" id="level">Level 1 / 50</div>
+  <div class="pill">👣 Steps: <span id="steps">0</span></div>
+  <div class="pill">🎅 Santas: <span id="santas">0</span></div>
+  <div class="pill">🙂 <span id="playerName">Player</span></div>
  </div>
+</header>
+<div id="toolbar">
+ <button id="settingsBtn" class="secondary">⚙️ Settings</button>
+ <button id="newBtn" class="secondary">↻ Restart Maze</button>
+ <button id="pauseBtn" class="secondary">Ⅱ Pause</button>
+ <button id="fullBtn" class="secondary">⛶ Fullscreen</button>
 </div>
+<div id="stage"><canvas id="maze" width="1000" height="700"></canvas></div>
+<div id="touch">
+ <button data-dir="left">⬅️</button>
+ <div class="middle">
+  <button data-dir="up">⬆️</button>
+  <button data-dir="down">⬇️</button>
+ </div>
+ <button data-dir="right">➡️</button>
+</div>
+<div id="footer">Use WASD, arrow keys, or the buttons. Collect Santa coins 🎅 and reach the glowing Christmas tree exit! Every move counts as a step.</div>
+</div>
+
+<div id="modal"><div id="box"></div></div>
+
 <script>
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-let W=innerWidth,H=innerHeight,dpr=1;
-function resize(){
- dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;
- canvas.width=W*dpr;canvas.height=H*dpr;
- canvas.style.width=W+'px';canvas.style.height=H+'px';
- ctx.setTransform(dpr,0,0,dpr,0,0);draw();
-}
-addEventListener('resize',resize);
-const worldNames=['Nebula Galaxy','Candy Comet','Frozen Starfield','Rainbow Universe','Cosmic Dream'];
-const palettes=[
- {bg:'#090d35',wall:'#343b8b',floor:'#151e55',glow:'#a99cff',portal:'#65f3ff'},
- {bg:'#301044',wall:'#9a4b9c',floor:'#51205f',glow:'#ffb2ed',portal:'#ffe58b'},
- {bg:'#071c3b',wall:'#367da8',floor:'#123a5c',glow:'#9feaff',portal:'#ffffff'},
- {bg:'#211044',wall:'#7845b5',floor:'#392064',glow:'#ff9de1',portal:'#9dffe5'},
- {bg:'#071e2b',wall:'#287e82',floor:'#12494f',glow:'#b1fff2',portal:'#fff3a0'}
+(()=>{
+'use strict';
+
+const canvas=document.getElementById('maze');
+const ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+
+const worldNames=[
+ 'Winter Wonderland','Candy Cane Kingdom','Gingerbread Village',
+ 'Frosty Forest','Reindeer Ridge','North Pole Express',
+ 'Snowflake Summit','Peppermint Planet','Jingle Bell Junction',
+ 'Icicle Island','Christmas Cookie Cove','Aurora Snowfields',
+ 'Santa’s Workshop','Twinkle Star Town','The Grand North Pole'
 ];
-let world=1,level=1,steps=0,playerName='Skyler',maze=[],player={x:1,y:1},exit={x:1,y:1};
-let running=false,paused=false,settings=false,moveLock=false;
-let soundChoice='Hee-hee clicking',musicChoice='Calming space music',soundOn=true,musicOn=true,audio=null,musicTimer=null;
-const COLS=19,ROWS=15;
-function rand(n){return Math.floor(Math.random()*n)}
-function makeMaze(){
- const size=level+world*2;
- const cols=Math.min(31,19+Math.floor((size-1)/3)*2);
- const rows=Math.min(25,15+Math.floor((size-1)/4)*2);
- maze=Array.from({length:rows},()=>Array(cols).fill(1));
- function carve(x,y){
-  maze[y][x]=0;
-  let dirs=[[2,0],[-2,0],[0,2],[0,-2]].sort(()=>Math.random()-.5);
+
+const palettes=[
+ ['#d9f3ff','#8bd2f5','#174c75'],
+ ['#fff0f4','#ff9dbb','#9b315f'],
+ ['#ffe7c9','#c98b5c','#6d432f'],
+ ['#e1f6ee','#8bd4b1','#205b50'],
+ ['#e7edff','#9db5f7','#354a8a'],
+ ['#fce5e5','#e77b7b','#7e303e'],
+ ['#e4f7ff','#9ddaf4','#275b84'],
+ ['#ffe8f2','#eaa0cf','#8e4779'],
+ ['#fff4ce','#e8c56a','#82612d'],
+ ['#e0faff','#81d8e9','#24677b'],
+ ['#ffefd9','#e8a86e','#845131'],
+ ['#e7edff','#a3b6f0','#4c4c8e'],
+ ['#fbe7f1','#e9a3c1','#85446c'],
+ ['#e7f9ff','#9de4ee','#34718b'],
+ ['#fff0d7','#e9bb69','#8c5730']
+];
+
+let world=0,level=1;
+let steps=0,totalSteps=0,santas=0,presents=0;
+let playerName='Player';
+let paused=false,complete=false,gameStarted=true;
+let cols=13,rows=9,grid=[];
+let px=1,py=1,exit={x:11,y:7};
+let santaCoins=[],giftItems=[];
+let snow=[],sparkles=[];
+let cell=50,offsetX=0,offsetY=0;
+let sound='Snow',music='Calm winter',soundOn=true,musicOn=false;
+let audio=null,musicTimer=null;
+let lastMove=0,animation=0;
+let levelSeed=1;
+let heldDirection=null,heldTimer=0;
+
+function rng(seed){
+ let x=Math.sin(seed*127.1+311.7)*43758.5453;
+ return x-Math.floor(x);
+}
+function randInt(n){return Math.floor(Math.random()*n)}
+
+function makeAudio(){
+ if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();
+ if(audio.state==='suspended')audio.resume();
+}
+function tone(freq,duration,wave='sine',volume=.07,delay=0){
+ if(!soundOn)return;
+ try{
+  makeAudio();
+  const o=audio.createOscillator();
+  const g=audio.createGain();
+  o.type=wave;
+  o.frequency.value=freq;
+  g.gain.setValueAtTime(volume,audio.currentTime+delay);
+  g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+delay+duration);
+  o.connect(g);g.connect(audio.destination);
+  o.start(audio.currentTime+delay);
+  o.stop(audio.currentTime+delay+duration);
+ }catch(e){}
+}
+function playSound(){
+ if(!soundOn)return;
+ if(sound==='Snow'){
+  tone(880,.13,'sine',.055);
+  tone(1175,.15,'sine',.045,.08);
+ }else if(sound==='Candy wrappers'){
+  tone(550,.07,'triangle',.07);
+  tone(740,.08,'triangle',.05,.08);
+ }else if(sound==='Hee-hee'){
+  // Brighter, louder playful "hee-hee" style sound effect.
+  tone(950,.12,'triangle',.22);
+  tone(1250,.12,'triangle',.21,.14);
+  tone(950,.12,'triangle',.21,.28);
+ }else if(sound==='Honey on a keyboard'){
+  tone(390,.12,'sine',.075);
+  tone(520,.12,'sine',.07,.1);
+ }
+}
+function startMusic(){
+ stopMusic();
+ if(!musicOn||music==='Off')return;
+ try{
+  makeAudio();
+  musicTimer=setInterval(()=>{
+   if(paused||!musicOn)return;
+   const notes=music==='Dreamy bells'?[523,659,784,659]:[392,494,587,494];
+   tone(notes[randInt(notes.length)],.5,'sine',.025);
+  },750);
+ }catch(e){}
+}
+function stopMusic(){
+ if(musicTimer){clearInterval(musicTimer);musicTimer=null}
+}
+
+function modal(html){
+ $('box').innerHTML=html;
+ $('modal').style.display='flex';
+}
+function closeModal(){
+ $('modal').style.display='none';
+}
+function updateHUD(){
+ $('world').textContent='🎁 '+worldNames[world];
+ $('level').textContent='Level '+level+' / 50';
+ $('steps').textContent=steps;
+ $('santas').textContent=santas;
+ $('playerName').textContent=playerName;
+ $('pauseBtn').textContent=paused?'▶ Resume':'Ⅱ Pause';
+}
+
+function difficulty(){
+ return world*3+Math.floor((level-1)/5);
+}
+function generateMaze(){
+ const d=difficulty();
+ cols=Math.min(31,13+Math.floor(d/3)*2);
+ rows=Math.min(21,9+Math.floor(d/4)*2);
+ if(cols%2===0)cols--;
+ if(rows%2===0)rows--;
+
+ grid=Array.from({length:rows},()=>Array(cols).fill(1));
+ const stack=[{x:1,y:1}];
+ grid[1][1]=0;
+
+ while(stack.length){
+  const cur=stack[stack.length-1];
+  const dirs=[[0,-2],[2,0],[0,2],[-2,0]];
+  for(let i=dirs.length-1;i>0;i--){
+   const j=randInt(i+1);
+   [dirs[i],dirs[j]]=[dirs[j],dirs[i]];
+  }
+  let found=false;
   for(const [dx,dy] of dirs){
-   let nx=x+dx,ny=y+dy;
-   if(nx>0&&ny>0&&nx<cols-1&&ny<rows-1&&maze[ny][nx]===1){
-    maze[y+dy/2][x+dx/2]=0;carve(nx,ny);
+   const nx=cur.x+dx,ny=cur.y+dy;
+   if(nx>0&&ny>0&&nx<cols-1&&ny<rows-1&&grid[ny][nx]===1){
+    grid[cur.y+dy/2][cur.x+dx/2]=0;
+    grid[ny][nx]=0;
+    stack.push({x:nx,y:ny});
+    found=true;
+    break;
+   }
+  }
+  if(!found)stack.pop();
+ }
+
+ // Add a few optional loops in later worlds, while keeping the exit reachable.
+ const loops=Math.min(2+Math.floor(d/3),18);
+ for(let i=0;i<loops;i++){
+  const x=2+randInt(cols-3),y=2+randInt(rows-3);
+  if(grid[y][x]===1){
+   let open=0;
+   if(grid[y-1][x]===0)open++;
+   if(grid[y+1][x]===0)open++;
+   if(grid[y][x-1]===0)open++;
+   if(grid[y][x+1]===0)open++;
+   if(open>=2)grid[y][x]=0;
+  }
+ }
+
+ px=1;py=1;
+ exit={x:cols-2,y:rows-2};
+ grid[exit.y][exit.x]=0;
+
+ const openCells=[];
+ for(let y=1;y<rows-1;y++){
+  for(let x=1;x<cols-1;x++){
+   if(grid[y][x]===0&&!(x===1&&y===1)&&!(x===exit.x&&y===exit.y)){
+    openCells.push({x,y});
    }
   }
  }
- carve(1,1);
- // Add a few extra passages in later worlds to create alternate routes.
- let openings=Math.floor(world*level*.55);
- for(let i=0;i<openings;i++){
-  let x=1+rand(cols-2),y=1+rand(rows-2);
-  if(maze[y][x]===1&&((maze[y][x-1]===0&&maze[y][x+1]===0)||(maze[y-1]?.[x]===0&&maze[y+1]?.[x]===0)))maze[y][x]=0;
- }
- player={x:1,y:1};exit={x:cols-2,y:rows-2};
- maze[1][1]=0;maze[exit.y][exit.x]=0;
- steps=0;moveLock=false;updateHUD();draw();
+ openCells.sort(()=>Math.random()-.5);
+
+ const santaCount=Math.min(3+Math.floor(d/5),8);
+ santaCoins=openCells.splice(0,santaCount).map(p=>({...p,wiggle:Math.random()*6}));
+ const giftCount=Math.min(1+Math.floor(d/7),4);
+ giftItems=openCells.splice(0,giftCount).map(p=>({...p,wiggle:Math.random()*6}));
 }
-function updateHUD(){
- document.getElementById('worldLabel').textContent='🌌 '+worldNames[world-1];
- document.getElementById('levelLabel').textContent='Level '+level+' / 15';
- document.getElementById('stepLabel').textContent='👣 Steps: '+steps;
- document.getElementById('nameLabel').textContent='⭐ '+playerName;
+
+function newLevel(){
+ steps=0;
+ complete=false;
+ levelSeed++;
+ generateMaze();
+ updateHUD();
 }
-function startGame(){world=1;level=1;running=true;paused=false;makeMaze();hideOverlay();startMusic()}
-function hideOverlay(){document.getElementById('overlay').classList.add('hidden')}
-function showOverlay(html){document.getElementById('card').innerHTML=html;document.getElementById('overlay').classList.remove('hidden')}
-function showHome(){running=false;paused=false;stopMusic();showOverlay('<h1>🌌 Skyler’s Keyboard Maze</h1><p>Ready to explore the galaxy?</p><div class="grid"><button onclick="startGame()">🚀 Start Maze</button><button onclick="openSettings()">⚙️ Settings</button></div><p class="small">Five worlds · 15 levels each · 75 mazes!</p>')}
-function openSettings(){
- let wasRunning=running&&!paused;paused=true;
- showOverlay('<h1>⚙️ Settings</h1><label>Character name</label><input id="playerNameInput" maxlength="16" value="'+escapeText(playerName)+'"><label>Sound effect</label><select id="soundChoice"><option>Snow</option><option>Candy wrappers</option><option>Hee-hee clicking</option><option>Honey on a keyboard</option></select><label>Background music</label><select id="musicChoice"><option>Calming space music</option><option>Dreamy stars</option><option>Quiet galaxy</option><option>None</option></select><div class="grid"><button onclick="saveSettings()">Save Settings</button><button onclick="closeSettings()">Back</button></div><p class="small">Sound and music can be turned on or off below.</p><button onclick="toggleSound()">Sound: '+(soundOn?'ON':'OFF')+'</button> <button onclick="toggleMusic()">Music: '+(musicOn?'ON':'OFF')+'</button>');
- document.getElementById('soundChoice').value=soundChoice;
- document.getElementById('musicChoice').value=musicChoice;
-}
-function escapeText(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function saveSettings(){
- playerName=(document.getElementById('playerNameInput').value.trim()||'Skyler').slice(0,16);
- soundChoice=document.getElementById('soundChoice').value;
- musicChoice=document.getElementById('musicChoice').value;
- updateHUD();closeSettings();
-}
-function closeSettings(){if(running){paused=false;hideOverlay()}else showHome()}
-function toggleSound(){soundOn=!soundOn;openSettings()}
-function toggleMusic(){musicOn=!musicOn;if(musicOn)startMusic();else stopMusic();openSettings()}
-function togglePause(){
- if(!running)return;
- paused=!paused;
- if(paused)showOverlay('<h1>⏸ Maze Paused</h1><p>Take a break, galaxy explorer!</p><button onclick="resumeGame()">Resume Maze</button> <button onclick="showHome()">Home</button>');
- else hideOverlay();
-}
-function resumeGame(){paused=false;hideOverlay()}
-function restartLevel(){if(!running)return;makeMaze();say('Level restarted!')}
-function say(t){let n=document.getElementById('notice');n.textContent=t;n.style.opacity=1;clearTimeout(say.timer);say.timer=setTimeout(()=>n.style.opacity=0,1400)}
 function nextLevel(){
- if(level<15)level++;
- else if(world<5){world++;level=1}
- else{
-  running=false;stopMusic();
-  showOverlay('<h1>🏆 GALAXY MAZE MASTER!</h1><p>'+escapeText(playerName)+', you completed all five worlds and all 75 levels!</p><button onclick="startGame()">Play Again</button> <button onclick="showHome()">Home</button>');
-  return;
- }
- makeMaze();say('✨ Portal reached! Welcome to '+worldNames[world-1]+', Level '+level+'!');
+ if(complete)return;
+ complete=true;
+ playSound();
+ totalSteps+=steps;
+ modal(
+  '<h2>🎄 MAZE COMPLETE!</h2>'+
+  '<p>Great job, '+escapeHTML(playerName)+'!</p>'+
+  '<p>You finished '+worldNames[world]+' — Level '+level+'.</p>'+
+  '<p>Steps this maze: <b>'+steps+'</b><br>Santa coins collected: <b>'+santas+'</b></p>'+
+  '<button id="nextBtn">NEXT LEVEL ➜</button>'
+ );
+ $('nextBtn').onclick=()=>{
+  closeModal();
+  if(level<50){level++}
+  else if(world<14){world++;level=1;modal(
+   '<h2>🌎 NEW WORLD!</h2><p>Welcome to <b>'+worldNames[world]+'</b>!</p><p>Fifty new mazes are waiting for you.</p><button id="worldGo">LET’S GO!</button>'
+  );$('worldGo').onclick=()=>{closeModal();newLevel()};return}
+  else{
+   modal('<h2>🏆 MAZE MASTER!</h2><p>You conquered all 15 Christmas worlds and all 750 levels!</p><p>Total steps: '+totalSteps+'</p><p>Santa coins collected: '+santas+'</p><button id="restartAll">PLAY AGAIN</button>');
+   $('restartAll').onclick=()=>{world=0;level=1;steps=0;totalSteps=0;santas=0;presents=0;closeModal();newLevel()};
+   return;
+  }
+  newLevel();
+ };
+}
+
+function escapeHTML(s){
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function settings(){
+ paused=true;
+ modal(
+  '<h2>⚙️ Christmas Settings</h2>'+
+  '<div class="field"><label for="nameInput">Your player name (20 characters max)</label>'+
+  '<input id="nameInput" maxlength="20" value="'+escapeHTML(playerName)+'" placeholder="Enter your name"></div>'+
+  '<div class="field"><label for="soundSelect">Sound effects</label>'+
+  '<select id="soundSelect">'+['Snow','Candy wrappers','Hee-hee','Honey on a keyboard'].map(s=>'<option '+(s===sound?'selected':'')+'>'+s+'</option>').join('')+'</select></div>'+
+  '<div class="field"><label for="soundToggle">Sound effects</label>'+
+  '<select id="soundToggle"><option value="yes" '+(soundOn?'selected':'')+'>On</option><option value="no" '+(!soundOn?'selected':'')+'>Off</option></select></div>'+
+  '<div class="field"><label for="musicSelect">Background music</label>'+
+  '<select id="musicSelect"><option>Calm winter</option><option>Dreamy bells</option><option>Off</option></select></div>'+
+  '<div class="field"><label for="musicToggle">Music</label>'+
+  '<select id="musicToggle"><option value="no" '+(!musicOn?'selected':'')+'>Off</option><option value="yes" '+(musicOn?'selected':'')+'>On</option></select></div>'+
+  '<p class="small">The Hee-hee sound is turned up. Other sound effects keep their own settings.</p>'+
+  '<button id="saveSettings">SAVE SETTINGS</button><button class="secondary" id="cancelSettings">CANCEL</button>'
+ );
+ $('musicSelect').value=music;
+ $('saveSettings').onclick=()=>{
+  playerName=$('nameInput').value.slice(0,20).trim()||'Player';
+  sound=$('soundSelect').value;
+  soundOn=$('soundToggle').value==='yes';
+  music=$('musicSelect').value;
+  musicOn=$('musicToggle').value==='yes';
+  updateHUD();closeModal();paused=false;
+  stopMusic();startMusic();
+ };
+ $('cancelSettings').onclick=()=>{closeModal();paused=false};
+}
+
+function fitCanvas(){
+ const stage=$('stage');
+ const maxW=stage.clientWidth-14;
+ const maxH=stage.clientHeight-14;
+ const ratio=1000/700;
+ let w=maxW,h=w/ratio;
+ if(h>maxH){h=maxH;w=h*ratio}
+ canvas.style.width=Math.max(1,w)+'px';
+ canvas.style.height=Math.max(1,h)+'px';
+}
+window.addEventListener('resize',fitCanvas);
+
+function getCellSize(){
+ cell=Math.min(930/cols,630/rows);
+ offsetX=(1000-cols*cell)/2;
+ offsetY=(700-rows*cell)/2;
+}
+function cellCenter(x,y){
+ return {x:offsetX+(x+.5)*cell,y:offsetY+(y+.5)*cell};
 }
 function move(dx,dy){
- if(!running||paused||moveLock)return;
- let nx=player.x+dx,ny=player.y+dy;
- if(ny<0||ny>=maze.length||nx<0||nx>=maze[0].length||maze[ny][nx]===1){playSound(false);return}
- player.x=nx;player.y=ny;steps++;updateHUD();playSound(true);
- moveLock=true;setTimeout(()=>moveLock=false,75);
- if(player.x===exit.x&&player.y===exit.y)nextLevel();
- draw();
-}
-function playSound(success){
- if(!soundOn)return;
- try{
-  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
-  let osc=audio.createOscillator(),gain=audio.createGain(),now=audio.currentTime;
-  let type=soundChoice;
-  osc.type=type==='Snow'?'sine':type==='Candy wrappers'?'triangle':type==='Honey on a keyboard'?'sawtooth':'square';
-  let freq=type==='Snow'?880:type==='Candy wrappers'?520:type==='Honey on a keyboard'?190:success?680:240;
-  osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(success?freq*1.3:freq*.7,now+.09);
-  gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.045,now+.01);gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
-  osc.connect(gain);gain.connect(audio.destination);osc.start(now);osc.stop(now+.14);
- }catch(e){}
-}
-function startMusic(){
- stopMusic();if(!musicOn||musicChoice==='None')return;
- try{
-  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
-  let notes=musicChoice==='Dreamy stars'?[392,494,587,494]:musicChoice==='Quiet galaxy'?[220,262,294,262]:[261,329,392,329];
-  let i=0;
-  musicTimer=setInterval(()=>{
-   if(!running||paused||!musicOn)return;
-   let osc=audio.createOscillator(),gain=audio.createGain(),t=audio.currentTime;
-   osc.type='sine';osc.frequency.value=notes[i++%notes.length];
-   gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(.018,t+.3);gain.gain.linearRampToValueAtTime(.0001,t+1.1);
-   osc.connect(gain);gain.connect(audio.destination);osc.start(t);osc.stop(t+1.12);
-  },1150);
- }catch(e){}
-}
-function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null}}
-addEventListener('keydown',e=>{
- let k=e.key.toLowerCase();
- if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d'].includes(k))e.preventDefault();
- if(k==='w'||k==='arrowup')move(0,-1);
- if(k==='s'||k==='arrowdown')move(0,1);
- if(k==='a'||k==='arrowleft')move(-1,0);
- if(k==='d'||k==='arrowright')move(1,0);
- if(k==='escape')togglePause();
-});
-canvas.addEventListener('pointerdown',e=>{
- if(!running||paused)return;
- const rect=canvas.getBoundingClientRect();
- let x=e.clientX-rect.left,y=e.clientY-rect.top;
- let layout=getLayout();
- let gx=Math.floor((x-layout.x)/layout.cell),gy=Math.floor((y-layout.y)/layout.cell);
- let dx=gx-player.x,dy=gy-player.y;
- // A tap selects an adjacent tile only, so players cannot skip maze walls.
- if(Math.abs(dx)+Math.abs(dy)===1)move(dx,dy);
- else say('Tap one tile next to your character to move!');
-});
-function getLayout(){
- let rows=maze.length,cols=maze[0]?.length||19;
- let availableH=H-135,availableW=W-24;
- let cell=Math.max(10,Math.min(availableW/cols,availableH/rows,40));
- let x=(W-cols*cell)/2,y=(H-rows*cell)/2+8;
- return{x,y,cell};
-}
-function draw(){
- ctx.clearRect(0,0,W,H);
- let p=palettes[world-1];
- ctx.fillStyle=p.bg;ctx.fillRect(0,0,W,H);
- // Starry galaxy background
- for(let i=0;i<90;i++){
-  let x=(i*173+31)%W,y=(i*97+17)%H;
-  ctx.fillStyle=i%3===0?p.glow:'#ffffff';ctx.globalAlpha=.25+(i%5)*.1;
-  ctx.beginPath();ctx.arc(x,y,i%3===0?2:1,0,Math.PI*2);ctx.fill();
+ if(paused||complete)return;
+ const nx=px+dx,ny=py+dy;
+ if(nx<0||ny<0||nx>=cols||ny>=rows||grid[ny][nx]!==0)return;
+ px=nx;py=ny;steps++;
+ playSound();
+ const si=santaCoins.findIndex(s=>s.x===px&&s.y===py);
+ if(si>=0){
+  santaCoins.splice(si,1);santas++;tone(1050,.12,'sine',.08);tone(1320,.16,'sine',.07,.1);
  }
- ctx.globalAlpha=1;
- if(!maze.length)return;
- let l=getLayout(),c=l.cell;
- // Soft galaxy glow behind maze
- ctx.shadowColor=p.glow;ctx.shadowBlur=18;
- ctx.fillStyle=p.floor;ctx.fillRect(l.x,l.y,maze[0].length*c,maze.length*c);
- ctx.shadowBlur=0;
- for(let y=0;y<maze.length;y++)for(let x=0;x<maze[0].length;x++){
-  let px=l.x+x*c,py=l.y+y*c;
-  if(maze[y][x]===1){
-   ctx.fillStyle=p.wall;ctx.fillRect(px+1,py+1,c-2,c-2);
-   ctx.fillStyle='#ffffff';ctx.globalAlpha=.12;ctx.fillRect(px+3,py+3,c-6,2);ctx.globalAlpha=1;
-   ctx.strokeStyle=p.glow;ctx.globalAlpha=.25;ctx.strokeRect(px+1,py+1,c-2,c-2);ctx.globalAlpha=1;
-  }else{
-   ctx.fillStyle=p.floor;ctx.fillRect(px,py,c,c);
-   ctx.fillStyle='#ffffff';ctx.globalAlpha=.12;ctx.beginPath();ctx.arc(px+c*.5,py+c*.5,1.3,0,7);ctx.fill();ctx.globalAlpha=1;
+ const gi=giftItems.findIndex(g=>g.x===px&&g.y===py);
+ if(gi>=0){
+  giftItems.splice(gi,1);presents++;tone(660,.15,'triangle',.08);tone(880,.15,'triangle',.07,.1);
+ }
+ updateHUD();
+ if(px===exit.x&&py===exit.y)nextLevel();
+}
+function tryDirection(dir){
+ const map={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+ if(map[dir])move(...map[dir]);
+}
+function keyMove(e){
+ const map={
+  ArrowUp:'up',KeyW:'up',
+  ArrowDown:'down',KeyS:'down',
+  ArrowLeft:'left',KeyA:'left',
+  ArrowRight:'right',KeyD:'right'
+ };
+ const dir=map[e.code];
+ if(dir){
+  e.preventDefault();
+  if(!e.repeat)tryDirection(dir);
+ }
+ if(e.code==='Escape'&&$('modal').style.display==='flex'){
+  closeModal();paused=false;
+ }
+}
+window.addEventListener('keydown',keyMove);
+document.querySelectorAll('#touch button').forEach(b=>{
+ b.addEventListener('click',()=>tryDirection(b.dataset.dir));
+ b.addEventListener('pointerdown',e=>{e.preventDefault();tryDirection(b.dataset.dir)});
+});
+
+function roundedRect(x,y,w,h,r,color){
+ ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();
+}
+function drawSnow(){
+ const p=palettes[world];
+ ctx.fillStyle=p[0];ctx.fillRect(0,0,1000,700);
+ // Soft snowy ground texture
+ for(let i=0;i<90;i++){
+  const x=(i*137+levelSeed*13)%1000;
+  const y=(i*83+levelSeed*19)%700;
+  ctx.fillStyle=i%3===0?'#ffffff55':'#ffffff25';
+  ctx.beginPath();ctx.arc(x,y,2+(i%4),0,Math.PI*2);ctx.fill();
+ }
+ // Snow banks at the edges
+ ctx.fillStyle='#ffffff50';
+ ctx.beginPath();ctx.ellipse(20,340,90,420,0,0,7);ctx.fill();
+ ctx.beginPath();ctx.ellipse(980,320,85,430,0,0,7);ctx.fill();
+ // Animated snowfall
+ for(const s of snow){
+  s.y+=s.speed;
+  s.x+=Math.sin(s.y*.015)*.4;
+  if(s.y>710){s.y=-10;s.x=Math.random()*1000}
+  ctx.fillStyle='#ffffffcc';
+  ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+ }
+}
+function drawDecorations(){
+ const p=palettes[world];
+ // Festive trees outside the maze area
+ for(let i=0;i<10;i++){
+  const x=i<5?25+i*16:975-(i-5)*16;
+  const y=65+(i%5)*130;
+  ctx.fillStyle='#24744e';
+  ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x-12,y+9);ctx.lineTo(x+12,y+9);ctx.closePath();ctx.fill();
+  ctx.fillStyle='#ffd66b';ctx.beginPath();ctx.arc(x,y-18,3,0,7);ctx.fill();
+ }
+ ctx.fillStyle=p[2];ctx.font='bold 19px Fredoka';ctx.textAlign='center';
+ ctx.fillText('❄️ '+worldNames[world]+' ❄️',500,27);
+}
+function drawMaze(){
+ getCellSize();
+ const p=palettes[world];
+ const x0=offsetX,y0=offsetY;
+ // Maze background
+ roundedRect(x0-5,y0-5,cols*cell+10,rows*cell+10,12,'#d9f2ff');
+ for(let y=0;y<rows;y++){
+  for(let x=0;x<cols;x++){
+   const x1=x0+x*cell,y1=y0+y*cell;
+   if(grid[y][x]===1){
+    roundedRect(x1+1,y1+1,cell-2,cell-2,Math.max(2,cell*.1),p[2]);
+    // Icicle highlight
+    ctx.fillStyle='#ffffff40';
+    ctx.fillRect(x1+cell*.12,y1+cell*.12,cell*.7,Math.max(2,cell*.06));
+   }else{
+    ctx.fillStyle='#f4fbff';
+    ctx.fillRect(x1,y1,cell,cell);
+    if((x+y)%4===0){
+     ctx.fillStyle='#d4eefa';
+     ctx.fillRect(x1+cell*.42,y1+cell*.42,cell*.12,cell*.12);
+    }
+   }
   }
  }
- // Exit portal
- let ex=l.x+exit.x*c+c/2,ey=l.y+exit.y*c+c/2;
- ctx.save();ctx.shadowColor=p.portal;ctx.shadowBlur=22;
- ctx.fillStyle=p.portal;ctx.beginPath();ctx.arc(ex,ey,c*.32,0,Math.PI*2);ctx.fill();
- ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ex,ey,c*.15,0,Math.PI*2);ctx.fill();ctx.restore();
- // Player visible in the maze
- let px=l.x+player.x*c+c/2,py=l.y+player.y*c+c/2;
- ctx.save();ctx.shadowColor='#fff2a6';ctx.shadowBlur=16;
- ctx.fillStyle='#ffe58d';ctx.beginPath();ctx.arc(px,py,c*.34,0,Math.PI*2);ctx.fill();
- ctx.shadowBlur=0;
- ctx.fillStyle='#48346c';ctx.beginPath();ctx.arc(px-c*.11,py-c*.04,Math.max(1.5,c*.045),0,7);ctx.arc(px+c*.11,py-c*.04,Math.max(1.5,c*.045),0,7);ctx.fill();
- ctx.fillStyle='#fff';ctx.font='bold '+Math.max(9,c*.3)+'px Fredoka';ctx.textAlign='center';ctx.fillText(playerName.slice(0,9),px,py-c*.48);ctx.restore();
- // World and level label in play area
- ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 14px Fredoka';
- ctx.fillText(worldNames[world-1]+' · Level '+level,W/2, H-75);
+ // Santa coins
+ for(const s of santaCoins){
+  const c=cellCenter(s.x,s.y);
+  const bob=Math.sin(animation*4+s.wiggle)*2;
+  ctx.font=Math.max(16,cell*.62)+'px Arial';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🎅',c.x,c.y+bob);
+  ctx.textBaseline='alphabetic';
+ }
+ // Presents
+ for(const g of giftItems){
+  const c=cellCenter(g.x,g.y);
+  const bob=Math.sin(animation*3+g.wiggle)*2;
+  ctx.font=Math.max(15,cell*.55)+'px Arial';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🎁',c.x,c.y+bob);
+  ctx.textBaseline='alphabetic';
+ }
+ // Exit
+ const ex=cellCenter(exit.x,exit.y);
+ ctx.save();
+ ctx.shadowColor='#ffe66d';ctx.shadowBlur=22;
+ ctx.font=Math.max(20,cell*.75)+'px Arial';
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('🎄',ex.x,ex.y);
+ ctx.restore();
+ ctx.textBaseline='alphabetic';
+ // Player
+ const pc=cellCenter(px,py);
+ ctx.save();
+ ctx.shadowColor='#238cff';ctx.shadowBlur=16;
+ ctx.font=Math.max(18,cell*.72)+'px Arial';
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('🟦',pc.x,pc.y);
+ ctx.restore();
+ ctx.font=Math.max(12,cell*.38)+'px Arial';
+ ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillText('🙂',pc.x,pc.y);
+ ctx.textBaseline='alphabetic';
 }
-resize();
+function draw(){
+ animation+=.016;
+ drawSnow();drawDecorations();drawMaze();
+ ctx.textAlign='left';
+ ctx.fillStyle='#164365';
+ ctx.font='bold 14px Fredoka';
+ ctx.fillText('🎅 Collect the Santa coins!',18,675);
+ ctx.textAlign='right';
+ ctx.fillText('🎁 Presents: '+presents,980,675);
+}
+
+function loop(){
+ if(!paused){
+  draw();
+ }
+ requestAnimationFrame(loop);
+}
+
+function restartMaze(){
+ if(paused)return;
+ newLevel();
+}
+$('settingsBtn').onclick=settings;
+$('newBtn').onclick=restartMaze;
+$('pauseBtn').onclick=()=>{
+ if($('modal').style.display==='flex')return;
+ paused=!paused;
+ $('pauseBtn').textContent=paused?'▶ Resume':'Ⅱ Pause';
+};
+$('fullBtn').onclick=()=>{
+ if(!document.fullscreenElement){
+  document.documentElement.requestFullscreen?.();
+ }else{
+  document.exitFullscreen?.();
+ }
+};
+$('modal').addEventListener('click',e=>{
+ if(e.target===$('modal')&&$('box').innerText.includes('Settings')){
+  closeModal();paused=false;
+ }
+});
+
+function init(){
+ for(let i=0;i<95;i++){
+  snow.push({x:Math.random()*1000,y:Math.random()*700,r:Math.random()*2.8+1,speed:Math.random()*1.4+.5});
+ }
+ generateMaze();
+ updateHUD();
+ fitCanvas();
+ requestAnimationFrame(loop);
+}
+init();
+})();
 </script>
 </body>
 </html>
-
