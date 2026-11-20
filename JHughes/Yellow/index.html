@@ -3,370 +3,260 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Land of the Lost</title>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Land of the Lost - Mango Man</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box}
-body{margin:0;background:#211713;color:#fff;font-family:Fredoka,Arial,sans-serif;overflow:hidden}
-canvas{display:block;width:min(100vw,1200px);height:auto;max-height:100vh;aspect-ratio:16/9;margin:auto;background:#e58d55;border:3px solid #a95d38;border-radius:12px}
-#hud{position:fixed;top:10px;left:50%;transform:translateX(-50%);width:min(95vw,1120px);display:flex;justify-content:space-between;gap:7px;pointer-events:none;z-index:2;font-size:clamp(12px,2vw,18px)}
-.h{background:#2b1b17df;border:2px solid #ffbd78;border-radius:12px;padding:7px 10px;text-shadow:1px 2px #000}
-#overlay{position:fixed;inset:0;background:#130c0bdc;display:flex;align-items:center;justify-content:center;padding:16px;z-index:5}
-.panel{width:min(92vw,590px);max-height:90vh;overflow:auto;text-align:center;padding:25px;border:3px solid #ffbd78;border-radius:22px;background:linear-gradient(145deg,#713b2c,#2b211d);box-shadow:0 12px 50px #0009}
-h1{font-size:clamp(30px,6vw,52px);line-height:1.02;color:#ffd18b;margin:8px 0;text-shadow:3px 4px #4b2419}
-p{line-height:1.5}
-button{font:700 17px Fredoka,Arial;border:0;border-radius:12px;padding:12px 22px;margin:6px;background:#ffd18b;color:#422619;cursor:pointer;box-shadow:0 4px #b77843}
-button.secondary{background:#aee3c0;box-shadow:0 4px #528d69}
-.small{font-size:14px;color:#f6d9c4}
-#boss{position:fixed;top:62px;left:50%;transform:translateX(-50%);width:min(55vw,430px);height:17px;background:#3b1717;border:2px solid white;border-radius:20px;overflow:hidden;display:none;z-index:3}
-#bossFill{height:100%;width:100%;background:#e64b36}
+body{margin:0;background:#241b12;color:white;font-family:Fredoka,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#game{width:min(1000px,98vw);padding:12px;background:#49351f;border:3px solid #dba64b;border-radius:18px;box-shadow:0 15px 45px #0009}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 8px 10px}
+h1{margin:0;color:#ffdc80;font-size:clamp(20px,3vw,30px)}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{background:#251b12;padding:7px 11px;border-radius:10px}
+canvas{display:block;width:100%;height:auto;border:3px solid #c18a3e;border-radius:12px;background:#8b6337}
+#message{text-align:center;min-height:26px;padding:8px;color:#ffe8b1}
+#bar{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+button{font:600 15px Fredoka;border:0;border-radius:10px;padding:9px 14px;cursor:pointer;background:#ffdc80;color:#40270c}
+button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+#overlay{position:fixed;inset:0;background:#100b07df;display:flex;align-items:center;justify-content:center;padding:18px;z-index:5}
+.panel{max-width:540px;width:100%;background:#594021;border:3px solid #ffdc80;border-radius:20px;padding:25px;text-align:center;box-shadow:0 15px 50px #000b}
+.panel h2{color:#ffdc80;font-size:30px;margin:0 0 8px}
+.panel p{line-height:1.5;color:#fff0ce}
+.controls{font-size:14px;color:#ffe4a7}
 </style>
 </head>
 <body>
-<div id="hud">
- <div class="h" id="level">LEVEL 1/8</div>
- <div class="h" id="health">❤️❤️❤️</div>
- <div class="h" id="coins">🪙 0</div>
- <div class="h" id="power">⚡ 0</div>
- <div class="h" id="status">VOLCANO ADVENTURE</div>
+<div id="game">
+<header>
+<h1>🥭 THE LAND OF THE LOST</h1>
+<div class="stats">
+<div class="stat" id="level">Level 1 / 10</div>
+<div class="stat" id="health">❤️❤️❤️❤️❤️</div>
+<div class="stat" id="coins">🪙 0</div>
+<div class="stat" id="boss">👹 No Boss</div>
 </div>
-<div id="boss"><div id="bossFill"></div></div>
-<canvas id="game" width="960" height="540"></canvas>
-<div id="overlay"><div class="panel" id="panel">
- <div style="font-size:52px">🌋🏃</div>
- <h1>THE LAND<br>OF THE LOST</h1>
- <p>Help the stickman escape the dangerous volcano! Fight monsters, discover secret doors, and make it through eight levels.</p>
- <p><b>Move:</b> A/D or arrows<br><b>Jump:</b> SPACE, W, or UP<br><b>Attack:</b> J or X<br><b>Pause:</b> ESC</p>
- <p class="small">Coins are optional! Find the exit to move on. You do not need to collect every coin.</p>
- <button onclick="startGame()">START ADVENTURE</button>
-</div></div>
+</header>
+<canvas id="c" width="960" height="600"></canvas>
+<div id="message">Climb to the top! Watch out for the mango monsters!</div>
+<div id="bar">
+<button id="pause">⏸ Pause</button>
+<button id="blast">🥭 Mango Blast (X)</button>
+<button id="restart">↻ Restart Level</button>
+<button onclick="location.href='../../index.html'">🏠 Game Lab</button>
+</div>
+<div class="controls">Move: Arrow Keys / WASD · Jump: Space / Up · Climb: Up / Down near ladders · Special: X</div>
+</div>
+<div id="overlay">
+<div class="panel" id="panel">
+<h2>🥭 THE LAND OF THE LOST</h2>
+<p>You are the Mango Man! Climb the mysterious tower, collect coins, dodge mango monsters, and find the boss at the very top!</p>
+<p><b>Move:</b> Arrow keys or WASD<br><b>Jump:</b> Spacebar<br><b>Climb:</b> Up and Down near ladders<br><b>Mango Blast:</b> X</p>
+<button id="start">START ADVENTURE!</button>
+</div>
+</div>
 <script>
 (()=>{
-"use strict";
-const c=document.getElementById("game"),ctx=c.getContext("2d");
-const $=id=>document.getElementById(id);
-const W=960,H=540,G=455;
-const keys={};
-const names=["Lava Landing","Ashen Forest","The Hot Caves","Rumbling Ridge","The Fire Falls","Dragon's Pass","The Lost Temple","Volcano Showdown"];
-const themes=[
-["#f5b078","#a64d35","#65342b"],["#b5a16d","#536a3c","#30452e"],
-["#a4a1a0","#62514b","#352b2b"],["#f1a16a","#994c36","#56332d"],
-["#f6b27b","#b75a35","#713326"],["#b58a75","#6d4c52","#3b2b3d"],
-["#e3b77f","#9b633e","#4d3428"],["#ed8b57","#852f26","#411b1d"]
-];
-let state="title",level=0,player=null,camera=0,coins=0,shots=[],enemies=[],items=[],platforms=[],particles=[];
-let boss=null,frame=0,worldLength=3300,exitX=3100,door=null,attackFlash=0;
-function newPlayer(){return{x:90,y:300,w:27,h:56,vx:0,vy:0,health:5,max:5,inv:0,face:1,ground:false,jumpLock:false,attack:0,cool:0,power:0,shield:0,speed:1,speedTime:0,anim:0,pose:"idle",double:false,usedDouble:false};}
-function levelSetup(n){
- level=n;camera=0;frame=0;shots=[];enemies=[];items=[];platforms=[];particles=[];door=null;boss=null;player=newPlayer();
- worldLength=3200+n*300;exitX=worldLength-140;
- let x=250;
- while(x<exitX-180){
-  platforms.push({x:x+Math.random()*45,y:295+Math.random()*115,w:95+Math.random()*85,h:17});
-  x+=260+Math.random()*120;
- }
- // Regular monsters.
- const count=7+n;
- for(let i=0;i<count;i++){
-  const ex=390+i*(worldLength-650)/count;
-  enemies.push({x:ex,y:G-44,w:45,h:42,hp:2+n*.18,max:2+n*.18,speed:1.05+n*.22,alive:true,phase:Math.random()*6,kind:i%3===0?"spitter":"monster",shot:100+Math.random()*90,anim:0});
- }
- // Optional coins and useful power-ups.
- for(let i=0;i<22;i++){
-  const ix=350+i*(worldLength-600)/22;
-  const r=Math.random();
-  const type=r<.62?"coin":r<.72?"heart":r<.82?"shield":r<.92?"speed":"blast";
-  items.push({x:ix,y:240+Math.random()*150,type,alive:true,bob:Math.random()*6});
- }
- // One secret door per level.
- door={x:850+Math.random()*(worldLength-1300),open:false,found:false};
- if(n===7)boss={x:worldLength-650,y:G-130,w:170,h:130,hp:30,max:30,alive:true,shot:70,active:false};
- updateHud();
+const c=document.getElementById('c'),ctx=c.getContext('2d');
+const W=960,H=600,$=id=>document.getElementById(id);
+const gravity=.48;
+let keys={},player={},platforms=[],ladders=[],monsters=[],coins=[],powerups=[],shots=[],particles=[],level=1,lives=5,score=0;
+let running=false,paused=false,last=0,raf=0,blastCooldown=0,invuln=0,cameraY=0,boss=null,door=null,worldHeight=1300,levelName='';
+const names=['Mango Meadow','The Sticky Jungle','Banana Rock Cliffs','The Forgotten Temple','The Juicy Caves','Monster Mountain','The Mango Mines','The Lost Kingdom','The Giant Mango Tower','The Final Summit'];
+const rand=(a,b)=>a+Math.random()*(b-a);
+function msg(t){$('message').textContent=t}
+function ui(){
+$('level').textContent=`Level ${level} / 10`;
+$('health').textContent='❤️'.repeat(lives)+'🖤'.repeat(5-lives);
+$('coins').textContent='🪙 '+score;
+$('boss').textContent=boss?'👹 '+boss.hp+' HP':'👹 No Boss';
 }
-function updateHud(){
- $("level").textContent=`LEVEL ${level+1}/8 · ${names[level]}`;
- $("health").textContent="❤️".repeat(Math.max(0,player.health))+"🖤".repeat(Math.max(0,5-player.health));
- $("coins").textContent="🪙 "+coins;
- $("power").textContent="⚡ "+player.power;
- $("status").textContent=player.shield?"🛡️ SHIELD":player.speedTime>0?"⚡ SPEED":"FIND THE EXIT";
+function makeLevel(){
+levelName=names[level-1];
+worldHeight=1300+level*90;
+platforms=[];ladders=[];monsters=[];coins=[];powerups=[];shots=[];particles=[];
+boss=null;blastCooldown=0;cameraY=0;
+player={x:80,y:worldHeight-100,vx:0,vy:0,w:30,h:38,onGround:false,climbing:false,face:1,speed:3.1,jumps:0};
+platforms.push({x:0,y:worldHeight-30,w:W,h:30});
+let count=10+level;
+let gap=(worldHeight-200)/(count+1);
+for(let i=0;i<count;i++){
+let y=worldHeight-150-i*gap;
+let x=(i%2===0)?rand(40,410):rand(480,770);
+platforms.push({x,y,w:rand(150,250),h:17});
+if(i%2===0)ladders.push({x:x+Math.min(70,platforms[platforms.length-1].w/2),y:y+10,h:gap+35});
+if(i%3===0)coins.push({x:x+rand(30,120),y:y-28,got:false});
+if(i%4===1)powerups.push({x:x+rand(35,100),y:y-30,type:Math.floor(Math.random()*3),got:false});
+if(i>1&&i%2===1)monsters.push({x:x+rand(25,Math.max(35,platforms[platforms.length-1].w-25)),y:y-34,platform:platforms[platforms.length-1],dir:Math.random()<.5?-1:1,hp:1+Math.floor(level/5),stun:0});
 }
-function panel(title,body,buttons){
- $("overlay").style.display="flex";
- $("panel").innerHTML=`<h1>${title}</h1><p>${body}</p>${buttons}`;
+platforms.push({x:340,y:90,w:280,h:20});
+door={x:455,y:45};
+if(level===10){
+boss={x:480,y:55,hp:18,max:18,dir:1,stun:0,attackTimer:1.5};
 }
-function startGame(){coins=0;levelSetup(0);state="playing";$("overlay").style.display="none";}
-function pauseGame(){
- if(state!=="playing")return;
- state="paused";
- panel("PAUSED","The adventure is waiting for you.",'<button onclick="resumeGame()">RESUME</button><button class="secondary" onclick="restartGame()">RESTART</button>');
+ui();msg(`${levelName}: Climb to the top!`);
 }
-function resumeGame(){state="playing";$("overlay").style.display="none";}
-function restartGame(){coins=0;levelSetup(0);state="playing";$("overlay").style.display="none";}
-function menu(){state="title";$("boss").style.display="none";panel("THE LAND OF THE LOST","Help the stickman escape the volcano!",'<p>Move: A/D or arrows · Jump: SPACE · Attack: J or X · Pause: ESC</p><button onclick="startGame()">START ADVENTURE</button>');}
-function winLevel(){
- if(level<7){levelSetup(level+1);state="playing";}
- else{state="won";$("boss").style.display="none";panel("YOU ESCAPED! 🌋","You defeated the volcano monster and escaped the Land of the Lost! Total coins: "+coins,'<button onclick="restartGame()">PLAY AGAIN</button><button class="secondary" onclick="menu()">MAIN MENU</button>');}
+function start(){
+level=1;lives=5;score=0;makeLevel();running=true;paused=false;
+$('overlay').style.display='none';last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
-function rect(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h;}
-function puff(x,y,color,n=8){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5-2,life:25,color});}
-function damage(n=1){
- if(player.inv>0)return;
- if(player.shield){player.shield=0;player.inv=55;puff(player.x+12,player.y+25,"#8cecff",15);}
- else{player.health-=n;player.inv=75;puff(player.x+12,player.y+25,"#ff704b",12);if(player.health<=0)gameOver();}
- updateHud();
+function panel(title,body,button,fn){
+$('overlay').style.display='flex';
+$('panel').innerHTML=`<h2>${title}</h2><p>${body}</p><button id="panelBtn">${button}</button>`;
+$('panelBtn').onclick=fn;
 }
-function gameOver(){state="over";panel("OH NO!","The monsters caught the stickman! You collected "+coins+" coins. Try again!",'<button onclick="restartGame()">TRY AGAIN</button><button class="secondary" onclick="menu()">MAIN MENU</button>');}
-function attack(){
- if(state!=="playing"||player.cool>0)return;
- player.attack=17;player.cool=28;
- const sx=player.x+(player.face>0?player.w:-35);
- shots.push({x:sx,y:player.y+22,w:42,h:28,vx:player.face*9,life:35});
- puff(player.x+player.w/2+player.face*25,player.y+27,"#ffe28b",5);
+function hit(){
+if(invuln>0)return;
+lives--;invuln=1.5;ui();msg('A mango monster got you! You lost a heart!');
+if(lives<=0){running=false;panel('🥭 Adventure Over!','The mango monsters caught Mango Man. Give it another try!','TRY AGAIN',start)}
 }
-function collect(i){
- i.alive=false;
- if(i.type==="coin"){coins++;puff(i.x,i.y,"#ffd65b",7);}
- if(i.type==="heart"){player.health=Math.min(5,player.health+1);puff(i.x,i.y,"#ff7991",10);}
- if(i.type==="shield"){player.shield=1;puff(i.x,i.y,"#8cecff",10);}
- if(i.type==="speed"){player.speed=1.6;player.speedTime=550;puff(i.x,i.y,"#ffe27b",10);}
- if(i.type==="blast"){player.power=Math.min(9,player.power+2);puff(i.x,i.y,"#b9f3ff",10);}
- updateHud();
+function blast(){
+if(!running||paused||blastCooldown>0)return;
+blastCooldown=5;
+let count=0;
+monsters.forEach(m=>{
+if(Math.hypot(m.x-player.x,m.y-player.y)<245){m.hp-=2;m.stun=1;count++;if(m.hp<=0){m.dead=true;score+=10}}
+});
+if(boss&&Math.hypot(boss.x-player.x,boss.y-player.y)<330){boss.hp-=3;boss.stun=1;count++;if(boss.hp<=0)boss.dead=true}
+for(let i=0;i<12;i++)particles.push({x:player.x,y:player.y,vx:rand(-5,5),vy:rand(-5,5),life:.5});
+monsters=monsters.filter(m=>!m.dead);
+msg(count?'🥭 MANGO BLAST! Monsters hit!':'🥭 Mango Blast! Nothing close enough.');
+ui();
 }
-function hitEnemy(e){
- if(!e.alive)return;
- e.hp--;puff(e.x+20,e.y+20,"#d8d18a",8);
- if(e.hp<=0){e.alive=false;coins+=2;puff(e.x+20,e.y+20,"#ffcf65",15);}
+function jump(){
+if(player.climbing){player.climbing=false;player.vy=-8;return}
+if(player.onGround){player.vy=-10;player.onGround=false;player.jumps=1}
+else if(player.jumps<2){player.vy=-9;player.jumps++}
 }
-function update(){
- if(state!=="playing")return;
- frame++;
- const p=player;
- if(p.inv>0)p.inv--;if(p.cool>0)p.cool--;if(p.attack>0)p.attack--;
- if(p.speedTime>0){p.speedTime--;if(!p.speedTime)p.speed=1;}
- const L=keys.ArrowLeft||keys.KeyA,R=keys.ArrowRight||keys.KeyD;
- const J=keys.Space||keys.ArrowUp||keys.KeyW;
- if(L){p.vx=-4.1*p.speed;p.face=-1;}else if(R){p.vx=4.1*p.speed;p.face=1;}else p.vx*=.78;
- p.x+=p.vx;p.x=Math.max(camera+10,Math.min(worldLength-40,p.x));
- if(J&&!p.jumpLock){
-  if(p.ground){p.vy=-12.7;p.ground=false;}
-  else if(p.double&&!p.usedDouble){p.vy=-11;p.usedDouble=true;}
-  p.jumpLock=true;
- }
- if(!J)p.jumpLock=false;
- p.vy+=.57;p.y+=p.vy;p.ground=false;
- if(p.y+p.h>=G){p.y=G-p.h;p.vy=0;p.ground=true;p.usedDouble=false;}
- for(const b of platforms){
-  if(p.vy>=0&&p.x+p.w>b.x&&p.x<b.x+b.w&&p.y+p.h>=b.y&&p.y+p.h-p.vy<=b.y+6){
-   p.y=b.y-p.h;p.vy=0;p.ground=true;p.usedDouble=false;
-  }
- }
- p.anim+=Math.abs(p.vx)*.12;
- p.pose=!p.ground?"jump":p.attack>0?"attack":Math.abs(p.vx)>.5?"run":"idle";
- // Monster movement and contact damage.
- for(const e of enemies){
-  if(!e.alive)continue;
-  e.anim+=.15;
-  e.x+=Math.sign(p.x-e.x)*e.speed*.18+Math.sin(frame*.04+e.phase)*.35;
-  if(e.kind==="spitter"){
-   e.shot--;
-   if(e.shot<=0&&Math.abs(p.x-e.x)<430){
-    const dx=p.x-e.x,dy=p.y-e.y,len=Math.hypot(dx,dy)||1;
-    shots.push({x:e.x,y:e.y+12,w:16,h:16,vx:dx/len*3.7,vy:dy/len*2.1,life:130,enemy:true});
-    e.shot=135;
-   }
-  }
-  if(rect(p,e)){
-   if(p.vy>1&&p.y+p.h-e.y<19){hitEnemy(e);p.vy=-9;}
-   else damage(1);
-  }
- }
- // Player attacks and enemy fireballs.
- for(const s of shots){
-  s.x+=s.vx||0;s.y+=s.vy||0;s.life--;
-  if(!s.enemy){
-   for(const e of enemies)if(e.alive&&rect(s,e)){hitEnemy(e);s.life=0;}
-   if(boss&&boss.active&&boss.alive&&rect(s,boss)){boss.hp-=2;s.life=0;puff(s.x,s.y,"#fff0a5",9);if(boss.hp<=0)boss.alive=false;}
-  }else if(rect(s,p)){damage(1);s.life=0;}
- }
- shots=shots.filter(s=>s.life>0);
- for(const i of items){
-  if(!i.alive)continue;i.bob+=.08;
-  if(rect(p,{x:i.x-12,y:i.y-12+Math.sin(i.bob)*5,w:24,h:24}))collect(i);
- }
- // Secret doors give optional bonuses, never block the exit.
- if(door&&!door.found&&Math.abs(p.x-door.x)<42&&Math.abs(p.y-(G-p.h))<35){
-  door.found=true;coins+=5;player.power=Math.min(9,player.power+2);puff(door.x,G-60,"#ffe18c",20);updateHud();
- }
- // Final level boss.
- if(boss){
-  if(p.x>boss.x-500)boss.active=true;
-  if(boss.active&&boss.alive){
-   boss.y=G-boss.h+Math.sin(frame*.04)*10;
-   boss.shot--;
-   if(boss.shot<=0){
-    shots.push({x:boss.x,y:boss.y+45,w:23,h:23,vx:-5,vy:-1,life:160,enemy:true});
-    shots.push({x:boss.x,y:boss.y+85,w:23,h:23,vx:-4.5,vy:1,life:160,enemy:true});
-    boss.shot=75;
-   }
-   if(rect(p,boss))damage(2);
-   $("boss").style.display="block";$("bossFill").style.width=Math.max(0,boss.hp/boss.max*100)+"%";
-  }else if(!boss.alive)$("boss").style.display="none";
- }
- if(p.y>H+80){damage(2);p.y=G-p.h;p.vy=0;}
- // Reaching the exit is enough. Coins are not required.
- if(p.x>=exitX&&(!boss||!boss.alive))winLevel();
- camera=Math.max(0,Math.min(worldLength-W,p.x-300));
- for(const q of particles){q.x+=q.vx;q.y+=q.vy;q.vy+=.12;q.life--;}
- particles=particles.filter(q=>q.life>0);
- updateHud();
+function update(dt){
+if(!running||paused)return;
+invuln=Math.max(0,invuln-dt);blastCooldown=Math.max(0,blastCooldown-dt);
+let oldY=player.y;
+let dx=0;
+if(keys.ArrowLeft||keys.a)dx--;
+if(keys.ArrowRight||keys.d)dx++;
+player.vx=dx*player.speed;
+if(dx)player.face=Math.sign(dx);
+let ladder=ladders.find(l=>player.x>l.x-20&&player.x<l.x+20&&player.y+player.h>l.y&&player.y<l.y+l.h);
+if(ladder&&(keys.ArrowUp||keys.w||keys.ArrowDown||keys.s)){
+player.climbing=true;player.vy=0;
+if(keys.ArrowUp||keys.w)player.y-=3.2;
+if(keys.ArrowDown||keys.s)player.y+=3.2;
+}else player.climbing=false;
+player.x=Math.max(5,Math.min(W-player.w-5,player.x+player.vx*60*dt));
+if(!player.climbing){
+player.vy+=gravity*60*dt;
+player.y+=player.vy*60*dt;
+player.onGround=false;
+platforms.forEach(p=>{
+if(player.vy>=0&&oldY+player.h<=p.y+5&&player.y+player.h>=p.y&&player.x+player.w>p.x&&player.x<p.x+p.w){
+player.y=p.y-player.h;player.vy=0;player.onGround=true;player.jumps=0;
 }
-function drawBg(){
- const pal=themes[level],g=ctx.createLinearGradient(0,0,0,H);
- g.addColorStop(0,pal[0]);g.addColorStop(1,"#f4c08a");
- ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
- // Distant volcanoes.
- for(let i=0;i<7;i++){
-  let x=((i*190-camera*.17)%(W+240)+W+240)%(W+240)-120;
-  ctx.fillStyle=pal[1];ctx.beginPath();ctx.moveTo(x,G);ctx.lineTo(x+90,150+i%3*35);ctx.lineTo(x+180,G);ctx.fill();
-  ctx.fillStyle="#f2b17b";ctx.beginPath();ctx.arc(x+90,150+i%3*35,12,0,Math.PI*2);ctx.fill();
- }
- // Ash clouds and lava glow.
- ctx.fillStyle="#fff5df66";
- for(let i=0;i<5;i++){let x=((i*240-camera*.08)%(W+100)+W+100)%(W+100)-50;ctx.beginPath();ctx.arc(x,80+i%2*35,28,0,Math.PI*2);ctx.arc(x+30,80+i%2*35,34,0,Math.PI*2);ctx.fill();}
+});
 }
-function drawGround(){
- const pal=themes[level];ctx.fillStyle=pal[2];ctx.fillRect(0,G,W,H-G);
- ctx.fillStyle="#d67a43";ctx.fillRect(0,G,W,13);
- for(let i=0;i<30;i++){let x=((i*45-camera)%(W+50)+W+50)%(W+50);ctx.fillStyle=i%2?"#edaa56":"#a84b32";ctx.fillRect(x,G+28+i%4*16,22,5);}
+if(player.y>worldHeight+80){hit();player.x=70;player.y=worldHeight-100;player.vy=0}
+coins.forEach(o=>{if(!o.got&&Math.hypot(player.x+15-o.x,player.y+15-o.y)<27){o.got=true;score+=5;msg('🪙 Coin collected! +5');ui()}});
+powerups.forEach(p=>{
+if(!p.got&&Math.hypot(player.x+15-p.x,player.y+15-p.y)<28){
+p.got=true;
+if(p.type===0){lives=Math.min(5,lives+1);msg('❤️ Extra heart!')}
+if(p.type===1){player.speed=4.3;setTimeout(()=>player.speed=3.1,6000);msg('💨 Speed boost!')}
+if(p.type===2){score+=25;msg('⭐ Bonus points! +25')}
+ui();
+}});
+monsters.forEach(m=>{
+m.stun=Math.max(0,m.stun-dt);
+if(m.stun<=0){
+m.x+=m.dir*m.platform.w*.45*dt;
+if(m.x<m.platform.x+12){m.x=m.platform.x+12;m.dir=1}
+if(m.x>m.platform.x+m.platform.w-12){m.x=m.platform.x+m.platform.w-12;m.dir=-1}
+if(Math.abs(player.x-m.x)<150&&Math.abs(player.y-m.y)<110)m.dir=Math.sign(player.x-m.x)||m.dir;
 }
-function drawPlatforms(){
- for(const b of platforms){
-  let x=b.x-camera;if(x<-150||x>W+100)continue;
-  ctx.fillStyle="#624339";ctx.fillRect(x,b.y,b.w,b.h);
-  ctx.fillStyle="#9b6846";ctx.fillRect(x,b.y,b.w,6);
-  ctx.fillStyle="#d28a56";for(let j=12;j<b.w;j+=25)ctx.fillRect(x+j,b.y+9,9,4);
- }
+if(Math.abs(player.x-m.x)<27&&Math.abs(player.y-m.y)<35)hit();
+});
+if(boss){
+boss.stun=Math.max(0,boss.stun-dt);
+if(boss.stun<=0){
+boss.x+=boss.dir*(1.0+level*.08)*60*dt;
+if(boss.x>760)boss.dir=-1;if(boss.x<200)boss.dir=1;
+boss.attackTimer-=dt;
+if(boss.attackTimer<=0){
+shots.push({x:boss.x,y:boss.y+20,vx:Math.sign(player.x-boss.x)*2.4,vy:2.5});
+boss.attackTimer=1.8;
 }
-function drawStickman(){
- const p=player,x=p.x-camera,y=p.y;
- if(p.inv>0&&Math.floor(frame/5)%2===0)return;
- const cx=x+13,headY=y+9,phase=p.anim;
- ctx.lineCap="round";ctx.lineJoin="round";
- // Shadow
- ctx.fillStyle="#241b1770";ctx.beginPath();ctx.ellipse(cx,G-3,20,5,0,0,Math.PI*2);ctx.fill();
- // Scientist's head and hair
- ctx.fillStyle="#f0c69d";ctx.beginPath();ctx.arc(cx,headY,9,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle="#25211e";ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,headY,9,Math.PI,Math.PI*2);ctx.stroke();
- // Eyes
- ctx.fillStyle="#211d1a";ctx.fillRect(cx+3*p.face,headY-1,2,2);
- ctx.strokeStyle="#292b2d";ctx.lineWidth=2;
- // Lab coat body
- ctx.fillStyle="#f4f1e7";ctx.beginPath();ctx.moveTo(cx-7,y+20);ctx.lineTo(cx+7,y+20);ctx.lineTo(cx+9,y+43);ctx.lineTo(cx-9,y+43);ctx.closePath();ctx.fill();
- ctx.strokeStyle="#353b3c";ctx.lineWidth=2;ctx.stroke();
- ctx.fillStyle="#d9574a";ctx.beginPath();ctx.moveTo(cx-2,y+21);ctx.lineTo(cx+2,y+21);ctx.lineTo(cx,y+34);ctx.fill();
- // Animated limbs
- let swing=Math.sin(phase)*11,legSwing=Math.sin(phase)*12;
- if(p.pose==="jump"){swing=8;legSwing=10;}
- if(p.pose==="attack"){swing=0;legSwing=0;}
- ctx.strokeStyle="#292e30";ctx.lineWidth=4;
- // legs
- ctx.beginPath();
- ctx.moveTo(cx-4,y+42);ctx.lineTo(cx-5+legSwing,y+54);
- ctx.moveTo(cx+4,y+42);ctx.lineTo(cx+5-legSwing,y+54);ctx.stroke();
- // shoes
- ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx-5+legSwing,y+54);ctx.lineTo(cx-10+legSwing,y+55);ctx.moveTo(cx+5-legSwing,y+54);ctx.lineTo(cx+10-legSwing,y+55);ctx.stroke();
- // arms swing when moving, raised when jumping, punch when attacking
- ctx.strokeStyle="#f0c69d";ctx.lineWidth=4;
- ctx.beginPath();
- if(p.pose==="attack"){
-  ctx.moveTo(cx+5*p.face,y+24);ctx.lineTo(cx+19*p.face,y+28);
-  ctx.moveTo(cx-5*p.face,y+25);ctx.lineTo(cx-10*p.face,y+36);
- }else if(p.pose==="jump"){
-  ctx.moveTo(cx-5,y+24);ctx.lineTo(cx-12,y+13);
-  ctx.moveTo(cx+5,y+24);ctx.lineTo(cx+12,y+13);
- }else{
-  ctx.moveTo(cx-5,y+24);ctx.lineTo(cx-10-swing,y+35);
-  ctx.moveTo(cx+5,y+24);ctx.lineTo(cx+10+swing,y+35);
- }
- ctx.stroke();
- if(p.shield){ctx.strokeStyle="#8cecff";ctx.lineWidth=3;ctx.beginPath();ctx.arc(cx,y+28,37,0,Math.PI*2);ctx.stroke();}
- if(p.attack>0){ctx.strokeStyle="#ffe28b";ctx.lineWidth=5;ctx.beginPath();ctx.arc(cx+p.face*24,y+28,19,-1,1);ctx.stroke();}
 }
-function drawMonster(e){
- const x=e.x-camera,y=e.y;
- if(x<-70||x>W+70)return;
- ctx.fillStyle=e.kind==="spitter"?"#5b8c62":"#a06b43";
- ctx.beginPath();ctx.ellipse(x+22,y+24,23,20,0,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#d5dfad";ctx.fillRect(x+27,y+8,5,7);ctx.fillRect(x+37,y+8,5,7);
- ctx.fillStyle="#281b17";ctx.fillRect(x+29,y+10,2,3);ctx.fillRect(x+39,y+10,2,3);
- ctx.fillStyle="#e7b078";ctx.fillRect(x+11,y+38,8,5);ctx.fillRect(x+29,y+38,8,5);
- ctx.fillStyle="#3a201b";ctx.fillRect(x+13,y-7,30,4);
- ctx.fillStyle="#e8d16e";ctx.fillRect(x+13,y-7,30*Math.max(0,e.hp/e.max),4);
- if(e.kind==="spitter"){ctx.fillStyle="#e6c56c";ctx.beginPath();ctx.arc(x+45,y+25,5,0,Math.PI*2);ctx.fill();}
+if(Math.abs(player.x-boss.x)<45&&Math.abs(player.y-boss.y)<50)hit();
+if(boss.dead){boss=null;score+=100;ui();msg('🏆 THE MANGO BOSS IS DEFEATED!');}
 }
-function drawBoss(){
- if(!boss||!boss.active||!boss.alive)return;
- const x=boss.x-camera,y=boss.y;
- ctx.fillStyle="#6e3027";ctx.beginPath();ctx.ellipse(x+80,y+75,82,55,0,0,Math.PI*2);ctx.fill();
- ctx.beginPath();ctx.moveTo(x+115,y+52);ctx.lineTo(x+155,y+7);ctx.lineTo(x+170,y+28);ctx.lineTo(x+155,y+78);ctx.fill();
- ctx.fillStyle="#e7c35e";ctx.beginPath();ctx.arc(x+154,y+31,7,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#351916";ctx.fillRect(x+161,y+47,12,5);
- ctx.fillStyle="#4b2821";ctx.fillRect(x+32,y+110,25,20);ctx.fillRect(x+105,y+110,25,20);
- ctx.fillStyle="#e77b42";for(let i=0;i<6;i++){ctx.beginPath();ctx.moveTo(x+20+i*23,y+38);ctx.lineTo(x+30+i*23,y+10);ctx.lineTo(x+40+i*23,y+40);ctx.fill();}
+shots.forEach(s=>{s.x+=s.vx*60*dt;s.y+=s.vy*60*dt;if(Math.hypot(player.x+15-s.x,player.y+15-s.y)<22){s.dead=true;hit()}});
+shots=shots.filter(s=>!s.dead&&s.y<worldHeight+100);
+if(player.y<75&&(!boss||boss.hp<=0)){
+if(level===10){running=false;panel('🏆 MANGO MAN WINS!','You climbed all 10 levels and defeated the giant Mango Boss! The Land of the Lost is saved!','PLAY AGAIN',start);return}
+running=false;
+panel('✨ LEVEL COMPLETE!','You reached the top! Get ready for the next climbing challenge.','NEXT LEVEL',()=>{level++;makeLevel();running=true;$('overlay').style.display='none';last=performance.now();raf=requestAnimationFrame(loop)});
+return;
 }
-function drawItems(){
- for(const i of items){if(!i.alive)continue;
-  const x=i.x-camera,y=i.y+Math.sin(i.bob)*5;if(x<-30||x>W+30)continue;
-  const emoji={coin:"🪙",heart:"❤️",shield:"🛡️",speed:"⚡",blast:"💥"}[i.type];
-  ctx.font="25px Arial";ctx.textAlign="center";ctx.fillText(emoji,x,y+8);
- }
-}
-function drawDoor(){
- if(!door||door.found)return;
- const x=door.x-camera;if(x<-50||x>W+50)return;
- ctx.fillStyle="#40271d";ctx.fillRect(x-18,G-75,36,75);
- ctx.strokeStyle="#e9b36f";ctx.lineWidth=4;ctx.strokeRect(x-18,G-75,36,75);
- ctx.fillStyle="#ffe28b";ctx.beginPath();ctx.arc(x+8,G-38,4,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="white";ctx.font="12px Fredoka";ctx.textAlign="center";ctx.fillText("SECRET",x,G-85);
-}
-function drawShots(){
- for(const s of shots){
-  ctx.fillStyle=s.enemy?"#ff693d":"#ffe28b";ctx.shadowColor=s.enemy?"#ff3c21":"#fff0a0";ctx.shadowBlur=12;
-  ctx.beginPath();ctx.arc(s.x-camera,s.y, s.enemy?9:7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
- }
-}
-function drawExit(){
- const x=exitX-camera;if(x<-60||x>W+60)return;
- ctx.shadowColor="#b5ffcf";ctx.shadowBlur=22;ctx.fillStyle="#b5ffcf";
- ctx.beginPath();ctx.ellipse(x,G-55,23,53,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
- ctx.fillStyle="#244b35";ctx.font="bold 14px Fredoka";ctx.textAlign="center";ctx.fillText("EXIT",x,G+23);
-}
-function drawParticles(){
- for(const q of particles){ctx.globalAlpha=Math.max(0,q.life/25);ctx.fillStyle=q.color;ctx.fillRect(q.x-camera,q.y,5,5);}
- ctx.globalAlpha=1;
+cameraY=Math.max(0,Math.min(worldHeight-H,player.y-H/2));
+particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.life-=dt});
+particles=particles.filter(p=>p.life>0);
+ui();
 }
 function draw(){
- drawBg();drawGround();drawPlatforms();drawDoor();drawExit();
- for(const e of enemies)if(e.alive)drawMonster(e);
- drawBoss();drawItems();drawShots();drawStickman();drawParticles();
- ctx.fillStyle="#291c19cc";ctx.font="bold 17px Fredoka";ctx.textAlign="center";
- if(level===7&&boss&&boss.active&&boss.alive)ctx.fillText("FINAL BOSS! DEFEAT THE VOLCANO MONSTER!",W/2,135);
- else if(level>=3)ctx.fillText("WATCH OUT! THE MONSTERS ARE GETTING STRONGER!",W/2,135);
-}
-function loop(){if(state==="playing"){update();draw();}else if(state==="paused")draw();requestAnimationFrame(loop);}
-document.addEventListener("keydown",e=>{
- if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Space"].includes(e.code))e.preventDefault();
- keys[e.code]=true;
- if((e.code==="KeyJ"||e.code==="KeyX")&&!e.repeat)attack();
- if(e.code==="Escape"&&!e.repeat){if(state==="playing")pauseGame();else if(state==="paused")resumeGame();}
+let grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#f4b94f');grad.addColorStop(1,'#744326');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ctx.save();ctx.translate(0,-cameraY);
+ctx.fillStyle='#6c4529';ctx.fillRect(0,0,W,worldHeight);
+for(let i=0;i<22;i++){ctx.fillStyle=i%2?'#83552e':'#9a6636';ctx.fillRect((i*137)%W,100+i*60,40,8)}
+ctx.font='22px Arial';ctx.fillText('🥭',30,worldHeight-70);ctx.fillText('🌴',850,worldHeight-70);
+platforms.forEach(p=>{
+ctx.fillStyle='#56391e';ctx.fillRect(p.x,p.y,p.w,p.h);
+ctx.fillStyle='#9c6b37';ctx.fillRect(p.x,p.y,p.w,6);
+ctx.fillStyle='#c08b47';for(let x=p.x+10;x<p.x+p.w-5;x+=35)ctx.fillRect(x,p.y+7,12,5);
 });
-document.addEventListener("keyup",e=>keys[e.code]=false);
-window.addEventListener("blur",()=>{for(const k in keys)keys[k]=false;});
-window.startGame=startGame;window.resumeGame=resumeGame;window.restartGame=restartGame;window.menu=menu;
-levelSetup(0);state="title";loop();
+ladders.forEach(l=>{
+ctx.strokeStyle='#d6a45b';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(l.x-10,l.y);ctx.lineTo(l.x-10,l.y+l.h);ctx.moveTo(l.x+10,l.y);ctx.lineTo(l.x+10,l.y+l.h);ctx.stroke();
+ctx.lineWidth=4;for(let y=l.y;y<l.y+l.h;y+=23){ctx.beginPath();ctx.moveTo(l.x-10,y);ctx.lineTo(l.x+10,y);ctx.stroke()}
+});
+coins.forEach(o=>{if(!o.got){ctx.font='25px Arial';ctx.fillText('🪙',o.x-12,o.y+8)}});
+powerups.forEach(p=>{if(!p.got){ctx.font='27px Arial';ctx.fillText(['❤️','💨','⭐'][p.type],p.x-13,p.y+9)}});
+monsters.forEach(m=>{ctx.font='33px Arial';ctx.fillText('🥭',m.x-17,m.y+12);ctx.font='18px Arial';ctx.fillText('👹',m.x-9,m.y-12)});
+shots.forEach(s=>{ctx.font='24px Arial';ctx.fillText('🔥',s.x-12,s.y+8)});
+if(boss){
+ctx.font='65px Arial';ctx.fillText('👹',boss.x-33,boss.y+25);
+ctx.fillStyle='#291414';ctx.fillRect(310,10,340,16);ctx.fillStyle='#ef4141';ctx.fillRect(310,10,340*(boss.hp/boss.max),16);
+ctx.strokeStyle='#fff';ctx.strokeRect(310,10,340,16);ctx.fillStyle='#fff';ctx.font='14px Fredoka';ctx.textAlign='center';ctx.fillText('MANGO BOSS',480,43);ctx.textAlign='left';
+}
+ctx.font='43px Arial';ctx.fillText('🥭',player.x-7,player.y+31);
+ctx.font='14px Fredoka';ctx.fillStyle='#fff';ctx.fillText('MANGO MAN',player.x-24,player.y-9);
+particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life*2);ctx.fillStyle='#ffdc80';ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1});
+ctx.restore();
+ctx.fillStyle='#27190eaa';ctx.fillRect(0,0,W,40);
+ctx.fillStyle='#ffe5a5';ctx.font='17px Fredoka';ctx.fillText(levelName,18,26);
+ctx.fillText('Climb toward the top!',W-190,26);
+}
+function loop(t){let dt=Math.min(.032,(t-last)/1000||0);last=t;update(dt);draw();if(running)raf=requestAnimationFrame(loop)}
+function togglePause(){
+if(!running)return;
+paused=!paused;
+if(paused)panel('⏸ Adventure Paused','Mango Man is taking a break!','RESUME',()=>{$('overlay').style.display='none';paused=false;last=performance.now();raf=requestAnimationFrame(loop)});
+else $('overlay').style.display='none';
+}
+window.addEventListener('keydown',e=>{
+if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();
+keys[e.key]=true;
+if((e.key===' '||e.key==='ArrowUp'||e.key==='w')&&!e.repeat)jump();
+if(e.key==='x'||e.key==='X')blast();
+if(e.key==='p'||e.key==='P'||e.key==='Escape')togglePause();
+});
+window.addEventListener('keyup',e=>keys[e.key]=false);
+window.addEventListener('blur',()=>keys={});
+$('start').onclick=start;
+$('pause').onclick=togglePause;
+$('blast').onclick=blast;
+$('restart').onclick=()=>{if(running){makeLevel();paused=false}};
+makeLevel();draw();
 })();
 </script>
 </body>
 </html>
+
 
